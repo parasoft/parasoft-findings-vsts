@@ -1,0 +1,30 @@
+{
+  "name": "parasoft-findings-vsts-publish",
+  "version": "1.0.0",
+  "description": "VSTS Publish Parasoft Test Results Task",
+  "main": "publishtestresults.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parasoft/parasoft-findings-vsts.git"
+  },
+  "keywords": [
+    "vsts",
+    "parasoft"
+  ],
+  "author": "Parasoft Corporation",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/parasoft/parasoft-findings-vsts/issues"
+  },
+  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
+  "dependencies": {
+    "vsts-task-lib": "^2.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.19",
+    "@types/q": "^1.0.3"
+  }
+}
