@@ -41,7 +41,7 @@ let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, testResultsF
 if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
     tl.warning('No test result files matching ' + testResultsFiles + ' were found.');
 } else {
-    let tp: tl.TestPublisher = new tl.TestPublisher(testRunner);
+    let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
     tp.publish(matchingTestResultsFiles, mergeResults, platform, config, testRunTitle, publishRunAttachments);
 }
 
