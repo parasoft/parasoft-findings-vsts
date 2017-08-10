@@ -48,7 +48,7 @@
             "uri": "https://github.com/parasoft/parasoft-findings-vsts"
         },
         "license": {
-            "uri": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "uri": "http://www.apache.org/licenses/LICENSE-2.0"
         },
         "support": {
             "uri": "https://www.parasoft.com/support/"
