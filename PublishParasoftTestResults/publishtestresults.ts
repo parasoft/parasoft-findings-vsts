@@ -16,6 +16,8 @@
 
 import * as tl from 'vsts-task-lib/task';
 
+const SUFFIX = "-junit.xml";
+
 const testRunner = tl.getInput('testRunner', true);
 const testResultsFiles: string[] = tl.getDelimitedInput('testResultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
@@ -41,8 +43,23 @@ let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, testResultsF
 if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
     tl.warning('No test result files matching ' + testResultsFiles + ' were found.');
 } else {
+    const sheetPath = __dirname + "/xsl/soatest-xunit.xsl";
+    const jarPath = __dirname + "/Saxon-HE.jar";
+    let transformedReports: string[] = [];
     let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
-    tp.publish(matchingTestResultsFiles, mergeResults, platform, config, testRunTitle, publishRunAttachments);
+    for (var i = 0; i < matchingTestResultsFiles.length; ++i) {
+        const sourcePath = matchingTestResultsFiles[i];
+        const outPath = sourcePath + SUFFIX;
+        let result = tl.execSync("java", ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+sheetPath, "-o:"+outPath, "-versionmsg:off"]);
+        if (result.code == 0) {
+            transformedReports.push(outPath);
+        } else {
+            console.error("Failed to transform report."); // stderr will already be logged to console
+        }
+    }
+    if (transformedReports.length > 0) {
+        tp.publish(transformedReports, mergeResults, platform, config, testRunTitle, publishRunAttachments);
+    }
 }
 
 tl.setResult(tl.TaskResult.Succeeded, '');
