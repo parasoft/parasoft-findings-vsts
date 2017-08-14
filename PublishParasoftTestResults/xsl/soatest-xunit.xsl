@@ -2,6 +2,9 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
     <xsl:output method="xml" encoding="UTF-8" indent="yes" />
+
+     <xsl:variable name="newLine" select="'&#xA;'" />
+
     <xsl:template match="/">
         <xsl:choose>
             <xsl:when test="ResultsSession/@toolName='SOAtest'">
@@ -203,18 +206,25 @@
             </xsl:call-template>
         </xsl:variable>
 
-
         <testcase name="{$testName}" time="{$timeInMillis}">
-
-            <xsl:for-each select="($funcViols)">
-                <failure message="{@msg}">
-                    <xsl:if test="string-length(@violationDetails) > 0">
-                        <xsl:value-of select="@violationDetails" />
+            <xsl:variable name="combinedFailures">
+                <xsl:for-each select="$funcViols">
+                    <xsl:if test="position() > 1 and string-length(@msg) > 0">
+                        <xsl:value-of select="$newLine" />
                     </xsl:if>
-                </failure>
-            </xsl:for-each>
-        </testcase>
+                    <xsl:value-of select="@msg" />
+                    <xsl:if test="string-length(@violationDetails) > 0">
+                        <xsl:value-of select="concat($newLine, @violationDetails)" />
+                    </xsl:if>
+                </xsl:for-each>
+            </xsl:variable>
 
+            <xsl:if test="count($funcViols) > 0">
+                <failure>
+                    <xsl:value-of select="$combinedFailures" />
+                </failure>
+            </xsl:if>
+        </testcase>
     </xsl:template>
 
     <!-- ================= replace the last occurrence of 'replace' to 'by' in 'text' ================== -->
