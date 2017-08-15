@@ -12,12 +12,20 @@
   },
   "keywords": [
     "vsts",
-    "parasoft"
+    "Dashboards & Reporting",
+    "Test Management",
+    "Test Automation",
+    "Parasoft",
+    "SOAtest",
+    "XTest",
+    "Build task",
+    "Test task"
   ],
   "author": "Parasoft Corporation",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/parasoft/parasoft-findings-vsts/issues"
   },
-  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme"
+  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
+  "icon": "images/icon.png"
 }
