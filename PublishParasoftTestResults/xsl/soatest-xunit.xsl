@@ -3,7 +3,7 @@
 
     <xsl:output method="xml" encoding="UTF-8" indent="yes" />
 
-     <xsl:variable name="newLine" select="'&#xA;'" />
+    <xsl:variable name="newLine" select="'&#xA;'" />
 
     <xsl:template match="/">
         <xsl:choose>
