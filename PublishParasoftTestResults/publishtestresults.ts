@@ -15,6 +15,8 @@
  */
 
 import * as tl from 'vsts-task-lib/task';
+import * as fs from 'fs';
+import * as sax from 'sax';
 
 const SUFFIX = "-junit.xml";
 
@@ -25,6 +27,7 @@ const platform = tl.getInput('platform');
 const config = tl.getInput('configuration');
 const testRunTitle = tl.getInput('testRunTitle');
 const publishRunAttachments = tl.getInput('publishRunAttachments');
+const failOnTestFailures = tl.getInput('failOnTestFailures');
 let searchFolder = tl.getInput('searchFolder');
 
 tl.debug('testRunner: ' + testRunner);
@@ -34,18 +37,19 @@ tl.debug('platform: ' + platform);
 tl.debug('config: ' + config);
 tl.debug('testRunTitle: ' + testRunTitle);
 tl.debug('publishRunAttachments: ' + publishRunAttachments);
+tl.debug('failOnTestFailures: ' + failOnTestFailures);
 
 if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
+let transformedReports: string[] = [];
 let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, testResultsFiles);
 if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
     tl.warning('No test result files matching ' + testResultsFiles + ' were found.');
 } else {
     const sheetPath = __dirname + "/xsl/soatest-xunit.xsl";
     const jarPath = __dirname + "/Saxon-HE.jar";
-    let transformedReports: string[] = [];
     let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
     for (var i = 0; i < matchingTestResultsFiles.length; ++i) {
         const sourcePath = matchingTestResultsFiles[i];
@@ -54,7 +58,7 @@ if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
         if (result.code == 0) {
             transformedReports.push(outPath);
         } else {
-            console.error("Failed to transform report."); // stderr will already be logged to console
+            tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
         }
     }
     if (transformedReports.length > 0) {
@@ -62,7 +66,37 @@ if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
     }
 }
 
-tl.setResult(tl.TaskResult.Succeeded, '');
+if (transformedReports.length > 0 && failOnTestFailures == 'true') {
+    setResultUsingReportOutput(transformedReports, 0);
+} else {
+    tl.setResult(tl.TaskResult.Succeeded, '');
+}
+
+function setResultUsingReportOutput(transformedReports: string[], index: number) {
+    let success: boolean = true;
+    let report: string = transformedReports[index];
+    const saxStream = sax.createStream(true, {});
+    saxStream.on("opentag", function (node) {
+        if (node.name == 'testsuites' || node.name == 'testsuite') {
+            success = success && (node.attributes.failures == 0 && node.attributes.errors == 0);
+        }
+    });
+    saxStream.on("error", function (e) {
+        tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
+    });
+    saxStream.on("end", function() {
+        if (success) {
+            if (index < transformedReports.length - 1) {
+                setResultUsingReportOutput(transformedReports, ++index);
+            } else {
+                tl.setResult(tl.TaskResult.Succeeded, '');
+            }
+        } else {
+            tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures.');
+        }
+    });
+    fs.createReadStream(report).pipe(saxStream);
+}
 
 function isNullOrWhitespace(input: any) {
     if (typeof input === 'undefined' || input === null) {
