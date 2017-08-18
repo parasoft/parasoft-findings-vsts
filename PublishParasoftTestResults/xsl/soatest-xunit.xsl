@@ -207,22 +207,32 @@
         </xsl:variable>
 
         <testcase name="{$testName}" time="{$timeInMillis}">
-            <xsl:variable name="combinedFailures">
-                <xsl:for-each select="$funcViols">
-                    <xsl:if test="position() > 1 and string-length(@msg) > 0">
-                        <xsl:value-of select="$newLine" />
-                    </xsl:if>
-                    <xsl:value-of select="@msg" />
-                    <xsl:if test="string-length(@violationDetails) > 0">
-                        <xsl:value-of select="concat($newLine, @violationDetails)" />
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:variable>
-
             <xsl:if test="count($funcViols) > 0">
-                <failure>
-                    <xsl:value-of select="$combinedFailures" />
-                </failure>
+                <xsl:choose>
+                    <xsl:when test="count($funcViols) > 1">
+                        <xsl:variable name="combinedFailures">
+                            <xsl:for-each select="$funcViols">
+                                <xsl:if test="position() > 1 and string-length(@msg) > 0">
+                                    <xsl:value-of select="concat($newLine, $newLine)" />
+                                </xsl:if>
+                                <xsl:value-of select="@msg" />
+                                <xsl:if test="string-length(@violationDetails) > 0">
+                                    <xsl:value-of select="concat($newLine, @violationDetails)" />
+                                </xsl:if>
+                            </xsl:for-each>
+                        </xsl:variable>
+                        <failure message="Multiple errors reported">
+                            <xsl:value-of select="$combinedFailures" />
+                        </failure>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <failure message="{$funcViols/@msg}">
+                            <xsl:if test="string-length($funcViols/@violationDetails) > 0">
+                                <xsl:value-of select="$funcViols/@violationDetails" />
+                            </xsl:if>
+                        </failure>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:if>
         </testcase>
     </xsl:template>
