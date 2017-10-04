@@ -19,6 +19,7 @@ import * as fs from 'fs';
 import * as sax from 'sax';
 
 const SUFFIX = "-junit.xml";
+const XTEST10X_OPTION = "XTest10x";
 
 const testRunner = tl.getInput('testRunner', true);
 const testResultsFiles: string[] = tl.getDelimitedInput('testResultsFiles', '\n', true);
@@ -48,7 +49,10 @@ let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, testResultsF
 if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
     tl.warning('No test result files matching ' + testResultsFiles + ' were found.');
 } else {
-    const sheetPath = __dirname + "/xsl/soatest-xunit.xsl";
+    let sheetPath: string = __dirname + "/xsl/soatest-xunit.xsl"
+    if (testRunner == XTEST10X_OPTION) {
+        sheetPath = __dirname + "/xsl/xunit.xsl"
+    }
     const jarPath = __dirname + "/Saxon-HE.jar";
     let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
     for (var i = 0; i < matchingTestResultsFiles.length; ++i) {
