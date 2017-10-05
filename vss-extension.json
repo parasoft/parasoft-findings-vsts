@@ -55,7 +55,7 @@
     },
     "links": {
         "learn":  {
-            "uri": "https://github.com/parasoft/parasoft-findings-vsts"
+            "uri": "https://www1.parasoft.com/doc/link?product=findingsVSTS010"
         },
         "license": {
             "uri": "http://www.apache.org/licenses/LICENSE-2.0"

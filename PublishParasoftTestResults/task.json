@@ -3,7 +3,7 @@
     "name": "PublishParasoftTestResults",
     "friendlyName": "Publish Parasoft Test Results",
     "description": "Publish Parasoft test results to VSTS",
-    "helpMarkDown": "[More Information](https://github.com/parasoft/parasoft-findings-vsts)",
+    "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
     "category": "Test",
     "visibility": [
         "Build",
