@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-publish",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "VSTS Publish Parasoft Test Results Task",
   "main": "publishtestresults.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "vsts-task-lib": "^2.1.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.32",
+    "@types/node": "^8.0.34",
     "@types/q": "^1.0.5",
     "@types/sax": "^1.0.0"
   }
