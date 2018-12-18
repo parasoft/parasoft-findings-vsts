@@ -13,7 +13,7 @@
     "version": {
         "Major": 1,
         "Minor": 0,
-        "Patch": 0
+        "Patch": 2
     },
     "demands": [
         "java"
@@ -68,6 +68,14 @@
             "helpMarkDown": "To merge results from all test results files to one test run in VSTS/TFS, check this option. To create a test run for each test results file, uncheck this option."
         },
         {
+            "name": "failOnTestFailures",
+            "type": "boolean",
+            "label": "Fail if there are test failures",
+            "defaultValue": "true",
+            "required": false,
+            "helpMarkDown": "Fail the task if there are any test failures. Check this option to fail the task if test failures are detected in the result files."
+        },
+        {
             "name": "testRunTitle",
             "type": "string",
             "label": "Test run title",
@@ -101,15 +109,6 @@
             "required": false,
             "helpMarkDown": "Opt in/out of publishing test run level attachments. If selected, test result files will be uploaded and attached to test run",
             "groupName": "advanced"
-        },
-        {
-            "name": "failOnTestFailures",
-            "type": "boolean",
-            "label": "Fail when reports contain test failures",
-            "defaultValue": "true",
-            "required": false,
-            "groupName": "advanced",
-            "helpMarkDown": "Fail the build when any Parasoft reports contain test failures."
         }
     ],
     "instanceNameFormat": "Publish Parasoft Test Results $(testResultsFiles)",

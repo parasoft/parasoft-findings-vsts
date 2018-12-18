@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "parasoft-findings-vsts",
     "name": "Parasoft Findings",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "parasoft",
     "targets": [
         {
@@ -36,7 +36,7 @@
         "default": "images/icon.png"
     },
     "categories": [
-        "Test"
+        "Azure Test Plans"
     ],
     "tags": [
         "Dashboards & Reporting",

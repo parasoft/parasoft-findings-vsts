@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-publish",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "VSTS Publish Parasoft Test Results Task",
   "main": "publishtestresults.js",
   "scripts": {
@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "dependencies": {
+    "azure-pipelines-task-lib": "^2.7.7",
     "fs": "0.0.1-security",
-    "sax": "^1.2.4",
-    "vsts-task-lib": "^2.1.0"
+    "sax": "^1.2.4"
   },
   "devDependencies": {
     "@types/node": "^8.0.34",

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as tl from 'vsts-task-lib/task';
+import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
 
@@ -76,13 +76,17 @@ if (transformedReports.length > 0 && failOnTestFailures == 'true') {
     tl.setResult(tl.TaskResult.Succeeded, '');
 }
 
+function isNone(node: any, propertyName: string) {
+    return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
+}
+
 function setResultUsingReportOutput(transformedReports: string[], index: number) {
     let success: boolean = true;
     let report: string = transformedReports[index];
     const saxStream = sax.createStream(true, {});
     saxStream.on("opentag", function (node) {
-        if (node.name == 'testsuites' || node.name == 'testsuite') {
-            success = success && (node.attributes.failures == 0 && node.attributes.errors == 0);
+        if (node.name == 'testsuite') {
+            success = success && (isNone(node, "failures") && isNone(node, "errors"));
         }
     });
     saxStream.on("error", function (e) {
