@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "parasoft-findings-vsts",
     "name": "Parasoft Findings",
-    "version": "1.0.2",
+    "version": "1.0.1",
     "publisher": "parasoft",
     "targets": [
         {
