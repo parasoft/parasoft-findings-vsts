@@ -72,5 +72,5 @@
         "color": "#004877",
         "theme": "dark"
     },
-    "public": false
+    "public": true
 }
