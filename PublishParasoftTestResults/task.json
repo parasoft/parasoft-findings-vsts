@@ -2,7 +2,7 @@
     "id": "c38aaef4-ad8b-411c-9fce-c63ca6847da6",
     "name": "PublishParasoftTestResults",
     "friendlyName": "Publish Parasoft Test Results",
-    "description": "Publish Parasoft test results to VSTS",
+    "description": "Publish Parasoft test results to Azure Pipelines",
     "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
     "category": "Test",
     "visibility": [
@@ -65,7 +65,7 @@
             "label": "Merge test results",
             "defaultValue": "false",
             "required": false,
-            "helpMarkDown": "To merge results from all test results files to one test run in VSTS/TFS, check this option. To create a test run for each test results file, uncheck this option."
+            "helpMarkDown": "A test run is created for each results file. Check this option to merge results into a single test run."
         },
         {
             "name": "failOnTestFailures",
