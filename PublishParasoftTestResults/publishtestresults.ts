@@ -18,9 +18,18 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
 
-const SUFFIX = "-junit.xml";
+const enum ReportType {
+     SARIF = 0,
+     XML_STATIC = 1,
+     XML_TESTS = 2,
+     XML_SOATEST = 3,
+     UNKNOWN = 4,
+}
 
-const resultsFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
+const XUNIT_SUFFIX = "-junit.xml";
+const SARIF_SUFFIX = "-sast.sarif";
+
+const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
 const platform = tl.getInput('platform');
 const config = tl.getInput('configuration');
@@ -29,7 +38,7 @@ const publishRunAttachments = tl.getInput('publishRunAttachments');
 const failOnFailures = tl.getInput('failOnFailures');
 let searchFolder = tl.getInput('searchFolder');
 
-tl.debug('resultsFiles: ' + resultsFiles);
+tl.debug('inputReportFiles: ' + inputReportFiles);
 tl.debug('mergeResults: ' + mergeResults);
 tl.debug('platform: ' + platform);
 tl.debug('config: ' + config);
@@ -41,35 +50,88 @@ if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
-let transformedReports: string[] = [];
-let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, resultsFiles);
-if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
-    tl.warning('No test result files matching ' + resultsFiles + ' were found.');
+let xUnitReports: string[] = [];
+let sarifReports: string[] = [];
+let matchingInputReportFiles: string[] = tl.findMatch(searchFolder, inputReportFiles);
+if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
+    tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
 } else {
-    let sheetPath: string = __dirname + "/xsl/xunit.xsl"
-
-    const jarPath = __dirname + "/Saxon-HE.jar";
-    let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
-    for (var i = 0; i < matchingTestResultsFiles.length; ++i) {
-        const sourcePath = matchingTestResultsFiles[i];
-        const outPath = sourcePath + SUFFIX;
-        let result = tl.execSync("java", ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+sheetPath, "-o:"+outPath, "-versionmsg:off"]);
-        if (result.code == 0) {
-            transformedReports.push(outPath);
-        } else {
-            tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
+    for (var i = 0; i < matchingInputReportFiles.length; ++i) {
+        const sourcePath = matchingInputReportFiles[i];
+        const reportType = determineReportType(sourcePath);
+        switch (reportType) {
+            case ReportType.SARIF:
+                sarifReports.push(sourcePath);
+                break;
+            case ReportType.XML_STATIC:
+                transformToSarif(sourcePath);
+                break;
+            case ReportType.XML_TESTS:
+                transformToXUnit(sourcePath);
+                break;
+            case ReportType.XML_SOATEST:
+                transformToSOATestXUnit(sourcePath);
+                break;
+            default:
+                tl.warning("Skipping unrecognized report file: " + sourcePath);
         }
     }
-    if (transformedReports.length > 0) {
-        tp.publish(transformedReports, mergeResults, platform, config, testRunTitle, publishRunAttachments);
+    if (xUnitReports.length > 0) {
+        let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
+        tp.publish(xUnitReports, mergeResults, platform, config, testRunTitle, publishRunAttachments);
+    }
+    if (sarifReports.length > 0) {
+        for (var i = 0; i < sarifReports.length; ++i) {
+            tl.uploadArtifact("Container", sarifReports[i], "CodeAnalysisLogs");
+        }
     }
 }
 
-if (transformedReports.length > 0 && failOnFailures == 'true') {
-    setResultUsingReportOutput(transformedReports, 0);
+// TODO fail on static errors
+if (xUnitReports.length > 0 && failOnFailures == 'true') {
+    setResultUsingReportOutput(xUnitReports, 0);
 } else {
     tl.setResult(tl.TaskResult.Succeeded, '');
 }
+
+function determineReportType(sourcePath: string) : ReportType
+{
+    // TODO parse xml reports, handle execution reports
+    if (sourcePath.toLocaleLowerCase().endsWith(".xml")) {
+        return ReportType.XML_STATIC;
+    } else if (sourcePath.toLocaleLowerCase().endsWith(".sarif")) {
+        return ReportType.SARIF;
+    }
+    return ReportType.UNKNOWN;
+}
+
+function transformToSarif(sourcePath: string)
+{
+    transform(sourcePath, __dirname + "/xsl/sarif.xsl", sourcePath + SARIF_SUFFIX, sarifReports);
+}
+
+function transformToXUnit(sourcePath: string)
+{
+    const sheetPath = __dirname + "/xsl/xunit.xsl";
+    transform(sourcePath, __dirname + "/xsl/xunit.xsl", sourcePath + XUNIT_SUFFIX, xUnitReports);
+}
+
+function transformToSOATestXUnit(sourcePath: string)
+{
+    transform(sourcePath, __dirname + "/xsl/soatest-xunit.xsl", sourcePath + XUNIT_SUFFIX, xUnitReports);
+}
+
+function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
+{
+    const jarPath = __dirname + "/saxon.jar";
+    let result = tl.execSync("java", ["-jar", jarPath, "-o", outPath, sourcePath, sheetPath]);
+    if (result.code == 0) {
+        transformedReports.push(outPath);
+    } else {
+        tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
+    }
+}
+
 
 function isNone(node: any, propertyName: string) {
     return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
