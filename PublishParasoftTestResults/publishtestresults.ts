@@ -19,40 +19,35 @@ import * as fs from 'fs';
 import * as sax from 'sax';
 
 const SUFFIX = "-junit.xml";
-const XTEST10X_OPTION = "XTest10x";
 
-const testRunner = tl.getInput('testRunner', true);
-const testResultsFiles: string[] = tl.getDelimitedInput('testResultsFiles', '\n', true);
+const resultsFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
 const platform = tl.getInput('platform');
 const config = tl.getInput('configuration');
 const testRunTitle = tl.getInput('testRunTitle');
 const publishRunAttachments = tl.getInput('publishRunAttachments');
-const failOnTestFailures = tl.getInput('failOnTestFailures');
+const failOnFailures = tl.getInput('failOnFailures');
 let searchFolder = tl.getInput('searchFolder');
 
-tl.debug('testRunner: ' + testRunner);
-tl.debug('testResultsFiles: ' + testResultsFiles);
+tl.debug('resultsFiles: ' + resultsFiles);
 tl.debug('mergeResults: ' + mergeResults);
 tl.debug('platform: ' + platform);
 tl.debug('config: ' + config);
 tl.debug('testRunTitle: ' + testRunTitle);
 tl.debug('publishRunAttachments: ' + publishRunAttachments);
-tl.debug('failOnTestFailures: ' + failOnTestFailures);
+tl.debug('failOnFailures: ' + failOnFailures);
 
 if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
 let transformedReports: string[] = [];
-let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, testResultsFiles);
+let matchingTestResultsFiles: string[] = tl.findMatch(searchFolder, resultsFiles);
 if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
-    tl.warning('No test result files matching ' + testResultsFiles + ' were found.');
+    tl.warning('No test result files matching ' + resultsFiles + ' were found.');
 } else {
-    let sheetPath: string = __dirname + "/xsl/soatest-xunit.xsl"
-    if (testRunner == XTEST10X_OPTION) {
-        sheetPath = __dirname + "/xsl/xunit.xsl"
-    }
+    let sheetPath: string = __dirname + "/xsl/xunit.xsl"
+
     const jarPath = __dirname + "/Saxon-HE.jar";
     let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
     for (var i = 0; i < matchingTestResultsFiles.length; ++i) {
@@ -70,7 +65,7 @@ if (!matchingTestResultsFiles || matchingTestResultsFiles.length === 0) {
     }
 }
 
-if (transformedReports.length > 0 && failOnTestFailures == 'true') {
+if (transformedReports.length > 0 && failOnFailures == 'true') {
     setResultUsingReportOutput(transformedReports, 0);
 } else {
     tl.setResult(tl.TaskResult.Succeeded, '');
