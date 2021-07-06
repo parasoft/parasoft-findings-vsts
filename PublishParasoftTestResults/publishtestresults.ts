@@ -29,6 +29,10 @@ const enum ReportType {
 const XUNIT_SUFFIX = "-junit.xml";
 const SARIF_SUFFIX = "-sast.sarif";
 
+const SARIF_XSL = "/xsl/sarif.xsl";
+const XUNIT_XSL = "/xsl/xunit.xsl";
+const SOATEST_XUNIT_XSL = "/xsl/soatest-xunit.xsl";
+
 const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
 const platform = tl.getInput('platform');
@@ -38,6 +42,7 @@ const publishRunAttachments = tl.getInput('publishRunAttachments');
 const failOnFailures = tl.getInput('failOnFailures');
 let searchFolder = tl.getInput('searchFolder');
 
+tl.debug('searchFolder: ' + searchFolder);
 tl.debug('inputReportFiles: ' + inputReportFiles);
 tl.debug('mergeResults: ' + mergeResults);
 tl.debug('platform: ' + platform);
@@ -107,24 +112,23 @@ function determineReportType(sourcePath: string) : ReportType
 
 function transformToSarif(sourcePath: string)
 {
-    transform(sourcePath, __dirname + "/xsl/sarif.xsl", sourcePath + SARIF_SUFFIX, sarifReports);
+    transform(sourcePath, __dirname + SARIF_XSL, sourcePath + SARIF_SUFFIX, sarifReports);
 }
 
 function transformToXUnit(sourcePath: string)
 {
-    const sheetPath = __dirname + "/xsl/xunit.xsl";
-    transform(sourcePath, __dirname + "/xsl/xunit.xsl", sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, __dirname + XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
 function transformToSOATestXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + "/xsl/soatest-xunit.xsl", sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, __dirname + SOATEST_XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
 function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
 {
     const jarPath = __dirname + "/saxon.jar";
-    let result = tl.execSync("java", ["-jar", jarPath, "-o", outPath, sourcePath, sheetPath]);
+    let result = tl.execSync("java", ["-jar", jarPath, "-versionmsg:off", "-o:"+outPath, "-s:"+sourcePath, "-xsl:"+sheetPath]);
     if (result.code == 0) {
         transformedReports.push(outPath);
     } else {

@@ -56,14 +56,6 @@
             "helpMarkDown": "Fail the task if there are any test failures or static analysis violations. Check this option to fail the task if test failures or static analysis violations are detected in the result files."
         },
         {
-            "name": "publishRunAttachments",
-            "type": "boolean",
-            "label": "Upload results files",
-            "defaultValue": "true",
-            "required": false,
-            "helpMarkDown": "Opt in/out of publishing test run level attachments. If selected, test result files will be uploaded and attached to test run"
-        },
-        {
             "name": "testRunTitle",
             "type": "string",
             "label": "Test run title",
@@ -80,6 +72,15 @@
             "required": false,
             "groupName": "testResultsOptions",
             "helpMarkDown": "A test run is created for each results file. Check this option to merge results into a single test run."
+        },
+        {
+            "name": "publishRunAttachments",
+            "type": "boolean",
+            "label": "Upload test results files",
+            "defaultValue": "true",
+            "required": false,
+            "groupName": "testResultsOptions",
+            "helpMarkDown": "Opt in/out of publishing test run level attachments. If selected, test result files will be uploaded and attached to test run"
         },
         {
             "name": "platform",
