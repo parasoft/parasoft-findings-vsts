@@ -92,11 +92,18 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     }
 }
 
-// TODO fail on static errors
+let taskResultStatus: boolean = true;
 if (xUnitReports.length > 0 && failOnFailures == 'true') {
-    setResultUsingReportOutput(xUnitReports, 0);
-} else {
+    taskResultStatus = checkExecutionErrors(xUnitReports, 0);
+}
+if (sarifReports.length > 0 && failOnFailures == 'true') {
+    taskResultStatus = checkStaticAnalysisViolations(sarifReports, 0);
+}
+
+if (taskResultStatus == true) {
     tl.setResult(tl.TaskResult.Succeeded, '');
+} else {
+    tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
 }
 
 function determineReportType(sourcePath: string) : ReportType
@@ -141,7 +148,7 @@ function isNone(node: any, propertyName: string) {
     return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
 }
 
-function setResultUsingReportOutput(transformedReports: string[], index: number) {
+function checkExecutionErrors(transformedReports: string[], index: number): boolean {
     let success: boolean = true;
     let report: string = transformedReports[index];
     const saxStream = sax.createStream(true, {});
@@ -156,15 +163,27 @@ function setResultUsingReportOutput(transformedReports: string[], index: number)
     saxStream.on("end", function() {
         if (success) {
             if (index < transformedReports.length - 1) {
-                setResultUsingReportOutput(transformedReports, ++index);
-            } else {
-                tl.setResult(tl.TaskResult.Succeeded, '');
+                success = checkExecutionErrors(transformedReports, ++index);
             }
-        } else {
-            tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures.');
         }
     });
     fs.createReadStream(report).pipe(saxStream);
+    return success;
+}
+
+function checkStaticAnalysisViolations(sarifReports: string[], index: number): boolean {
+    let success: boolean = true;
+    let sarifReportPath: string = sarifReports[index];
+    let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
+    let resultsValue = sarifReport.runs[0].results[0];
+    success = !resultsValue || resultsValue == null;
+    if (success) {
+        if (index < sarifReports.length -1) {
+            success = checkStaticAnalysisViolations(sarifReports, ++index);
+        }
+    }
+    return success;
+    
 }
 
 function isNullOrWhitespace(input: any) {
