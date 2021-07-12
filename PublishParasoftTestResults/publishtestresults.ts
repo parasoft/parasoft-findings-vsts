@@ -182,14 +182,14 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number): b
     let sarifReportPath: string = sarifReports[index];
     let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
     let resultsValue = sarifReport.runs[0].results[0];
-    success = !resultsValue || resultsValue == null;
+ 
+    success = (!resultsValue) || (resultsValue == null);
     if (success) {
         if (index < sarifReports.length -1) {
             success = checkStaticAnalysisViolations(sarifReports, ++index);
         }
     }
-    return success;
-    
+    return success; 
 }
 
 function isNullOrWhitespace(input: any) {
