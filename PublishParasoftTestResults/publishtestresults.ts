@@ -39,7 +39,7 @@ const platform = tl.getInput('platform');
 const config = tl.getInput('configuration');
 const testRunTitle = tl.getInput('testRunTitle');
 const publishRunAttachments = tl.getInput('publishRunAttachments');
-const failOnFailures = tl.getInput('failOnFailures');
+const failOnFailures = tl.getBoolInput('failOnFailures', true);
 let searchFolder = tl.getInput('searchFolder');
 
 tl.debug('searchFolder: ' + searchFolder);
@@ -92,18 +92,10 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     }
 }
 
-let taskResultStatus: boolean = true;
-if (xUnitReports.length > 0 && failOnFailures == 'true') {
-    taskResultStatus = checkExecutionErrors(xUnitReports, 0);
-}
-if (sarifReports.length > 0 && failOnFailures == 'true') {
-    taskResultStatus = checkStaticAnalysisViolations(sarifReports, 0);
-}
-
-if (taskResultStatus == true) {
-    tl.setResult(tl.TaskResult.Succeeded, '');
+if(failOnFailures){
+    checkRunFailures(xUnitReports, sarifReports);
 } else {
-    tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
+    tl.setResult(tl.TaskResult.Succeeded, '');
 }
 
 function determineReportType(sourcePath: string) : ReportType
@@ -143,9 +135,23 @@ function transform(sourcePath: string, sheetPath: string, outPath: string, trans
     }
 }
 
-
 function isNone(node: any, propertyName: string) {
     return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
+}
+
+function checkRunFailures(xUnitReports: string[], sarifReports: string[]){
+    let taskResultStatus: boolean = true;
+    if (xUnitReports.length > 0) {
+        taskResultStatus = checkExecutionErrors(xUnitReports, 0);
+    }
+    if (taskResultStatus == true && sarifReports.length > 0) {
+        taskResultStatus = checkStaticAnalysisViolations(sarifReports, 0);
+    }
+    if(taskResultStatus == true){
+        tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
+    } else {
+        tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
+    }   
 }
 
 function checkExecutionErrors(transformedReports: string[], index: number): boolean {
