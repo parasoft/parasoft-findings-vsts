@@ -17,6 +17,7 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
+import { DOMParser } from 'xmldom'
 
 const enum ReportType {
      SARIF = 0,
@@ -28,10 +29,14 @@ const enum ReportType {
 
 const XUNIT_SUFFIX = "-junit.xml";
 const SARIF_SUFFIX = "-sast.sarif";
+const XML_EXTENSION = ".xml";
+const SARIF_EXTENSION = ".sarif";
 
 const SARIF_XSL = "/xsl/sarif.xsl";
 const XUNIT_XSL = "/xsl/xunit.xsl";
 const SOATEST_XUNIT_XSL = "/xsl/soatest-xunit.xsl";
+
+const SAXON_LIB = "/saxon.jar";
 
 const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
@@ -63,14 +68,15 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
 } else {
     for (var i = 0; i < matchingInputReportFiles.length; ++i) {
         const sourcePath = matchingInputReportFiles[i];
-        const reportType = determineReportType(sourcePath);
+        var reportType: ReportType = determineReportType(sourcePath);
+
         switch (reportType) {
             case ReportType.SARIF:
                 sarifReports.push(sourcePath);
                 break;
             case ReportType.XML_STATIC:
                 transformToSarif(sourcePath);
-                break;
+                reportType = determineExecutionReportType(sourcePath, true);
             case ReportType.XML_TESTS:
                 transformToXUnit(sourcePath);
                 break;
@@ -98,17 +104,60 @@ if(failOnFailures){
     tl.setResult(tl.TaskResult.Succeeded, '');
 }
 
-function determineReportType(sourcePath: string) : ReportType
-{
-    // TODO parse xml reports, handle execution reports
-    if (sourcePath.toLocaleLowerCase().endsWith(".xml")) {
-        return ReportType.XML_STATIC;
-    } else if (sourcePath.toLocaleLowerCase().endsWith(".sarif")) {
-        return ReportType.SARIF;
+function determineReportType(sourcePath: string): ReportType {
+
+    let reportType: ReportType = ReportType.UNKNOWN;
+    
+    if (sourcePath.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
+            tl.debug("Recognized SARIF report: " + sourcePath);
+            reportType = ReportType.SARIF;
+    }
+    
+    if (sourcePath.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        var DOMParser = require('xmldom').DOMParser;
+        const reportDocument = new DOMParser().parseFromString(sourcePath, "text/xml");
+        
+        if(reportDocument.getElementsByTagName('StdViols') || reportDocument.getElementsByTagName('StdViols').length > 0){
+            tl.debug("Recognized XML Static Analysis report: " + sourcePath);
+            reportType = ReportType.XML_STATIC;
+        }
+reportDocument.
+        reportType = determineExecutionReportType(sourcePath, false);
+    }
+    return reportType;
+}
+
+function determineExecutionReportType(sourcePath:string, containsStaticAnalysis:boolean): ReportType {
+    let bExecutionReport: boolean = false;
+    let bSOATestReport: boolean = false;
+
+    var DOMParser = require('xmldom').DOMParser;
+    const reportDocument: Document = new DOMParser().parseFromString(sourcePath, "text/xml");
+    if(reportDocument.getElementsByTagName('Exec') || reportDocument.getElementsByTagName('Exec').length > 0){
+        bExecutionReport = true;
+    }
+    const resultSessionTag: Element = reportDocument.getElementsByTagName('ResultsSession')[0];
+    if(resultSessionTag && (resultSessionTag.getAttribute('toolName') == "SOAtest")){
+        bSOATestReport = true;
+    }
+
+    if(bExecutionReport){
+        if (bSOATestReport){
+            tl.debug("Recognized SOATest test results report: " + sourcePath);
+            return ReportType.XML_SOATEST;
+        } else {
+            tl.debug("Recognized Xtest10 test results report: " + sourcePath);
+            return ReportType.XML_TESTS;
+        }
+    }
+
+    if(containsStaticAnalysis){
+       return ReportType.XML_STATIC; 
     }
     return ReportType.UNKNOWN;
 }
 
+/// TRANSFORM
 function transformToSarif(sourcePath: string)
 {
     transform(sourcePath, __dirname + SARIF_XSL, sourcePath + SARIF_SUFFIX, sarifReports);
@@ -126,7 +175,7 @@ function transformToSOATestXUnit(sourcePath: string)
 
 function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
 {
-    const jarPath = __dirname + "/saxon.jar";
+    const jarPath = __dirname + SAXON_LIB;
     let result = tl.execSync("java", ["-jar", jarPath, "-versionmsg:off", "-o:"+outPath, "-s:"+sourcePath, "-xsl:"+sheetPath]);
     if (result.code == 0) {
         transformedReports.push(outPath);
@@ -139,6 +188,9 @@ function isNone(node: any, propertyName: string) {
     return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
 }
 
+/**
+ *  Checking failures on reports - static violations and execution errors
+ */
 function checkRunFailures(xUnitReports: string[], sarifReports: string[]){
     let taskResultStatus: boolean = true;
     if (xUnitReports.length > 0) {
