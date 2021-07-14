@@ -161,7 +161,7 @@ function determineExecutionReportType(sourcePath:string, containsStaticAnalysis:
 }
 
 function isSOATestReport(node: any) {
-    return node.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
+    return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
 }
 
 function transformToSarif(sourcePath: string)
