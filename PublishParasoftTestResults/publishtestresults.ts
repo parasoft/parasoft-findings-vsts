@@ -114,14 +114,12 @@ function determineReportType(sourcePath: string): ReportType {
     }
     
     if (sourcePath.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
-        var DOMParser = require('xmldom').DOMParser;
         const reportDocument = new DOMParser().parseFromString(sourcePath, "text/xml");
         
         if(reportDocument.getElementsByTagName('StdViols') || reportDocument.getElementsByTagName('StdViols').length > 0){
             tl.debug("Recognized XML Static Analysis report: " + sourcePath);
             reportType = ReportType.XML_STATIC;
         }
-reportDocument.
         reportType = determineExecutionReportType(sourcePath, false);
     }
     return reportType;
@@ -131,9 +129,8 @@ function determineExecutionReportType(sourcePath:string, containsStaticAnalysis:
     let bExecutionReport: boolean = false;
     let bSOATestReport: boolean = false;
 
-    var DOMParser = require('xmldom').DOMParser;
     const reportDocument: Document = new DOMParser().parseFromString(sourcePath, "text/xml");
-    if(reportDocument.getElementsByTagName('Exec') || reportDocument.getElementsByTagName('Exec').length > 0){
+    if(reportDocument.getElementsByTagName('<Exec') || reportDocument.getElementsByTagName('<Exec').length > 0){
         bExecutionReport = true;
     }
     const resultSessionTag: Element = reportDocument.getElementsByTagName('ResultsSession')[0];
