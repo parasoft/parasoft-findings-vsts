@@ -184,23 +184,17 @@ function isNone(node: any, propertyName: string) {
     return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
 }
 
-function checkRunFailures(xUnitReports: string[], sarifReports: string[]){
-    let taskResultStatus: boolean = true;
-    if (xUnitReports.length > 0 || sarifReports.length > 0 ) {
-        taskResultStatus = checkExecutionErrors(xUnitReports, 0);
+function checkRunFailures(xUnitReports: string[], sarifReports: string[]) {
+    if (xUnitReports.length > 0) {
+        checkFailures(xUnitReports, sarifReports, 0);
     } else if (sarifReports.length > 0) {
-        taskResultStatus = checkStaticAnalysisViolations(sarifReports, 0);
+        checkStaticAnalysisViolations(sarifReports, 0);
     }
-    if(taskResultStatus == true){
-        tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
-    } else {
-        tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
-    }   
 }
 
-function checkExecutionErrors(transformedReports: string[], index: number): boolean {
+function checkFailures(xUnitReports: string[], sarifReports: string[], index: number) {
     let success: boolean = true;
-    let report: string = transformedReports[index];
+    let report: string = xUnitReports[index];
     const saxStream = sax.createStream(true, {});
     saxStream.on("opentag", function (node) {
         if (node.name == 'testsuite') {
@@ -212,16 +206,23 @@ function checkExecutionErrors(transformedReports: string[], index: number): bool
     });
     saxStream.on("end", function() {
         if (success) {
-            if (index < transformedReports.length - 1) {
-                success = checkExecutionErrors(transformedReports, ++index);
+            if (index < xUnitReports.length - 1) {
+                checkFailures(xUnitReports, sarifReports, ++index);
+            } else if (sarifReports.length > 0) {
+                checkStaticAnalysisViolations(sarifReports, 0);
+            } else {
+                if(success){
+                    tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
+                } else {
+                    tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
+                } 
             }
         }
     });
     fs.createReadStream(report).pipe(saxStream);
-    return success;
 }
 
-function checkStaticAnalysisViolations(sarifReports: string[], index: number): boolean {
+function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     let success: boolean = true;
     let sarifReportPath: string = sarifReports[index];
     let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
@@ -230,10 +231,13 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number): b
     success = (resultsValue == null) || (!resultsValue);
     if (success) {
         if (index < sarifReports.length -1) {
-            success = checkStaticAnalysisViolations(sarifReports, ++index);
+            checkStaticAnalysisViolations(sarifReports, ++index);
+        } else {
+            tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
         }
+    } else {
+        tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
     }
-    return success; 
 }
 
 function isNullOrWhitespace(input: any) {
