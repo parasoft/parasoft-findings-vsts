@@ -17,7 +17,6 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
-import { DOMParser } from 'xmldom'
 
 const enum ReportType {
      SARIF = 0,
@@ -68,8 +67,7 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
 } else {
     for (var i = 0; i < matchingInputReportFiles.length; ++i) {
         const sourcePath = matchingInputReportFiles[i];
-        var reportType: ReportType = determineReportType(sourcePath);
-
+        let reportType = determineReportType(sourcePath);
         switch (reportType) {
             case ReportType.SARIF:
                 sarifReports.push(sourcePath);
@@ -104,39 +102,48 @@ if(failOnFailures){
     tl.setResult(tl.TaskResult.Succeeded, '');
 }
 
-function determineReportType(sourcePath: string): ReportType {
-
+function determineReportType(sourcePath: string) : ReportType
+{
     let reportType: ReportType = ReportType.UNKNOWN;
-    
-    if (sourcePath.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
-            tl.debug("Recognized SARIF report: " + sourcePath);
-            reportType = ReportType.SARIF;
+
+    if(sourcePath.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
+        tl.debug("Recognized SARIF report: " + sourcePath);
+        return ReportType.SARIF;
     }
-    
-    if (sourcePath.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
-        const reportDocument = new DOMParser().parseFromString(sourcePath, "text/xml");
+
+    if(sourcePath.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        const saxStream = sax.createStream(true, {});
+
+        saxStream.on("opentag", function (node) {
+            if (node.name == 'StdViols'){
+                tl.debug("Recognized XML Static Analysis report: " + sourcePath);
+                reportType = ReportType.XML_STATIC;
+            }
+        });
+        fs.createReadStream(sourcePath).pipe(saxStream);
         
-        if(reportDocument.getElementsByTagName('StdViols') || reportDocument.getElementsByTagName('StdViols').length > 0){
-            tl.debug("Recognized XML Static Analysis report: " + sourcePath);
-            reportType = ReportType.XML_STATIC;
+        if(reportType == ReportType.UNKNOWN){
+            reportType = determineExecutionReportType(sourcePath, false);
         }
-        reportType = determineExecutionReportType(sourcePath, false);
-    }
+    }  
     return reportType;
 }
 
 function determineExecutionReportType(sourcePath:string, containsStaticAnalysis:boolean): ReportType {
+    //SOAtest
     let bExecutionReport: boolean = false;
     let bSOATestReport: boolean = false;
 
-    const reportDocument: Document = new DOMParser().parseFromString(sourcePath, "text/xml");
-    if(reportDocument.getElementsByTagName('<Exec') || reportDocument.getElementsByTagName('<Exec').length > 0){
-        bExecutionReport = true;
-    }
-    const resultSessionTag: Element = reportDocument.getElementsByTagName('ResultsSession')[0];
-    if(resultSessionTag && (resultSessionTag.getAttribute('toolName') == "SOAtest")){
-        bSOATestReport = true;
-    }
+    const saxStream = sax.createStream(true, {});
+    saxStream.on("opentag", function (node) {
+        if (node.name == 'Exec'){
+            bExecutionReport = true;
+        }
+    });
+    saxStream.on("opentag", function (node) {
+        bSOATestReport = isSOATestReport(node);
+    });
+    fs.createReadStream(sourcePath).pipe(saxStream);
 
     if(bExecutionReport){
         if (bSOATestReport){
@@ -147,14 +154,16 @@ function determineExecutionReportType(sourcePath:string, containsStaticAnalysis:
             return ReportType.XML_TESTS;
         }
     }
-
     if(containsStaticAnalysis){
-       return ReportType.XML_STATIC; 
+       return ReportType.SARIF; 
     }
     return ReportType.UNKNOWN;
 }
 
-/// TRANSFORM
+function isSOATestReport(node: any) {
+    return node.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
+}
+
 function transformToSarif(sourcePath: string)
 {
     transform(sourcePath, __dirname + SARIF_XSL, sourcePath + SARIF_SUFFIX, sarifReports);
@@ -185,9 +194,6 @@ function isNone(node: any, propertyName: string) {
     return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
 }
 
-/**
- *  Checking failures on reports - static violations and execution errors
- */
 function checkRunFailures(xUnitReports: string[], sarifReports: string[]){
     let taskResultStatus: boolean = true;
     if (xUnitReports.length > 0) {
