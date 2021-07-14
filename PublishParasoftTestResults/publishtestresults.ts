@@ -23,7 +23,8 @@ const enum ReportType {
      XML_STATIC = 1,
      XML_TESTS = 2,
      XML_SOATEST = 3,
-     UNKNOWN = 4,
+     XML_STATIC_AND_TESTS = 4,
+     UNKNOWN = 5
 }
 
 const XUNIT_SUFFIX = "-junit.xml";
@@ -64,100 +65,89 @@ let sarifReports: string[] = [];
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder, inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
-} else {
-    for (var i = 0; i < matchingInputReportFiles.length; ++i) {
-        const sourcePath = matchingInputReportFiles[i];
-        let reportType = determineReportType(sourcePath);
-        switch (reportType) {
-            case ReportType.SARIF:
-                sarifReports.push(sourcePath);
-                break;
-            case ReportType.XML_STATIC:
-                transformToSarif(sourcePath);
-                reportType = determineExecutionReportType(sourcePath, true);
-            case ReportType.XML_TESTS:
-                transformToXUnit(sourcePath);
-                break;
-            case ReportType.XML_SOATEST:
-                transformToSOATestXUnit(sourcePath);
-                break;
-            default:
-                tl.warning("Skipping unrecognized report file: " + sourcePath);
-        }
-    }
-    if (xUnitReports.length > 0) {
-        let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
-        tp.publish(xUnitReports, mergeResults, platform, config, testRunTitle, publishRunAttachments);
-    }
-    if (sarifReports.length > 0) {
-        for (var i = 0; i < sarifReports.length; ++i) {
-            tl.uploadArtifact("Container", sarifReports[i], "CodeAnalysisLogs");
-        }
-    }
-}
-
-if(failOnFailures){
-    checkRunFailures(xUnitReports, sarifReports);
-} else {
     tl.setResult(tl.TaskResult.Succeeded, '');
+} else {
+    transformReports(matchingInputReportFiles, 0);
 }
 
-function determineReportType(sourcePath: string) : ReportType
+function transformReports(inputReportFiles: string[], index: number)
 {
     let reportType: ReportType = ReportType.UNKNOWN;
+    let report: string = inputReportFiles[index];
 
-    if(sourcePath.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
-        tl.debug("Recognized SARIF report: " + sourcePath);
-        return ReportType.SARIF;
-    }
-
-    if(sourcePath.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+    if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
+        tl.debug("Recognized SARIF report: " + report);
+        sarifReports.push(report);
+        processResults(inputReportFiles, index);
+    } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        
         const saxStream = sax.createStream(true, {});
-
         saxStream.on("opentag", function (node) {
-            if (node.name == 'StdViols'){
-                tl.debug("Recognized XML Static Analysis report: " + sourcePath);
+            if (node.name == 'StdViols') {
+                tl.debug("Recognized XML Static Analysis report: " + report);
                 reportType = ReportType.XML_STATIC;
+            } else if (node.name == 'Exec') {
+                if(reportType == ReportType.XML_STATIC){
+                    tl.debug("Recognized Xtest10 test results and static analysis report: " + report);
+                    reportType = ReportType.XML_STATIC_AND_TESTS
+                } else if(reportType == ReportType.UNKNOWN){
+                    tl.debug("Recognized Xtest10 test results report: " + report);
+                    reportType = ReportType.XML_TESTS;
+                }
+            } else if (node.name == 'ResultsSession' && isSOATestReport(node)) {
+                tl.debug("Recognized SOAtest test results report: " + report);
+                reportType = ReportType.XML_SOATEST;
             }
         });
-        fs.createReadStream(sourcePath).pipe(saxStream);
-        
-        if(reportType == ReportType.UNKNOWN){
-            reportType = determineExecutionReportType(sourcePath, false);
-        }
-    }  
-    return reportType;
+        saxStream.on("error", function (e) {
+            tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
+        });
+        saxStream.on("end", function() {
+            switch (reportType) {
+                case ReportType.XML_STATIC:
+                    transformToSarif(report);
+                    break;
+                case ReportType.XML_TESTS:
+                    transformToXUnit(report);
+                    break;
+                case ReportType.XML_STATIC_AND_TESTS:
+                    transformToSarif(report);
+                    transformToXUnit(report);
+                    break;
+                case ReportType.XML_SOATEST:
+                    transformToSOATestXUnit(report);
+                    break;
+                default:
+                    tl.warning("Skipping unrecognized report file: " + report);
+            }
+            processResults(inputReportFiles, index);
+        });
+        fs.createReadStream(report).pipe(saxStream);  
+    } else {
+        tl.warning("Skipping unrecognized report file: " + report);
+        processResults(inputReportFiles, index);
+    }
 }
 
-function determineExecutionReportType(sourcePath:string, containsStaticAnalysis:boolean): ReportType {
-    //SOAtest
-    let bExecutionReport: boolean = false;
-    let bSOATestReport: boolean = false;
-
-    const saxStream = sax.createStream(true, {});
-    saxStream.on("opentag", function (node) {
-        if (node.name == 'Exec'){
-            bExecutionReport = true;
+function processResults(inputReportFiles: string[], index: number){
+    if (index < inputReportFiles.length - 1) {
+        transformReports(inputReportFiles, ++index);
+    } else {
+        if (xUnitReports.length > 0) {
+            let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
+            tp.publish(xUnitReports, mergeResults, platform, config, testRunTitle, publishRunAttachments);
         }
-    });
-    saxStream.on("opentag", function (node) {
-        bSOATestReport = isSOATestReport(node);
-    });
-    fs.createReadStream(sourcePath).pipe(saxStream);
-
-    if(bExecutionReport){
-        if (bSOATestReport){
-            tl.debug("Recognized SOATest test results report: " + sourcePath);
-            return ReportType.XML_SOATEST;
+        if (sarifReports.length > 0) {
+            for (var i = 0; i < sarifReports.length; ++i) {
+                tl.uploadArtifact("Container", sarifReports[i], "CodeAnalysisLogs");
+            }
+        }
+        if(failOnFailures){
+            checkRunFailures(xUnitReports, sarifReports);
         } else {
-            tl.debug("Recognized Xtest10 test results report: " + sourcePath);
-            return ReportType.XML_TESTS;
+            tl.setResult(tl.TaskResult.Succeeded, '');
         }
     }
-    if(containsStaticAnalysis){
-       return ReportType.SARIF; 
-    }
-    return ReportType.UNKNOWN;
 }
 
 function isSOATestReport(node: any) {
@@ -182,7 +172,7 @@ function transformToSOATestXUnit(sourcePath: string)
 function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
 {
     const jarPath = __dirname + SAXON_LIB;
-    let result = tl.execSync("java", ["-jar", jarPath, "-versionmsg:off", "-o:"+outPath, "-s:"+sourcePath, "-xsl:"+sheetPath]);
+    let result = tl.execSync("java", ["-jar", jarPath, "-o", outPath, sourcePath, sheetPath]);
     if (result.code == 0) {
         transformedReports.push(outPath);
     } else {
@@ -196,10 +186,9 @@ function isNone(node: any, propertyName: string) {
 
 function checkRunFailures(xUnitReports: string[], sarifReports: string[]){
     let taskResultStatus: boolean = true;
-    if (xUnitReports.length > 0) {
+    if (xUnitReports.length > 0 || sarifReports.length > 0 ) {
         taskResultStatus = checkExecutionErrors(xUnitReports, 0);
-    }
-    if (taskResultStatus == true && sarifReports.length > 0) {
+    } else if (sarifReports.length > 0) {
         taskResultStatus = checkStaticAnalysisViolations(sarifReports, 0);
     }
     if(taskResultStatus == true){
@@ -238,7 +227,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number): b
     let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
     let resultsValue = sarifReport.runs[0].results[0];
  
-    success = (!resultsValue) || (resultsValue == null);
+    success = (resultsValue == null) || (!resultsValue);
     if (success) {
         if (index < sarifReports.length -1) {
             success = checkStaticAnalysisViolations(sarifReports, ++index);
