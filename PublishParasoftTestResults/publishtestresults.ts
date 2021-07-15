@@ -211,12 +211,10 @@ function checkFailures(xUnitReports: string[], sarifReports: string[], index: nu
             } else if (sarifReports.length > 0) {
                 checkStaticAnalysisViolations(sarifReports, 0);
             } else {
-                if(success){
-                    tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
-                } else {
-                    tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
-                } 
+                tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
             }
+        } else {
+            tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
         }
     });
     fs.createReadStream(report).pipe(saxStream);
