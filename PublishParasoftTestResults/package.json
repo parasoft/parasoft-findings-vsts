@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-publish",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "description": "Azure Pipelines Publish Parasoft Test Results Task",
   "main": "publishtestresults.js",
   "scripts": {
@@ -27,8 +27,8 @@
     "sax": "^1.2.4"
   },
   "devDependencies": {
-    "@types/node": "^8.0.34",
-    "@types/q": "^1.0.5",
+    "@types/node": "^8.10.66",
+    "@types/q": "^1.5.5",
     "@types/sax": "^1.0.0"
   }
 }
