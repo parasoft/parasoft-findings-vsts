@@ -74,7 +74,7 @@ function transformReports(inputReportFiles: string[], index: number)
 {
     let reportType: ReportType = ReportType.UNKNOWN;
     let report: string = inputReportFiles[index];
-    let bOldReport: boolean = false;
+    //let bOldReport: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
         tl.debug("Recognized SARIF report: " + report);
@@ -83,10 +83,10 @@ function transformReports(inputReportFiles: string[], index: number)
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
-            if (node.name == 'StdViols' && reportType == ReportType.UNKNOWN && !bOldReport) {
+            if (node.name == 'StdViols' && reportType == ReportType.UNKNOWN) {
                 tl.debug("Recognized XML Static Analysis report: " + report);
                 reportType = ReportType.XML_STATIC;
-            } else if (node.name == 'Exec' && !bOldReport) {
+            } else if (node.name == 'Exec') {
                 if(reportType == ReportType.XML_STATIC){
                     tl.debug("Recognized Xtest10 test results and static analysis report: " + report);
                     reportType = ReportType.XML_STATIC_AND_TESTS
@@ -94,12 +94,10 @@ function transformReports(inputReportFiles: string[], index: number)
                     tl.debug("Recognized Xtest10 test results report: " + report);
                     reportType = ReportType.XML_TESTS;
                 }
-            } else if (node.name == 'ResultsSession') {
-                bOldReport = isOldReport(node)
-                if(isSOAtestReport(node)){
-                    tl.debug("Recognized SOAtest test results report: " + report);
-                    reportType = ReportType.XML_SOATEST;
-                }
+            } else if (node.name == 'ResultsSession' && isSOAtestReport(node)) {
+                //bOldReport = isOldReport(node)
+                tl.debug("Recognized SOAtest test results report: " + report);
+                reportType = ReportType.XML_SOATEST;
             }
         });
         saxStream.on("error", function (e) {
@@ -153,9 +151,9 @@ function processResults(inputReportFiles: string[], index: number){
     }
 }
 
-function isOldReport(node:any): boolean {
-    return node.attributes.hasOwnProperty('toolVer') && (node.attributes['toolVer'].substring(0,2) == '9.');
-}
+// function isOldReport(node:any): boolean {
+//     return node.attributes.hasOwnProperty('toolVer') && (node.attributes['toolVer'].substring(0,2) == '9.');
+// }
 
 function isSOAtestReport(node: any): boolean {
     return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
