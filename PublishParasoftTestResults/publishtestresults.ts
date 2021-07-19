@@ -24,8 +24,9 @@ const enum ReportType {
      XML_TESTS = 2,
      XML_SOATEST = 3,
      XML_STATIC_AND_TESTS = 4,
-     XML_XUNIT = 5,
-     UNKNOWN = 6
+     XML_STATIC_AND_SOATEST = 5,
+     XML_XUNIT = 6,
+     UNKNOWN = 7
 }
 
 const XUNIT_SUFFIX = "-junit.xml";
@@ -84,17 +85,25 @@ function transformReports(inputReportFiles: string[], index: number)
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
-            if (node.name == 'StdViols' && reportType == ReportType.UNKNOWN && !bLegacyReport) {
-                tl.debug("Recognized XML Static Analysis report: " + report);
-                reportType = ReportType.XML_STATIC;
+            if (node.name == 'StdViols') {
+                if (!bLegacyReport){
+                    if (reportType == ReportType.UNKNOWN) {
+                        tl.debug("Recognized XML Static Analysis report: " + report);
+                        reportType = ReportType.XML_STATIC;
+                    } else if (reportType == ReportType.XML_SOATEST) {
+                        tl.debug("Recognized SOAtest report with Static Analysis results: " + report);
+                        reportType = ReportType.XML_STATIC_AND_SOATEST;
+                    }
+                } else {
+                    tl.debug("Recognized and skipped legacy XML Static Analysis report : " + report);
+                }
 
             } else if (node.name == 'Exec') {
                 if(reportType == ReportType.XML_STATIC){
                     tl.debug("Recognized Xtest10 test results and static analysis report: " + report);
                     reportType = ReportType.XML_STATIC_AND_TESTS;
-
                 } else if(reportType == ReportType.UNKNOWN){
-                    tl.debug("Recognized Xtest10 test results report: " + report);
+                    tl.debug("Recognized test results report: " + report);
                     reportType = ReportType.XML_TESTS;
                 }
 
@@ -127,6 +136,10 @@ function transformReports(inputReportFiles: string[], index: number)
                     break;
                 case ReportType.XML_SOATEST:
                     transformToSOATestXUnit(report);
+                    break;
+                case ReportType.XML_STATIC_AND_SOATEST:
+                    transformToSOATestXUnit(report);
+                    transformToSarif(report);
                     break;
                 case ReportType.XML_XUNIT:
                     xUnitReports.push(report);
