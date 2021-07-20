@@ -1,8 +1,8 @@
 {
     "id": "c38aaef4-ad8b-411c-9fce-c63ca6847da6",
-    "name": "PublishParasoftTestResults",
-    "friendlyName": "Publish Parasoft Test Results",
-    "description": "Publish Parasoft test results to Azure Pipelines",
+    "name": "PublishParasoftResults",
+    "friendlyName": "Publish Parasoft Results",
+    "description": "Publish Parasoft results to Azure Pipelines",
     "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
     "category": "Test",
     "visibility": [
@@ -13,7 +13,7 @@
     "version": {
         "Major": 1,
         "Minor": 0,
-        "Patch": 2
+        "Patch": 7
     },
     "demands": [
         "java"
@@ -21,36 +21,12 @@
     "minimumAgentVersion": "2.0.0",
     "groups": [
         {
-            "name": "advanced",
-            "displayName": "Advanced",
+            "name": "testResultsOptions",
+            "displayName": "Test results options",
             "isExpanded": false
         }
     ],
     "inputs": [
-        {
-            "name": "testRunner",
-            "type": "pickList",
-            "label": "Test result format",
-            "defaultValue": "SOAtest9x",
-            "required": true,
-            "helpMarkDown": "Format of Parasoft report files generated after test execution.",
-            "options": {
-                "SOAtest9x": "Parasoft SOAtest 9.x",
-                "XTest10x": "Parasoft Analyzers 10.x"
-            }
-        },
-        {
-            "name": "testResultsFiles",
-            "type": "multiLine",
-            "label": "Test results files",
-            "defaultValue": "**/rep*.xml",
-            "required": true,
-            "helpMarkDown": "Test results files path. Supports multiple lines of minimatch patterns. [More Information](https://aka.ms/minimatchexamples)",
-            "properties": {
-                "rows": "3",
-                "resizable": "true"
-            }
-        },
         {
             "name": "searchFolder",
             "type": "string",
@@ -60,20 +36,24 @@
             "helpMarkDown": "Folder to search for the test result files. Defaults to $(System.DefaultWorkingDirectory)."
         },
         {
-            "name": "mergeTestResults",
-            "type": "boolean",
-            "label": "Merge test results",
-            "defaultValue": "false",
-            "required": false,
-            "helpMarkDown": "A test run is created for each results file. Check this option to merge results into a single test run."
+            "name": "resultsFiles",
+            "type": "multiLine",
+            "label": "Results files",
+            "defaultValue": "**/rep*.xml\n**/rep*.sarif",
+            "required": true,
+            "helpMarkDown": "Results files path. Supports multiple lines of minimatch patterns. [More Information](https://aka.ms/minimatchexamples)",
+            "properties": {
+                "rows": "3",
+                "resizable": "true"
+            }
         },
         {
-            "name": "failOnTestFailures",
+            "name": "failOnFailures",
             "type": "boolean",
-            "label": "Fail if there are test failures",
+            "label": "Fail if there are any failures",
             "defaultValue": "true",
             "required": false,
-            "helpMarkDown": "Fail the task if there are any test failures. Check this option to fail the task if test failures are detected in the result files."
+            "helpMarkDown": "Fail the task if there are any test failures or static analysis violations. Check this option to fail the task if test failures or static analysis violations are detected in the result files."
         },
         {
             "name": "testRunTitle",
@@ -81,7 +61,26 @@
             "label": "Test run title",
             "defaultValue": "",
             "required": false,
+            "groupName": "testResultsOptions",
             "helpMarkDown": "Provide a name for the Test Run."
+        },
+        {
+            "name": "mergeTestResults",
+            "type": "boolean",
+            "label": "Merge test results",
+            "defaultValue": "false",
+            "required": false,
+            "groupName": "testResultsOptions",
+            "helpMarkDown": "A test run is created for each results file. Check this option to merge results into a single test run."
+        },
+        {
+            "name": "publishRunAttachments",
+            "type": "boolean",
+            "label": "Upload test results files",
+            "defaultValue": "true",
+            "required": false,
+            "groupName": "testResultsOptions",
+            "helpMarkDown": "Opt in/out of publishing test run level attachments. If selected, test result files will be uploaded and attached to test run"
         },
         {
             "name": "platform",
@@ -89,7 +88,7 @@
             "label": "Platform",
             "defaultValue": "",
             "required": false,
-            "groupName": "advanced",
+            "groupName": "testResultsOptions",
             "helpMarkDown": "Platform for which the tests were run."
         },
         {
@@ -98,20 +97,11 @@
             "label": "Configuration",
             "defaultValue": "",
             "required": false,
-            "groupName": "advanced",
+            "groupName": "testResultsOptions",
             "helpMarkDown": "Configuration for which the tests were run."
-        },
-        {
-            "name": "publishRunAttachments",
-            "type": "boolean",
-            "label": "Upload test results files",
-            "defaultValue": "true",
-            "required": false,
-            "helpMarkDown": "Opt in/out of publishing test run level attachments. If selected, test result files will be uploaded and attached to test run",
-            "groupName": "advanced"
         }
     ],
-    "instanceNameFormat": "Publish Parasoft Test Results $(testResultsFiles)",
+    "instanceNameFormat": "Publish Parasoft Results $(resultsFiles)",
     "execution": {
         "Node": {
             "target": "publishtestresults.js"
