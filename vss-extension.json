@@ -3,7 +3,7 @@
     "id": "parasoft-findings-vsts",
     "name": "Parasoft Findings",
     "version": "1.0.7",
-    "publisher": "lukasz-biel",
+    "publisher": "parasoft",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
