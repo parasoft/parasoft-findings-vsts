@@ -697,12 +697,12 @@
 
             <xsl:for-each select="Anns/Ann">
                 <xsl:if test="(@kind = 'cause')">
-                    <xsl:text>**</xsl:text><xsl:value-of select="@msg"/><xsl:text>**</xsl:text>
+                    <xsl:text>**</xsl:text><xsl:call-template name="escape_markdown_chars"><xsl:with-param name="text" select="@msg" /></xsl:call-template><xsl:text>**</xsl:text>
                     <xsl:value-of select="$markdownNewLine" />
                     <xsl:value-of select="$extraSpace"/>
                 </xsl:if>
                 <xsl:if test="(@kind = 'point')">
-                    <xsl:text>**</xsl:text><xsl:value-of select="@msg"/><xsl:text>**</xsl:text>
+                    <xsl:text>**</xsl:text><xsl:call-template name="escape_markdown_chars"><xsl:with-param name="text" select="@msg" /></xsl:call-template><xsl:text>**</xsl:text>
                     <xsl:value-of select="($nbsp)" disable-output-escaping="yes"/>
                     <xsl:value-of select="$markdownNewLine" />
                     <xsl:value-of select="$extraSpace"/>
