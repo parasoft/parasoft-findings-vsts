@@ -16,15 +16,17 @@
     <xsl:variable name="nbsp" select="concat('&amp;','nbsp;')"/>
 
     <xsl:accumulator name="rule_counter" as="xs:integer" initial-value="0">
-        <xsl:accumulator-rule match="Rule" select="$value + 1"/>
+        <xsl:accumulator-rule match="RulesList/Rule" select="$value + 1"/>
     </xsl:accumulator>
     <xsl:accumulator name="thread_flow_counter" as="xs:integer" initial-value="0">
         <xsl:accumulator-rule match="ElDesc" select="$value + 1"/>
         <xsl:accumulator-rule match="FlowViol/ElDescList | DupViol/ElDescList" phase="end" select="0"/>
     </xsl:accumulator>
     <xsl:accumulator name="repo_counter" as="xs:integer" initial-value="0">
-        <xsl:accumulator-rule match="*" select="$value + 1"/>
+        <xsl:accumulator-rule match="Loc" select="$value + 1"/>
     </xsl:accumulator>
+
+    <xsl:mode use-accumulators="#all"/>
     
     <xsl:template match="/ResultsSession">
         <xsl:text>{ "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json", "version": "2.1.0", "runs": [ {</xsl:text>
@@ -35,7 +37,12 @@
         <xsl:text>"rules": [</xsl:text>
             <xsl:call-template name="rules_list"/>
         <xsl:text>] } }</xsl:text>
-        <xsl:call-template name="version_control_provenance"/>
+        <xsl:variable name="first_repos_pos">
+            <xsl:call-template name="first_repos_pos"/>
+        </xsl:variable>
+        <xsl:call-template name="version_control_provenance">
+            <xsl:with-param name="first_repo_pos" select="number(tokenize($first_repos_pos, ',')[1])"/>
+        </xsl:call-template>
         <xsl:text>, "results": [</xsl:text>
             <xsl:call-template name="results"/>
             <!-- static violations list -->
@@ -43,15 +50,70 @@
     </xsl:template>
     
     <xsl:template name="rules_list">
-        <xsl:for-each select="/ResultsSession/CodingStandards/Rules/CategoriesList/Category">
+        <xsl:variable name="categories" select="/ResultsSession/CodingStandards/Rules/CategoriesList/Category"/>
+        <xsl:variable name="first_rules_pos">
+            <xsl:call-template name="get_first_rules_pos">
+                <xsl:with-param name="categories" select="$categories"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="first_rule_pos" select="number(tokenize($first_rules_pos, ',')[1])"/>
+
+        <xsl:for-each select="$categories">
             <xsl:call-template name="rules_category">
                 <xsl:with-param name="parentTags" select="''"/>
+                <xsl:with-param name="first_rule_pos" select="$first_rule_pos"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
+
+    <xsl:template name="get_first_rules_pos">
+        <xsl:param name="categories"/>
+        <xsl:for-each select="$categories">
+            <xsl:call-template name="find_first_rules"/>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="find_first_rules">
+        <xsl:variable name="cat" select="@name"/>
+        <xsl:variable name="matched_rules" select="/ResultsSession/CodingStandards/Rules/RulesList/Rule[@cat=($cat)]"/>
+
+        <xsl:if test="$matched_rules">
+            <xsl:choose>
+                <xsl:when test="$skip_not_violated_rules!='true'">
+                    <xsl:call-template name="find_first_rule">
+                        <xsl:with-param name="rules" select="$matched_rules"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:variable name="violated_rules" select="$matched_rules[string-length(@total)=0 or @total>0]"/>
+                    <xsl:if test="$violated_rules">
+                        <xsl:call-template name="find_first_rule">
+                            <xsl:with-param name="rules" select="$violated_rules"/>
+                        </xsl:call-template>
+                    </xsl:if>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:if>
+
+
+        <xsl:for-each select="./Category">
+            <xsl:call-template name="find_first_rules"/>
+        </xsl:for-each>
+    </xsl:template>
+
+    <xsl:template name="find_first_rule">
+        <xsl:param name="rules"/>
+        <xsl:for-each select="$rules[1]">
+            <xsl:value-of select="accumulator-after('rule_counter')"/>
+            <xsl:text>,</xsl:text>
+        </xsl:for-each>
+    </xsl:template>
+
+
     
     <xsl:template name="rules_category">
         <xsl:param name="parentTags"/>
+        <xsl:param name="first_rule_pos"/>
         <xsl:variable name="category_desc"><xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="@desc" /></xsl:call-template></xsl:variable>
         <xsl:variable name="tags" select="concat($qt,$category_desc,$qt)"/>
         <xsl:variable name="cat" select="@name"/>
@@ -64,14 +126,16 @@
                     <xsl:call-template name="rule_list">
                         <xsl:with-param name="rules" select="$matched_rules"/>
                         <xsl:with-param name="tags" select="$appended_tags"/>
+                        <xsl:with-param name="first_rule_pos" select="$first_rule_pos"/>
                     </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:variable name="violated_rules" select="matched_rules[string-length(@total)=0 or @total>0]"/>
+                    <xsl:variable name="violated_rules" select="$matched_rules[string-length(@total)=0 or @total>0]"/>
                     <xsl:if test="$violated_rules">
                         <xsl:call-template name="rule_list">
                             <xsl:with-param name="rules" select="$violated_rules"/>
                             <xsl:with-param name="tags" select="$appended_tags"/>
+                            <xsl:with-param name="first_rule_pos" select="$first_rule_pos"/>
                         </xsl:call-template>
                     </xsl:if>
                 </xsl:otherwise>
@@ -82,29 +146,29 @@
         <xsl:for-each select="./Category">
             <xsl:call-template name="rules_category">
                 <xsl:with-param name="parentTags" select="$appended_tags"/>
+                <xsl:with-param name="first_rule_pos" select="$first_rule_pos"/>
             </xsl:call-template>
         </xsl:for-each>
-        
     </xsl:template>
 
     <xsl:template name="rule_list">
         <xsl:param name="rules"/>
         <xsl:param name="tags"/>
+        <xsl:param name="first_rule_pos"/>
         <xsl:for-each select="$rules">
-            <xsl:variable name="pos" select="accumulator-after('rule_counter')"/>
             <xsl:call-template name="rule_descr">
                 <xsl:with-param name="tags" select="$tags"/>
-                <xsl:with-param name="pos" select="$pos"/>
+                <xsl:with-param name="first_rule_pos" select="$first_rule_pos"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
     
     <xsl:template name="rule_descr">
         <xsl:param name="tags"/>
-        <xsl:param name="pos"/>
-        <xsl:value-of select="$pos"/>
+        <xsl:param name="first_rule_pos"/>
+        <xsl:variable name="pos" select="accumulator-after('rule_counter')"/>
         <xsl:choose>
-            <xsl:when test="$pos = 1"/>
+            <xsl:when test="$pos = $first_rule_pos"/>
             <xsl:otherwise>
                 <xsl:text>, </xsl:text>
             </xsl:otherwise>
@@ -140,8 +204,28 @@
     
     <xsl:key name="distinctRepositoryIdx1" match="/ResultsSession/Scope/Locations/Loc[@repRef and not(@branch)]" use="@repRef" />
     <xsl:key name="distinctRepositoryIdx2" match="/ResultsSession/Scope/Locations/Loc[@repRef and @branch]" use="concat(@repRef,'_',@branch)" />
-    
+
+    <xsl:template name="first_repos_pos">
+        <xsl:if test="count(/ResultsSession/Scope/Repositories/*) > 0">
+
+            <xsl:for-each select="/ResultsSession/Scope/Repositories/*">
+                <xsl:variable name="repRef" select="@repRef"/>
+
+                <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$repRef)[1])][1]">
+                    <xsl:value-of select="accumulator-after('repo_counter')"/>
+                    <xsl:text>,</xsl:text>
+                </xsl:for-each>
+
+                <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($repRef,'_',@branch))[1])][1]">
+                    <xsl:value-of select="accumulator-after('repo_counter')"/>
+                    <xsl:text>,</xsl:text>
+                </xsl:for-each>
+            </xsl:for-each>
+        </xsl:if>
+    </xsl:template>
+
     <xsl:template name="version_control_provenance">
+        <xsl:param name="first_repo_pos"/>
         <xsl:if test="count(/ResultsSession/Scope/Repositories/*) > 0">
             <xsl:text>, "versionControlProvenance": [</xsl:text>
 
@@ -150,9 +234,9 @@
                 <xsl:variable name="repRef" select="@repRef"/>
                 
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$repRef)[1])]">
-                    <xsl:variable name="repo_count" select="accumulator-after('repo_counter')"/>
+                    <xsl:variable name="pos" select="accumulator-after('repo_counter')"/>
                     <xsl:choose>
-                        <xsl:when test="$repo_count = 1"/>
+                        <xsl:when test="$pos = $first_repo_pos"/>
                         <xsl:otherwise>
                             <xsl:text>, </xsl:text>
                         </xsl:otherwise>
@@ -163,9 +247,9 @@
                 </xsl:for-each>
                 
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($repRef,'_',@branch))[1])]">
-                    <xsl:variable name="repo_count" select="accumulator-after('repo_counter')"/>
+                    <xsl:variable name="pos" select="accumulator-after('repo_counter')"/>
                     <xsl:choose>
-                        <xsl:when test="$repo_count = 1"/>
+                        <xsl:when test="$pos = $first_repo_pos"/>
                         <xsl:otherwise>
                             <xsl:text>, </xsl:text>
                         </xsl:otherwise>
@@ -267,7 +351,6 @@
         <xsl:if test="local-name()='FlowViol' or (local-name()='DupViol' and $duplicates_as_code_flow='true')">
         <xsl:text>, "codeFlows": [ { </xsl:text>
         <xsl:text>"threadFlows": [ { "locations": [ </xsl:text>
-        <xsl:variable name="reset_thread_flow_counter" select="accumulator-before('thread_flow_counter')"/>
         <xsl:call-template name="thread_flow_locations">
             <xsl:with-param name="descriptors" select="./ElDescList/ElDesc"/>
             <xsl:with-param name="type" select="local-name()"/>
@@ -487,7 +570,8 @@
             
             <xsl:choose>
                 <xsl:when test="$endColumn > 0">
-                    <xsl:if test="$endLine > $startLine">
+                    <!-- change the condition here: In some condition, saxonJS can't compare the two variable correctly-->
+                    <xsl:if test="($endLine - $startLine) > 0">
                         <xsl:text>, "endLine": </xsl:text>
                         <xsl:value-of select="$endLine" />
                     </xsl:if>
