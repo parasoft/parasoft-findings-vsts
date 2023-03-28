@@ -167,12 +167,9 @@
         <xsl:param name="tags"/>
         <xsl:param name="first_rule_pos"/>
         <xsl:variable name="pos" select="accumulator-after('rule_counter')"/>
-        <xsl:choose>
-            <xsl:when test="$pos = $first_rule_pos"/>
-            <xsl:otherwise>
-                <xsl:text>, </xsl:text>
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:if test="$pos != $first_rule_pos">
+            <xsl:text>, </xsl:text>
+        </xsl:if>
 
         <xsl:text>{ </xsl:text>
         <xsl:text>"id": "</xsl:text><xsl:value-of select="@id" /><xsl:text>"</xsl:text>
@@ -235,12 +232,9 @@
                 
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$repRef)[1])]">
                     <xsl:variable name="pos" select="accumulator-after('repo_counter')"/>
-                    <xsl:choose>
-                        <xsl:when test="$pos = $first_repo_pos"/>
-                        <xsl:otherwise>
-                            <xsl:text>, </xsl:text>
-                        </xsl:otherwise>
-                    </xsl:choose>
+                    <xsl:if test="$pos != $first_repo_pos">
+                        <xsl:text>, </xsl:text>
+                    </xsl:if>
                     <xsl:text>{ "repositoryUri": "</xsl:text><xsl:value-of select="$url" /><xsl:text>"</xsl:text>
                     <xsl:text>, "mappedTo": { "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="@repRef" /><xsl:text>" }</xsl:text>
                     <xsl:text> }</xsl:text>
@@ -248,12 +242,9 @@
                 
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($repRef,'_',@branch))[1])]">
                     <xsl:variable name="pos" select="accumulator-after('repo_counter')"/>
-                    <xsl:choose>
-                        <xsl:when test="$pos = $first_repo_pos"/>
-                        <xsl:otherwise>
-                            <xsl:text>, </xsl:text>
-                        </xsl:otherwise>
-                    </xsl:choose>
+                    <xsl:if test="$pos != $first_repo_pos">
+                        <xsl:text>, </xsl:text>
+                    </xsl:if>
                     <xsl:text>{ "repositoryUri": "</xsl:text><xsl:value-of select="$url" /><xsl:text>"</xsl:text>
                     <xsl:text>, "branch": "</xsl:text><xsl:value-of select="@branch" /><xsl:text>"</xsl:text>
                     <xsl:text>, "mappedTo": { "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="concat(@repRef,'_',@branch)" /><xsl:text>" }</xsl:text>
@@ -284,13 +275,9 @@
     <xsl:template name="result_list">
         <xsl:param name="results"/>
         <xsl:for-each select="$results">
-            <xsl:choose>
-                <xsl:when test="position() = 1">
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:text>, </xsl:text>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:if test="position() != 1">
+                <xsl:text>, </xsl:text>
+            </xsl:if>
             <xsl:call-template name="result"/>
         </xsl:for-each>
     </xsl:template>
@@ -383,12 +370,9 @@
         <xsl:param name="descriptors"/>
         
         <xsl:for-each select="$descriptors">
-            <xsl:choose>
-                <xsl:when test="position() = 1"/>
-                <xsl:otherwise>
-                    <xsl:text>, </xsl:text>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:if test="position() != 1">
+                <xsl:text>, </xsl:text>
+            </xsl:if>
             <xsl:text>{ </xsl:text><xsl:call-template name="thread_flow_physical_loc"/><xsl:text> }</xsl:text>
         </xsl:for-each>
     </xsl:template>
@@ -402,12 +386,9 @@
             <xsl:choose>
                 <xsl:when test="@locType = 'sr'">
                     <xsl:variable name="pos" select="accumulator-before('thread_flow_counter')"/>
-                    <xsl:choose>
-                        <xsl:when test="$pos = 1"/>
-                        <xsl:otherwise>
-                            <xsl:text>, </xsl:text>
-                        </xsl:otherwise>
-                    </xsl:choose>
+                    <xsl:if test="$pos != 1">
+                        <xsl:text>, </xsl:text>
+                    </xsl:if>
                     
                     <xsl:call-template name="thread_flow_loc">
                         <xsl:with-param name="type" select="$type"/>
@@ -560,7 +541,7 @@
             
             <xsl:text>, "startColumn": </xsl:text>
             <xsl:choose>
-                <xsl:when test="$startColumn > 0">
+                <xsl:when test="number($startColumn) > 0">
                     <xsl:value-of select="$startColumn + 1" />
                 </xsl:when>
                 <xsl:otherwise>
@@ -569,7 +550,7 @@
             </xsl:choose>
             
             <xsl:choose>
-                <xsl:when test="$endColumn > 0">
+                <xsl:when test="number($endColumn) > 0">
                     <!-- change the condition here: In some condition, saxonJS can't compare the two variable correctly-->
                     <xsl:if test="($endLine - $startLine) > 0">
                         <xsl:text>, "endLine": </xsl:text>
@@ -577,14 +558,14 @@
                     </xsl:if>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:if test="$endLine - 1 > $startLine">
+                    <xsl:if test="($endLine - 1) > $startLine">
                         <xsl:text>, "endLine": </xsl:text>
                         <xsl:value-of select="$endLine - 1" />
                     </xsl:if>
                 </xsl:otherwise>
             </xsl:choose>
             
-            <xsl:if test="$endColumn > 0">
+            <xsl:if test="number($endColumn) > 0">
                 <xsl:text>, "endColumn": </xsl:text>
                 <xsl:value-of select="$endColumn + 1" />
             </xsl:if>
