@@ -28,14 +28,6 @@
     ],
     "inputs": [
         {
-            "name": "searchFolder",
-            "type": "string",
-            "label": "Search folder",
-            "defaultValue": "$(System.DefaultWorkingDirectory)",
-            "required": false,
-            "helpMarkDown": "Folder to search for the test result files. Defaults to $(System.DefaultWorkingDirectory)."
-        },
-        {
             "name": "resultsFiles",
             "type": "multiLine",
             "label": "Results files",
@@ -46,6 +38,14 @@
                 "rows": "3",
                 "resizable": "true"
             }
+        },
+        {
+            "name": "searchFolder",
+            "type": "string",
+            "label": "Search folder",
+            "defaultValue": "$(System.DefaultWorkingDirectory)",
+            "required": false,
+            "helpMarkDown": "Folder to search for the test result files. Defaults to $(System.DefaultWorkingDirectory)."
         },
         {
             "name": "failOnFailures",
