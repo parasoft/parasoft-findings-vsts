@@ -14,10 +14,25 @@
     <xsl:variable name="markdownChars" select="'*_{}[]()#+-.!'"/>
     <xsl:variable name="markdownNewLine">  \n</xsl:variable>
     <xsl:variable name="nbsp" select="concat('&amp;','nbsp;')"/>
-    <xsl:variable name="firstCatHasRule" select="(//Category[@name = //Rule/@cat])[1]" />
-    <xsl:variable name="firstRuleId" select="(//Rule[@cat=$firstCatHasRule/@name])[1]/@id"/>
-    <xsl:variable name="firstCatHasViols" select="(//Category[@name = //Rule[string-length(@total) = 0 or @total &gt; 0]/@cat])[1]" />
-    <xsl:variable name="firstRuleWithViolationId" select="(//Rule[@cat=$firstCatHasViols/@name and (string-length(@total) = 0 or @total &gt; 0)])[1]/@id" />
+    <!-- Retrieve the ID of the first rule within the first category based on the value of the "skip_not_violated_rules" variable.
+         This variable determines whether any rules that have not been violated should be skipped. -->
+    <xsl:variable name="categories" select="/ResultsSession/CodingStandards/Rules/CategoriesList//Category"/>
+    <xsl:variable name="rules" select="/ResultsSession/CodingStandards/Rules/RulesList/Rule"/>
+    <xsl:variable name="firstCategoryHasRules" select="($categories[@name = $rules/@cat])[1]" />
+    <xsl:variable name="firstRuleInCategoryId" select="($rules[@cat=$firstCategoryHasRules/@name])[1]/@id"/>
+    <xsl:variable name="firstCategoryHasViolations" select="($categories[@name = $rules[string-length(@total) = 0 or @total &gt; 0]/@cat])[1]" />
+    <xsl:variable name="firstRuleWithViolationId" select="($rules[@cat=$firstCategoryHasViolations/@name and (string-length(@total) = 0 or @total &gt; 0)])[1]/@id" />
+    <xsl:variable name="firstRuleId">
+        <xsl:choose>
+            <xsl:when test="$skip_not_violated_rules = 'true'">
+                <xsl:value-of select="$firstRuleWithViolationId"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$firstRuleInCategoryId"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
+
     <xsl:variable name="firstRepo" select="//Rep[@repRef = //Loc/@repRef][1]"/>
     <xsl:variable name="firstLocHash">
         <xsl:variable name="repoIdx1" select="//Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$firstRepo/@repRef)[1])][1]"/>
@@ -55,28 +70,15 @@
     </xsl:template>
     
     <xsl:template name="rules_list">
-        <xsl:variable name="firstRulesId">
-            <xsl:choose>
-                <xsl:when test="$skip_not_violated_rules = 'true'">
-                    <xsl:value-of select="$firstRuleWithViolationId"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="$firstRuleId"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-
         <xsl:for-each select="/ResultsSession/CodingStandards/Rules/CategoriesList/Category">
             <xsl:call-template name="rules_category">
                 <xsl:with-param name="parentTags" select="''"/>
-                <xsl:with-param name="firstRulesId" select="$firstRulesId"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
     
     <xsl:template name="rules_category">
         <xsl:param name="parentTags"/>
-        <xsl:param name="firstRulesId"/>
         <xsl:variable name="category_desc"><xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="@desc" /></xsl:call-template></xsl:variable>
         <xsl:variable name="tags" select="concat($qt,$category_desc,$qt)"/>
         <xsl:variable name="appended_tags" select="if(string-length($parentTags) > 0) then concat($parentTags,', ',$tags) else $tags"/>
@@ -86,7 +88,6 @@
             <xsl:if test="$skip_not_violated_rules!='true' or string-length(@total)=0 or @total>0">
                 <xsl:call-template name="rule_descr">
                     <xsl:with-param name="tags" select="$appended_tags"/>
-                    <xsl:with-param name="firstRulesId" select="$firstRulesId"/>
                 </xsl:call-template>
             </xsl:if>
         </xsl:for-each>
@@ -94,15 +95,13 @@
         <xsl:for-each select="./Category">
             <xsl:call-template name="rules_category">
                 <xsl:with-param name="parentTags" select="$appended_tags"/>
-                <xsl:with-param name="firstRulesId" select="$firstRulesId"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
 
     <xsl:template name="rule_descr">
         <xsl:param name="tags"/>
-        <xsl:param name="firstRulesId"/>
-        <xsl:if test="$firstRulesId != @id">
+        <xsl:if test="$firstRuleId != @id">
             <xsl:text>, </xsl:text>
         </xsl:if>
 
