@@ -32,25 +32,43 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:variable>
-
-    <xsl:variable name="firstRepo" select="//Rep[@repRef = //Loc/@repRef][1]"/>
+    <!-- Help to find the first location that satisfy specific conditions -->
+    <xsl:variable name="reps" select="/ResultsSession/Scope/Repositories/*[@repRef = /ResultsSession/Scope/Locations/Loc/@repRef]"/>
+    <xsl:variable name="repoCount" select="count($reps)"/>
     <xsl:variable name="firstLocHash">
-        <xsl:variable name="repoIdx1" select="//Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$firstRepo/@repRef)[1])][1]"/>
+        <xsl:call-template name="getFirstLocHash">
+            <xsl:with-param name="repoIndex" select="1"/>
+        </xsl:call-template>
+    </xsl:variable>
+    <xsl:template name="getFirstLocHash">
+        <xsl:param name="repoIndex"/>
+        <xsl:variable name="repoIdx1" select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$reps[$repoIndex]/@repRef)[1])][1]"/>
         <xsl:choose>
             <xsl:when test="$repoIdx1">
                 <xsl:value-of select="$repoIdx1/@hash"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="//Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($firstRepo/@repRef,'_',@branch))[1])][1]/@hash"/>
+                <xsl:variable name="repoIdx2" select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($reps[$repoIndex]/@repRef,'_',@branch))[1])][1]"/>
+                <xsl:choose>
+                    <xsl:when test="$repoIdx2">
+                        <xsl:value-of select="$repoIdx2/@hash"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:if test="number($repoIndex) &lt; number($repoCount)">
+                            <xsl:call-template name="getFirstLocHash">
+                                <xsl:with-param name="repoIndex" select="$repoIndex + 1"/>
+                            </xsl:call-template>
+                        </xsl:if>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:otherwise>
         </xsl:choose>
-    </xsl:variable>
-
+    </xsl:template>
+    <!-- Help to find the first ElDesc element for each FlowViol or DupViol -->
     <xsl:accumulator name="thread_flow_counter" as="xs:integer" initial-value="0">
         <xsl:accumulator-rule match="ElDesc" select="$value + 1"/>
         <xsl:accumulator-rule match="FlowViol/ElDescList | DupViol/ElDescList" phase="end" select="0"/>
     </xsl:accumulator>
-
     <xsl:mode use-accumulators="#all"/>
     
     <xsl:template match="/ResultsSession">
@@ -137,10 +155,10 @@
     <xsl:key name="distinctRepositoryIdx2" match="/ResultsSession/Scope/Locations/Loc[@repRef and @branch]" use="concat(@repRef,'_',@branch)" />
 
     <xsl:template name="version_control_provenance">
-        <xsl:if test="count(/ResultsSession/Scope/Repositories/*) > 0">
+        <xsl:if test="count($reps) > 0">
             <xsl:text>, "versionControlProvenance": [</xsl:text>
 
-            <xsl:for-each select="/ResultsSession/Scope/Repositories/*">
+            <xsl:for-each select="$reps">
                 <xsl:variable name="url" select="@url"/>
                 <xsl:variable name="repRef" select="@repRef"/>
                 
