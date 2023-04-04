@@ -64,6 +64,7 @@ if (isNullOrWhitespace(searchFolder)) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
+let ruleAnalyzerPairs: any = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder, inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
@@ -83,8 +84,26 @@ function transformReports(inputReportFiles: string[], index: number)
         sarifReports.push(report);
         processResults(inputReportFiles, index);
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        ruleAnalyzerPairs.clear();
+
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
+            if (node.name == 'Rule' && !bLegacyReport) {
+                ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
+            }
+
+            if (bLegacyReport) {
+                if (node.name == 'DupViol') {
+                    mapToAnalyzer(node, "com.parasoft.xtest.cpp.analyzer.static.dupcode", false);
+                } else if (node.name == 'FlowViol') {
+                    mapToAnalyzer(node, "com.parasoft.xtest.cpp.analyzer.static.flow", false);
+                } else if (node.name == 'MetViol') {
+                    mapToAnalyzer(node, "com.parasoft.xtest.cpp.analyzer.static.metrics", false);
+                } else if (node.name.endsWith('Viol')) {
+                    mapToAnalyzer(node, "", true);
+                }
+            }
+
             if (node.name == 'StdViols') {
                 if (!bLegacyReport){
                     if (reportType == ReportType.UNKNOWN) {
@@ -153,6 +172,21 @@ function transformReports(inputReportFiles: string[], index: number)
     } else {
         tl.warning("Skipping unrecognized report file: " + report);
         processResults(inputReportFiles, index);
+    }
+}
+
+function mapToAnalyzer(node: any, violationType: string, isAnalyzerDefault: boolean) {
+    let ruleId = node.attributes.rule;
+    if (!ruleAnalyzerPairs.get(ruleId)) {
+        if (!isAnalyzerDefault) {
+            ruleAnalyzerPairs.set(ruleId, violationType);
+        } else {
+            if (node.attributes.cat == 'GLOBAL') {
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.global");
+            } else {
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.pattern");
+            }
+        }
     }
 }
 
