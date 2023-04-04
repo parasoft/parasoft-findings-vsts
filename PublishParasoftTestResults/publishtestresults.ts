@@ -38,7 +38,7 @@ const SARIF_XSL = "/xsl/sarif.xsl";
 const XUNIT_XSL = "/xsl/xunit.xsl";
 const SOATEST_XUNIT_XSL = "/xsl/soatest-xunit.xsl";
 
-const SAXON_LIB = "/saxon.jar";
+const SAXON_LIB = "/node_modules/xslt3/xslt3";
 
 const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
@@ -202,8 +202,8 @@ function transformToSOATestXUnit(sourcePath: string)
 
 function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
 {
-    const jarPath = __dirname + SAXON_LIB;
-    let result = tl.execSync("java", ["-jar", jarPath, "-o", outPath, sourcePath, sheetPath]);
+    const libPath = __dirname + SAXON_LIB;
+    let result = tl.execSync("node", [libPath, '-s:' + sourcePath, '-xsl:' + sheetPath, "-o:" + outPath]);
     if (result.code == 0) {
         transformedReports.push(outPath);
     } else {
