@@ -1,7 +1,11 @@
 node_modules/
 *.js
+*.js.map
 .arcconfig
 .taskkey
 *.vsix
+### VS Code
+.vscode
+
 ### IntelliJ IDEA ###
 .idea
