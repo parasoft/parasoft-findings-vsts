@@ -17,6 +17,7 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
+import * as dp from 'dot-properties';
 
 const enum ReportType {
      SARIF = 0,
@@ -48,9 +49,11 @@ const testRunTitle = tl.getInput('testRunTitle');
 const publishRunAttachments = tl.getInput('publishRunAttachments');
 const failOnFailures = tl.getBoolInput('failOnFailures', true);
 let searchFolder = tl.getInput('searchFolder');
+const localSettingsPath = tl.getPathInput("localSettingsPath");
 
 tl.debug('searchFolder: ' + searchFolder);
 tl.debug('inputReportFiles: ' + inputReportFiles);
+tl.debug('localSettingsPath: ' + localSettingsPath)
 tl.debug('mergeResults: ' + mergeResults);
 tl.debug('platform: ' + platform);
 tl.debug('config: ' + config);
@@ -60,6 +63,13 @@ tl.debug('failOnFailures: ' + failOnFailures);
 
 if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
+}
+
+const localSettings = loadSettings(localSettingsPath);
+if (localSettings) {
+    tl.debug('dtp.url: ' + localSettings['dtp.url']);
+    tl.debug('dtp.user: ' + localSettings['dtp.user']);
+    tl.debug('dtp.password: ' + localSettings['dtp.password']);
 }
 
 let xUnitReports: string[] = [];
@@ -266,6 +276,41 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
         }
     } else {
         tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
+    }
+}
+
+function loadSettings(localSettingsPath : string) {
+    if (isNullOrWhitespace(localSettingsPath)) {
+        tl.warning('Local settings file path is not specified.');
+        return null;
+    }
+
+    let localSettingsFile = tl.resolve(tl.cwd(), localSettingsPath);
+    tl.debug('Path to local settings is ' + localSettingsFile);
+
+    const props = loadProperties(localSettingsFile);
+    if (props === null) {
+        tl.warning('No local settings properties loaded.');
+    }
+    
+    return props;
+}
+
+function loadProperties(localSettingsFile : string) {
+    let input: string;
+    try {
+        input = fs.readFileSync(localSettingsFile, 'utf-8');
+    } catch (err) {
+        tl.error('Error while reading local settings file.');
+        return null;
+    }
+
+    try {
+        let props = dp.parse(input, false);
+        tl.debug('Local settings properties: ' + JSON.stringify(props));
+        return props;
+    } catch (err) {
+        return null;
     }
 }
 
