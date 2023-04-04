@@ -168,25 +168,7 @@
     </xsl:template>
     
     <xsl:template name="results">
-        <xsl:variable name="viols" select="/ResultsSession/CodingStandards/StdViols/*"/>
-
-        <xsl:choose>
-            <xsl:when test="$skip_suppressed!='true'">
-                <xsl:call-template name="result_list">
-                    <xsl:with-param name="results" select="$viols"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:call-template name="result_list">
-                    <xsl:with-param name="results" select="$viols[string-length(@supp)=0 or @supp!='true']"/>
-                </xsl:call-template>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-
-    <xsl:template name="result_list">
-        <xsl:param name="results"/>
-        <xsl:for-each select="$results">
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/*[string-length(@supp)=0 or @supp!='true' or $skip_suppressed!='true']">
             <xsl:if test="position() != 1">
                 <xsl:text>, </xsl:text>
             </xsl:if>
