@@ -64,7 +64,7 @@ if (isNullOrWhitespace(searchFolder)) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
-let matchingInputReportFiles: string[] = tl.findMatch(searchFolder, inputReportFiles);
+let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
     tl.setResult(tl.TaskResult.Succeeded, '');
