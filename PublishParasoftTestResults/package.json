@@ -24,8 +24,7 @@
   "dependencies": {
     "azure-pipelines-task-lib": "^2.7.7",
     "fs": "0.0.1-security",
-    "sax": "^1.2.4",
-    "xslt3": "^2.5.0"
+    "sax": "^1.2.4"
   },
   "devDependencies": {
     "@types/node": "^8.10.66",
