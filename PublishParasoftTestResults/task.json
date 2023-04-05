@@ -15,6 +15,9 @@
         "Minor": 0,
         "Patch": 7
     },
+    "demands": [
+        "java"
+    ],
     "minimumAgentVersion": "2.0.0",
     "groups": [
         {

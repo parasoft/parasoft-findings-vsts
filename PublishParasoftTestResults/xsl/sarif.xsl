@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
     
-<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:saxon="http://icl.com/saxon" extension-element-prefixes="saxon">
     
     <xsl:output method="text" encoding="UTF-8" omit-xml-declaration="yes" indent="no" media-type="application/json" />
     
@@ -9,67 +9,13 @@
     <xsl:param name="duplicates_as_code_flow">true</xsl:param>
     
     <xsl:variable name="qt">"</xsl:variable>
+    <xsl:variable name="firstRule" saxon:assignable="yes">true</xsl:variable>
+    <xsl:variable name="firstFlowLoc" saxon:assignable="yes">true</xsl:variable>
     <xsl:variable name="illegalChars" select="'\/&quot;&#xD;&#xA;&#x9;'"/>
     <xsl:variable name="illegalCharReplacements" select="'\/&quot;rnt'"/>
     <xsl:variable name="markdownChars" select="'*_{}[]()#+-.!'"/>
     <xsl:variable name="markdownNewLine">  \n</xsl:variable>
-    <xsl:variable name="nbsp" select="concat('&amp;','nbsp;')"/>
-    <!-- Retrieve the ID of the first rule within the first category based on the value of the "skip_not_violated_rules" variable.
-         This variable determines whether any rules that have not been violated should be skipped. -->
-    <xsl:variable name="categories" select="/ResultsSession/CodingStandards/Rules/CategoriesList//Category"/>
-    <xsl:variable name="rules" select="/ResultsSession/CodingStandards/Rules/RulesList/Rule"/>
-    <xsl:variable name="firstCategoryHasRules" select="($categories[@name = $rules/@cat])[1]" />
-    <xsl:variable name="firstRuleInCategoryId" select="($rules[@cat=$firstCategoryHasRules/@name])[1]/@id"/>
-    <xsl:variable name="firstCategoryHasViolations" select="($categories[@name = $rules[string-length(@total) = 0 or @total &gt; 0]/@cat])[1]" />
-    <xsl:variable name="firstRuleWithViolationId" select="($rules[@cat=$firstCategoryHasViolations/@name and (string-length(@total) = 0 or @total &gt; 0)])[1]/@id" />
-    <xsl:variable name="firstRuleId">
-        <xsl:choose>
-            <xsl:when test="$skip_not_violated_rules = 'true'">
-                <xsl:value-of select="$firstRuleWithViolationId"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$firstRuleInCategoryId"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:variable>
-    <!-- Help to find the first location that satisfy specific conditions -->
-    <xsl:variable name="reps" select="/ResultsSession/Scope/Repositories/*[@repRef = /ResultsSession/Scope/Locations/Loc/@repRef]"/>
-    <xsl:variable name="repoCount" select="count($reps)"/>
-    <xsl:variable name="firstLocHash">
-        <xsl:call-template name="getFirstLocHash">
-            <xsl:with-param name="repoIndex" select="1"/>
-        </xsl:call-template>
-    </xsl:variable>
-    <xsl:template name="getFirstLocHash">
-        <xsl:param name="repoIndex"/>
-        <xsl:variable name="repoIdx1" select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$reps[$repoIndex]/@repRef)[1])][1]"/>
-        <xsl:choose>
-            <xsl:when test="$repoIdx1">
-                <xsl:value-of select="$repoIdx1/@hash"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:variable name="repoIdx2" select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($reps[$repoIndex]/@repRef,'_',@branch))[1])][1]"/>
-                <xsl:choose>
-                    <xsl:when test="$repoIdx2">
-                        <xsl:value-of select="$repoIdx2/@hash"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:if test="number($repoIndex) &lt; number($repoCount)">
-                            <xsl:call-template name="getFirstLocHash">
-                                <xsl:with-param name="repoIndex" select="$repoIndex + 1"/>
-                            </xsl:call-template>
-                        </xsl:if>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-    <!-- Help to find the first ElDesc element for each FlowViol or DupViol -->
-    <xsl:accumulator name="thread_flow_counter" as="xs:integer" initial-value="0">
-        <xsl:accumulator-rule match="ElDesc" select="$value + 1"/>
-        <xsl:accumulator-rule match="FlowViol/ElDescList | DupViol/ElDescList" phase="end" select="0"/>
-    </xsl:accumulator>
-    <xsl:mode use-accumulators="#all"/>
+    <xsl:variable name="nbsp" select="concat('&amp;','nbsp;')" saxon:assignable="yes"/>
     
     <xsl:template match="/ResultsSession">
         <xsl:text>{ "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json", "version": "2.1.0", "runs": [ {</xsl:text>
@@ -98,31 +44,40 @@
     <xsl:template name="rules_category">
         <xsl:param name="parentTags"/>
         <xsl:variable name="category_desc"><xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="@desc" /></xsl:call-template></xsl:variable>
-        <xsl:variable name="tags" select="concat($qt,$category_desc,$qt)"/>
-        <xsl:variable name="appended_tags" select="if(string-length($parentTags) > 0) then concat($parentTags,', ',$tags) else $tags"/>
+        <xsl:variable name="tags" saxon:assignable="yes" select="concat($qt,$category_desc,$qt)"/>
+        <xsl:if test="string-length($parentTags) > 0">
+            <saxon:assign name="tags" select="concat($parentTags,', ',$tags)"/>
+        </xsl:if>
+        
         <xsl:variable name="cat" select="@name"/>
-
         <xsl:for-each select="/ResultsSession/CodingStandards/Rules/RulesList/Rule[@cat=($cat)]">
             <xsl:if test="$skip_not_violated_rules!='true' or string-length(@total)=0 or @total>0">
                 <xsl:call-template name="rule_descr">
-                    <xsl:with-param name="tags" select="$appended_tags"/>
+                    <xsl:with-param name="tags" select="$tags"/>
                 </xsl:call-template>
             </xsl:if>
         </xsl:for-each>
-
+        
         <xsl:for-each select="./Category">
             <xsl:call-template name="rules_category">
-                <xsl:with-param name="parentTags" select="$appended_tags"/>
+                <xsl:with-param name="parentTags" select="$tags"/>
             </xsl:call-template>
         </xsl:for-each>
+        
     </xsl:template>
-
+    
     <xsl:template name="rule_descr">
         <xsl:param name="tags"/>
-        <xsl:if test="$firstRuleId != @id">
-            <xsl:text>, </xsl:text>
-        </xsl:if>
-
+        
+        <xsl:choose>
+            <xsl:when test="$firstRule = 'true'">
+                <saxon:assign name="firstRule">false</saxon:assign>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>, </xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+        
         <xsl:text>{ </xsl:text>
         <xsl:text>"id": "</xsl:text><xsl:value-of select="@id" /><xsl:text>"</xsl:text>
         <xsl:text>, "name": "</xsl:text>
@@ -153,28 +108,38 @@
     
     <xsl:key name="distinctRepositoryIdx1" match="/ResultsSession/Scope/Locations/Loc[@repRef and not(@branch)]" use="@repRef" />
     <xsl:key name="distinctRepositoryIdx2" match="/ResultsSession/Scope/Locations/Loc[@repRef and @branch]" use="concat(@repRef,'_',@branch)" />
-
+    
     <xsl:template name="version_control_provenance">
-        <xsl:if test="count($reps) > 0">
+        <xsl:if test="count(/ResultsSession/Scope/Repositories/*) > 0">
             <xsl:text>, "versionControlProvenance": [</xsl:text>
-
-            <xsl:for-each select="$reps">
+            <xsl:variable name="firstRepo" saxon:assignable="yes">true</xsl:variable>
+            <xsl:for-each select="/ResultsSession/Scope/Repositories/*">
                 <xsl:variable name="url" select="@url"/>
                 <xsl:variable name="repRef" select="@repRef"/>
                 
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$repRef)[1])]">
-                    <xsl:if test="$firstLocHash != @hash">
-                        <xsl:text>, </xsl:text>
-                    </xsl:if>
+                    <xsl:choose>
+                        <xsl:when test="$firstRepo = 'true'">
+                             <saxon:assign name="firstRepo">false</saxon:assign>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:text>, </xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
                     <xsl:text>{ "repositoryUri": "</xsl:text><xsl:value-of select="$url" /><xsl:text>"</xsl:text>
                     <xsl:text>, "mappedTo": { "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="@repRef" /><xsl:text>" }</xsl:text>
                     <xsl:text> }</xsl:text>
                 </xsl:for-each>
                 
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($repRef,'_',@branch))[1])]">
-                    <xsl:if test="$firstLocHash != @hash">
-                        <xsl:text>, </xsl:text>
-                    </xsl:if>
+                    <xsl:choose>
+                        <xsl:when test="$firstRepo = 'true'">
+                             <saxon:assign name="firstRepo">false</saxon:assign>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:text>, </xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
                     <xsl:text>{ "repositoryUri": "</xsl:text><xsl:value-of select="$url" /><xsl:text>"</xsl:text>
                     <xsl:text>, "branch": "</xsl:text><xsl:value-of select="@branch" /><xsl:text>"</xsl:text>
                     <xsl:text>, "mappedTo": { "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="concat(@repRef,'_',@branch)" /><xsl:text>" }</xsl:text>
@@ -186,11 +151,19 @@
     </xsl:template>
     
     <xsl:template name="results">
-        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/*[string-length(@supp)=0 or @supp!='true' or $skip_suppressed!='true']">
-            <xsl:if test="position() != 1">
-                <xsl:text>, </xsl:text>
+        <xsl:variable name="firstResult" saxon:assignable="yes">true</xsl:variable>
+        <xsl:for-each select="/ResultsSession/CodingStandards/StdViols/*">
+            <xsl:if test="string-length(@supp)=0 or @supp!='true' or $skip_suppressed!='true'">
+                <xsl:choose>
+                    <xsl:when test="$firstResult = 'true'">
+                         <saxon:assign name="firstResult">false</saxon:assign>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>, </xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+                <xsl:call-template name="result"/>
             </xsl:if>
-            <xsl:call-template name="result"/>
         </xsl:for-each>
     </xsl:template>
     
@@ -250,6 +223,7 @@
         <xsl:if test="local-name()='FlowViol' or (local-name()='DupViol' and $duplicates_as_code_flow='true')">
         <xsl:text>, "codeFlows": [ { </xsl:text>
         <xsl:text>"threadFlows": [ { "locations": [ </xsl:text>
+        <saxon:assign name="firstFlowLoc">true</saxon:assign>
         <xsl:call-template name="thread_flow_locations">
             <xsl:with-param name="descriptors" select="./ElDescList/ElDesc"/>
             <xsl:with-param name="type" select="local-name()"/>
@@ -281,10 +255,16 @@
     <xsl:template name="duplicated_code_locations">
         <xsl:param name="descriptors"/>
         
+        <xsl:variable name="firstDupLoc" saxon:assignable="yes">true</xsl:variable>
         <xsl:for-each select="$descriptors">
-            <xsl:if test="position() != 1">
-                <xsl:text>, </xsl:text>
-            </xsl:if>
+            <xsl:choose>
+                <xsl:when test="$firstDupLoc = 'true'">
+                    <saxon:assign name="firstDupLoc">false</saxon:assign>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>, </xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
             <xsl:text>{ </xsl:text><xsl:call-template name="thread_flow_physical_loc"/><xsl:text> }</xsl:text>
         </xsl:for-each>
     </xsl:template>
@@ -293,14 +273,19 @@
         <xsl:param name="descriptors"/>
         <xsl:param name="type"/>
         <xsl:param name="nestingLevel"/>
-
+        
         <xsl:for-each select="$descriptors">
             <xsl:choose>
                 <xsl:when test="@locType = 'sr'">
-                    <xsl:variable name="pos" select="accumulator-before('thread_flow_counter')"/>
-                    <xsl:if test="$pos != 1">
-                        <xsl:text>, </xsl:text>
-                    </xsl:if>
+                    
+                    <xsl:choose>
+                        <xsl:when test="$firstFlowLoc = 'true'">
+                            <saxon:assign name="firstFlowLoc">false</saxon:assign>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:text>, </xsl:text>
+                        </xsl:otherwise>
+                    </xsl:choose>
                     
                     <xsl:call-template name="thread_flow_loc">
                         <xsl:with-param name="type" select="$type"/>
@@ -383,22 +368,26 @@
     
     <xsl:template name="artifact_location">
         <xsl:text>"artifactLocation": { "uri": "</xsl:text>
-
+        
+        <xsl:variable name="uri" saxon:assignable="yes" />
+        <xsl:variable name="uriBaseId" saxon:assignable="yes" />
         <xsl:variable name="locRef" select="@locRef"/>
         <xsl:variable name="locNode" select="/ResultsSession/Scope/Locations/Loc[@locRef=$locRef]"/>
         <xsl:choose>
             <xsl:when test="$locNode/@scPath">
-                <xsl:value-of select="$locNode/@scPath" /><xsl:text>"</xsl:text>
-                <xsl:variable name="uriBaseId" select="$locNode/@repRef"/>
-                <xsl:if test="$uriBaseId != ''">
-                    <xsl:text>, "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="$uriBaseId" /><xsl:text>"</xsl:text>
-                </xsl:if>
+                <saxon:assign name="uri" select="$locNode/@scPath"/>
+                <saxon:assign name="uriBaseId" select="$locNode/@repRef"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="$locNode/@uri" /><xsl:text>"</xsl:text>
+                <saxon:assign name="uri" select="$locNode/@uri"/>
             </xsl:otherwise>
         </xsl:choose>
-
+        
+        <xsl:value-of select="$uri" /><xsl:text>"</xsl:text>
+        <xsl:if test="$uriBaseId != ''">
+            <xsl:text>, "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="$uriBaseId" /><xsl:text>"</xsl:text>
+        </xsl:if>
+        
         <xsl:text> }</xsl:text>
     </xsl:template>
     
@@ -453,7 +442,7 @@
             
             <xsl:text>, "startColumn": </xsl:text>
             <xsl:choose>
-                <xsl:when test="number($startColumn) > 0">
+                <xsl:when test="$startColumn > 0">
                     <xsl:value-of select="$startColumn + 1" />
                 </xsl:when>
                 <xsl:otherwise>
@@ -462,22 +451,21 @@
             </xsl:choose>
             
             <xsl:choose>
-                <xsl:when test="number($endColumn) > 0">
-                    <!-- change the condition here: In some condition, saxonJS can't compare the two variable correctly-->
-                    <xsl:if test="($endLine - $startLine) > 0">
+                <xsl:when test="$endColumn > 0">
+                    <xsl:if test="$endLine > $startLine">
                         <xsl:text>, "endLine": </xsl:text>
                         <xsl:value-of select="$endLine" />
                     </xsl:if>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:if test="($endLine - 1) > $startLine">
+                    <xsl:if test="$endLine - 1 > $startLine">
                         <xsl:text>, "endLine": </xsl:text>
                         <xsl:value-of select="$endLine - 1" />
                     </xsl:if>
                 </xsl:otherwise>
             </xsl:choose>
             
-            <xsl:if test="number($endColumn) > 0">
+            <xsl:if test="$endColumn > 0">
                 <xsl:text>, "endColumn": </xsl:text>
                 <xsl:value-of select="$endColumn + 1" />
             </xsl:if>
@@ -659,7 +647,7 @@
     <xsl:template name="flow_viol_markdown">
         <xsl:call-template name="flow_viol_elem_markdown">
             <xsl:with-param name="descriptors" select="./ElDescList/ElDesc"/>
-            <xsl:with-param name="extraSpace"/>
+            <xsl:with-param name="extraSpace"></xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 
@@ -671,15 +659,27 @@
             <xsl:value-of select="$markdownNewLine" />
 <!--             Cause / Point -->
             <xsl:value-of select="$extraSpace"/>
-
+            <xsl:variable name="space" saxon:assignable="yes"/>
+            <saxon:assign name="space">
+                <xsl:value-of select="$extraSpace"/>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+                <xsl:text>&#160;</xsl:text>
+            </saxon:assign>
+            
             <xsl:for-each select="Anns/Ann">
                 <xsl:if test="(@kind = 'cause')">
-                    <xsl:text>**</xsl:text><xsl:call-template name="escape_markdown_chars"><xsl:with-param name="text" select="@msg" /></xsl:call-template><xsl:text>**</xsl:text>
+                    <xsl:text>**</xsl:text><xsl:value-of select="@msg"/><xsl:text>**</xsl:text>
                     <xsl:value-of select="$markdownNewLine" />
                     <xsl:value-of select="$extraSpace"/>
                 </xsl:if>
                 <xsl:if test="(@kind = 'point')">
-                    <xsl:text>**</xsl:text><xsl:call-template name="escape_markdown_chars"><xsl:with-param name="text" select="@msg" /></xsl:call-template><xsl:text>**</xsl:text>
+                    <xsl:text>**</xsl:text><xsl:value-of select="@msg"/><xsl:text>**</xsl:text>
                     <xsl:value-of select="($nbsp)" disable-output-escaping="yes"/>
                     <xsl:value-of select="$markdownNewLine" />
                     <xsl:value-of select="$extraSpace"/>
@@ -736,7 +736,7 @@
 <!--             entering to method -->
             <xsl:call-template name="flow_viol_elem_markdown">
                 <xsl:with-param name="descriptors" select="ElDescList/ElDesc"/>
-                <xsl:with-param name="extraSpace" select="concat($extraSpace, '&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;')"/>
+                <xsl:with-param name="extraSpace" select="$space"/>
             </xsl:call-template>
         </xsl:for-each>
     </xsl:template>
