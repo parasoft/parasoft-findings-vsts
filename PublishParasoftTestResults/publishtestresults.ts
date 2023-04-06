@@ -285,15 +285,10 @@ function loadSettings(localSettingsPath : string) {
         return null;
     }
 
-    let localSettingsFile = tl.resolve(tl.cwd(), localSettingsPath);
+    let localSettingsFile = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), localSettingsPath);
     tl.debug('Path to local settings is ' + localSettingsFile);
 
-    const props = loadProperties(localSettingsFile);
-    if (props === null) {
-        tl.warning('No local settings properties loaded.');
-    }
-    
-    return props;
+    return loadProperties(localSettingsFile);
 }
 
 function loadProperties(localSettingsFile : string) {
@@ -307,9 +302,14 @@ function loadProperties(localSettingsFile : string) {
 
     try {
         let props = dp.parse(input, false);
+        if (typeof props === 'undefined' || props === null || 
+                (Object.keys(props).length === 0 && props.constructor === Object)) {
+            tl.warning('No local settings properties loaded.');
+        }
         tl.debug('Local settings properties: ' + JSON.stringify(props));
         return props;
     } catch (err) {
+        tl.error('Error while parsing local settings file.');
         return null;
     }
 }
