@@ -66,7 +66,6 @@ let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
 let ruleAnalyzerPairs: any = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
-let matchingInputReportFiles: string[] = tl.findMatch(searchFolder, inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
     tl.setResult(tl.TaskResult.Succeeded, '');
@@ -89,22 +88,6 @@ function transformReports(inputReportFiles: string[], index: number)
 
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
-            if (node.name == 'Rule' && !bLegacyReport) {
-                ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
-            }
-
-            if (bLegacyReport) {
-                if (node.name == 'DupViol') {
-                    mapToAnalyzer(node, "com.parasoft.xtest.cpp.analyzer.static.dupcode", false);
-                } else if (node.name == 'FlowViol') {
-                    mapToAnalyzer(node, "com.parasoft.xtest.cpp.analyzer.static.flow", false);
-                } else if (node.name == 'MetViol') {
-                    mapToAnalyzer(node, "com.parasoft.xtest.cpp.analyzer.static.metrics", false);
-                } else if (node.name.endsWith('Viol')) {
-                    mapToAnalyzer(node, "", true);
-                }
-            }
-
             if (node.name == 'StdViols') {
                 if (!bLegacyReport){
                     if (reportType == ReportType.UNKNOWN) {
@@ -137,6 +120,12 @@ function transformReports(inputReportFiles: string[], index: number)
             } else if (node.name == 'testsuites') {
                 tl.debug("Recognized XUnit report: " + report)
                 reportType = ReportType.XML_XUNIT;
+
+            } else if (node.name == 'Rule' && !bLegacyReport) {
+                ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
+
+            } else if (node.name.endsWith('Viol') && bLegacyReport) {
+                mapToAnalyzer(node);
             }
         });
         saxStream.on("error", function (e) {
@@ -176,17 +165,26 @@ function transformReports(inputReportFiles: string[], index: number)
     }
 }
 
-function mapToAnalyzer(node: any, violationType: string, isAnalyzerDefault: boolean) {
+function mapToAnalyzer(node: any) {
     let ruleId = node.attributes.rule;
+    let violationType = node.name;
     if (!ruleAnalyzerPairs.get(ruleId)) {
-        if (!isAnalyzerDefault) {
-            ruleAnalyzerPairs.set(ruleId, violationType);
-        } else {
-            if (node.attributes.cat == 'GLOBAL') {
-                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.global");
-            } else {
-                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.pattern");
-            }
+        switch (violationType) {
+            case 'DupViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.dupcode");
+                break;
+            case 'FlowViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.flow");
+                break;
+            case 'MetViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.metrics");
+                break;
+            case 'StdViol':
+                if (node.attributes.cat == 'GLOBAL') {
+                    ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.global");
+                } else {
+                    ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.pattern");
+                }
         }
     }
 }
