@@ -302,8 +302,7 @@ function loadProperties(localSettingsFile : string) {
 
     try {
         let props = dp.parse(input, false);
-        if (typeof props === 'undefined' || props === null || 
-                (Object.keys(props).length === 0 && props.constructor === Object)) {
+        if (!props || Object.keys(props).length === 0) {
             tl.warning('No local settings properties loaded.');
         }
         tl.debug('Local settings properties: ' + JSON.stringify(props));
