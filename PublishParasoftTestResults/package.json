@@ -23,6 +23,7 @@
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "dependencies": {
     "azure-pipelines-task-lib": "^2.7.7",
+    "dot-properties": "^1.0.1",
     "fs": "0.0.1-security",
     "sax": "^1.2.4",
     "xslt3": "^2.5.0"
