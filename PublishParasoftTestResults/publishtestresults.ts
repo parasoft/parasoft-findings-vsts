@@ -64,7 +64,7 @@ if (isNullOrWhitespace(searchFolder)) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
-let ruleAnalyzerPairs: any = new Map();
+let ruleAnalyzerPairs: Map<String, String> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
@@ -78,6 +78,7 @@ function transformReports(inputReportFiles: string[], index: number)
     let reportType: ReportType = ReportType.UNKNOWN;
     let report: string = inputReportFiles[index];
     let bLegacyReport: boolean = false;
+    let bStaticAnalysisResult: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
         tl.debug("Recognized SARIF report: " + report);
@@ -120,6 +121,9 @@ function transformReports(inputReportFiles: string[], index: number)
             } else if (node.name == 'testsuites') {
                 tl.debug("Recognized XUnit report: " + report)
                 reportType = ReportType.XML_XUNIT;
+
+            }  else if (node.name == 'CodingStandards' && !bStaticAnalysisResult) {
+                bStaticAnalysisResult = true;
 
             } else if (node.name == 'Rule' && !bLegacyReport) {
                 ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
