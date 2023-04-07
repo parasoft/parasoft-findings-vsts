@@ -64,6 +64,7 @@ if (isNullOrWhitespace(searchFolder)) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
+let ruleIdsForWhoseCatIsGlobal: string[] = [];
 let ruleAnalyzerPairs: Map<String, String> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
@@ -85,6 +86,7 @@ function transformReports(inputReportFiles: string[], index: number)
         sarifReports.push(report);
         processResults(inputReportFiles, index);
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        ruleIdsForWhoseCatIsGlobal = [];
         ruleAnalyzerPairs.clear();
 
         const saxStream = sax.createStream(true, {});
@@ -122,13 +124,17 @@ function transformReports(inputReportFiles: string[], index: number)
                 tl.debug("Recognized XUnit report: " + report)
                 reportType = ReportType.XML_XUNIT;
 
-            }  else if (node.name == 'CodingStandards' && !bStaticAnalysisResult) {
+            } else if (node.name == 'CodingStandards' && !bStaticAnalysisResult) {
                 bStaticAnalysisResult = true;
 
-            } else if (node.name == 'Rule' && !bLegacyReport) {
-                ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
+            } else if (node.name == 'Rule') {
+                if (!bLegacyReport) {
+                    ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
+                } else if (node.attributes.cat == 'GLOBAL') {
+                    ruleIdsForWhoseCatIsGlobal.push(node.attributes.id);
+                }
 
-            } else if (node.name.endsWith('Viol') && bLegacyReport) {
+            } else if (node.name.endsWith('Viol') && bLegacyReport && bStaticAnalysisResult) {
                 mapToAnalyzer(node);
             }
         });
@@ -183,8 +189,8 @@ function mapToAnalyzer(node: any) {
             case 'MetViol':
                 ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.metrics");
                 break;
-            case 'StdViol':
-                if (node.attributes.cat == 'GLOBAL') {
+            default:
+                if (ruleIdsForWhoseCatIsGlobal.includes(ruleId)) {
                     ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.global");
                 } else {
                     ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.pattern");
