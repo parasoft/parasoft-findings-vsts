@@ -9,3 +9,5 @@ node_modules/
 
 ### IntelliJ IDEA ###
 .idea
+### VS Code ###
+.vscode
