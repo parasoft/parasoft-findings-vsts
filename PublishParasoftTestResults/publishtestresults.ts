@@ -139,6 +139,11 @@ function transformReports(inputReportFiles: string[], index: number)
                 mapToAnalyzer(node);
             }
         });
+        saxStream.on("closeTag", function (nodeName) {
+            if (nodeName == 'CodingStandards') {
+                bStaticAnalysisResult = false;
+            }
+        });
         saxStream.on("error", function (e) {
             tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
         });
