@@ -64,8 +64,8 @@ if (isNullOrWhitespace(searchFolder)) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
-let ruleIdsWithCatAsGlobal: Set<String> = new Set();
-let ruleAnalyzerPairs: Map<String, String> = new Map();
+let ruleIdsWithCatAsGlobal: Set<string> = new Set();
+let ruleAnalyzerPairs: Map<string, string> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
@@ -128,10 +128,11 @@ function transformReports(inputReportFiles: string[], index: number)
                 bStaticAnalysisResult = true;
 
             } else if (node.name == 'Rule') {
+                let ruleId = node.attributes.id;
                 if (!bLegacyReport) {
-                    ruleAnalyzerPairs.set(node.attributes.id, node.attributes.analyzer);
+                    ruleAnalyzerPairs.set(ruleId, node.attributes.analyzer);
                 } else if (node.attributes.cat == 'GLOBAL') {
-                    ruleIdsWithCatAsGlobal.add(node.attributes.id);
+                    ruleIdsWithCatAsGlobal.add(ruleId);
                 }
 
             } else if (bStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
