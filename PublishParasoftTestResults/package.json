@@ -22,14 +22,14 @@
   },
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "dependencies": {
-    "azure-pipelines-task-lib": "^2.7.7",
+    "azure-pipelines-task-lib": "^4.3.1",
     "dot-properties": "^1.0.1",
     "fs": "0.0.1-security",
     "sax": "^1.2.4",
     "xslt3": "^2.5.0"
   },
   "devDependencies": {
-    "@types/node": "^8.10.66",
+    "@types/node": "^16.18.23",
     "@types/q": "^1.5.5",
     "@types/sax": "^1.0.0"
   }
