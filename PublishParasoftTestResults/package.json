@@ -26,6 +26,7 @@
     "dot-properties": "^1.0.1",
     "fs": "0.0.1-security",
     "sax": "^1.2.4",
+    "xmlhttprequest-ssl": "^2.1.0",
     "xslt3": "^2.5.0"
   },
   "devDependencies": {

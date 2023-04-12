@@ -19,9 +19,15 @@ import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
 import { URL } from 'url';
+var xmlHttpRequest = require('xmlhttprequest-ssl').XMLHttpRequest;
 
 interface ReadOnlyProperties {
     readonly [key: string]: string
+}
+
+interface RuleDocs {
+    status: number;
+    docsUrl: string;
 }
 
 const enum ReportType {
@@ -99,6 +105,7 @@ let sarifReports: string[] = [];
 let ruleIdsWithCatAsGlobal: Set<string> = new Set();
 let ruleAnalyzerPairs: Map<string, string> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
+let rulesDocs: Map<string,string> = new Map();
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
     tl.setResult(tl.TaskResult.Succeeded, '');
@@ -180,37 +187,56 @@ function transformReports(inputReportFiles: string[], index: number)
             tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
         });
         saxStream.on("end", function() {
-            switch (reportType) {
-                case ReportType.XML_STATIC:
-                    transformToSarif(report);
-                    break;
-                case ReportType.XML_TESTS:
-                    transformToXUnit(report);
-                    break;
-                case ReportType.XML_STATIC_AND_TESTS:
-                    transformToSarif(report);
-                    transformToXUnit(report);
-                    break;
-                case ReportType.XML_SOATEST:
-                    transformToSOATestXUnit(report);
-                    break;
-                case ReportType.XML_STATIC_AND_SOATEST:
-                    transformToSOATestXUnit(report);
-                    transformToSarif(report);
-                    break;
-                case ReportType.XML_XUNIT:
-                    xUnitReports.push(report);
-                    break;
-                default:
-                    tl.warning("Skipping unrecognized report file: " + report);
+            rulesDocs.clear();
+
+            if (ruleAnalyzerPairs.size > 0) {
+                getRulesDocs(Array.from(ruleAnalyzerPairs.keys()), 0, 1.6).then(()=> {
+                    checkReportType(inputReportFiles, reportType, report, index);
+                }).catch((error) => {
+                    if (error === 401) {
+                        tl.warning("You are not authorized to use DTP API.");
+                    } else {
+                        tl.warning("Failed to connect to DTP server.");
+                    }
+                    checkReportType(inputReportFiles, reportType, report, index);
+                });
+            } else {
+                checkReportType(inputReportFiles, reportType, report, index);
             }
-            processResults(inputReportFiles, index);
         });
-        fs.createReadStream(report).pipe(saxStream);  
+        fs.createReadStream(report).pipe(saxStream);
     } else {
         tl.warning("Skipping unrecognized report file: " + report);
         processResults(inputReportFiles, index);
     }
+}
+
+function checkReportType(inputReportFiles: string[], reportType: ReportType, report: string, index: number) {
+    switch (reportType) {
+        case ReportType.XML_STATIC:
+            transformToSarif(report);
+            break;
+        case ReportType.XML_TESTS:
+            transformToXUnit(report);
+            break;
+        case ReportType.XML_STATIC_AND_TESTS:
+            transformToSarif(report);
+            transformToXUnit(report);
+            break;
+        case ReportType.XML_SOATEST:
+            transformToSOATestXUnit(report);
+            break;
+        case ReportType.XML_STATIC_AND_SOATEST:
+            transformToSOATestXUnit(report);
+            transformToSarif(report);
+            break;
+        case ReportType.XML_XUNIT:
+            xUnitReports.push(report);
+            break;
+        default:
+            tl.warning("Skipping unrecognized report file: " + report);
+    }
+    processResults(inputReportFiles, index);
 }
 
 function mapToAnalyzer(node: any) {
@@ -408,7 +434,7 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
         tl.error('Invalid dtp.server value in local settings file.');
         return '';
     }
-    
+
     const dtpPort = settings['dtp.port'];
     if (!isNullOrWhitespace(dtpPort)) {
         dtpBaseUrl.port = dtpPort;
@@ -425,4 +451,58 @@ function isNullOrWhitespace(input: any) {
         return true;
     }
     return input.replace(/\s/g, '').length < 1;
+}
+
+function getRuleDocs(ruleId: string, analyzerId: string | undefined, apiVersion: number): Promise<RuleDocs> {
+    return new Promise((resolve, reject) => {
+        let xhr = new xmlHttpRequest({rejectUnauthorized: false});
+        let url = dtpBaseUrl+ "grs/api/v" +apiVersion +"/rules/doc?rule=" + ruleId + "&analyzerId=" + analyzerId;
+        let ruleDocs: RuleDocs = {
+            status: 0,
+            docsUrl: "",
+        }
+        xhr.open('GET', url, true, dtpUsername, dtpPassword);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === xhr.DONE) {
+                ruleDocs.status = xhr.status;
+                if (xhr.status === 200) {
+                    ruleDocs.docsUrl = JSON.parse(xhr.responseText).docsUrl;
+                    resolve(ruleDocs);
+                } else {
+                    reject(ruleDocs);
+                }
+            }
+        }
+        xhr.send();
+    });
+}
+
+function getRulesDocs(ruleIds: string[], index: number, apiVersion: number): Promise<any> {
+    if (index === ruleAnalyzerPairs.size) {
+        return Promise.resolve();
+    }
+
+    if (!ruleAnalyzerPairs.get(ruleIds[index])) {
+        return getRulesDocs(ruleIds, ++index, apiVersion);
+    }
+
+    return getRuleDocs(ruleIds[index], ruleAnalyzerPairs.get(ruleIds[index]), apiVersion).then((response) => {
+        rulesDocs.set(ruleIds[index], response.docsUrl);
+        return getRulesDocs(ruleIds, ++index, apiVersion);
+    }).catch((error) => {
+        if (error.status ===404) {
+            return getRuleDocs(ruleIds[index], ruleAnalyzerPairs.get(ruleIds[index]), 1).then((result) =>{
+                rulesDocs.set(ruleIds[index], result.docsUrl);
+                return getRulesDocs(ruleIds, ++index, apiVersion);
+            }).catch((error) => {
+                if (error.status === 404) {
+                    return getRulesDocs(ruleIds, ++index, apiVersion);
+                } else {
+                    return Promise.reject(error.status);
+                }
+            });
+        } else {
+            return Promise.reject(error.status);
+        }
+    });
 }
