@@ -16,12 +16,10 @@
     "parasoft"
   ],
   "scripts": {
-    "postinstall": "npm run compile",
-    "compile": "(npm run compile_ts) && (npm run sarif) && (npm run xunit) && (npm run soatest) ",
+    "compile_xsl": "(npm run sarif) && (npm run xunit) && (npm run soatest) ",
     "sarif": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
     "xunit": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
-    "soatest": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo",
-    "compile_ts": "tsc publishtestresults.ts"
+    "soatest": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo"
   },
   "author": "Parasoft Corporation",
   "license": "Apache-2.0",

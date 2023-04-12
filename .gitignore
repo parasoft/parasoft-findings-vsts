@@ -4,9 +4,10 @@ node_modules/
 .arcconfig
 .taskkey
 *.vsix
-*.sef.json
 ### VS Code
 .vscode
 
 ### IntelliJ IDEA ###
 .idea
+### VS Code ###
+.vscode
