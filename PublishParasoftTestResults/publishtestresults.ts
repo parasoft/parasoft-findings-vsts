@@ -25,20 +25,15 @@ interface ReadOnlyProperties {
     readonly [key: string]: string
 }
 
-interface RuleDocs {
-    status: number;
-    docsUrl: string;
-}
-
 const enum ReportType {
-     SARIF = 0,
-     XML_STATIC = 1,
-     XML_TESTS = 2,
-     XML_SOATEST = 3,
-     XML_STATIC_AND_TESTS = 4,
-     XML_STATIC_AND_SOATEST = 5,
-     XML_XUNIT = 6,
-     UNKNOWN = 7
+    SARIF = 0,
+    XML_STATIC = 1,
+    XML_TESTS = 2,
+    XML_SOATEST = 3,
+    XML_STATIC_AND_TESTS = 4,
+    XML_STATIC_AND_SOATEST = 5,
+    XML_XUNIT = 6,
+    UNKNOWN = 7
 }
 
 const XUNIT_SUFFIX = "-junit.xml";
@@ -188,21 +183,12 @@ function transformReports(inputReportFiles: string[], index: number)
         });
         saxStream.on("end", function() {
             rulesDocs.clear();
-
-            if (ruleAnalyzerPairs.size > 0) {
-                getRulesDocs(Array.from(ruleAnalyzerPairs.keys()), 0, 1.6).then(()=> {
-                    checkReportType(inputReportFiles, reportType, report, index);
-                }).catch((error) => {
-                    if (error === 401) {
-                        tl.warning("You are not authorized to use DTP API.");
-                    } else {
-                        tl.warning("Failed to connect to DTP server.");
-                    }
-                    checkReportType(inputReportFiles, reportType, report, index);
-                });
-            } else {
-                checkReportType(inputReportFiles, reportType, report, index);
-            }
+            Promise.all([
+                doTransformReport(reportType, report),
+                getRulesDocs()
+            ]).then(() => {
+                processResults(inputReportFiles, index);
+            });
         });
         fs.createReadStream(report).pipe(saxStream);
     } else {
@@ -211,7 +197,7 @@ function transformReports(inputReportFiles: string[], index: number)
     }
 }
 
-function checkReportType(inputReportFiles: string[], reportType: ReportType, report: string, index: number) {
+function doTransformReport(reportType: ReportType, report: string): Promise<void> {
     switch (reportType) {
         case ReportType.XML_STATIC:
             transformToSarif(report);
@@ -236,7 +222,7 @@ function checkReportType(inputReportFiles: string[], reportType: ReportType, rep
         default:
             tl.warning("Skipping unrecognized report file: " + report);
     }
-    processResults(inputReportFiles, index);
+    return Promise.resolve();
 }
 
 function mapToAnalyzer(node: any) {
@@ -363,7 +349,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     let sarifReportPath: string = sarifReports[index];
     let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
     let resultsValue = sarifReport.runs[0].results[0];
- 
+
     success = (resultsValue == null) || (!resultsValue);
     if (success) {
         if (index < sarifReports.length -1) {
@@ -453,56 +439,71 @@ function isNullOrWhitespace(input: any) {
     return input.replace(/\s/g, '').length < 1;
 }
 
-function getRuleDocs(ruleId: string, analyzerId: string | undefined, apiVersion: number): Promise<RuleDocs> {
+function getRulesDocs(): Promise<void> {
+    if (ruleAnalyzerPairs.size > 0) {
+        return doGetRulesDocs(0)
+            .catch((error) => {
+                rulesDocs.clear();
+                if (error === 401) {
+                    tl.warning("You are not authorized to use DTP API.");
+                } else {
+                    tl.warning("Failed to connect to DTP server.");
+                }
+            });
+    }
+    return Promise.resolve();
+}
+
+function doGetRulesDocs(index: number): Promise<any> {
+    const ruleId = Array.from(ruleAnalyzerPairs.keys())[index];
+    const analyzerId = ruleAnalyzerPairs.get(ruleId);
+
+    return getRuleDoc(ruleId, analyzerId, 1.6)
+        .then((response) => {
+            rulesDocs.set(ruleId, response);
+            if(index != ruleAnalyzerPairs.size - 1) {
+                return doGetRulesDocs(++index);
+            } else {
+                return Promise.resolve();
+            }
+        }).catch((error) => {
+            if (error.status === 404) {
+                return getRuleDoc(ruleId, analyzerId, 1)
+                    .then((result) => {
+                        rulesDocs.set(ruleId, result);
+                        if(index != ruleAnalyzerPairs.size - 1) {
+                            return doGetRulesDocs(++index);
+                        } else {
+                            return Promise.resolve();
+                        }
+                    }).catch((e) => {
+                        if(e.status === 404) {
+                            rulesDocs.set(ruleId, "");
+                            return doGetRulesDocs(++index);
+                        } else {
+                            return Promise.reject(error.status);
+                        }
+                    });
+            } else {
+                return Promise.reject(error.status);
+            }
+        });
+}
+
+function getRuleDoc(ruleId: string, analyzerId: string | undefined, apiVersion: number): Promise<string> {
     return new Promise((resolve, reject) => {
         let xhr = new xmlHttpRequest({rejectUnauthorized: false});
         let url = dtpBaseUrl+ "grs/api/v" +apiVersion +"/rules/doc?rule=" + ruleId + "&analyzerId=" + analyzerId;
-        let ruleDocs: RuleDocs = {
-            status: 0,
-            docsUrl: "",
-        }
         xhr.open('GET', url, true, dtpUsername, dtpPassword);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === xhr.DONE) {
-                ruleDocs.status = xhr.status;
                 if (xhr.status === 200) {
-                    ruleDocs.docsUrl = JSON.parse(xhr.responseText).docsUrl;
-                    resolve(ruleDocs);
+                    resolve(JSON.parse(xhr.responseText).docsUrl);
                 } else {
-                    reject(ruleDocs);
+                    reject({status: xhr.status});
                 }
             }
         }
         xhr.send();
-    });
-}
-
-function getRulesDocs(ruleIds: string[], index: number, apiVersion: number): Promise<any> {
-    if (index === ruleAnalyzerPairs.size) {
-        return Promise.resolve();
-    }
-
-    if (!ruleAnalyzerPairs.get(ruleIds[index])) {
-        return getRulesDocs(ruleIds, ++index, apiVersion);
-    }
-
-    return getRuleDocs(ruleIds[index], ruleAnalyzerPairs.get(ruleIds[index]), apiVersion).then((response) => {
-        rulesDocs.set(ruleIds[index], response.docsUrl);
-        return getRulesDocs(ruleIds, ++index, apiVersion);
-    }).catch((error) => {
-        if (error.status ===404) {
-            return getRuleDocs(ruleIds[index], ruleAnalyzerPairs.get(ruleIds[index]), 1).then((result) =>{
-                rulesDocs.set(ruleIds[index], result.docsUrl);
-                return getRulesDocs(ruleIds, ++index, apiVersion);
-            }).catch((error) => {
-                if (error.status === 404) {
-                    return getRulesDocs(ruleIds, ++index, apiVersion);
-                } else {
-                    return Promise.reject(error.status);
-                }
-            });
-        } else {
-            return Promise.reject(error.status);
-        }
     });
 }
