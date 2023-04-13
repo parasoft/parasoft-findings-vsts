@@ -334,7 +334,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     }
 }
 
-function loadSettings(localSettingsPath : string) {
+function loadSettings(localSettingsPath : string | undefined) {
     if (isNullOrWhitespace(localSettingsPath)) {
         tl.warning('Local settings file path is not specified.');
         return null;
