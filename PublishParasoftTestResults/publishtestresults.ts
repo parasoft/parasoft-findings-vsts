@@ -89,6 +89,7 @@ function transformReports(inputReportFiles: string[], index: number)
     let reportType: ReportType = ReportType.UNKNOWN;
     let report: string = inputReportFiles[index];
     let bLegacyReport: boolean = false;
+    let bCPPProReport: boolean = false;
     let bStaticAnalysisResult: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
@@ -102,7 +103,7 @@ function transformReports(inputReportFiles: string[], index: number)
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
             if (node.name == 'StdViols') {
-                if (!bLegacyReport){
+                if (!bLegacyReport || bCPPProReport) {
                     if (reportType == ReportType.UNKNOWN) {
                         tl.debug("Recognized XML Static Analysis report: " + report);
                         reportType = ReportType.XML_STATIC;
@@ -123,9 +124,13 @@ function transformReports(inputReportFiles: string[], index: number)
                     reportType = ReportType.XML_TESTS;
                 }
 
-            } else if (node.name == 'ResultsSession' && isSOAtestReport(node)) {
-                tl.debug("Recognized SOAtest test results report: " + report);
-                reportType = ReportType.XML_SOATEST;
+            } else if (node.name == 'ResultsSession') {
+                if (isSOAtestReport(node)) {
+                    tl.debug("Recognized SOAtest test results report: " + report);
+                    reportType = ReportType.XML_SOATEST;
+                } else if (isCPPProReport(node)) {
+                    bCPPProReport = true;
+                }
 
             } else if (node.name == 'StorageInfo' && !bLegacyReport){
                 bLegacyReport = isLegacyReport(node);
@@ -242,6 +247,10 @@ function isLegacyReport(node:any): boolean {
 
 function isSOAtestReport(node: any): boolean {
     return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
+}
+
+function isCPPProReport(node: any): boolean {
+    return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test';
 }
 
 function transformToSarif(sourcePath: string)
