@@ -18,6 +18,7 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
+import * as SaxonJS from 'saxon-js';
 
 const enum ReportType {
      SARIF = 0,
@@ -35,11 +36,10 @@ const SARIF_SUFFIX = "-sast.sarif";
 const XML_EXTENSION = ".xml";
 const SARIF_EXTENSION = ".sarif";
 
-const SARIF_XSL = "/xsl/sarif.xsl";
-const XUNIT_XSL = "/xsl/xunit.xsl";
-const SOATEST_XUNIT_XSL = "/xsl/soatest-xunit.xsl";
+const SARIF_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8');
+const XUNIT_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/xunit.sef.json", 'utf8');
+const SOATEST_XUNIT_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/soatest-xunit.sef.json", 'utf8');
 
-const SAXON_LIB = "/node_modules/xslt3/xslt3";
 
 const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
@@ -246,26 +246,32 @@ function isSOAtestReport(node: any): boolean {
 
 function transformToSarif(sourcePath: string)
 {
-    transform(sourcePath, __dirname + SARIF_XSL, sourcePath + SARIF_SUFFIX, sarifReports);
+    transform(sourcePath, SARIF_SEF_TEXT, sourcePath + SARIF_SUFFIX, sarifReports);
 }
 
 function transformToXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
 function transformToSOATestXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + SOATEST_XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, SOATEST_XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
-function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
+function transform(sourcePath: string, sheetText: string, outPath: string, transformedReports: string[])
 {
-    const libPath = __dirname + SAXON_LIB;
-    let result = tl.execSync("node", [libPath, '-s:' + sourcePath, '-xsl:' + sheetPath, "-o:" + outPath]);
-    if (result.code == 0) {
+    try {
+        const xmlReport = fs.readFileSync(sourcePath, 'utf8');
+        const options: SaxonJS.options = {
+            stylesheetText: sheetText,
+            sourceText: xmlReport,
+            destination: "serialized"
+        };
+        const result = SaxonJS.transform(options);
+        fs.writeFileSync(outPath, result.principalResult);
         transformedReports.push(outPath);
-    } else {
+    } catch (error) {
         tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
     }
 }
