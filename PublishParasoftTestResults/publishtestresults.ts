@@ -18,22 +18,22 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
+import * as SaxonJS from 'saxon-js';
 import { URL } from 'url';
-var xmlHttpRequest = require('xmlhttprequest-ssl').XMLHttpRequest;
 
 interface ReadOnlyProperties {
     readonly [key: string]: string
 }
 
 const enum ReportType {
-    SARIF = 0,
-    XML_STATIC = 1,
-    XML_TESTS = 2,
-    XML_SOATEST = 3,
-    XML_STATIC_AND_TESTS = 4,
-    XML_STATIC_AND_SOATEST = 5,
-    XML_XUNIT = 6,
-    UNKNOWN = 7
+     SARIF = 0,
+     XML_STATIC = 1,
+     XML_TESTS = 2,
+     XML_SOATEST = 3,
+     XML_STATIC_AND_TESTS = 4,
+     XML_STATIC_AND_SOATEST = 5,
+     XML_XUNIT = 6,
+     UNKNOWN = 7
 }
 
 const XUNIT_SUFFIX = "-junit.xml";
@@ -41,11 +41,10 @@ const SARIF_SUFFIX = "-sast.sarif";
 const XML_EXTENSION = ".xml";
 const SARIF_EXTENSION = ".sarif";
 
-const SARIF_XSL = "/xsl/sarif.xsl";
-const XUNIT_XSL = "/xsl/xunit.xsl";
-const SOATEST_XUNIT_XSL = "/xsl/soatest-xunit.xsl";
+const SARIF_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8');
+const XUNIT_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/xunit.sef.json", 'utf8');
+const SOATEST_XUNIT_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/soatest-xunit.sef.json", 'utf8');
 
-const SAXON_LIB = "/node_modules/xslt3/xslt3";
 
 const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
@@ -71,28 +70,17 @@ if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
+let isDtpSettingsValid : boolean;
 let dtpBaseUrl : string;
 let dtpUsername : string;
 let dtpPassword : string;
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
-    tl.debug('dtp.url: ' + localSettings['dtp.url']);
-    tl.debug('dtp.user: ' + localSettings['dtp.user']);
-    tl.debug('dtp.password: ' + localSettings['dtp.password']);
-    tl.debug('dtp.server: ' + localSettings['dtp.server']);
-    tl.debug('dtp.port: ' + localSettings['dtp.port']);
-    tl.debug('dtp.context.path: ' + localSettings['dtp.context.path']);
-
     dtpBaseUrl = getDtpBaseUrl(localSettings);
-    tl.debug('dtpBaseUrl: ' + dtpBaseUrl);
     dtpUsername = localSettings['dtp.user'];
-    if (isNullOrWhitespace(dtpUsername)) {
-        tl.warning('The username for DTP server authentication is not specified.');
-    }
     dtpPassword = localSettings['dtp.password'];
-    if (isNullOrWhitespace(dtpPassword)) {
-        tl.warning('The password for DTP server authentication is not specified.');
-    }
+    isDtpSettingsValid = checkDtpSettings(dtpBaseUrl, dtpUsername, dtpPassword);
+    tl.debug('DTP settings are valid: ' + isDtpSettingsValid);
 }
 
 let xUnitReports: string[] = [];
@@ -113,6 +101,7 @@ function transformReports(inputReportFiles: string[], index: number)
     let reportType: ReportType = ReportType.UNKNOWN;
     let report: string = inputReportFiles[index];
     let bLegacyReport: boolean = false;
+    let bCPPProReport: boolean = false;
     let bStaticAnalysisResult: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
@@ -126,7 +115,7 @@ function transformReports(inputReportFiles: string[], index: number)
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
             if (node.name == 'StdViols') {
-                if (!bLegacyReport){
+                if (!bLegacyReport || bCPPProReport) {
                     if (reportType == ReportType.UNKNOWN) {
                         tl.debug("Recognized XML Static Analysis report: " + report);
                         reportType = ReportType.XML_STATIC;
@@ -147,9 +136,13 @@ function transformReports(inputReportFiles: string[], index: number)
                     reportType = ReportType.XML_TESTS;
                 }
 
-            } else if (node.name == 'ResultsSession' && isSOAtestReport(node)) {
-                tl.debug("Recognized SOAtest test results report: " + report);
-                reportType = ReportType.XML_SOATEST;
+            } else if (node.name == 'ResultsSession') {
+                if (isSOAtestReport(node)) {
+                    tl.debug("Recognized SOAtest test results report: " + report);
+                    reportType = ReportType.XML_SOATEST;
+                } else if (isCPPProReport(node)) {
+                    bCPPProReport = true;
+                }
 
             } else if (node.name == 'StorageInfo' && !bLegacyReport){
                 bLegacyReport = isLegacyReport(node);
@@ -278,28 +271,38 @@ function isSOAtestReport(node: any): boolean {
     return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
 }
 
+function isCPPProReport(node: any): boolean {
+    return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test';
+}
+
 function transformToSarif(sourcePath: string)
 {
-    transform(sourcePath, __dirname + SARIF_XSL, sourcePath + SARIF_SUFFIX, sarifReports);
+    transform(sourcePath, SARIF_SEF_TEXT, sourcePath + SARIF_SUFFIX, sarifReports);
 }
 
 function transformToXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
 function transformToSOATestXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + SOATEST_XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, SOATEST_XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
-function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
+function transform(sourcePath: string, sheetText: string, outPath: string, transformedReports: string[])
 {
-    const libPath = __dirname + SAXON_LIB;
-    let result = tl.execSync("node", [libPath, '-s:' + sourcePath, '-xsl:' + sheetPath, "-o:" + outPath]);
-    if (result.code == 0) {
+    try {
+        const xmlReport = fs.readFileSync(sourcePath, 'utf8');
+        const options: SaxonJS.options = {
+            stylesheetText: sheetText,
+            sourceText: xmlReport,
+            destination: "serialized"
+        };
+        const result = SaxonJS.transform(options);
+        fs.writeFileSync(outPath, result.principalResult);
         transformedReports.push(outPath);
-    } else {
+    } catch (error) {
         tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
     }
 }
@@ -349,7 +352,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     let sarifReportPath: string = sarifReports[index];
     let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
     let resultsValue = sarifReport.runs[0].results[0];
-
+ 
     success = (resultsValue == null) || (!resultsValue);
     if (success) {
         if (index < sarifReports.length -1) {
@@ -362,7 +365,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     }
 }
 
-function loadSettings(localSettingsPath : string) : ReadOnlyProperties | null{
+function loadSettings(localSettingsPath : string | undefined) : ReadOnlyProperties | null {
     if (isNullOrWhitespace(localSettingsPath)) {
         tl.warning('Local settings file path is not specified.');
         return null;
@@ -379,7 +382,7 @@ function loadProperties(localSettingsFile : string) : ReadOnlyProperties | null 
     try {
         input = fs.readFileSync(localSettingsFile, 'utf-8');
     } catch (err) {
-        tl.error('Error while reading local settings file.');
+        tl.warning('Error while reading local settings file.');
         return null;
     }
 
@@ -391,7 +394,7 @@ function loadProperties(localSettingsFile : string) : ReadOnlyProperties | null 
         tl.debug('Local settings properties: ' + JSON.stringify(props));
         return props;
     } catch (err) {
-        tl.error('Error while parsing local settings file.');
+        tl.warning('Error while parsing local settings file.');
         return null;
     }
 }
@@ -400,36 +403,65 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
     const dtpUrl = settings['dtp.url'];
     if (!isNullOrWhitespace(dtpUrl)) {
         try {
+            tl.debug('dtp.url: ' + dtpUrl);
             return new URL(dtpUrl).href;
         } catch (err) {
-            tl.error('Invalid dtp.url value in local settings file.');
+            tl.warning('Invalid dtp.url value in local settings file.');
             return '';
         }
     }
 
     const dtpServer = settings['dtp.server'];
     if (isNullOrWhitespace(dtpServer)) {
-        tl.warning('Both dtp.url and dtp.server properties are not specified in local settings file.');
+        tl.warning('Both dtp.url and dtp.server are not specified in local settings file.');
         return '';
     }
+    tl.debug('dtp.server: ' + dtpServer);
 
     let dtpBaseUrl : URL;
     try {
         dtpBaseUrl = new URL('https://' + dtpServer);
     } catch (err) {
-        tl.error('Invalid dtp.server value in local settings file.');
+        tl.warning('Invalid dtp.server value in local settings file.');
         return '';
     }
 
     const dtpPort = settings['dtp.port'];
-    if (!isNullOrWhitespace(dtpPort)) {
+    if (isValidPort(parseInt(dtpPort))) {
+        tl.debug('dtp.port: ' + dtpPort);
         dtpBaseUrl.port = dtpPort;
+    } else {
+        tl.warning('Invalid dtp.port value in local settings file.');
     }
+
     const dtpContextPath = settings['dtp.context.path'];
     if (!isNullOrWhitespace(dtpContextPath)) {
+        tl.debug('dtp.context.path: ' + dtpContextPath);
         dtpBaseUrl.pathname = dtpContextPath;
     }
+
     return dtpBaseUrl.href;
+}
+
+function checkDtpSettings(url : string, username : string, password : string) {
+    if (isNullOrWhitespace(url)) {
+        return false;
+    }
+    tl.debug('The URL to DTP server: ' + url);
+
+    if (isNullOrWhitespace(username)) {
+        tl.warning('dtp.user is not specified in local settings file.');
+        return false;
+    }
+    tl.debug('dtp.user: ' + username);
+
+    if (isNullOrWhitespace(password)) {
+        tl.warning('dtp.password is not specified in local settings file.');
+        return false;
+    }
+    tl.debug('dtp.password: ' + password);
+
+    return true;
 }
 
 function isNullOrWhitespace(input: any) {
@@ -437,6 +469,10 @@ function isNullOrWhitespace(input: any) {
         return true;
     }
     return input.replace(/\s/g, '').length < 1;
+}
+
+function isValidPort(port : any) {
+    return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
 }
 
 function getRulesDocs(): Promise<void> {
