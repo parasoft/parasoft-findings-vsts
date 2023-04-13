@@ -70,23 +70,17 @@ if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
+let isDtpSettingsValid : boolean;
 let dtpBaseUrl : string;
 let dtpUsername : string;
 let dtpPassword : string;
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
     dtpBaseUrl = getDtpBaseUrl(localSettings);
-    tl.debug('The URL to DTP server: ' + dtpBaseUrl);
     dtpUsername = localSettings['dtp.user'];
-    tl.debug('dtp.user: ' + dtpUsername);
-    if (isNullOrWhitespace(dtpUsername)) {
-        tl.warning('dtp.user is not specified in local settings file.');
-    }
     dtpPassword = localSettings['dtp.password'];
-    tl.debug('dtp.password: ' + dtpPassword);
-    if (isNullOrWhitespace(dtpPassword)) {
-        tl.warning('dtp.password is not specified in local settings file.');
-    }
+    isDtpSettingsValid = checkDtpSettings(dtpBaseUrl, dtpUsername, dtpPassword);
+    tl.debug('DTP settings are valid: ' + isDtpSettingsValid);
 }
 
 let xUnitReports: string[] = [];
@@ -412,6 +406,7 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
         return '';
     }
     tl.debug('dtp.server: ' + dtpServer);
+
     let dtpBaseUrl : URL;
     try {
         dtpBaseUrl = new URL('https://' + dtpServer);
@@ -419,6 +414,7 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
         tl.warning('Invalid dtp.server value in local settings file.');
         return '';
     }
+
     const dtpPort = settings['dtp.port'];
     if (isValidPort(parseInt(dtpPort))) {
         tl.debug('dtp.port: ' + dtpPort);
@@ -426,12 +422,35 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
     } else {
         tl.warning('Invalid dtp.port value in local settings file.');
     }
+
     const dtpContextPath = settings['dtp.context.path'];
     if (!isNullOrWhitespace(dtpContextPath)) {
         tl.debug('dtp.context.path: ' + dtpContextPath);
         dtpBaseUrl.pathname = dtpContextPath;
     }
+    
     return dtpBaseUrl.href;
+}
+
+function checkDtpSettings(url : string, username : string, password : string) {
+    if (isNullOrWhitespace(url)) {
+        return false;
+    }
+    tl.debug('The URL to DTP server: ' + url);
+
+    if (isNullOrWhitespace(username)) {
+        tl.warning('dtp.user is not specified in local settings file.');
+        return false;
+    }
+    tl.debug('dtp.user: ' + username);
+
+    if (isNullOrWhitespace(password)) {
+        tl.warning('dtp.password is not specified in local settings file.');
+        return false;
+    }
+    tl.debug('dtp.password: ' + password);
+
+    return true;
 }
 
 function isNullOrWhitespace(input: any) {
