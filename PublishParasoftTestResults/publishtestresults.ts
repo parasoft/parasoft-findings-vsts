@@ -20,6 +20,8 @@ import * as sax from 'sax';
 import * as dp from 'dot-properties';
 import * as SaxonJS from 'saxon-js';
 import { URL } from 'url';
+import * as https from 'https';
+import * as axios from 'axios';
 
 interface ReadOnlyProperties {
     readonly [key: string]: string
@@ -176,6 +178,7 @@ function transformReports(inputReportFiles: string[], index: number)
         });
         saxStream.on("end", function() {
             rulesDocs.clear();
+
             Promise.all([
                 doTransformReport(reportType, report),
                 getRulesDocs()
@@ -476,7 +479,7 @@ function isValidPort(port : any) {
 }
 
 function getRulesDocs(): Promise<void> {
-    if (ruleAnalyzerPairs.size > 0) {
+    if (ruleAnalyzerPairs.size > 0 && isDtpSettingsValid) {
         return doGetRulesDocs(0)
             .catch((error) => {
                 rulesDocs.clear();
@@ -492,54 +495,52 @@ function getRulesDocs(): Promise<void> {
 
 function doGetRulesDocs(index: number): Promise<any> {
     const ruleId = Array.from(ruleAnalyzerPairs.keys())[index];
-    const analyzerId = ruleAnalyzerPairs.get(ruleId);
+    // AnalyzerId cannot be undefined.
+    const analyzerId = ruleAnalyzerPairs.get(ruleId) || "";
 
     return getRuleDoc(ruleId, analyzerId, 1.6)
         .then((response) => {
-            rulesDocs.set(ruleId, response);
+            rulesDocs.set(ruleId, response.data.docsUrl);
             if(index != ruleAnalyzerPairs.size - 1) {
                 return doGetRulesDocs(++index);
             } else {
                 return Promise.resolve();
             }
         }).catch((error) => {
-            if (error.status === 404) {
+            let status = error.response ? error.response.status : 500;
+            if (status === 404) {
                 return getRuleDoc(ruleId, analyzerId, 1)
                     .then((result) => {
-                        rulesDocs.set(ruleId, result);
+                        rulesDocs.set(ruleId, result.data.docsUrl);
                         if(index != ruleAnalyzerPairs.size - 1) {
                             return doGetRulesDocs(++index);
                         } else {
                             return Promise.resolve();
                         }
                     }).catch((e) => {
-                        if(e.status === 404) {
+                        status = e.response ? e.response.status : 500;
+                        if(status === 404) {
                             rulesDocs.set(ruleId, "");
                             return doGetRulesDocs(++index);
                         } else {
-                            return Promise.reject(error.status);
+                            return Promise.reject(status);
                         }
                     });
             } else {
-                return Promise.reject(error.status);
+                return Promise.reject(status);
             }
         });
 }
 
-function getRuleDoc(ruleId: string, analyzerId: string | undefined, apiVersion: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-        let xhr = new xmlHttpRequest({rejectUnauthorized: false});
-        let url = dtpBaseUrl+ "grs/api/v" +apiVersion +"/rules/doc?rule=" + ruleId + "&analyzerId=" + analyzerId;
-        xhr.open('GET', url, true, dtpUsername, dtpPassword);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === xhr.DONE) {
-                if (xhr.status === 200) {
-                    resolve(JSON.parse(xhr.responseText).docsUrl);
-                } else {
-                    reject({status: xhr.status});
-                }
-            }
-        }
-        xhr.send();
+function getRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): Promise<any> {
+    const credentials = Buffer.from(`${dtpUsername}:${dtpPassword}`).toString('base64');
+    let url = dtpBaseUrl+ "grs/api/v" + apiVersion +"/rules/doc?rule=" + ruleId + "&analyzerId=" + analyzerId;
+    return axios.default.get(url, {
+        headers: {
+            'Authorization': `Basic ${credentials}`
+        },
+        httpsAgent: new https.Agent({
+            rejectUnauthorized: false
+        }),
     });
 }
