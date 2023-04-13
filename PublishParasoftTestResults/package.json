@@ -16,10 +16,11 @@
     "parasoft"
   ],
   "scripts": {
-    "compile_xsl": "(npm run sarif) && (npm run xunit) && (npm run soatest) ",
-    "sarif": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
-    "xunit": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
-    "soatest": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo"
+    "compilexsl": "(npm run sarifxsl) && (npm run xunitxsl) && (npm run soatestxsl) ",
+    "sarifxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
+    "xunitxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
+    "soatestxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo",
+    "postinstall": "printf 'Package installed successfully. To generate the SEF stylesheets required for SaxonJS to load and perform transformations, run `npm run compilexsl`'"
   },
   "author": "Parasoft Corporation",
   "license": "Apache-2.0",
