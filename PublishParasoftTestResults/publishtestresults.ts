@@ -96,6 +96,8 @@ if (localSettings) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
+let ruleIdsWithCatAsGlobal: Set<string> = new Set();
+let ruleAnalyzerPairs: Map<string, string> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
@@ -109,12 +111,16 @@ function transformReports(inputReportFiles: string[], index: number)
     let reportType: ReportType = ReportType.UNKNOWN;
     let report: string = inputReportFiles[index];
     let bLegacyReport: boolean = false;
+    let bStaticAnalysisResult: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
         tl.debug("Recognized SARIF report: " + report);
         sarifReports.push(report);
         processResults(inputReportFiles, index);
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        ruleIdsWithCatAsGlobal.clear();
+        ruleAnalyzerPairs.clear();
+
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
             if (node.name == 'StdViols') {
@@ -149,6 +155,25 @@ function transformReports(inputReportFiles: string[], index: number)
             } else if (node.name == 'testsuites') {
                 tl.debug("Recognized XUnit report: " + report)
                 reportType = ReportType.XML_XUNIT;
+
+            } else if (node.name == 'CodingStandards') {
+                bStaticAnalysisResult = true;
+
+            } else if (node.name == 'Rule') {
+                let ruleId = node.attributes.id;
+                if (!bLegacyReport) {
+                    ruleAnalyzerPairs.set(ruleId, node.attributes.analyzer);
+                } else if (node.attributes.cat == 'GLOBAL') {
+                    ruleIdsWithCatAsGlobal.add(ruleId);
+                }
+
+            } else if (bStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
+                mapToAnalyzer(node);
+            }
+        });
+        saxStream.on("closeTag", function (nodeName) {
+            if (nodeName == 'CodingStandards') {
+                bStaticAnalysisResult = false;
             }
         });
         saxStream.on("error", function (e) {
@@ -185,6 +210,30 @@ function transformReports(inputReportFiles: string[], index: number)
     } else {
         tl.warning("Skipping unrecognized report file: " + report);
         processResults(inputReportFiles, index);
+    }
+}
+
+function mapToAnalyzer(node: any) {
+    let ruleId = node.attributes.rule;
+    let violationType = node.name;
+    if (!ruleAnalyzerPairs.get(ruleId)) {
+        switch (violationType) {
+            case 'DupViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.dupcode");
+                break;
+            case 'FlowViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.flow");
+                break;
+            case 'MetViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.metrics");
+                break;
+            default:
+                if (ruleIdsWithCatAsGlobal.has((ruleId))) {
+                    ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.global");
+                } else {
+                    ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.pattern");
+                }
+        }
     }
 }
 
