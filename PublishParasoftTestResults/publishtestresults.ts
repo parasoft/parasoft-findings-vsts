@@ -18,6 +18,7 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
+import * as SaxonJS from 'saxon-js';
 import { URL } from 'url';
 
 interface ReadOnlyProperties {
@@ -40,11 +41,10 @@ const SARIF_SUFFIX = "-sast.sarif";
 const XML_EXTENSION = ".xml";
 const SARIF_EXTENSION = ".sarif";
 
-const SARIF_XSL = "/xsl/sarif.xsl";
-const XUNIT_XSL = "/xsl/xunit.xsl";
-const SOATEST_XUNIT_XSL = "/xsl/soatest-xunit.xsl";
+const SARIF_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8');
+const XUNIT_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/xunit.sef.json", 'utf8');
+const SOATEST_XUNIT_SEF_TEXT = fs.readFileSync(__dirname + "/xsl/soatest-xunit.sef.json", 'utf8');
 
-const SAXON_LIB = "/node_modules/xslt3/xslt3";
 
 const inputReportFiles: string[] = tl.getDelimitedInput('resultsFiles', '\n', true);
 const mergeResults = tl.getInput('mergeTestResults');
@@ -91,6 +91,8 @@ if (localSettings) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
+let ruleIdsWithCatAsGlobal: Set<string> = new Set();
+let ruleAnalyzerPairs: Map<string, string> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
 if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
@@ -104,16 +106,21 @@ function transformReports(inputReportFiles: string[], index: number)
     let reportType: ReportType = ReportType.UNKNOWN;
     let report: string = inputReportFiles[index];
     let bLegacyReport: boolean = false;
+    let bCPPProReport: boolean = false;
+    let bStaticAnalysisResult: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
         tl.debug("Recognized SARIF report: " + report);
         sarifReports.push(report);
         processResults(inputReportFiles, index);
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        ruleIdsWithCatAsGlobal.clear();
+        ruleAnalyzerPairs.clear();
+
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
             if (node.name == 'StdViols') {
-                if (!bLegacyReport){
+                if (!bLegacyReport || bCPPProReport) {
                     if (reportType == ReportType.UNKNOWN) {
                         tl.debug("Recognized XML Static Analysis report: " + report);
                         reportType = ReportType.XML_STATIC;
@@ -134,9 +141,13 @@ function transformReports(inputReportFiles: string[], index: number)
                     reportType = ReportType.XML_TESTS;
                 }
 
-            } else if (node.name == 'ResultsSession' && isSOAtestReport(node)) {
-                tl.debug("Recognized SOAtest test results report: " + report);
-                reportType = ReportType.XML_SOATEST;
+            } else if (node.name == 'ResultsSession') {
+                if (isSOAtestReport(node)) {
+                    tl.debug("Recognized SOAtest test results report: " + report);
+                    reportType = ReportType.XML_SOATEST;
+                } else if (isCPPProReport(node)) {
+                    bCPPProReport = true;
+                }
 
             } else if (node.name == 'StorageInfo' && !bLegacyReport){
                 bLegacyReport = isLegacyReport(node);
@@ -144,6 +155,25 @@ function transformReports(inputReportFiles: string[], index: number)
             } else if (node.name == 'testsuites') {
                 tl.debug("Recognized XUnit report: " + report)
                 reportType = ReportType.XML_XUNIT;
+
+            } else if (node.name == 'CodingStandards') {
+                bStaticAnalysisResult = true;
+
+            } else if (node.name == 'Rule') {
+                let ruleId = node.attributes.id;
+                if (!bLegacyReport) {
+                    ruleAnalyzerPairs.set(ruleId, node.attributes.analyzer);
+                } else if (node.attributes.cat == 'GLOBAL') {
+                    ruleIdsWithCatAsGlobal.add(ruleId);
+                }
+
+            } else if (bStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
+                mapToAnalyzer(node);
+            }
+        });
+        saxStream.on("closeTag", function (nodeName) {
+            if (nodeName == 'CodingStandards') {
+                bStaticAnalysisResult = false;
             }
         });
         saxStream.on("error", function (e) {
@@ -183,6 +213,30 @@ function transformReports(inputReportFiles: string[], index: number)
     }
 }
 
+function mapToAnalyzer(node: any) {
+    let ruleId = node.attributes.rule;
+    let violationType = node.name;
+    if (!ruleAnalyzerPairs.get(ruleId)) {
+        switch (violationType) {
+            case 'DupViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.dupcode");
+                break;
+            case 'FlowViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.flow");
+                break;
+            case 'MetViol':
+                ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.metrics");
+                break;
+            default:
+                if (ruleIdsWithCatAsGlobal.has((ruleId))) {
+                    ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.global");
+                } else {
+                    ruleAnalyzerPairs.set(ruleId, "com.parasoft.xtest.cpp.analyzer.static.pattern");
+                }
+        }
+    }
+}
+
 function processResults(inputReportFiles: string[], index: number){
     if (index < inputReportFiles.length - 1) {
         transformReports(inputReportFiles, ++index);
@@ -212,28 +266,38 @@ function isSOAtestReport(node: any): boolean {
     return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
 }
 
+function isCPPProReport(node: any): boolean {
+    return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test';
+}
+
 function transformToSarif(sourcePath: string)
 {
-    transform(sourcePath, __dirname + SARIF_XSL, sourcePath + SARIF_SUFFIX, sarifReports);
+    transform(sourcePath, SARIF_SEF_TEXT, sourcePath + SARIF_SUFFIX, sarifReports);
 }
 
 function transformToXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
 function transformToSOATestXUnit(sourcePath: string)
 {
-    transform(sourcePath, __dirname + SOATEST_XUNIT_XSL, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, SOATEST_XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
 }
 
-function transform(sourcePath: string, sheetPath: string, outPath: string, transformedReports: string[])
+function transform(sourcePath: string, sheetText: string, outPath: string, transformedReports: string[])
 {
-    const libPath = __dirname + SAXON_LIB;
-    let result = tl.execSync("node", [libPath, '-s:' + sourcePath, '-xsl:' + sheetPath, "-o:" + outPath]);
-    if (result.code == 0) {
+    try {
+        const xmlReport = fs.readFileSync(sourcePath, 'utf8');
+        const options: SaxonJS.options = {
+            stylesheetText: sheetText,
+            sourceText: xmlReport,
+            destination: "serialized"
+        };
+        const result = SaxonJS.transform(options);
+        fs.writeFileSync(outPath, result.principalResult);
         transformedReports.push(outPath);
-    } else {
+    } catch (error) {
         tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
     }
 }
@@ -296,7 +360,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     }
 }
 
-function loadSettings(localSettingsPath : string) : ReadOnlyProperties | null{
+function loadSettings(localSettingsPath : string | undefined) : ReadOnlyProperties | null {
     if (isNullOrWhitespace(localSettingsPath)) {
         tl.warning('Local settings file path is not specified.');
         return null;
@@ -341,7 +405,7 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
             return '';
         }
     }
-    
+
     const dtpServer = settings['dtp.server'];
     if (isNullOrWhitespace(dtpServer)) {
         tl.warning('Both dtp.url and dtp.server are not specified in local settings file.');
