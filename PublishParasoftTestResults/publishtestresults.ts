@@ -75,22 +75,17 @@ let dtpUsername : string;
 let dtpPassword : string;
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
-    tl.debug('dtp.url: ' + localSettings['dtp.url']);
-    tl.debug('dtp.user: ' + localSettings['dtp.user']);
-    tl.debug('dtp.password: ' + localSettings['dtp.password']);
-    tl.debug('dtp.server: ' + localSettings['dtp.server']);
-    tl.debug('dtp.port: ' + localSettings['dtp.port']);
-    tl.debug('dtp.context.path: ' + localSettings['dtp.context.path']);
-
     dtpBaseUrl = getDtpBaseUrl(localSettings);
-    tl.debug('dtpBaseUrl: ' + dtpBaseUrl);
+    tl.debug('The URL to DTP server: ' + dtpBaseUrl);
     dtpUsername = localSettings['dtp.user'];
+    tl.debug('dtp.user: ' + dtpUsername);
     if (isNullOrWhitespace(dtpUsername)) {
-        tl.warning('The username for DTP server authentication is not specified.');
+        tl.warning('dtp.user is not specified in local settings file.');
     }
     dtpPassword = localSettings['dtp.password'];
+    tl.debug('dtp.password: ' + dtpPassword);
     if (isNullOrWhitespace(dtpPassword)) {
-        tl.warning('The password for DTP server authentication is not specified.');
+        tl.warning('dtp.password is not specified in local settings file.');
     }
 }
 
@@ -318,7 +313,7 @@ function loadProperties(localSettingsFile : string) : ReadOnlyProperties | null 
     try {
         input = fs.readFileSync(localSettingsFile, 'utf-8');
     } catch (err) {
-        tl.error('Error while reading local settings file.');
+        tl.warning('Error while reading local settings file.');
         return null;
     }
 
@@ -330,7 +325,7 @@ function loadProperties(localSettingsFile : string) : ReadOnlyProperties | null 
         tl.debug('Local settings properties: ' + JSON.stringify(props));
         return props;
     } catch (err) {
-        tl.error('Error while parsing local settings file.');
+        tl.warning('Error while parsing local settings file.');
         return null;
     }
 }
@@ -339,33 +334,37 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
     const dtpUrl = settings['dtp.url'];
     if (!isNullOrWhitespace(dtpUrl)) {
         try {
+            tl.debug('dtp.url: ' + dtpUrl);
             return new URL(dtpUrl).href;
         } catch (err) {
-            tl.error('Invalid dtp.url value in local settings file.');
+            tl.warning('Invalid dtp.url value in local settings file.');
             return '';
         }
     }
-
+    
     const dtpServer = settings['dtp.server'];
     if (isNullOrWhitespace(dtpServer)) {
-        tl.warning('Both dtp.url and dtp.server properties are not specified in local settings file.');
+        tl.warning('Both dtp.url and dtp.server are not specified in local settings file.');
         return '';
     }
-
+    tl.debug('dtp.server: ' + dtpServer);
     let dtpBaseUrl : URL;
     try {
         dtpBaseUrl = new URL('https://' + dtpServer);
     } catch (err) {
-        tl.error('Invalid dtp.server value in local settings file.');
+        tl.warning('Invalid dtp.server value in local settings file.');
         return '';
     }
-    
     const dtpPort = settings['dtp.port'];
-    if (!isNullOrWhitespace(dtpPort)) {
+    if (isValidPort(parseInt(dtpPort))) {
+        tl.debug('dtp.port: ' + dtpPort);
         dtpBaseUrl.port = dtpPort;
+    } else {
+        tl.warning('Invalid dtp.port value in local settings file.');
     }
     const dtpContextPath = settings['dtp.context.path'];
     if (!isNullOrWhitespace(dtpContextPath)) {
+        tl.debug('dtp.context.path: ' + dtpContextPath);
         dtpBaseUrl.pathname = dtpContextPath;
     }
     return dtpBaseUrl.href;
@@ -376,4 +375,8 @@ function isNullOrWhitespace(input: any) {
         return true;
     }
     return input.replace(/\s/g, '').length < 1;
+}
+
+function isValidPort(port : any) {
+    return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
 }
