@@ -178,7 +178,12 @@ function transformReports(inputReportFiles: string[], index: number)
         saxStream.on("error", function (e) {
             tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
         });
-        saxStream.on("end", function() {
+        saxStream.on("end", async function() {
+            let promise = null;
+            if (ruleAnalyzerPairs.size > 0 && isDtpSettingsValid) {
+                promise = getRulesDocs();
+            }
+
             switch (reportType) {
                 case ReportType.XML_STATIC:
                     transformToSarif(report);
@@ -203,7 +208,23 @@ function transformReports(inputReportFiles: string[], index: number)
                 default:
                     tl.warning("Skipping unrecognized report file: " + report);
             }
-            processResults(inputReportFiles, index);
+            if (promise) {
+                await Promise.all([promise])
+                    .then(() => {
+                        processResults(inputReportFiles, index);
+                    })
+                    .catch((error) => {
+                        rulesDocs.clear();
+                        processResults(inputReportFiles, index);
+                        if (error === 401) {
+                            tl.warning("You are not authorized to use DTP API.");
+                        } else {
+                            tl.warning("Failed to connect to DTP server.");
+                        }
+                    });
+            } else {
+                processResults(inputReportFiles, index);
+            }
         });
         fs.createReadStream(report).pipe(saxStream);  
     } else {
@@ -452,50 +473,35 @@ function isValidPort(port : any) {
     return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
 }
 
-function getRulesDocs(): Promise<void> {
-    if (ruleAnalyzerPairs.size > 0 && isDtpSettingsValid) {
-        return doGetRulesDocs(0)
-            .catch((error) => {
-                rulesDocs.clear();
-                if (error === 401) {
-                    tl.warning("You are not authorized to use DTP API.");
-                } else {
-                    tl.warning("Failed to connect to DTP server.");
-                }
-            });
+async function getRulesDocs(): Promise<any> {
+    for (let ruleId of ruleAnalyzerPairs.keys()) {
+        // AnalyzerId cannot be undefined.
+        let analyzerId = ruleAnalyzerPairs.get(ruleId) || "";
+        try {
+            await doGetRuleDoc(ruleId, analyzerId);
+        } catch (e) {
+            return Promise.reject(e);
+        }
     }
-    return Promise.resolve();
 }
 
-function doGetRulesDocs(index: number): Promise<any> {
-    const ruleId = Array.from(ruleAnalyzerPairs.keys())[index];
-    // AnalyzerId cannot be undefined.
-    const analyzerId = ruleAnalyzerPairs.get(ruleId) || "";
-
+function doGetRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
     return getRuleDoc(ruleId, analyzerId, 1.6)
         .then((response) => {
             rulesDocs.set(ruleId, response.data.docsUrl);
-            if(index != ruleAnalyzerPairs.size - 1) {
-                return doGetRulesDocs(++index);
-            } else {
-                return Promise.resolve();
-            }
+            return Promise.resolve();
         }).catch((error) => {
             let status = error.response ? error.response.status : 500;
             if (status === 404) {
                 return getRuleDoc(ruleId, analyzerId, 1)
                     .then((result) => {
                         rulesDocs.set(ruleId, result.data.docsUrl);
-                        if(index != ruleAnalyzerPairs.size - 1) {
-                            return doGetRulesDocs(++index);
-                        } else {
-                            return Promise.resolve();
-                        }
+                        return Promise.resolve();
                     }).catch((e) => {
                         status = e.response ? e.response.status : 500;
                         if(status === 404) {
                             rulesDocs.set(ruleId, "");
-                            return doGetRulesDocs(++index);
+                            return Promise.resolve();
                         } else {
                             return Promise.reject(status);
                         }
