@@ -258,6 +258,7 @@ function mapToAnalyzer(node: any) {
 }
 
 function processResults(inputReportFiles: string[], index: number){
+    addDocURIInSarif(inputReportFiles[index]);
     if (index < inputReportFiles.length - 1) {
         transformReports(inputReportFiles, ++index);
     } else {
@@ -523,4 +524,24 @@ function getRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): Pro
             rejectUnauthorized: false
         }),
     });
+}
+
+function addDocURIInSarif(report:string) {
+    const sarifReport = fs.readFileSync(report + SARIF_SUFFIX, 'utf8');
+    let sarifJson = JSON.parse(sarifReport);
+    for (var i = 0; i < sarifJson.runs.length; ++i) {
+        let run = sarifJson.runs[i];
+        for (var j = 0; j < run.tool.driver.rules.length; ++j) {
+            let rule = run.tool.driver.rules[j];
+            if (rulesDocs.get(rule.id)) {
+                rule.helpUri = rulesDocs.get(rule.id);
+            }
+        }
+    }
+    try {
+        fs.writeFileSync(report + SARIF_SUFFIX, JSON.stringify(sarifJson, null, 2));
+        tl.warning(report + SARIF_SUFFIX);
+    } catch (e) {
+        console.log(e);
+    }
 }
