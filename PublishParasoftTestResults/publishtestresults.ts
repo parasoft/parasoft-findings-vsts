@@ -19,6 +19,11 @@ import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
 import * as SaxonJS from 'saxon-js';
+import { URL } from 'url';
+
+interface ReadOnlyProperties {
+    readonly [key: string]: string
+}
 
 const enum ReportType {
      SARIF = 0,
@@ -65,11 +70,19 @@ if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
+let isDtpSettingsValid : boolean = false;
+let dtpBaseUrl : string;
+let dtpUsername : string;
+let dtpPassword : string;
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
-    tl.debug('dtp.url: ' + localSettings['dtp.url']);
-    tl.debug('dtp.user: ' + localSettings['dtp.user']);
-    tl.debug('dtp.password: ' + localSettings['dtp.password']);
+    dtpBaseUrl = getDtpBaseUrl(localSettings);
+    if (!isNullOrWhitespace(dtpBaseUrl)) {
+        dtpUsername = localSettings['dtp.user'];
+        dtpPassword = localSettings['dtp.password'];
+        isDtpSettingsValid = hasCredentials(dtpUsername, dtpPassword);
+    }
+    tl.debug(isDtpSettingsValid ? 'DTP settings are loaded successfully.' : 'Failed to load DTP settings.');
 }
 
 let xUnitReports: string[] = [];
@@ -343,38 +356,86 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     }
 }
 
-function loadSettings(localSettingsPath : string | undefined) {
+function loadSettings(localSettingsPath : string | undefined) : ReadOnlyProperties | null {
     if (isNullOrWhitespace(localSettingsPath)) {
-        tl.warning('Local settings file path is not specified.');
+        tl.warning('No settings file specified.');
         return null;
     }
 
     let localSettingsFile = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), localSettingsPath);
-    tl.debug('Path to local settings is ' + localSettingsFile);
+    tl.debug('Settings file found: ' + localSettingsFile);
 
     return loadProperties(localSettingsFile);
 }
 
-function loadProperties(localSettingsFile : string) {
+function loadProperties(localSettingsFile : string) : ReadOnlyProperties | null {
     let input: string;
     try {
         input = fs.readFileSync(localSettingsFile, 'utf-8');
     } catch (err) {
-        tl.error('Error while reading local settings file.');
+        tl.warning('Failed to read settings file.');
         return null;
     }
 
     try {
-        let props = dp.parse(input, false);
-        if (!props || Object.keys(props).length === 0) {
-            tl.warning('No local settings properties loaded.');
-        }
-        tl.debug('Local settings properties: ' + JSON.stringify(props));
-        return props;
+        return dp.parse(input, false) as ReadOnlyProperties;
     } catch (err) {
-        tl.error('Error while parsing local settings file.');
+        tl.warning('Failed to parse settings file.');
         return null;
     }
+}
+
+function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
+    let dtpBaseUrl : URL;
+    const dtpUrl = settings['dtp.url'];
+    const dtpServer = settings['dtp.server'];
+
+    if (!isNullOrWhitespace(dtpUrl)) {
+        try {
+            dtpBaseUrl = new URL(dtpUrl);
+        } catch (err) {
+            tl.warning('Invalid dtp.url.');
+            return '';
+        }
+    } else if (!isNullOrWhitespace(dtpServer)) {
+        try {
+            dtpBaseUrl = new URL('https://' + dtpServer);
+        } catch (err) {
+            tl.warning('Invalid dtp.server.');
+            return '';
+        }
+
+        const dtpPort = settings['dtp.port'];
+        if (!isNullOrWhitespace(dtpPort)) {
+            if (isValidPort(parseInt(dtpPort))) {
+                dtpBaseUrl.port = dtpPort;
+            } else {
+                tl.warning('Invalid dtp.port.');
+            }
+        }
+
+        const dtpContextPath = settings['dtp.context.path'];
+        if (!isNullOrWhitespace(dtpContextPath)) {
+            dtpBaseUrl.pathname = dtpContextPath;
+        }
+    } else {
+        tl.warning('dtp.url (since 10.6.1) or dtp.server is required in settings file.');
+        return '';
+    }
+
+    return dtpBaseUrl.href;
+}
+
+function hasCredentials(username : string, password : string) {
+    if (isNullOrWhitespace(username)) {
+        tl.warning('dtp.user is required in settings file.');
+        return false;
+    }
+    if (isNullOrWhitespace(password)) {
+        tl.warning('dtp.password is required in settings file.');
+        return false;
+    }
+    return true;
 }
 
 function isNullOrWhitespace(input: any) {
@@ -382,4 +443,8 @@ function isNullOrWhitespace(input: any) {
         return true;
     }
     return input.replace(/\s/g, '').length < 1;
+}
+
+function isValidPort(port : any) {
+    return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
 }
