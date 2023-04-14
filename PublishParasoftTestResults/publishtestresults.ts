@@ -406,10 +406,12 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
         }
 
         const dtpPort = settings['dtp.port'];
-        if (isValidPort(parseInt(dtpPort))) {
-            dtpBaseUrl.port = dtpPort;
-        } else {
-            tl.warning('Invalid dtp.port.');
+        if (!isNullOrWhitespace(dtpPort)) {
+            if (isValidPort(parseInt(dtpPort))) {
+                dtpBaseUrl.port = dtpPort;
+            } else {
+                tl.warning('Invalid dtp.port.');
+            }
         }
 
         const dtpContextPath = settings['dtp.context.path'];
