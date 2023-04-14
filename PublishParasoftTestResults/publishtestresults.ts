@@ -72,17 +72,19 @@ if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
-let isDtpSettingsValid : boolean;
+let isDtpSettingsValid : boolean = false;
 let dtpBaseUrl : string;
 let dtpUsername : string;
 let dtpPassword : string;
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
     dtpBaseUrl = getDtpBaseUrl(localSettings);
-    dtpUsername = localSettings['dtp.user'];
-    dtpPassword = localSettings['dtp.password'];
-    isDtpSettingsValid = checkDtpSettings(dtpBaseUrl, dtpUsername, dtpPassword);
-    tl.debug('DTP settings are valid: ' + isDtpSettingsValid);
+    if (!isNullOrWhitespace(dtpBaseUrl)) {
+        dtpUsername = localSettings['dtp.user'];
+        dtpPassword = localSettings['dtp.password'];
+        isDtpSettingsValid = hasCredentials(dtpUsername, dtpPassword);
+    }
+    tl.debug(isDtpSettingsValid ? 'DTP settings are loaded successfully.' : 'Failed to load DTP settings.');
 }
 
 let xUnitReports: string[] = [];
@@ -177,48 +179,37 @@ function transformReports(inputReportFiles: string[], index: number)
             tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
         });
         saxStream.on("end", function() {
-            rulesDocs.clear();
-
-            Promise.all([
-                doTransformReport(reportType, report),
-                getRulesDocs()
-            ]).then(() => {
-                processResults(inputReportFiles, index);
-            });
+            switch (reportType) {
+                case ReportType.XML_STATIC:
+                    transformToSarif(report);
+                    break;
+                case ReportType.XML_TESTS:
+                    transformToXUnit(report);
+                    break;
+                case ReportType.XML_STATIC_AND_TESTS:
+                    transformToSarif(report);
+                    transformToXUnit(report);
+                    break;
+                case ReportType.XML_SOATEST:
+                    transformToSOATestXUnit(report);
+                    break;
+                case ReportType.XML_STATIC_AND_SOATEST:
+                    transformToSOATestXUnit(report);
+                    transformToSarif(report);
+                    break;
+                case ReportType.XML_XUNIT:
+                    xUnitReports.push(report);
+                    break;
+                default:
+                    tl.warning("Skipping unrecognized report file: " + report);
+            }
+            processResults(inputReportFiles, index);
         });
-        fs.createReadStream(report).pipe(saxStream);
+        fs.createReadStream(report).pipe(saxStream);  
     } else {
         tl.warning("Skipping unrecognized report file: " + report);
         processResults(inputReportFiles, index);
     }
-}
-
-function doTransformReport(reportType: ReportType, report: string): Promise<void> {
-    switch (reportType) {
-        case ReportType.XML_STATIC:
-            transformToSarif(report);
-            break;
-        case ReportType.XML_TESTS:
-            transformToXUnit(report);
-            break;
-        case ReportType.XML_STATIC_AND_TESTS:
-            transformToSarif(report);
-            transformToXUnit(report);
-            break;
-        case ReportType.XML_SOATEST:
-            transformToSOATestXUnit(report);
-            break;
-        case ReportType.XML_STATIC_AND_SOATEST:
-            transformToSOATestXUnit(report);
-            transformToSarif(report);
-            break;
-        case ReportType.XML_XUNIT:
-            xUnitReports.push(report);
-            break;
-        default:
-            tl.warning("Skipping unrecognized report file: " + report);
-    }
-    return Promise.resolve();
 }
 
 function mapToAnalyzer(node: any) {
@@ -370,12 +361,12 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
 
 function loadSettings(localSettingsPath : string | undefined) : ReadOnlyProperties | null {
     if (isNullOrWhitespace(localSettingsPath)) {
-        tl.warning('Local settings file path is not specified.');
+        tl.warning('No settings file specified.');
         return null;
     }
 
     let localSettingsFile = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), localSettingsPath);
-    tl.debug('Path to local settings is ' + localSettingsFile);
+    tl.debug('Settings file found: ' + localSettingsFile);
 
     return loadProperties(localSettingsFile);
 }
@@ -385,85 +376,68 @@ function loadProperties(localSettingsFile : string) : ReadOnlyProperties | null 
     try {
         input = fs.readFileSync(localSettingsFile, 'utf-8');
     } catch (err) {
-        tl.warning('Error while reading local settings file.');
+        tl.warning('Failed to read settings file.');
         return null;
     }
 
     try {
-        let props = dp.parse(input, false) as ReadOnlyProperties;
-        if (!props || Object.keys(props).length === 0) {
-            tl.warning('No local settings properties loaded.');
-        }
-        tl.debug('Local settings properties: ' + JSON.stringify(props));
-        return props;
+        return dp.parse(input, false) as ReadOnlyProperties;
     } catch (err) {
-        tl.warning('Error while parsing local settings file.');
+        tl.warning('Failed to parse settings file.');
         return null;
     }
 }
 
 function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
+    let dtpBaseUrl : URL;
     const dtpUrl = settings['dtp.url'];
+    const dtpServer = settings['dtp.server'];
+
     if (!isNullOrWhitespace(dtpUrl)) {
         try {
-            tl.debug('dtp.url: ' + dtpUrl);
-            return new URL(dtpUrl).href;
+            dtpBaseUrl = new URL(dtpUrl);
         } catch (err) {
-            tl.warning('Invalid dtp.url value in local settings file.');
+            tl.warning('Invalid dtp.url.');
             return '';
         }
-    }
+    } else if (!isNullOrWhitespace(dtpServer)) {
+        try {
+            dtpBaseUrl = new URL('https://' + dtpServer);
+        } catch (err) {
+            tl.warning('Invalid dtp.server.');
+            return '';
+        }
 
-    const dtpServer = settings['dtp.server'];
-    if (isNullOrWhitespace(dtpServer)) {
-        tl.warning('Both dtp.url and dtp.server are not specified in local settings file.');
-        return '';
-    }
-    tl.debug('dtp.server: ' + dtpServer);
+        const dtpPort = settings['dtp.port'];
+        if (!isNullOrWhitespace(dtpPort)) {
+            if (isValidPort(parseInt(dtpPort))) {
+                dtpBaseUrl.port = dtpPort;
+            } else {
+                tl.warning('Invalid dtp.port.');
+            }
+        }
 
-    let dtpBaseUrl : URL;
-    try {
-        dtpBaseUrl = new URL('https://' + dtpServer);
-    } catch (err) {
-        tl.warning('Invalid dtp.server value in local settings file.');
-        return '';
-    }
-
-    const dtpPort = settings['dtp.port'];
-    if (isValidPort(parseInt(dtpPort))) {
-        tl.debug('dtp.port: ' + dtpPort);
-        dtpBaseUrl.port = dtpPort;
+        const dtpContextPath = settings['dtp.context.path'];
+        if (!isNullOrWhitespace(dtpContextPath)) {
+            dtpBaseUrl.pathname = dtpContextPath;
+        }
     } else {
-        tl.warning('Invalid dtp.port value in local settings file.');
-    }
-
-    const dtpContextPath = settings['dtp.context.path'];
-    if (!isNullOrWhitespace(dtpContextPath)) {
-        tl.debug('dtp.context.path: ' + dtpContextPath);
-        dtpBaseUrl.pathname = dtpContextPath;
+        tl.warning('dtp.url (since 10.6.1) or dtp.server is required in settings file.');
+        return '';
     }
 
     return dtpBaseUrl.href;
 }
 
-function checkDtpSettings(url : string, username : string, password : string) {
-    if (isNullOrWhitespace(url)) {
-        return false;
-    }
-    tl.debug('The URL to DTP server: ' + url);
-
+function hasCredentials(username : string, password : string) {
     if (isNullOrWhitespace(username)) {
-        tl.warning('dtp.user is not specified in local settings file.');
+        tl.warning('dtp.user is required in settings file.');
         return false;
     }
-    tl.debug('dtp.user: ' + username);
-
     if (isNullOrWhitespace(password)) {
-        tl.warning('dtp.password is not specified in local settings file.');
+        tl.warning('dtp.password is required in settings file.');
         return false;
     }
-    tl.debug('dtp.password: ' + password);
-
     return true;
 }
 
