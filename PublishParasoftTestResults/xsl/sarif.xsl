@@ -7,6 +7,7 @@
     <xsl:param name="skip_not_violated_rules">true</xsl:param>
     <xsl:param name="skip_suppressed">false</xsl:param>
     <xsl:param name="duplicates_as_code_flow">true</xsl:param>
+    <xsl:variable name="isCPPProReport" select="not(/ResultsSession/@prjModule) and /ResultsSession/@toolName = 'C++test'"/>
     
     <xsl:variable name="qt">"</xsl:variable>
     <xsl:variable name="illegalChars" select="'\/&quot;&#xD;&#xA;&#x9;'"/>
@@ -404,11 +405,78 @@
                 </xsl:if>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="@locFile" /><xsl:text>"</xsl:text>
+                <xsl:choose>
+                    <xsl:when test="$isCPPProReport">
+                        <!-- For cppTest professional report, "prjModule" attribute is not present.
+                            Project name presents twice in the full source path and needs to be removed.-->
+                        <xsl:value-of select="$locationMap(@locFile)" /><xsl:text>"</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="/ResultsSession/@toolId = 'dottest'">
+                        <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
+                               As a result, the root folder will be removed from full source path. -->
+                        <xsl:value-of select="concat('/', substring-after(@locFile, '/'))"/><xsl:text>"</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
+                        <xsl:call-template name="processLocation">
+                            <xsl:with-param name="locNode" select="$locNode"/>
+                            <xsl:with-param name="locFile" select="@locFile"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:otherwise>
         </xsl:choose>
 
         <xsl:text> }</xsl:text>
+    </xsl:template>
+
+    <xsl:variable name="locationMap" as="map(xs:string, xs:string)" >
+        <xsl:if test="$isCPPProReport">
+            <xsl:map>
+                <xsl:for-each select="/ResultsSession/CodingStandards/TestedFilesDetails/Total//Res[@loc]">
+                    <xsl:call-template name="processCppTestProLocation">
+                        <xsl:with-param name="resOrProjectNode" select="."/>
+                        <xsl:with-param name="locOfResNode" select="@loc"/>
+                        <xsl:with-param name="prefix"/>
+                    </xsl:call-template>
+                </xsl:for-each>
+            </xsl:map>
+        </xsl:if>
+    </xsl:variable>
+
+    <xsl:template name="processCppTestProLocation">
+        <xsl:param name="resOrProjectNode"/>
+        <xsl:param name="locOfResNode"/>
+        <xsl:param name="prefix"/>
+        <xsl:variable name="parentNode" select="$resOrProjectNode/parent::*"/>
+        <xsl:choose>
+            <xsl:when test="local-name($parentNode) = 'Res'">
+                <xsl:variable name="newPrefix" select="concat('/', $parentNode/@name, $prefix)"/>
+                <xsl:call-template name="processCppTestProLocation">
+                    <xsl:with-param name="resOrProjectNode" select="$parentNode"/>
+                    <xsl:with-param name="locOfResNode" select="$locOfResNode"/>
+                    <xsl:with-param name="prefix" select="$newPrefix"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:when test="local-name($parentNode) = 'Project'">
+                <xsl:map-entry key="concat('', $locOfResNode)" select="substring-after($locOfResNode, concat('/', $parentNode/@name, $prefix))"/>
+            </xsl:when>
+        </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="processLocation">
+        <xsl:param name="locNode"/>
+        <xsl:param name="locFile"/>
+        <xsl:choose>
+            <xsl:when test="$locNode/@resProjPath">
+                <xsl:value-of select="concat('/', $locNode/@resProjPath)"/><xsl:text>"</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <!-- Reports structure for Jtest, dotTest, cppTest and cppTest professional are not strictly consistent.
+                       Full source path will be displayed if no rules can be applied. -->
+                <xsl:value-of select="$locFile"/><xsl:text>"</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <!-- TODO optimize -->
