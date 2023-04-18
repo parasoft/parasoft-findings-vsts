@@ -487,7 +487,6 @@ function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
     return doGetRuleDoc(ruleId, analyzerId, 1.6)
         .then((response) => {
             ruleDocUrlMap.set(ruleId, response.data.docsUrl);
-            tl.debug("doc url for "+ruleId+" is added");
             return Promise.resolve();
         }).catch((error) => {
             let status = error.response ? error.response.status : -1;
@@ -499,6 +498,8 @@ function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
                     }).catch((e) => {
                         status = e.response ? e.response.status : -1;
                         if(status === 404) {
+                            // There are cases where a matching rule document URL cannot be found
+                            // due to incompatible DTP versions or legacy versions of Parasoft tools
                             ruleDocUrlMap.set(ruleId, "");
                             return Promise.resolve();
                         } else {
