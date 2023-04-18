@@ -258,7 +258,6 @@ function mapToAnalyzer(node: any) {
 }
 
 function processResults(inputReportFiles: string[], index: number){
-    addDocURIInSarif(inputReportFiles[index]);
     if (index < inputReportFiles.length - 1) {
         transformReports(inputReportFiles, ++index);
     } else {
@@ -316,7 +315,8 @@ function transform(sourcePath: string, sheetText: string, outPath: string, trans
             destination: "serialized"
         };
         const result = SaxonJS.transform(options);
-        fs.writeFileSync(outPath, result.principalResult);
+        const resultWithUri = addDocURIInSarif(result.principalResult);
+        fs.writeFileSync(outPath, resultWithUri);
         transformedReports.push(outPath);
     } catch (error) {
         tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
@@ -368,7 +368,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
     let sarifReportPath: string = sarifReports[index];
     let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
     let resultsValue = sarifReport.runs[0].results[0];
- 
+
     success = (resultsValue == null) || (!resultsValue);
     if (success) {
         if (index < sarifReports.length -1) {
@@ -526,8 +526,7 @@ function getRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): Pro
     });
 }
 
-function addDocURIInSarif(report:string) {
-    const sarifReport = fs.readFileSync(report + SARIF_SUFFIX, 'utf8');
+function addDocURIInSarif(sarifReport: string) {
     let sarifJson = JSON.parse(sarifReport);
     for (var i = 0; i < sarifJson.runs.length; ++i) {
         let run = sarifJson.runs[i];
@@ -538,10 +537,5 @@ function addDocURIInSarif(report:string) {
             }
         }
     }
-    try {
-        fs.writeFileSync(report + SARIF_SUFFIX, JSON.stringify(sarifJson, null, 2));
-        tl.warning(report + SARIF_SUFFIX);
-    } catch (e) {
-        console.log(e);
-    }
+    return JSON.stringify(sarifJson, null, 2);
 }
