@@ -118,12 +118,13 @@ function transformReports(inputReportFiles: string[], index: number)
         sarifReports.push(report);
         processResults(inputReportFiles, index);
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
+        rulesInGlobalCategory.clear();
+        ruleAnalyzerMap.clear();
+        ruleDocUrlMap.clear();
+        ruleDocUrlPromises = [];
+
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
-            rulesInGlobalCategory.clear();
-            ruleAnalyzerMap.clear();
-            ruleDocUrlMap.clear();
-            ruleDocUrlPromises = [];
             if (node.name == 'StdViols') {
                 if (!bLegacyReport || bCPPProReport) {
                     if (reportType == ReportType.UNKNOWN) {
