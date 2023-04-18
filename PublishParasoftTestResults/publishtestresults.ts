@@ -89,10 +89,11 @@ if (localSettings) {
 
 let xUnitReports: string[] = [];
 let sarifReports: string[] = [];
-let ruleIdsWithCatAsGlobal: Set<string> = new Set();
-let ruleAnalyzerPairs: Map<string, string> = new Map();
 let matchingInputReportFiles: string[] = tl.findMatch(searchFolder || '', inputReportFiles);
-let rulesDocs: Map<string,string> = new Map();
+let rulesInGlobalCategory: Set<string> = new Set();
+let ruleAnalyzerMap: Map<string, string> = new Map();
+let ruleDocUrlMap: Map<string,string> = new Map();
+let ruleDocUrlPromises: Promise<any>[] = [];
 let httpsAgent = new https.Agent({
     rejectUnauthorized: false,
     maxSockets: 50
@@ -110,20 +111,19 @@ function transformReports(inputReportFiles: string[], index: number)
     let report: string = inputReportFiles[index];
     let bLegacyReport: boolean = false;
     let bCPPProReport: boolean = false;
-    let bStaticAnalysisResult: boolean = false;
-    let promisesOfGettingRuleDocUrl: Promise<any>[] = [];
+    let bParsingStaticAnalysisResult: boolean = false;
 
     if(report.toLocaleLowerCase().endsWith(SARIF_EXTENSION)) {
         tl.debug("Recognized SARIF report: " + report);
         sarifReports.push(report);
         processResults(inputReportFiles, index);
     } else if (report.toLocaleLowerCase().endsWith(XML_EXTENSION)) {
-        ruleIdsWithCatAsGlobal.clear();
-        ruleAnalyzerPairs.clear();
-        rulesDocs.clear();
-
         const saxStream = sax.createStream(true, {});
         saxStream.on("opentag", function (node) {
+            rulesInGlobalCategory.clear();
+            ruleAnalyzerMap.clear();
+            ruleDocUrlMap.clear();
+            ruleDocUrlPromises = [];
             if (node.name == 'StdViols') {
                 if (!bLegacyReport || bCPPProReport) {
                     if (reportType == ReportType.UNKNOWN) {
@@ -162,32 +162,35 @@ function transformReports(inputReportFiles: string[], index: number)
                 reportType = ReportType.XML_XUNIT;
 
             } else if (node.name == 'CodingStandards') {
-                bStaticAnalysisResult = true;
+                bParsingStaticAnalysisResult = true;
 
             } else if (node.name == 'Rule') {
                 let ruleId = node.attributes.id;
                 let analyzerId = node.attributes.analyzer;
                 if (!bLegacyReport) {
-                    if(!ruleAnalyzerPairs.get(ruleId) && isDtpSettingsValid) {
-                        promisesOfGettingRuleDocUrl.push(getRulesDoc(ruleId, analyzerId));
+                    // A <Rule> has a rule ID and analyzer ID in a non-legacy report
+                    if (isDtpSettingsValid) {
+                        ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
-                    ruleAnalyzerPairs.set(ruleId, analyzerId);
+                    ruleAnalyzerMap.set(ruleId, analyzerId);
                 } else if (node.attributes.cat == 'GLOBAL') {
-                    ruleIdsWithCatAsGlobal.add(ruleId);
+                    rulesInGlobalCategory.add(ruleId);
                 }
 
-            } else if (bStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
+            } else if (bParsingStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
                 let ruleId = node.attributes.rule;
-                let analyzerId = mapToAnalyzer(ruleId, node.name);
-                if(!ruleAnalyzerPairs.get(ruleId) && isDtpSettingsValid) {
-                    promisesOfGettingRuleDocUrl.push(getRulesDoc(ruleId, analyzerId));
+                if(!ruleAnalyzerMap.has(ruleId)) {
+                    let analyzerId = mapToAnalyzer(ruleId, node.name);
+                    if (isDtpSettingsValid) {
+                        ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
+                    }
+                    ruleAnalyzerMap.set(ruleId, analyzerId);
                 }
-                ruleAnalyzerPairs.set(ruleId, analyzerId);
             }
         });
         saxStream.on("closeTag", function (nodeName) {
             if (nodeName == 'CodingStandards') {
-                bStaticAnalysisResult = false;
+                bParsingStaticAnalysisResult = false;
             }
         });
         saxStream.on("error", function (e) {
@@ -196,13 +199,13 @@ function transformReports(inputReportFiles: string[], index: number)
         saxStream.on("end", function() {
             switch (reportType) {
                 case ReportType.XML_STATIC:
-                    transformToSarif(report);
+                    transformToSarif(report, ruleDocUrlPromises.length > 0);
                     break;
                 case ReportType.XML_TESTS:
                     transformToXUnit(report);
                     break;
                 case ReportType.XML_STATIC_AND_TESTS:
-                    transformToSarif(report);
+                    transformToSarif(report, ruleDocUrlPromises.length > 0);
                     transformToXUnit(report);
                     break;
                 case ReportType.XML_SOATEST:
@@ -210,7 +213,7 @@ function transformReports(inputReportFiles: string[], index: number)
                     break;
                 case ReportType.XML_STATIC_AND_SOATEST:
                     transformToSOATestXUnit(report);
-                    transformToSarif(report);
+                    transformToSarif(report, ruleDocUrlPromises.length > 0);
                     break;
                 case ReportType.XML_XUNIT:
                     xUnitReports.push(report);
@@ -218,13 +221,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 default:
                     tl.warning("Skipping unrecognized report file: " + report);
             }
-            if (promisesOfGettingRuleDocUrl.length > 0) {
-                postGettingRulesDocs(promisesOfGettingRuleDocUrl).then(() => {
-                    processResults(inputReportFiles, index);
-                });
-            } else {
-                processResults(inputReportFiles, index);
-            }
+            processResults(inputReportFiles, index);
         });
         fs.createReadStream(report).pipe(saxStream);
     } else {
@@ -234,27 +231,20 @@ function transformReports(inputReportFiles: string[], index: number)
 }
 
 function mapToAnalyzer(ruleId: string, violationType: string) {
-    let analyzerId = ruleAnalyzerPairs.get(ruleId);
-    if (!analyzerId) {
-        switch (violationType) {
-            case 'DupViol':
-                analyzerId = "com.parasoft.xtest.cpp.analyzer.static.dupcode";
-                break;
-            case 'FlowViol':
-                analyzerId = "com.parasoft.xtest.cpp.analyzer.static.flow";
-                break;
-            case 'MetViol':
-                analyzerId = "com.parasoft.xtest.cpp.analyzer.static.metrics";
-                break;
-            default:
-                if (ruleIdsWithCatAsGlobal.has((ruleId))) {
-                    analyzerId = "com.parasoft.xtest.cpp.analyzer.static.global";
-                } else {
-                    analyzerId = "com.parasoft.xtest.cpp.analyzer.static.pattern";
-                }
-        }
+    switch (violationType) {
+        case 'DupViol':
+            return "com.parasoft.xtest.cpp.analyzer.static.dupcode";
+        case 'FlowViol':
+            return "com.parasoft.xtest.cpp.analyzer.static.flow";
+        case 'MetViol':
+            return "com.parasoft.xtest.cpp.analyzer.static.metrics";
+        default:
+            if (rulesInGlobalCategory.has((ruleId))) {
+                return "com.parasoft.xtest.cpp.analyzer.static.global";
+            } else {
+                return "com.parasoft.xtest.cpp.analyzer.static.pattern";
+            }
     }
-    return analyzerId;
 }
 
 function processResults(inputReportFiles: string[], index: number){
@@ -290,22 +280,22 @@ function isCPPProReport(node: any): boolean {
     return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test';
 }
 
-function transformToSarif(sourcePath: string)
+function transformToSarif(sourcePath: string, hasRuleDocUrls: boolean)
 {
-    transform(sourcePath, SARIF_SEF_TEXT, sourcePath + SARIF_SUFFIX, sarifReports);
+    transform(sourcePath, SARIF_SEF_TEXT, sourcePath + SARIF_SUFFIX, sarifReports, hasRuleDocUrls);
 }
 
 function transformToXUnit(sourcePath: string)
 {
-    transform(sourcePath, XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports, false);
 }
 
 function transformToSOATestXUnit(sourcePath: string)
 {
-    transform(sourcePath, SOATEST_XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports);
+    transform(sourcePath, SOATEST_XUNIT_SEF_TEXT, sourcePath + XUNIT_SUFFIX, xUnitReports, false);
 }
 
-function transform(sourcePath: string, sheetText: string, outPath: string, transformedReports: string[])
+function transform(sourcePath: string, sheetText: string, outPath: string, transformedReports: string[], hasRuleDocUrls: boolean)
 {
     try {
         const xmlReport = fs.readFileSync(sourcePath, 'utf8');
@@ -315,7 +305,14 @@ function transform(sourcePath: string, sheetText: string, outPath: string, trans
             destination: "serialized"
         };
         const result = SaxonJS.transform(options);
-        fs.writeFileSync(outPath, result.principalResult);
+        if (hasRuleDocUrls) {
+            handleRuleDocsPromises(ruleDocUrlPromises).then(() => {
+                // TODO CICD-125 include rule doc url into the report here
+                fs.writeFileSync(outPath, result.principalResult);
+            });
+        } else {
+            fs.writeFileSync(outPath, result.principalResult);
+        }
         transformedReports.push(outPath);
     } catch (error) {
         tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
@@ -473,35 +470,36 @@ function isValidPort(port : any) {
     return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
 }
 
-async function postGettingRulesDocs(promises: Promise<any>[]) {
+async function handleRuleDocsPromises(promises: Promise<any>[]) {
     try {
         await Promise.all(promises);
     } catch (error) {
-        rulesDocs.clear();
+        ruleDocUrlMap.clear();
         if (error === 401) {
-            tl.warning("You are not authorized to use DTP API.");
+            tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
         } else {
             tl.warning("Failed to connect to DTP server.");
         }
     }
 }
 
-function getRulesDoc(ruleId: string, analyzerId: string): Promise<any> {
+function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
     return doGetRuleDoc(ruleId, analyzerId, 1.6)
         .then((response) => {
-            rulesDocs.set(ruleId, response.data.docsUrl);
+            ruleDocUrlMap.set(ruleId, response.data.docsUrl);
+            tl.debug("doc url for "+ruleId+" is added");
             return Promise.resolve();
         }).catch((error) => {
             let status = error.response ? error.response.status : -1;
             if (status === 404) {
-                return doGetRuleDoc(ruleId, analyzerId, 1)
+                return doGetRuleDoc(ruleId, analyzerId, 1) // legacy DTP API with version 1.0
                     .then((result) => {
-                        rulesDocs.set(ruleId, result.data.docsUrl);
+                        ruleDocUrlMap.set(ruleId, result.data.docsUrl);
                         return Promise.resolve();
                     }).catch((e) => {
                         status = e.response ? e.response.status : -1;
                         if(status === 404) {
-                            rulesDocs.set(ruleId, "");
+                            ruleDocUrlMap.set(ruleId, "");
                             return Promise.resolve();
                         } else {
                             return Promise.reject(status);
