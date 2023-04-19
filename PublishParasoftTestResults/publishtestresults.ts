@@ -315,7 +315,7 @@ function transform(sourcePath: string, sheetText: string, outPath: string, trans
             destination: "serialized"
         };
         const result = SaxonJS.transform(options);
-        const resultWithUri = addDocURIInSarif(result.principalResult);
+        const resultWithUri = appendRuleDocUrls(result.principalResult);
         fs.writeFileSync(outPath, resultWithUri);
         transformedReports.push(outPath);
     } catch (error) {
@@ -526,16 +526,15 @@ function getRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): Pro
     });
 }
 
-function addDocURIInSarif(sarifReport: string) {
+function appendRuleDocUrls(sarifReport: string) {
     let sarifJson = JSON.parse(sarifReport);
-    for (var i = 0; i < sarifJson.runs.length; ++i) {
-        let run = sarifJson.runs[i];
-        for (var j = 0; j < run.tool.driver.rules.length; ++j) {
-            let rule = run.tool.driver.rules[j];
-            if (rulesDocs.get(rule.id)) {
-                rule.helpUri = rulesDocs.get(rule.id);
+    sarifJson.runs.forEach((run) => {
+        run.tool.driver.rules.forEach((rule) => {
+            let helpUri = rulesDocs.get(rule.id);
+            if (helpUri != null) {
+                rule.helpUri = helpUri;
             }
-        }
-    }
+        })
+    })
     return JSON.stringify(sarifJson, null, 2);
 }
