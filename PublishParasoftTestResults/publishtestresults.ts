@@ -198,14 +198,12 @@ function transformReports(inputReportFiles: string[], index: number)
             tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
         });
         saxStream.on("end", function() {
-            if (ruleDocUrlPromises.length > 0) {
-                handleRuleDocsPromises(ruleDocUrlPromises).then(() => {
-                    transformToReport(reportType, report);
-                    processResults(inputReportFiles, index);
-                });
-            } else {
+            // For static analysis report: need to wait until all rule doc urls is ready.
+            // For other report: ruleDocUrlPromises is an empty array, it goes into then block directly.
+            handleRuleDocsPromises(ruleDocUrlPromises).then(() => {
+                transformToReport(reportType, report);
                 processResults(inputReportFiles, index);
-            }
+            });
         });
         fs.createReadStream(report).pipe(saxStream);
     } else {
@@ -214,7 +212,7 @@ function transformReports(inputReportFiles: string[], index: number)
     }
 }
 
-function transformToReport(reportType : any, report: any) {
+function transformToReport(reportType : ReportType, report: string) {
     switch (reportType) {
         case ReportType.XML_STATIC:
             transformToSarif(report);
