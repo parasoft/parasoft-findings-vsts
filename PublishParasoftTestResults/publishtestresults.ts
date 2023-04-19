@@ -314,12 +314,11 @@ function transform(sourcePath: string, sheetText: string, outPath: string, trans
             destination: "serialized"
         };
         const result = SaxonJS.transform(options);
-        if (true) {
-            // TODO CICD-125 include rule doc url into the report here
-            fs.writeFileSync(outPath, result.principalResult);
-        } else {
-            fs.writeFileSync(outPath, result.principalResult);
+        let resultString = result.principalResult;
+        if (ruleDocUrlMap.size != 0) {
+            resultString = appendRuleDocUrls(result.principalResult);
         }
+        fs.writeFileSync(outPath, resultString);
         transformedReports.push(outPath);
     } catch (error) {
         tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
@@ -528,4 +527,17 @@ function doGetRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): P
             password: dtpPassword
         }
     });
+}
+
+function appendRuleDocUrls(sarifReport: string) {
+    let sarifJson = JSON.parse(sarifReport);
+    sarifJson.runs.forEach((run: any) => {
+        run.tool.driver.rules.forEach((rule: any) => {
+            let helpUri = ruleDocUrlMap.get(rule.id);
+            if (helpUri) {
+                rule.helpUri = helpUri;
+            }
+        })
+    })
+    return JSON.stringify(sarifJson);
 }
