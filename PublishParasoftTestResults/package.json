@@ -20,7 +20,7 @@
     "sarifxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
     "xunitxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
     "soatestxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo",
-    "postinstall": "printf 'Package installed successfully. To generate the SEF stylesheets required for SaxonJS to load and perform transformations, run `npm run compilexsl`'"
+    "postinstall": "@echo off && echo Package installed successfully. To generate the SEF stylesheets required for SaxonJS to load and perform transformations, run `npm run compilexsl`"
   },
   "author": "Parasoft Corporation",
   "license": "Apache-2.0",
