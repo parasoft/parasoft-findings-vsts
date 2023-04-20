@@ -73,6 +73,7 @@ if (isNullOrWhitespace(searchFolder)) {
 }
 
 let isDtpSettingsValid : boolean = false;
+let isDTPServiceStarted : boolean = false;
 let dtpBaseUrl : string;
 let dtpUsername : string;
 let dtpPassword : string;
@@ -102,7 +103,22 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
     tl.setResult(tl.TaskResult.Succeeded, '');
 } else {
-    transformReports(matchingInputReportFiles, 0);
+    if (isDtpSettingsValid) {
+        verifyDTPService().then(() =>{
+            isDTPServiceStarted = true;
+            transformReports(matchingInputReportFiles, 0);
+        }).catch((error) => {
+            let status = error.response ? error.response.status : -1;
+            if (status === 401) {
+                tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
+            } else {
+                tl.warning("Failed to connect to DTP server.");
+            }
+            transformReports(matchingInputReportFiles, 0);
+        });
+    } else {
+        transformReports(matchingInputReportFiles, 0);
+    }
 }
 
 function transformReports(inputReportFiles: string[], index: number)
@@ -170,7 +186,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let analyzerId = node.attributes.analyzer;
                 if (!bLegacyReport) {
                     // A <Rule> has a rule ID and analyzer ID in a non-legacy report
-                    if (isDtpSettingsValid) {
+                    if (isDTPServiceStarted) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -182,7 +198,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let ruleId = node.attributes.rule;
                 if(!ruleAnalyzerMap.has(ruleId)) {
                     let analyzerId = mapToAnalyzer(ruleId, node.name);
-                    if (isDtpSettingsValid) {
+                    if (isDTPServiceStarted) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -478,7 +494,7 @@ function isValidPort(port : any) {
 
 async function handleRuleDocsPromises(promises: Promise<any>[]) {
     await Promise.all(promises).then((response) => {
-        if (ruleDocUrlMap.size !== ruleAnalyzerMap.size) {
+        if (response.length > 0 && ruleDocUrlMap.size !== ruleAnalyzerMap.size) {
             ruleDocUrlMap.clear();
             if (response.indexOf(401) > -1) {
                 tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
@@ -548,4 +564,15 @@ function appendRuleDocUrls(sarifReport: string) {
         })
     })
     return JSON.stringify(sarifJson);
+}
+
+function verifyDTPService() {
+    let url = dtpBaseUrl + "grs/api/v1/dtpServices";
+    return axios.default.get(url, {
+        httpsAgent: httpsAgent,
+        auth: {
+            username: dtpUsername,
+            password: dtpPassword
+        }
+    });
 }
