@@ -477,43 +477,47 @@ function isValidPort(port : any) {
 }
 
 async function handleRuleDocsPromises(promises: Promise<any>[]) {
-    try {
-        await Promise.all(promises);
-    } catch (error) {
-        ruleDocUrlMap.clear();
-        if (error === 401) {
-            tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
-        } else {
-            tl.warning("Failed to connect to DTP server.");
+    await Promise.all(promises).then((response) => {
+        if (ruleDocUrlMap.size !== ruleAnalyzerMap.size) {
+            ruleDocUrlMap.clear();
+            if (response.indexOf(401) > -1) {
+                tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
+            } else {
+                tl.warning("Failed to connect to DTP server.");
+            }
         }
-    }
+    });
 }
 
 function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
     return doGetRuleDoc(ruleId, analyzerId, 1.6)
         .then((response) => {
-            ruleDocUrlMap.set(ruleId, response.data.docsUrl);
-            return Promise.resolve();
-        }).catch((error) => {
-            let status = error.response ? error.response.status : -1;
-            if (status === 404) {
-                return doGetRuleDoc(ruleId, analyzerId, 1) // legacy DTP API with version 1.0
-                    .then((result) => {
-                        ruleDocUrlMap.set(ruleId, result.data.docsUrl);
-                        return Promise.resolve();
-                    }).catch((e) => {
-                        status = e.response ? e.response.status : -1;
-                        if(status === 404) {
-                            // There are cases where a matching rule document URL cannot be found
-                            // due to incompatible DTP versions or legacy versions of Parasoft tools
-                            ruleDocUrlMap.set(ruleId, "");
-                            return Promise.resolve();
-                        } else {
-                            return Promise.reject(status);
-                        }
-                    });
+            if (response.data) {
+                ruleDocUrlMap.set(ruleId, response.data.docsUrl);
+                return Promise.resolve();
             } else {
-                return Promise.reject(status);
+                let status = response.response ? response.response.status : -1;
+                if (status === 404) {
+                    return doGetRuleDoc(ruleId, analyzerId, 1) // legacy DTP API with version 1.0
+                        .then((result) => {
+                            if (result.data) {
+                                ruleDocUrlMap.set(ruleId, result.data.docsUrl);
+                            } else {
+                                status = result.response ? result.response.status : -1;
+                                tl.debug(result.response ? result.response.data.message : result.message);
+                                if(status === 404) {
+                                    // There are cases where a matching rule document URL cannot be found
+                                    // due to incompatible DTP versions or legacy versions of Parasoft tools
+                                    ruleDocUrlMap.set(ruleId, "");
+                                } else {
+                                    return Promise.resolve(status);
+                                }
+                            }
+                            return Promise.resolve();
+                        });
+                }
+                tl.debug(response.response ? response.response.data.message : response.message);
+                return Promise.resolve(status);
             }
         });
 }
@@ -526,6 +530,10 @@ function doGetRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): P
             username: dtpUsername,
             password: dtpPassword
         }
+    }).then((response) => {
+        return Promise.resolve(response);
+    }).catch((error) => {
+        return Promise.resolve(error);
     });
 }
 
