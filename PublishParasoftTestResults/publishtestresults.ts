@@ -95,6 +95,7 @@ let rulesInGlobalCategory: Set<string> = new Set();
 let ruleAnalyzerMap: Map<string, string> = new Map();
 let ruleDocUrlMap: Map<string,string> = new Map();
 let ruleDocUrlPromises: Promise<any>[] = [];
+let ruleDocUrlStatuses: number[] = [];
 let httpsAgent = new https.Agent({
     rejectUnauthorized: false,
     maxSockets: 50
@@ -216,7 +217,11 @@ function transformReports(inputReportFiles: string[], index: number)
         saxStream.on("end", function() {
             // For static analysis report: need to wait until all rule doc urls is ready.
             // For other report: ruleDocUrlPromises is an empty array, it goes into then block directly.
-            handleRuleDocsPromises(ruleDocUrlPromises).then(() => {
+            Promise.all(ruleDocUrlPromises).then(() =>{
+                if (ruleDocUrlStatuses.length > 0) {
+                    ruleDocUrlMap.clear();
+                    tl.warning("Can not get rule doc urls from DTP.");
+                }
                 transformToReport(reportType, report);
                 processResults(inputReportFiles, index);
             });
@@ -492,49 +497,16 @@ function isValidPort(port : any) {
     return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
 }
 
-async function handleRuleDocsPromises(promises: Promise<any>[]) {
-    await Promise.all(promises).then((response) => {
-        if (response.length > 0 && ruleDocUrlMap.size !== ruleAnalyzerMap.size) {
-            ruleDocUrlMap.clear();
-            if (response.indexOf(401) > -1) {
-                tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
-            } else {
-                tl.warning("Failed to connect to DTP server.");
-            }
-        }
-    });
-}
-
 function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
     return doGetRuleDoc(ruleId, analyzerId, 1.6)
-        .then((response) => {
-            if (response.data) {
-                ruleDocUrlMap.set(ruleId, response.data.docsUrl);
-                return Promise.resolve();
-            } else {
-                let status = response.response ? response.response.status : -1;
-                if (status === 404) {
-                    return doGetRuleDoc(ruleId, analyzerId, 1) // legacy DTP API with version 1.0
-                        .then((result) => {
-                            if (result.data) {
-                                ruleDocUrlMap.set(ruleId, result.data.docsUrl);
-                            } else {
-                                status = result.response ? result.response.status : -1;
-                                tl.debug(result.response ? result.response.data.message : result.message);
-                                if(status === 404) {
-                                    // There are cases where a matching rule document URL cannot be found
-                                    // due to incompatible DTP versions or legacy versions of Parasoft tools
-                                    ruleDocUrlMap.set(ruleId, "");
-                                } else {
-                                    return Promise.resolve(status);
-                                }
-                            }
-                            return Promise.resolve();
-                        });
-                }
-                tl.debug(response.response ? response.response.data.message : response.message);
-                return Promise.resolve(status);
-            }
+        .catch(() => {
+            return doGetRuleDoc(ruleId, analyzerId, 1) // legacy DTP API with version 1.0
+                .catch(() => {
+                    // There are cases where a matching rule document URL cannot be found
+                    // due to incompatible DTP versions or legacy versions of Parasoft tools
+                    ruleDocUrlMap.set(ruleId, "");
+                    return Promise.resolve();
+                });
         });
 }
 
@@ -547,9 +519,16 @@ function doGetRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): P
             password: dtpPassword
         }
     }).then((response) => {
-        return Promise.resolve(response);
+        ruleDocUrlMap.set(ruleId, response.data.docsUrl);
+        return Promise.resolve();
     }).catch((error) => {
-        return Promise.resolve(error);
+        const status = error.response ? error.response.status : -1;
+        if(status != 404) {
+            ruleDocUrlStatuses.push(status)
+            tl.debug("Can not get rule doc url from " + url);
+        } else {
+            return Promise.reject();
+        }
     });
 }
 
