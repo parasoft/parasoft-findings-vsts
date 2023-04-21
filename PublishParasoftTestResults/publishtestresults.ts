@@ -286,7 +286,7 @@ function isSOAtestReport(node: any): boolean {
 }
 
 function isCPPProReport(node: any): boolean {
-    return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test';
+    return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test' && !node.attributes.hasOwnProperty('prjModule');
 }
 
 function transformToSarif(sourcePath: string)
