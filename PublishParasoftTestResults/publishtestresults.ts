@@ -73,7 +73,7 @@ if (isNullOrWhitespace(searchFolder)) {
 }
 
 let isDtpSettingsValid : boolean = false;
-let isDTPServiceStarted : boolean = false;
+let isDTPServiceAvailable : boolean = false;
 let dtpBaseUrl : string;
 let dtpUsername : string;
 let dtpPassword : string;
@@ -105,16 +105,7 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.setResult(tl.TaskResult.Succeeded, '');
 } else {
     if (isDtpSettingsValid) {
-        verifyDTPService().then(() =>{
-            isDTPServiceStarted = true;
-            transformReports(matchingInputReportFiles, 0);
-        }).catch((error) => {
-            let status = error.response ? error.response.status : -1;
-            if (status === 401) {
-                tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
-            } else {
-                tl.warning("Failed to connect to DTP server.");
-            }
+        verifyDTPService().then(() => {
             transformReports(matchingInputReportFiles, 0);
         });
     } else {
@@ -187,7 +178,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let analyzerId = node.attributes.analyzer;
                 if (!bLegacyReport) {
                     // A <Rule> has a rule ID and analyzer ID in a non-legacy report
-                    if (isDTPServiceStarted) {
+                    if (isDTPServiceAvailable) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -199,7 +190,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let ruleId = node.attributes.rule;
                 if(!ruleAnalyzerMap.has(ruleId)) {
                     let analyzerId = mapToAnalyzer(ruleId, node.name);
-                    if (isDTPServiceStarted) {
+                    if (isDTPServiceAvailable) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -552,6 +543,15 @@ function verifyDTPService() {
         auth: {
             username: dtpUsername,
             password: dtpPassword
+        }
+    }).then(() => {
+        isDTPServiceAvailable = true;
+    }).catch((error) => {
+        let status = error.response ? error.response.status : -1;
+        if (status === 401) {
+            tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
+        } else {
+            tl.warning("Failed to connect to DTP server.");
         }
     });
 }
