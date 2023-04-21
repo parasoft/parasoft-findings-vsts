@@ -201,6 +201,7 @@ function transformReports(inputReportFiles: string[], index: number)
             // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
             Promise.all(ruleDocUrlPromises).then((errors) =>{
                 if (errors && errors[0]) {
+                    ruleDocUrlMap.clear();
                     const errorCode = errors[0].status;
                     tl.warning("Failed to get rule documentation with provided settings: Error code " + errorCode);
                 }
