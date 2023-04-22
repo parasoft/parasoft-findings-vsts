@@ -203,7 +203,9 @@ function transformReports(inputReportFiles: string[], index: number)
                 if (errors && errors[0]) {
                     ruleDocUrlMap.clear();
                     const errorCode = errors[0].status;
-                    tl.warning("Failed to get rule documentation with provided settings: Error code " + errorCode);
+                    tl.warning("Failed to get documentation for rules with provided settings: Error code " + errorCode);
+                } else {
+                    tl.debug("The documentation for rules has been successfully loaded.");
                 }
                 transformToReport(reportType, report);
                 processResults(inputReportFiles, index);
@@ -389,7 +391,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
 
 function loadSettings(localSettingsPath : string | undefined) : ReadOnlyProperties | null {
     if (isNullOrWhitespace(localSettingsPath)) {
-        tl.warning('No settings file specified.');
+        tl.debug('No settings file specified.');
         return null;
     }
 
@@ -486,14 +488,14 @@ function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
             if (error.status != 404) {
                 return Promise.resolve(error);
             }
-            // If the API call to get rule doc URL fails and returns a 404 error,
+            // If the API call to get rule documentation URL fails and returns a 404 error,
             // we'll try to call the legacy DTP API with version 1.0 as a fallback.
             return doGetRuleDoc(ruleId, analyzerId, 1)
                 .catch((error) => {
                     if (error.status != 404) {
                         return Promise.resolve(error);
                     }
-                    // It's important to note that in some cases, a matching rule document URL may not be available
+                    // It's important to note that in some cases, a matching rule documentation URL may not be available
                     // due to known limitations, such as an incompatible DTP version with language tools or a legacy report
                     // that lacks the required data.
                     ruleDocUrlMap.set(ruleId, "");
