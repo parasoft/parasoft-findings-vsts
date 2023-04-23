@@ -547,11 +547,7 @@ function verifyDTPService() {
     }).then(() => {
         isDTPServiceAvailable = true;
     }).catch((error) => {
-        let status = error.response ? error.response.status : -1;
-        if (status === 401) {
-            tl.warning("Access to the DTP API is unauthorized with the provided DTP username and password.");
-        } else {
-            tl.warning("Failed to connect to DTP server.");
-        }
+        isDTPServiceAvailable = false;
+        tl.warning("Failed to get documentation for rules with provided settings: Error code " + (error.response ? error.response.status : undefined));
     });
 }
