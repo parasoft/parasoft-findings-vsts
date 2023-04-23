@@ -207,9 +207,16 @@ function transformReports(inputReportFiles: string[], index: number)
         saxStream.on("end", function() {
             // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
             Promise.all(ruleDocUrlPromises).then((errors) =>{
-                if (errors[0]) {
+                let theFirstValidError : any;
+                errors.forEach((error) => {
+                    if (error) {
+                        theFirstValidError = error;
+                        return;
+                    }
+                });
+                if (theFirstValidError) {
                     ruleDocUrlMap.clear();
-                    const errorCode = errors[0].status;
+                    const errorCode = theFirstValidError.status;
                     tl.warning("Failed to get documentation for rules with provided settings: Error code " + errorCode);
                 } else if (ruleDocUrlPromises.length > 0) {
                     tl.debug("The documentation for rules has been successfully loaded.");
