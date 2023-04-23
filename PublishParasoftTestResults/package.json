@@ -4,7 +4,12 @@
   "description": "Azure Pipelines Publish Parasoft Test Results Task",
   "main": "publishtestresults.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compilexsl": "(npm run sarifxsl) && (npm run xunitxsl) && (npm run soatestxsl) ",
+    "sarifxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
+    "xunitxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
+    "soatestxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo",
+    "licenses": "license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-publish\" --limitAttributes \"licenses,licenseFile,publisher,repository\" --files licenses --relativeLicensePath --json --out licenses/license.json",
+    "postinstall": "@echo off && echo Package installed successfully. To generate the SEF stylesheets required for SaxonJS to load and perform transformations, run `npm run compilexsl`"
   },
   "repository": {
     "type": "git",
@@ -15,13 +20,6 @@
     "vsts",
     "parasoft"
   ],
-  "scripts": {
-    "compilexsl": "(npm run sarifxsl) && (npm run xunitxsl) && (npm run soatestxsl) ",
-    "sarifxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
-    "xunitxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
-    "soatestxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo",
-    "postinstall": "@echo off && echo Package installed successfully. To generate the SEF stylesheets required for SaxonJS to load and perform transformations, run `npm run compilexsl`"
-  },
   "author": "Parasoft Corporation",
   "license": "Apache-2.0",
   "bugs": {
@@ -39,6 +37,7 @@
   "devDependencies": {
     "@types/node": "^16.18.23",
     "@types/q": "^1.5.5",
-    "@types/sax": "^1.0.0"
+    "@types/sax": "^1.0.0",
+    "license-checker-rseidelsohn": "^4.2.5"
   }
 }
