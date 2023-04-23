@@ -7,6 +7,8 @@
     <xsl:param name="skip_not_violated_rules">true</xsl:param>
     <xsl:param name="skip_suppressed">false</xsl:param>
     <xsl:param name="duplicates_as_code_flow">true</xsl:param>
+    <!-- For cppTest professional report, "prjModule" attribute is not present. -->
+    <xsl:variable name="isCPPProReport" select="not(/ResultsSession/@prjModule) and /ResultsSession/@toolName = 'C++test'"/>
     
     <xsl:variable name="qt">"</xsl:variable>
     <xsl:variable name="illegalChars" select="'\/&quot;&#xD;&#xA;&#x9;'"/>
@@ -404,11 +406,54 @@
                 </xsl:if>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="@locFile" /><xsl:text>"</xsl:text>
+                <xsl:choose>
+                    <xsl:when test="$isCPPProReport">
+                        <xsl:value-of select="$locationMap(@locFile)"/><xsl:text>"</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="/ResultsSession/@toolId = 'dottest'">
+                        <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
+                               As a result, to use "locFile" instead. -->
+                        <xsl:value-of select="concat('/', substring-after(@locFile, '/'))"/><xsl:text>"</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
+                        <xsl:call-template name="processLocation">
+                            <xsl:with-param name="resProjPath" select="$locNode/@resProjPath"/>
+                            <xsl:with-param name="locFile" select="@locFile"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
             </xsl:otherwise>
         </xsl:choose>
 
         <xsl:text> }</xsl:text>
+    </xsl:template>
+
+    <!-- This map removes the <Project> and first <Res> path segments from the file path in the @loc attribute of the C/C++Test Professional report,
+        but it requires consistency with the <TestedFilesDetails> structure. -->
+    <xsl:variable name="locationMap" as="map(xs:string, xs:string)">
+        <xsl:if test="$isCPPProReport">
+            <xsl:map>
+                <xsl:for-each select="/ResultsSession/CodingStandards/TestedFilesDetails/Total//Res[@loc]">
+                    <xsl:map-entry key="concat('', @loc)" select="substring-after(@loc, concat('/', ./ancestor::Project/@name, '/', substring-before(concat(./ancestor::Res[last()]/@name, '/'), '/')))"/>
+                </xsl:for-each>
+            </xsl:map>
+        </xsl:if>
+    </xsl:variable>
+
+    <xsl:template name="processLocation">
+        <xsl:param name="resProjPath"/>
+        <xsl:param name="locFile"/>
+        <xsl:choose>
+            <xsl:when test="$resProjPath">
+                <xsl:value-of select="concat('/', $resProjPath)"/><xsl:text>"</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <!-- Reports structure for Jtest, dotTest, cppTest and cppTest professional are not strictly consistent.
+                       Full source path will be displayed if no rules can be applied. -->
+                <xsl:value-of select="$locFile"/><xsl:text>"</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
     
     <!-- TODO optimize -->
