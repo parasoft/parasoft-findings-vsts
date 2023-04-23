@@ -94,7 +94,6 @@ let rulesInGlobalCategory: Set<string> = new Set();
 let ruleAnalyzerMap: Map<string, string> = new Map();
 let ruleDocUrlMap: Map<string,string> = new Map();
 let ruleDocUrlPromises: Promise<any>[] = [];
-let ruleDocUrlStatuses: number[] = [];
 let httpsAgent = new https.Agent({
     rejectUnauthorized: false,
     maxSockets: 50
@@ -199,12 +198,14 @@ function transformReports(inputReportFiles: string[], index: number)
             tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
         });
         saxStream.on("end", function() {
-            // For static analysis report: need to wait until all rule doc urls is ready.
-            // For other report: ruleDocUrlPromises is an empty array, it goes into then block directly.
-            Promise.all(ruleDocUrlPromises).then(() =>{
-                if (ruleDocUrlStatuses.length > 0) {
+            // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
+            Promise.all(ruleDocUrlPromises).then((errors) =>{
+                if (errors[0]) {
                     ruleDocUrlMap.clear();
-                    tl.warning("Can not get rule doc urls from DTP.");
+                    const errorCode = errors[0].status;
+                    tl.warning("Failed to get documentation for rules with provided settings: Error code " + errorCode);
+                } else if (ruleDocUrlPromises.length > 0) {
+                    tl.debug("The documentation for rules has been successfully loaded.");
                 }
                 transformToReport(reportType, report);
                 processResults(inputReportFiles, index);
@@ -390,7 +391,7 @@ function checkStaticAnalysisViolations(sarifReports: string[], index: number) {
 
 function loadSettings(localSettingsPath : string | undefined) : ReadOnlyProperties | null {
     if (isNullOrWhitespace(localSettingsPath)) {
-        tl.warning('No settings file specified.');
+        tl.debug('No settings file specified.');
         return null;
     }
 
@@ -483,11 +484,20 @@ function isValidPort(port : any) {
 
 function getRuleDoc(ruleId: string, analyzerId: string): Promise<any> {
     return doGetRuleDoc(ruleId, analyzerId, 1.6)
-        .catch(() => {
-            return doGetRuleDoc(ruleId, analyzerId, 1) // legacy DTP API with version 1.0
-                .catch(() => {
-                    // There are cases where a matching rule document URL cannot be found
-                    // due to incompatible DTP versions or legacy versions of Parasoft tools
+        .catch((error) => {
+            if (error.status != 404) {
+                return Promise.resolve(error);
+            }
+            // If the API call to get rule documentation URL fails and returns a 404 error,
+            // we'll try to call the legacy DTP API with version 1.0 as a fallback.
+            return doGetRuleDoc(ruleId, analyzerId, 1)
+                .catch((error) => {
+                    if (error.status != 404) {
+                        return Promise.resolve(error);
+                    }
+                    // It's important to note that in some cases, a matching rule documentation URL may not be available
+                    // due to known limitations, such as an incompatible DTP version with language tools or a legacy report
+                    // that lacks the required data.
                     ruleDocUrlMap.set(ruleId, "");
                     return Promise.resolve();
                 });
@@ -506,13 +516,7 @@ function doGetRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): P
         ruleDocUrlMap.set(ruleId, response.data.docsUrl);
         return Promise.resolve();
     }).catch((error) => {
-        const status = error.response ? error.response.status : -1;
-        if(status != 404) {
-            ruleDocUrlStatuses.push(status)
-            tl.debug("Can not get rule doc url from " + url);
-        } else {
-            return Promise.reject();
-        }
+        return Promise.reject(error.response.data);
     });
 }
 
