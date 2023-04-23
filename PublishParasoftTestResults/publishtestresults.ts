@@ -449,7 +449,7 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
 
         const dtpContextPath = settings['dtp.context.path'];
         if (!isNullOrWhitespace(dtpContextPath)) {
-            dtpBaseUrl.pathname = dtpContextPath;
+            dtpBaseUrl.pathname = dtpContextPath.endsWith("/") ? dtpContextPath : (dtpContextPath + "/");
         }
     } else {
         tl.warning('dtp.url (since 10.6.1) or dtp.server is required in settings file.');
