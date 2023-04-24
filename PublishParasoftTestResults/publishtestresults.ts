@@ -104,9 +104,7 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.setResult(tl.TaskResult.Succeeded, '');
 } else {
     if (isDtpSettingsValid) {
-        verifyDTPService().then(() => {
-            transformReports(matchingInputReportFiles, 0);
-        });
+        verifyDTPService().then(() => transformReports(matchingInputReportFiles, 0));
     } else {
         transformReports(matchingInputReportFiles, 0);
     }
@@ -207,16 +205,10 @@ function transformReports(inputReportFiles: string[], index: number)
         saxStream.on("end", function() {
             // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
             Promise.all(ruleDocUrlPromises).then((errors) =>{
-                let theFirstValidError : any;
-                errors.forEach((error) => {
-                    if (error) {
-                        theFirstValidError = error;
-                        return;
-                    }
-                });
-                if (theFirstValidError) {
+                let firstError = errors.find(error => error !== null && error !== undefined);
+                if (firstError) {
                     ruleDocUrlMap.clear();
-                    const errorCode = theFirstValidError.status;
+                    const errorCode = firstError.status;
                     tl.warning("Failed to get documentation for rules with provided settings: Error code " + errorCode);
                 } else if (ruleDocUrlPromises.length > 0) {
                     tl.debug("The documentation for rules has been successfully loaded.");
@@ -559,6 +551,6 @@ function verifyDTPService() {
         isDTPServiceAvailable = true;
     }).catch((error) => {
         isDTPServiceAvailable = false;
-        tl.warning("Failed to get documentation for rules with provided settings: Error code " + (error.response ? error.response.status : undefined));
+        tl.warning("Unable to connect to DTP to retrieve documentation for rules using the provided settings: Error code " + (error.response ? error.response.status : undefined));
     });
 }
