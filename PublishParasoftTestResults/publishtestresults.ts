@@ -73,6 +73,7 @@ if (isNullOrWhitespace(searchFolder)) {
 }
 
 let isDtpSettingsValid : boolean = false;
+let isDTPServiceAvailable : boolean = false;
 let dtpBaseUrl : string;
 let dtpUsername : string;
 let dtpPassword : string;
@@ -102,7 +103,13 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
     tl.setResult(tl.TaskResult.Succeeded, '');
 } else {
-    transformReports(matchingInputReportFiles, 0);
+    if (isDtpSettingsValid) {
+        verifyDTPService().then(() => {
+            transformReports(matchingInputReportFiles, 0);
+        });
+    } else {
+        transformReports(matchingInputReportFiles, 0);
+    }
 }
 
 function transformReports(inputReportFiles: string[], index: number)
@@ -170,7 +177,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let analyzerId = node.attributes.analyzer;
                 if (!bLegacyReport) {
                     // A <Rule> has a rule ID and analyzer ID in a non-legacy report
-                    if (isDtpSettingsValid) {
+                    if (isDTPServiceAvailable) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -182,7 +189,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let ruleId = node.attributes.rule;
                 if(!ruleAnalyzerMap.has(ruleId)) {
                     let analyzerId = mapToAnalyzer(ruleId, node.name);
-                    if (isDtpSettingsValid) {
+                    if (isDTPServiceAvailable) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -200,9 +207,16 @@ function transformReports(inputReportFiles: string[], index: number)
         saxStream.on("end", function() {
             // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
             Promise.all(ruleDocUrlPromises).then((errors) =>{
-                if (errors[0]) {
+                let theFirstValidError : any;
+                errors.forEach((error) => {
+                    if (error) {
+                        theFirstValidError = error;
+                        return;
+                    }
+                });
+                if (theFirstValidError) {
                     ruleDocUrlMap.clear();
-                    const errorCode = errors[0].status;
+                    const errorCode = theFirstValidError.status;
                     tl.warning("Failed to get documentation for rules with provided settings: Error code " + errorCode);
                 } else if (ruleDocUrlPromises.length > 0) {
                     tl.debug("The documentation for rules has been successfully loaded.");
@@ -531,4 +545,20 @@ function appendRuleDocUrls(sarifReport: string) {
         })
     })
     return JSON.stringify(sarifJson);
+}
+
+function verifyDTPService() {
+    let url = dtpBaseUrl + "grs/api/v1/dtpServices";
+    return axios.default.get(url, {
+        httpsAgent: httpsAgent,
+        auth: {
+            username: dtpUsername,
+            password: dtpPassword
+        }
+    }).then(() => {
+        isDTPServiceAvailable = true;
+    }).catch((error) => {
+        isDTPServiceAvailable = false;
+        tl.warning("Failed to get documentation for rules with provided settings: Error code " + (error.response ? error.response.status : undefined));
+    });
 }
