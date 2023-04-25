@@ -8,7 +8,7 @@
     "sarifxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
     "xunitxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
     "soatestxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/soatest-xunit.xsl -export:./xsl/soatest-xunit.sef.json -nogo",
-    "licenses": "./node_modules/.bin/license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-publish\" --limitAttributes \"licenses,licenseFile,publisher,repository\" --files licenses --relativeLicensePath --json --out licenses/license.json",
+    "licenses": "license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-publish\" --limitAttributes \"licenses,licenseFile,publisher,repository\" --files licenses --relativeLicensePath --json --out licenses/license.json",
     "postinstall": "@echo off && echo Package installed successfully. To generate the SEF stylesheets required for SaxonJS to load and perform transformations, run `npm run compilexsl`. To extract NPM package licenses for packaging into the extension, run `npm run licenses`."
   },
   "repository": {
