@@ -12,6 +12,3 @@ node_modules/
 .idea
 ### VS Code ###
 .vscode
-
-### Project ###
-/PublishParasoftTestResults/licenses/

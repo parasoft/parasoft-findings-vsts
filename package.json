@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "create-extension": "cd PublishParasoftTestResults && npm run compilexsl && tsc && npm run licenses && cd .. && npx tfx-cli extension create"
+    "create-extension": "cd PublishParasoftTestResults && npm run compilexsl && tsc && cd .. && npx tfx-cli extension create"
   },
   "repository": {
     "type": "git",
