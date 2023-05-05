@@ -327,7 +327,7 @@ function transform(sourcePath: string, sheetText: string, outPath: string, trans
         };
         const result = SaxonJS.transform(options);
         let resultString = result.principalResult;
-        if (ruleDocUrlMap.size != 0) {
+        if (ruleDocUrlMap.size != 0 && outPath.endsWith(SARIF_SUFFIX)) {
             resultString = appendRuleDocUrls(result.principalResult);
         }
         fs.writeFileSync(outPath, resultString);
