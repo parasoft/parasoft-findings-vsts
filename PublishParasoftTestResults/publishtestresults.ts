@@ -72,20 +72,11 @@ if (isNullOrWhitespace(searchFolder)) {
     searchFolder = tl.getVariable('System.DefaultWorkingDirectory');
 }
 
-let isDtpSettingsValid : boolean = false;
-let isDTPServiceAvailable : boolean = false;
-let dtpBaseUrl : string;
-let dtpUsername : string;
-let dtpPassword : string;
+let isDtpRuleDocsServiceAvailable : boolean = false;
+let dtpBaseUrl : string = '';
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
     dtpBaseUrl = getDtpBaseUrl(localSettings);
-    if (!isNullOrWhitespace(dtpBaseUrl)) {
-        dtpUsername = localSettings['dtp.user'];
-        dtpPassword = localSettings['dtp.password'];
-        isDtpSettingsValid = hasCredentials(dtpUsername, dtpPassword);
-    }
-    tl.debug(isDtpSettingsValid ? 'DTP settings are loaded successfully.' : 'Failed to load DTP settings.');
 }
 
 let xUnitReports: string[] = [];
@@ -103,8 +94,8 @@ if (!matchingInputReportFiles || matchingInputReportFiles.length === 0) {
     tl.warning('No test result files matching ' + inputReportFiles + ' were found.');
     tl.setResult(tl.TaskResult.Succeeded, '');
 } else {
-    if (isDtpSettingsValid) {
-        verifyDTPService().then(() => transformReports(matchingInputReportFiles, 0));
+    if (!isNullOrWhitespace(dtpBaseUrl)) {
+        verifyDtpRuleDocsService().then(() => transformReports(matchingInputReportFiles, 0));
     } else {
         transformReports(matchingInputReportFiles, 0);
     }
@@ -175,7 +166,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let analyzerId = node.attributes.analyzer;
                 if (!bLegacyReport) {
                     // A <Rule> has a rule ID and analyzer ID in a non-legacy report
-                    if (isDTPServiceAvailable) {
+                    if (isDtpRuleDocsServiceAvailable) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -187,7 +178,7 @@ function transformReports(inputReportFiles: string[], index: number)
                 let ruleId = node.attributes.rule;
                 if(!ruleAnalyzerMap.has(ruleId)) {
                     let analyzerId = mapToAnalyzer(ruleId, node.name);
-                    if (isDTPServiceAvailable) {
+                    if (isDtpRuleDocsServiceAvailable) {
                         ruleDocUrlPromises.push(getRuleDoc(ruleId, analyzerId));
                     }
                     ruleAnalyzerMap.set(ruleId, analyzerId);
@@ -455,26 +446,17 @@ function getDtpBaseUrl(settings : ReadOnlyProperties) : string {
 
         const dtpContextPath = settings['dtp.context.path'];
         if (!isNullOrWhitespace(dtpContextPath)) {
-            dtpBaseUrl.pathname = dtpContextPath.endsWith("/") ? dtpContextPath : (dtpContextPath + "/");
+            dtpBaseUrl.pathname = dtpContextPath;
         }
     } else {
         tl.warning('dtp.url (since 10.6.1) or dtp.server is required in settings file.');
         return '';
     }
 
-    return dtpBaseUrl.href;
-}
+    const dtpBaseUrlHref = dtpBaseUrl.href.endsWith("/") ? dtpBaseUrl.href : (dtpBaseUrl.href + "/");
+    tl.debug('Dtp base url is: ' + dtpBaseUrlHref);
 
-function hasCredentials(username : string, password : string) {
-    if (isNullOrWhitespace(username)) {
-        tl.warning('dtp.user is required in settings file.');
-        return false;
-    }
-    if (isNullOrWhitespace(password)) {
-        tl.warning('dtp.password is required in settings file.');
-        return false;
-    }
-    return true;
+    return dtpBaseUrlHref;
 }
 
 function isNullOrWhitespace(input: any) {
@@ -514,10 +496,6 @@ function doGetRuleDoc(ruleId: string, analyzerId: string, apiVersion: number): P
     let url = dtpBaseUrl + "grs/api/v" + apiVersion +"/rules/doc?rule=" + ruleId + "&analyzerId=" + analyzerId;
     return axios.default.get(url, {
         httpsAgent: httpsAgent,
-        auth: {
-            username: dtpUsername,
-            password: dtpPassword
-        }
     }).then((response) => {
         ruleDocUrlMap.set(ruleId, response.data.docsUrl);
         return Promise.resolve();
@@ -539,18 +517,31 @@ function appendRuleDocUrls(sarifReport: string) {
     return JSON.stringify(sarifJson);
 }
 
-function verifyDTPService() {
-    let url = dtpBaseUrl + "grs/api/v1/dtpServices";
-    return axios.default.get(url, {
-        httpsAgent: httpsAgent,
-        auth: {
-            username: dtpUsername,
-            password: dtpPassword
-        }
-    }).then(() => {
-        isDTPServiceAvailable = true;
-    }).catch((error) => {
-        isDTPServiceAvailable = false;
-        tl.warning("Unable to connect to DTP to retrieve documentation for rules using the provided settings: Error code " + (error.response ? error.response.status : undefined));
-    });
+function verifyDtpRuleDocsService() {
+    return tryToGetNotExistingRuleDocUrl()
+            .then(() => {
+                // Should never reach this block unless there is a `notExistingRule` rule id
+                // and `notExistingAnalyzerId` analyzer id pair in the future.
+                isDtpRuleDocsServiceAvailable = true;
+            }).catch((error) => {
+                const status =  error && error.response && error.response.data ? error.response.data.status : undefined;;
+                if (status == 404) {
+                    isDtpRuleDocsServiceAvailable = true;
+                } else if (status == 401) {
+                    // Need auth to get doc url for DTP version below 2023.1.
+                    isDtpRuleDocsServiceAvailable = false;
+                    tl.warning("Unable to retrieve documentation for rules from current version of DTP. DTP 2023.1 or newer version is needed.");
+                } else {
+                    isDtpRuleDocsServiceAvailable = false;
+                    tl.warning("Unable to connect to DTP to retrieve documentation for rules using the provided settings: Error code " +
+                                status + ". Check the dtp.* values in " + localSettingsPath);
+                }
+            });
+}
+
+/**
+ * 404 is expected when response is returned as normal.
+ */
+function tryToGetNotExistingRuleDocUrl() {
+    return axios.default.get(dtpBaseUrl + "grs/api/v1.0/rules/doc?rule=notExistingRule&analyzerId=notExistingAnalyzerId", {httpsAgent: httpsAgent});
 }
