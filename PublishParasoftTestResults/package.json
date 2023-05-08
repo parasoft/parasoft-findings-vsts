@@ -4,6 +4,7 @@
   "description": "Azure Pipelines Publish Parasoft Test Results Task",
   "main": "publishtestresults.js",
   "scripts": {
+    "test": "tsc && jasmine",
     "compilexsl": "(npm run sarifxsl) && (npm run xunitxsl) && (npm run soatestxsl) ",
     "sarifxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/sarif.xsl -export:./xsl/sarif.sef.json -nogo",
     "xunitxsl": "node node_modules/xslt3/xslt3.js -t -xsl:./xsl/xunit.xsl -export:./xsl/xunit.sef.json -nogo",
@@ -35,9 +36,11 @@
     "xslt3": "^2.5.0"
   },
   "devDependencies": {
+    "@types/jasmine": "^4.3.1",
     "@types/node": "^16.18.23",
     "@types/q": "^1.5.5",
     "@types/sax": "^1.0.0",
+    "jasmine": "^4.6.0",
     "license-checker-rseidelsohn": "^4.2.5"
   }
 }

@@ -554,3 +554,7 @@ function verifyDTPService() {
         tl.warning("Unable to connect to DTP to retrieve documentation for rules using the provided settings: Error code " + (error.response ? error.response.status : undefined));
     });
 }
+
+export {
+    transformToSarif, sarifReports, SARIF_SUFFIX
+}
