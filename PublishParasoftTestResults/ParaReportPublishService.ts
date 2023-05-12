@@ -37,7 +37,7 @@ export const enum ReportType {
     UNKNOWN = 7
 }
 
-export class ParaReportPublisher{
+export class ParaReportPublishService {
     readonly XUNIT_SUFFIX: string = "-junit.xml";
     readonly SARIF_SUFFIX: string = "-sast.sarif";
     readonly XML_EXTENSION: string = ".xml";
@@ -58,7 +58,7 @@ export class ParaReportPublisher{
         maxSockets: 50
     })
 
-    inputReportFiles: string[] | undefined;
+    inputReportFiles: string[];
     mergeResults: string | undefined;
     platform: string | undefined;
     config: string | undefined;
@@ -69,12 +69,11 @@ export class ParaReportPublisher{
     localSettingsPath: string | undefined;
 
     // DTP settings
-    localSettings: ReadOnlyProperties | null;
-    dtpBaseUrl : string | null = null;
-    dtpUsername : string  = '';
-    dtpPassword : string  = '';
-    isDtpSettingsValid : boolean = false;
-    isDTPServiceAvailable : boolean = false;
+    dtpBaseUrl: string = '';
+    dtpUsername: string  = '';
+    dtpPassword: string  = '';
+    isDtpSettingsValid: boolean = false;
+    isDTPServiceAvailable: boolean = false;
 
     constructor() {
         this.inputReportFiles = tl.getDelimitedInput('resultsFiles', '\n', true);
@@ -84,14 +83,14 @@ export class ParaReportPublisher{
         this.testRunTitle = tl.getInput('testRunTitle');
         this.publishRunAttachments = tl.getInput('publishRunAttachments');
         this.failOnFailures = tl.getBoolInput('failOnFailures', true);
-        this.searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder'))? tl.getVariable('System.DefaultWorkingDirectory') : tl.getInput('searchFolder')
+        this.searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder')) ? tl.getVariable('System.DefaultWorkingDirectory') : tl.getInput('searchFolder')
         this.localSettingsPath = tl.getPathInput("localSettingsPath");
-        this.localSettings = this.loadSettings(this.localSettingsPath);
-        if (this.localSettings) {
-            this.dtpBaseUrl = this.getDtpBaseUrl(this.localSettings);
+        const localSettings = this.loadSettings(this.localSettingsPath);
+        if (localSettings) {
+            this.dtpBaseUrl = this.getDtpBaseUrl(localSettings);
             if (!this.isNullOrWhitespace(this.dtpBaseUrl)) {
-                this.dtpUsername = this.localSettings['dtp.user'];
-                this.dtpPassword = this.localSettings['dtp.password'];
+                this.dtpUsername = localSettings['dtp.user'];
+                this.dtpPassword = localSettings['dtp.password'];
                 this.isDtpSettingsValid = this.hasCredentials(this.dtpUsername, this.dtpPassword);
             }
             tl.debug(this.isDtpSettingsValid ? 'DTP settings are loaded successfully.' : 'Failed to load DTP settings.');
@@ -110,7 +109,7 @@ export class ParaReportPublisher{
         tl.debug('failOnFailures: ' + this.failOnFailures);
     }
 
-    run = ():void => {
+    run = (): void => {
         if (!this.matchingInputReportFiles || this.matchingInputReportFiles.length === 0) {
             tl.warning('No test result files matching ' + this.inputReportFiles + ' were found.');
             tl.setResult(tl.TaskResult.Succeeded, '');
@@ -236,7 +235,7 @@ export class ParaReportPublisher{
         }
     }
 
-    transformToReport = (reportType : ReportType, report: string): void => {
+    transformToReport = (reportType: ReportType, report: string): void => {
         switch (reportType) {
             case ReportType.XML_STATIC:
                 this.transformToSarif(report);
@@ -336,7 +335,7 @@ export class ParaReportPublisher{
         return input.replace(/\s/g, '').length < 1;
     }
 
-    loadSettings = (localSettingsPath : string | undefined) : ReadOnlyProperties | null => {
+    loadSettings = (localSettingsPath: string | undefined): ReadOnlyProperties | null => {
         if (this.isNullOrWhitespace(localSettingsPath)) {
             tl.debug('No settings file specified.');
             return null;
@@ -348,7 +347,7 @@ export class ParaReportPublisher{
         return this.loadProperties(localSettingsFile);
     }
 
-    hasCredentials = (username : string, password : string): boolean => {
+    hasCredentials = (username: string, password: string): boolean => {
         if (this.isNullOrWhitespace(username)) {
             tl.warning('dtp.user is required in settings file.');
             return false;
@@ -360,8 +359,8 @@ export class ParaReportPublisher{
         return true;
     }
 
-    getDtpBaseUrl = (settings : ReadOnlyProperties) : string => {
-        let dtpBaseUrl : URL;
+    getDtpBaseUrl = (settings: ReadOnlyProperties): string => {
+        let dtpBaseUrl: URL;
         const dtpUrl = settings['dtp.url'];
         const dtpServer = settings['dtp.server'];
 
@@ -417,7 +416,7 @@ export class ParaReportPublisher{
         });
     }
 
-    isValidPort = (port : any):boolean => {
+    isValidPort = (port: any):boolean => {
         return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
     }
 
@@ -489,7 +488,7 @@ export class ParaReportPublisher{
         return JSON.stringify(sarifJson);
     }
 
-    loadProperties = (localSettingsFile : string) : ReadOnlyProperties | null => {
+    loadProperties = (localSettingsFile: string): ReadOnlyProperties | null => {
         let input: string;
         try {
             input = fs.readFileSync(localSettingsFile, 'utf-8');

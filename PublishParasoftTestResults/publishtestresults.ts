@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ParaReportPublisher} from "./PublishService";
+import {ParaReportPublishService} from "./ParaReportPublishService";
 
-let publisher = new ParaReportPublisher();
+let publisher = new ParaReportPublishService();
 publisher.run();
