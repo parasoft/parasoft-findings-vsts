@@ -77,6 +77,7 @@ let dtpBaseUrl : string = '';
 const localSettings = loadSettings(localSettingsPath);
 if (localSettings) {
     dtpBaseUrl = getDtpBaseUrl(localSettings);
+    tl.debug(isNullOrWhitespace(dtpBaseUrl) ? 'Failed to load DTP settings.' : 'DTP settings are loaded successfully.');
 }
 
 let xUnitReports: string[] = [];
@@ -518,30 +519,24 @@ function appendRuleDocUrls(sarifReport: string) {
 }
 
 function verifyDtpRuleDocsService() {
-    return tryToGetNotExistingRuleDocUrl()
-            .then(() => {
-                // Should never reach this block unless there is a `notExistingRule` rule id
-                // and `notExistingAnalyzerId` analyzer id pair in the future.
-                isDtpRuleDocsServiceAvailable = true;
-            }).catch((error) => {
-                const status =  error && error.response && error.response.data ? error.response.data.status : undefined;;
-                if (status == 404) {
+    // Try to get not existing rule doc url, 404 is expected when response is returned as normal.
+    return  axios.default.get(dtpBaseUrl + "grs/api/v1.0/rules/doc?rule=notExistingRule&analyzerId=notExistingAnalyzerId", {httpsAgent: httpsAgent})
+                .then(() => {
+                    // Should never reach this block unless there is a `notExistingRule` rule id
+                    // and `notExistingAnalyzerId` analyzer id pair in the future.
                     isDtpRuleDocsServiceAvailable = true;
-                } else if (status == 401) {
-                    // Need auth to get doc url for DTP version below 2023.1.
-                    isDtpRuleDocsServiceAvailable = false;
-                    tl.warning("Unable to retrieve documentation for rules from current version of DTP. DTP 2023.1 or newer version is needed.");
-                } else {
-                    isDtpRuleDocsServiceAvailable = false;
-                    tl.warning("Unable to connect to DTP to retrieve documentation for rules using the provided settings: Error code " +
-                                status + ". Check the dtp.* values in " + localSettingsPath);
-                }
-            });
-}
-
-/**
- * 404 is expected when response is returned as normal.
- */
-function tryToGetNotExistingRuleDocUrl() {
-    return axios.default.get(dtpBaseUrl + "grs/api/v1.0/rules/doc?rule=notExistingRule&analyzerId=notExistingAnalyzerId", {httpsAgent: httpsAgent});
+                }).catch((error) => {
+                    const status =  error && error.response && error.response.data ? error.response.data.status : undefined;
+                    if (status == 404) {
+                        isDtpRuleDocsServiceAvailable = true;
+                    } else if (status == 401) {
+                        // Need auth to get doc url for DTP version below 2023.1.
+                        isDtpRuleDocsServiceAvailable = false;
+                        tl.warning("Unable to retrieve the documentation for the rules from the current version of DTP. DTP 2023.1 or a newer version is required.");
+                    } else {
+                        isDtpRuleDocsServiceAvailable = false;
+                        tl.warning("Unable to connect to DTP and retrieve the documentation for rules using the provided settings (error code: " + status + "). " +
+                                    "Please make sure the values for 'dtp.*' in " + localSettingsPath + " are correct.");
+                    }
+                });
 }
