@@ -58,6 +58,7 @@ export class ParaReportPublishService {
         maxSockets: 50
     })
 
+    defaultWorkingDirectory: string;
     inputReportFiles: string[];
     mergeResults: string | undefined;
     platform: string | undefined;
@@ -76,6 +77,7 @@ export class ParaReportPublishService {
     isDTPServiceAvailable: boolean = false;
 
     constructor() {
+        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
         this.inputReportFiles = tl.getDelimitedInput('resultsFiles', '\n', true);
         this.mergeResults = tl.getInput('mergeTestResults');
         this.platform = tl.getInput('platform');
@@ -83,7 +85,7 @@ export class ParaReportPublishService {
         this.testRunTitle = tl.getInput('testRunTitle');
         this.publishRunAttachments = tl.getInput('publishRunAttachments');
         this.failOnFailures = tl.getBoolInput('failOnFailures', true);
-        this.searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder')) ? tl.getVariable('System.DefaultWorkingDirectory') : tl.getInput('searchFolder')
+        this.searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder')) ? this.defaultWorkingDirectory : tl.getInput('searchFolder');
         this.localSettingsPath = tl.getPathInput("localSettingsPath");
         const localSettings = this.loadSettings(this.localSettingsPath);
         if (localSettings) {
@@ -277,7 +279,10 @@ export class ParaReportPublishService {
 
     transform = (sourcePath: string, sheetText: string, outPath: string, transformedReports: string[]): void => {
         try {
-            const xmlReport = fs.readFileSync(sourcePath, 'utf8');
+            let xmlReport = fs.readFileSync(sourcePath, 'utf8');
+            if(outPath.endsWith(this.SARIF_SUFFIX)) {
+                xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
+            }
             const options: SaxonJS.options = {
                 stylesheetText: sheetText,
                 sourceText: xmlReport,
@@ -341,7 +346,7 @@ export class ParaReportPublishService {
             return null;
         }
 
-        let localSettingsFile = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), localSettingsPath);
+        let localSettingsFile = tl.resolve(this.defaultWorkingDirectory, localSettingsPath);
         tl.debug('Settings file found: ' + localSettingsFile);
 
         return this.loadProperties(localSettingsFile);
