@@ -394,52 +394,53 @@
     
     <xsl:template name="artifact_location">
         <xsl:text>"artifactLocation": { "uri": "</xsl:text>
-
-        <xsl:variable name="locRef" select="@locRef"/>
-        <xsl:variable name="locNode" select="/ResultsSession/Scope/Locations/Loc[@locRef=$locRef]"/>
         <xsl:choose>
-            <xsl:when test="$locNode/@scPath">
-                <xsl:value-of select="$locNode/@scPath" /><xsl:text>"</xsl:text>
-                <xsl:variable name="uriBaseId" select="$locNode/@repRef"/>
-                <xsl:if test="$uriBaseId != ''">
-                    <xsl:text>, "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="$uriBaseId" /><xsl:text>"</xsl:text>
-                </xsl:if>
-            </xsl:when>
-            <xsl:otherwise>
+             <xsl:when test="$isCPPProReport">
+                <xsl:variable name="locFile" select="@locFile"/>
                 <xsl:choose>
-                    <xsl:when test="$isCPPProReport">
-                        <xsl:value-of select="$locationMap(@locFile)"/><xsl:text>"</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="/ResultsSession/@toolId = 'dottest'">
-                        <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
-                               As a result, to use "locFile" instead. -->
-                        <xsl:value-of select="concat('/', substring-after(@locFile, '/'))"/><xsl:text>"</xsl:text>
+                    <xsl:when test="/ResultsSession/Locations/Loc">
+                        <xsl:variable name="locNode" select="/ResultsSession/Locations/Loc[@loc=$locFile]"/>
+                        <xsl:variable name="pipelineBuildWorkingDirectory" select="/ResultsSession/@pipelineBuildWorkingDirectory"/>
+                        <xsl:value-of select="substring-after($locNode/@fsPath, $pipelineBuildWorkingDirectory)"/><xsl:text>"</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
-                        <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
-                        <xsl:call-template name="processLocation">
-                            <xsl:with-param name="resProjPath" select="$locNode/@resProjPath"/>
-                            <xsl:with-param name="locFile" select="@locFile"/>
-                        </xsl:call-template>
+                        <xsl:value-of select="$locFile"/><xsl:text>"</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
-            </xsl:otherwise>
+             </xsl:when>
+             <xsl:otherwise>
+                <xsl:variable name="locRef" select="@locRef"/>
+                <xsl:variable name="locNode" select="/ResultsSession/Scope/Locations/Loc[@locRef=$locRef]"/>
+                <xsl:choose>
+                    <xsl:when test="$locNode/@scPath">
+                        <xsl:value-of select="$locNode/@scPath" /><xsl:text>"</xsl:text>
+                        <xsl:variable name="uriBaseId" select="$locNode/@repRef"/>
+                        <xsl:if test="$uriBaseId != ''">
+                            <xsl:text>, "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="$uriBaseId" /><xsl:text>"</xsl:text>
+                        </xsl:if>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:choose>
+                            <xsl:when test="/ResultsSession/@toolId = 'dottest'">
+                                <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
+                                    As a result, to use "locFile" instead. -->
+                                <xsl:value-of select="concat('/', substring-after(@locFile, '/'))"/><xsl:text>"</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
+                                <xsl:call-template name="processLocation">
+                                    <xsl:with-param name="resProjPath" select="$locNode/@resProjPath"/>
+                                    <xsl:with-param name="locFile" select="@locFile"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:otherwise>
+                </xsl:choose>
+             </xsl:otherwise>
         </xsl:choose>
 
         <xsl:text> }</xsl:text>
     </xsl:template>
-
-    <!-- This map removes the <Project> and first <Res> path segments from the file path in the @loc attribute of the C/C++Test Professional report,
-        but it requires consistency with the <TestedFilesDetails> structure. -->
-    <xsl:variable name="locationMap" as="map(xs:string, xs:string)">
-        <xsl:if test="$isCPPProReport">
-            <xsl:map>
-                <xsl:for-each select="/ResultsSession/CodingStandards/TestedFilesDetails/Total//Res[@loc]">
-                    <xsl:map-entry key="concat('', @loc)" select="substring-after(@loc, concat('/', ./ancestor::Project/@name, '/', substring-before(concat(./ancestor::Res[last()]/@name, '/'), '/')))"/>
-                </xsl:for-each>
-            </xsl:map>
-        </xsl:if>
-    </xsl:variable>
 
     <xsl:template name="processLocation">
         <xsl:param name="resProjPath"/>
