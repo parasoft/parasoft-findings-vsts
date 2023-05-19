@@ -53,6 +53,8 @@ describe("Parasoft findings Azure", () => {
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
+
+            fs.unlink(__dirname + '/resources/XML_STATIC.xml-sast.sarif', () => {});
         });
 
         it('XML_TESTS', async () => {
@@ -65,6 +67,8 @@ describe("Parasoft findings Azure", () => {
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.xUnitReports.length).toBe(1);
+
+            fs.unlink(__dirname + '/resources/XML_TESTS.xml-junit.xml', () => {});
         });
 
         it('XML_STATIC_AND_TESTS', async () => {
@@ -73,14 +77,16 @@ describe("Parasoft findings Azure", () => {
 
             let expectedSarifReport = fs.readFileSync(__dirname + '/resources/expect/XML_STATIC_AND_TESTS.xml-sast.sarif', 'utf8');
             let sarifResult = fs.readFileSync(__dirname + '/resources/XML_STATIC_AND_TESTS.xml-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/expect/XML_TESTS.xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/XML_TESTS.xml-junit.xml', 'utf-8');
+            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/expect/XML_STATIC_AND_TESTS.xml-junit.xml', 'utf8');
+            let junitResult = fs.readFileSync(__dirname + '/resources/XML_STATIC_AND_TESTS.xml-junit.xml', 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
+            fs.unlink(__dirname + '/resources/XML_STATIC_AND_TESTS.xml-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/XML_STATIC_AND_TESTS.xml-junit.xml', () => {});
         });
 
         it('XML_SOATEST', async () => {
@@ -93,6 +99,7 @@ describe("Parasoft findings Azure", () => {
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.xUnitReports.length).toBe(1);
+            fs.unlink(__dirname + '/resources/XML_SOATEST.xml-junit.xml', () => {});
         });
 
         it('XML_STATIC_AND_SOATEST', async () => {
@@ -109,6 +116,8 @@ describe("Parasoft findings Azure", () => {
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
+            fs.unlink(__dirname + '/resources/XML_STATIC_AND_SOATEST.xml-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/XML_STATIC_AND_SOATEST.xml-junit.xml', () => {});
         });
 
         it('XML_XUNIT', async () => {
