@@ -401,7 +401,7 @@
                     <xsl:when test="/ResultsSession/Locations/Loc">
                         <xsl:variable name="locNode" select="/ResultsSession/Locations/Loc[@loc=$locFile]"/>
                         <xsl:variable name="pipelineBuildWorkingDirectory" select="/ResultsSession/@pipelineBuildWorkingDirectory"/>
-                        <xsl:value-of select="substring-after($locNode/@fsPath, $pipelineBuildWorkingDirectory)"/><xsl:text>"</xsl:text>
+                        <xsl:value-of select="translate(substring-after($locNode/@fsPath, $pipelineBuildWorkingDirectory), '\', '/')"/><xsl:text>"</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:value-of select="$locFile"/><xsl:text>"</xsl:text>
