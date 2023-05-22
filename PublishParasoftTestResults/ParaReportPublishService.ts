@@ -34,20 +34,24 @@ export const enum ReportType {
     XML_STATIC_AND_TESTS = 4,
     XML_STATIC_AND_SOATEST = 5,
     XML_XUNIT = 6,
-    UNKNOWN = 7
+    UNKNOWN = 7,
+    COBERTURA = 8
 }
 
 export class ParaReportPublishService {
     readonly XUNIT_SUFFIX: string = "-junit.xml";
     readonly SARIF_SUFFIX: string = "-sast.sarif";
+    readonly COBERTURA_SUFFIX: string = "-cobertura.xml";
     readonly XML_EXTENSION: string = ".xml";
     readonly SARIF_EXTENSION: string = ".sarif";
     readonly SARIF_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8');
     readonly XUNIT_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/xunit.sef.json", 'utf8');
     readonly SOATEST_XUNIT_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/soatest-xunit.sef.json", 'utf8');
+    readonly COBERTURA_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/cobertura.sef.json", 'utf8');
 
     xUnitReports: string[] = [];
     sarifReports: string[] = [];
+    coberturaReports: string[] = [];
     matchingInputReportFiles: string[];
     rulesInGlobalCategory: Set<string> = new Set();
     ruleAnalyzerMap: Map<string, string> = new Map();
@@ -135,7 +139,10 @@ export class ParaReportPublishService {
 
             const saxStream = sax.createStream(true, {});
             saxStream.on("opentag", (node) => {
-                if (node.name == 'StdViols') {
+                if (node.name == 'Coverage') {
+                    tl.debug("Recognized XML Coverage report: " + report);
+                    reportType = ReportType.COBERTURA;
+                } else if (node.name == 'StdViols') {
                     if (!bLegacyReport || bCPPProReport) {
                         if (reportType == ReportType.UNKNOWN) {
                             tl.debug("Recognized XML Static Analysis report: " + report);
@@ -251,6 +258,9 @@ export class ParaReportPublishService {
             case ReportType.XML_XUNIT:
                 this.xUnitReports.push(report);
                 break;
+            case ReportType.COBERTURA:
+                this.transformToCobertura(report)
+                break;
             default:
                 tl.warning("Skipping unrecognized report file: " + report);
         }
@@ -267,6 +277,10 @@ export class ParaReportPublishService {
 
     transformToSOATestXUnit = (sourcePath: string): void => {
         this.transform(sourcePath, this.SOATEST_XUNIT_SEF_TEXT, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
+    }
+
+    transformToCobertura = (sourcePath: string): void => {
+        this.transform(sourcePath, this.COBERTURA_SEF_TEXT, sourcePath + this.COBERTURA_SUFFIX, this.coberturaReports)
     }
 
     transform = (sourcePath: string, sheetText: string, outPath: string, transformedReports: string[]): void => {
@@ -316,6 +330,10 @@ export class ParaReportPublishService {
                 for (var i = 0; i < this.sarifReports.length; ++i) {
                     tl.uploadArtifact("Container", this.sarifReports[i], "CodeAnalysisLogs");
                 }
+            }
+            if (this.coberturaReports.length == 1) {
+                let tp: tl.CodeCoveragePublisher = new tl.CodeCoveragePublisher();
+                tp.publish("Cobertura", this.coberturaReports[0]);
             }
             if(this.failOnFailures){
                 this.checkRunFailures(this.xUnitReports, this.sarifReports);
