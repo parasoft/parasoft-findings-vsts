@@ -35,7 +35,7 @@ export const enum ReportType {
     XML_STATIC_AND_SOATEST = 5,
     XML_XUNIT = 6,
     UNKNOWN = 7,
-    COBERTURA = 8
+    XML_COVERAGE = 8
 }
 
 export class ParaReportPublishService {
@@ -141,7 +141,7 @@ export class ParaReportPublishService {
             saxStream.on("opentag", (node) => {
                 if (node.name == 'Coverage') {
                     tl.debug("Recognized XML Coverage report: " + report);
-                    reportType = ReportType.COBERTURA;
+                    reportType = ReportType.XML_COVERAGE;
                 } else if (node.name == 'StdViols') {
                     if (!bLegacyReport || bCPPProReport) {
                         if (reportType == ReportType.UNKNOWN) {
@@ -258,7 +258,7 @@ export class ParaReportPublishService {
             case ReportType.XML_XUNIT:
                 this.xUnitReports.push(report);
                 break;
-            case ReportType.COBERTURA:
+            case ReportType.XML_COVERAGE:
                 this.transformToCobertura(report)
                 break;
             default:
@@ -330,10 +330,6 @@ export class ParaReportPublishService {
                 for (var i = 0; i < this.sarifReports.length; ++i) {
                     tl.uploadArtifact("Container", this.sarifReports[i], "CodeAnalysisLogs");
                 }
-            }
-            if (this.coberturaReports.length == 1) {
-                let tp: tl.CodeCoveragePublisher = new tl.CodeCoveragePublisher();
-                tp.publish("Cobertura", this.coberturaReports[0]);
             }
             if(this.failOnFailures){
                 this.checkRunFailures(this.xUnitReports, this.sarifReports);
