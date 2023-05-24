@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
+import * as path from 'path';
+import * as os from 'os';
+import * as tr from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
@@ -140,8 +143,10 @@ export class ParaReportPublishService {
             const saxStream = sax.createStream(true, {});
             saxStream.on("opentag", (node) => {
                 if (node.name == 'Coverage') {
-                    tl.debug("Recognized XML Coverage report: " + report);
-                    reportType = ReportType.XML_COVERAGE;
+                    if (this.isCoverageReport(node)){
+                        tl.debug("Recognized XML Coverage report: " + report);
+                        reportType = ReportType.XML_COVERAGE;
+                    }
                 } else if (node.name == 'StdViols') {
                     if (!bLegacyReport || bCPPProReport) {
                         if (reportType == ReportType.UNKNOWN) {
@@ -306,6 +311,16 @@ export class ParaReportPublishService {
         }
     }
 
+    isCoverageReport = (node: any): boolean => {
+        if(node.attributes.hasOwnProperty('toolName')) {
+            let toolName: string = node.attributes['toolName'];
+            if (toolName.includes('DTP Engine for')){
+                return true;
+            }
+        }
+        return false;
+    }
+
     isLegacyReport = (node:any): boolean => {
         return !((node.attributes.hasOwnProperty('ver10x')) && (node.attributes['ver10x'] == '1'));
     }
@@ -331,6 +346,14 @@ export class ParaReportPublishService {
                     tl.uploadArtifact("Container", this.sarifReports[i], "CodeAnalysisLogs");
                 }
             }
+            if (this.coberturaReports.length != 0) {
+                let tempFolder = path.join(this.getTempFolder(), 'cchtml');
+                let result = this.generateHtmlReport(this.coberturaReports[0], tempFolder);
+                tl.debug('Result: ' + result);
+
+                const coveragePublisher = new tl.CodeCoveragePublisher();
+                coveragePublisher.publish('Cobertura', this.coberturaReports[0], tempFolder, '');
+            }
             if(this.failOnFailures){
                 this.checkRunFailures(this.xUnitReports, this.sarifReports);
             } else {
@@ -344,6 +367,66 @@ export class ParaReportPublishService {
             return true;
         }
         return input.replace(/\s/g, '').length < 1;
+    }
+    // code from azure-pipelines-tasks
+    getTempFolder = (): string => {
+        try {
+            tl.assertAgent('2.115.0');
+            const tmpDir = tl.getVariable('Agent.TempDirectory');
+            return <string>tmpDir;
+        } catch (err) {
+            tl.warning(tl.loc('UpgradeAgentMessage'));
+            return os.tmpdir();
+        }
+    }
+    // code from azure-pipelines-tasks
+    generateHtmlReport = (summaryFile: string, targetDir: string): boolean => {
+        const platform = process.platform;
+        let dotnet: tr.ToolRunner;
+
+        const dotnetPath = tl.which('dotnet', false);
+        if (!dotnetPath && platform !== 'win32') {
+            tl.warning("Please install dotnet core to enable automatic generation of Html report.");
+            return false;
+        }
+
+        if (!dotnetPath && platform === 'win32') {
+            // use full .NET to execute
+            dotnet = tl.tool(path.join(__dirname, 'lib', 'net47', 'ReportGenerator.exe'));
+        } else {
+            dotnet = tl.tool(dotnetPath);
+            dotnet.arg(path.join(__dirname, 'lib', 'netcoreapp2.0', 'ReportGenerator.dll'));
+        }
+
+        dotnet.arg('-reports:' + summaryFile);
+        dotnet.arg('-targetdir:' + targetDir);
+        dotnet.arg('-reporttypes:HtmlInline_AzurePipelines');
+
+        try {
+            const result = dotnet.execSync(<tr.IExecOptions>{
+                ignoreReturnCode: true,
+                failOnStdErr: false,
+                errStream: process.stdout,
+                outStream: process.stdout
+            });
+
+            // Listen for stderr.
+            let isError = false;
+            dotnet.on('stderr', (data: Buffer) => {
+                console.error(data.toString());
+                isError = true;
+            });
+
+            if (result.code === 0 && !isError) {
+                console.log("Generated code coverage html report: " + targetDir);
+                return true;
+            } else {
+                tl.warning("Failed to generate Html report. Error: " + result);
+            }
+        } catch (err) {
+            tl.warning("Failed to generate Html report. Error: " + err);
+        }
+        return false;
     }
 
     loadSettings = (localSettingsPath: string | undefined): ReadOnlyProperties | null => {
