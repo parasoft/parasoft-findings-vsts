@@ -10,5 +10,7 @@ node_modules/
 
 ### IntelliJ IDEA ###
 .idea
-### VS Code ###
-.vscode
+
+### jasmine-reporters ###
+!/spec/support/jasmine.js
+/test-reports
