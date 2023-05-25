@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"  standalone="yes"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+    <xsl:variable name="toolName" select="/Coverage/@toolId"/>
     <xsl:template match="/">
         <xsl:element name="coverage">
             <xsl:attribute name="line-rate">0.8571428571428571</xsl:attribute>
@@ -14,101 +15,68 @@
 
     <xsl:template name="packages">
         <xsl:element name="packages">
-            <xsl:apply-templates select="/Coverage/Locations/Loc" mode="package"/>
-        </xsl:element>
-    </xsl:template>
-
-    <xsl:template match="Loc" mode="package">
-        <xsl:variable name="packageNameValue">
-            <xsl:call-template name="callPackageNameTemplate"/>
-        </xsl:variable>
-        <xsl:variable name="isDuplicatePackage">
-            <xsl:if test="position() != 1">
-                <xsl:for-each select="preceding-sibling::*">
-                    <xsl:variable name="brotherPackageName">
-                        <xsl:call-template name="callPackageNameTemplate"/>
+            <xsl:for-each-group select="/Coverage/Locations/Loc" group-by="substring-before(@uri, tokenize(@uri, '/')[last()])">
+                <xsl:element name="package">
+                    <xsl:variable name="packageName">
+                        <xsl:call-template name="generatePackageName">
+                            <xsl:with-param name="string" select="@resProjPath"/>
+                        </xsl:call-template>
                     </xsl:variable>
-                    <xsl:if test="$packageNameValue = $brotherPackageName">
-                        <xsl:value-of select="'true'"/>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:if>
-        </xsl:variable>
-
-        <xsl:if test="position() = 1 or $isDuplicatePackage != 'true'">
-            <xsl:element name="package">
-                <xsl:call-template name="addPackageNameAttr"/>
-                <xsl:call-template name="classes">
-                    <xsl:with-param name="packageNameValue" select="$packageNameValue"/>
-                </xsl:call-template>
-            </xsl:element>
-        </xsl:if>
-    </xsl:template>
-
-    <xsl:template name="classes">
-        <xsl:param name="packageNameValue"/>
-        <xsl:element name="classes">
-            <xsl:apply-templates select="/Coverage/Locations/Loc" mode="class">
-                <xsl:with-param name="packageNameValue" select="$packageNameValue"/>
-            </xsl:apply-templates>
+                    <xsl:attribute name="name">
+                        <xsl:value-of select="$packageName"/>
+                    </xsl:attribute>
+                    <xsl:element name="classes">
+                        <xsl:for-each select="current-group()">
+                            <xsl:variable name="classFileName">
+                                <xsl:call-template name="classFilename"/>
+                            </xsl:variable>
+                            <xsl:element name="class">
+                                <xsl:attribute name="filename">
+                                    <xsl:value-of select="$classFileName"/>
+                                </xsl:attribute>
+                                <xsl:call-template name="addClassNameAttr">
+                                    <xsl:with-param name="packageName" select="$packageName"/>
+                                    <xsl:with-param name="classFilename" select="$classFileName"/>
+                                </xsl:call-template>
+                            </xsl:element>
+                        </xsl:for-each>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:for-each-group>
         </xsl:element>
     </xsl:template>
 
-    <xsl:template match="Loc" mode="class">
-        <xsl:param name="packageNameValue"/>
-        <xsl:variable name="classNameValue">
-            <xsl:call-template name="className"/>
-        </xsl:variable>
-        <xsl:variable name="delimiter">
-            <xsl:if test="@projId">
-                <xsl:value-of select="'.'"/>
-            </xsl:if>
-        </xsl:variable>
-        <xsl:variable name="processedClassFilename">
-            <xsl:call-template name="handleClassFilename"/>
-        </xsl:variable>
-        <xsl:if test="concat($packageNameValue, $delimiter, $processedClassFilename) = $classNameValue">
-            <xsl:element name="class">
-                <xsl:call-template name="addClassFilenameAttr"/>
-                <xsl:call-template name="addClassNameAttr"/>
-            </xsl:element>
-        </xsl:if>
-    </xsl:template>
-
-    <xsl:template name="addPackageNameAttr">
-        <xsl:attribute name="name">
-            <xsl:call-template name="callPackageNameTemplate"/>
-        </xsl:attribute>
-    </xsl:template>
-
-    <xsl:template name="packageName">
+    <xsl:template name="generatePackageName">
         <xsl:param name="string"/>
-        <xsl:param name="delimiter"/>
-        <xsl:variable name="classFilenameValue">
-            <xsl:call-template name="getClassFilename"/>
-        </xsl:variable>
-        <xsl:variable name="processedProjId">
-            <xsl:call-template name="handleProjId">
-                <xsl:with-param name="projId" select="@projId"/>
-            </xsl:call-template>
-        </xsl:variable>
-        <xsl:choose>
-            <xsl:when test="contains($string, '/')">
-                <xsl:call-template name="packageName">
-                    <xsl:with-param name="string" select="translate(substring-before($string, concat($delimiter, $classFilenameValue)), $delimiter, '.')"/>
-                    <xsl:with-param name="delimiter" select="'.'"/>
+        <xsl:variable name="delimiter" select="'/'"/>
+        <xsl:if test="@projId and $string">
+            <xsl:variable name="classFilenameValue">
+                <xsl:call-template name="classFilename"/>
+            </xsl:variable>
+            <xsl:variable name="processedProjId">
+                <xsl:call-template name="handleProjId">
+                    <xsl:with-param name="projId" select="@projId"/>
                 </xsl:call-template>
-            </xsl:when>
-            <xsl:when test="not(starts-with($string, $processedProjId))">
-                <xsl:call-template name="packageName">
-                    <xsl:with-param name="string" select="substring-after($string, $delimiter)"/>
-                    <xsl:with-param name="delimiter" select="'.'"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$string"/>
-            </xsl:otherwise>
-        </xsl:choose>
+            </xsl:variable>
+            <xsl:choose>
+                <!--    Jtest    -->
+                <xsl:when test="$toolName = 'jtest'">
+                    <xsl:variable name="handledResProjPath" select="replace(substring-before($string, concat($delimiter, $classFilenameValue)), $delimiter, '.')"/>
+                    <xsl:value-of select="substring-after($handledResProjPath, substring-before($handledResProjPath, $processedProjId))"/>
+                </xsl:when>
+                <!--     Dottest       -->
+                <xsl:when test="$toolName = 'dottest'">
+                    <xsl:choose>
+                        <xsl:when test="contains($string, $delimiter)">
+                            <xsl:value-of select="concat($processedProjId, '.', substring-before($string, $delimiter))"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="$processedProjId"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </xsl:when>
+            </xsl:choose>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="handleProjId">
@@ -123,73 +91,25 @@
         </xsl:choose>
     </xsl:template>
 
-    <xsl:template name="addClassFilenameAttr">
-        <xsl:attribute name="filename">
-            <xsl:call-template name="getClassFilename"/>
-        </xsl:attribute>
-    </xsl:template>
-
     <xsl:template name="addClassNameAttr">
-        <xsl:attribute name="name">
-            <xsl:call-template name="className"/>
-        </xsl:attribute>
-    </xsl:template>
-
-    <xsl:template name="className">
-        <xsl:variable name="packageNameValue">
-            <xsl:call-template name="callPackageNameTemplate"/>
-        </xsl:variable>
+        <xsl:param name="packageName"/>
+        <xsl:param name="classFilename"/>
         <xsl:variable name="processedClassFilename">
-            <xsl:call-template name="handleClassFilename"/>
+            <xsl:value-of select="substring-before($classFilename, '.')"/>
         </xsl:variable>
-        <xsl:choose>
-            <xsl:when test="@projId">
-                <xsl:value-of select="concat($packageNameValue, '.', $processedClassFilename)"/>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$processedClassFilename"/>
-            </xsl:otherwise>
-        </xsl:choose>
-    </xsl:template>
-
-    <xsl:template name="handleClassFilename">
-        <xsl:variable name="classFilename">
-            <xsl:call-template name="getClassFilename"/>
-        </xsl:variable>
-        <xsl:value-of select="substring-before($classFilename, '.')"/>
-    </xsl:template>
-
-    <xsl:template name="getClassFilename">
-        <xsl:call-template name="classFilename">
-            <xsl:with-param name="string" select="@uri"/>
-            <xsl:with-param name="delimiter" select="'/'"/>
-        </xsl:call-template>
-    </xsl:template>
-
-    <xsl:template name="callPackageNameTemplate">
-        <xsl:choose>
-            <xsl:when test="@projId">
-                <xsl:call-template name="packageName">
-                    <xsl:with-param name="string" select="@uri"/>
-                    <xsl:with-param name="delimiter" select="'/'"/>
-                </xsl:call-template>
-            </xsl:when>
-        </xsl:choose>
+        <xsl:attribute name="name">
+            <xsl:choose>
+                <xsl:when test="string-length($packageName) > 0">
+                    <xsl:value-of select="concat($packageName, '.', $processedClassFilename)"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$processedClassFilename"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:attribute>
     </xsl:template>
 
     <xsl:template name="classFilename">
-        <xsl:param name="string"/>
-        <xsl:param name="delimiter"/>
-        <xsl:choose>
-            <xsl:when test="contains($string, $delimiter)">
-                <xsl:call-template name="classFilename">
-                    <xsl:with-param name="string" select="substring-after($string, $delimiter)"/>
-                    <xsl:with-param name="delimiter" select="$delimiter"/>
-                </xsl:call-template>
-            </xsl:when>
-            <xsl:otherwise>
-                <xsl:value-of select="$string"/>
-            </xsl:otherwise>
-        </xsl:choose>
+        <xsl:value-of select="tokenize(@uri, '/')[last()]"/>
     </xsl:template>
 </xsl:stylesheet>
