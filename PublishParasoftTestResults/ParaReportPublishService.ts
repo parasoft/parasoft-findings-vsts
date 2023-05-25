@@ -140,8 +140,10 @@ export class ParaReportPublishService {
             const saxStream = sax.createStream(true, {});
             saxStream.on("opentag", (node) => {
                 if (node.name == 'Coverage') {
-                    tl.debug("Recognized XML Coverage report: " + report);
-                    reportType = ReportType.XML_COVERAGE;
+                    if (this.isCoverageReport(node)){
+                        tl.debug("Recognized XML Coverage report: " + report);
+                        reportType = ReportType.XML_COVERAGE;
+                    }
                 } else if (node.name == 'StdViols') {
                     if (!bLegacyReport || bCPPProReport) {
                         if (reportType == ReportType.UNKNOWN) {
@@ -304,6 +306,10 @@ export class ParaReportPublishService {
         } catch (error) {
             tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
         }
+    }
+
+    isCoverageReport = (node: any): boolean => {
+        return node.attributes.hasOwnProperty('ver');
     }
 
     isLegacyReport = (node:any): boolean => {
