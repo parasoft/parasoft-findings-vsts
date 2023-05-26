@@ -14,3 +14,7 @@ node_modules/
 ### jasmine-reporters ###
 !/spec/support/jasmine.js
 /test-reports
+
+### thrid party libs ###
+/scripts/temp
+/PublishParasoftTestResults/lib
