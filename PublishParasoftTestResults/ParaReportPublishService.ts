@@ -342,10 +342,11 @@ export class ParaReportPublishService {
             }
             if (this.coberturaReports.length != 0) {
                 let tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
-                this.generateHtmlReport(this.coberturaReports[0], tempFolder);
+                let coverageReport: string = <string> this.coberturaReports.pop();
+                this.generateHtmlReport(coverageReport, tempFolder);
 
                 const coveragePublisher = new tl.CodeCoveragePublisher();
-                coveragePublisher.publish('Cobertura', this.coberturaReports[0], tempFolder, '');
+                coveragePublisher.publish('Cobertura', coverageReport, tempFolder, '');
             }
             if(this.failOnFailures){
                 this.checkRunFailures(this.xUnitReports, this.sarifReports);

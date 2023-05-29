@@ -5,9 +5,20 @@ import * as AdmZip from 'adm-zip'
 function cleanDir(paths: string[]) {
     for (let i = 0; i < paths.length; i++) {
         if (fs.existsSync(paths[i])) {
-            fs.rmSync(paths[i], { recursive: true });
+            try {
+                fs.rmSync(paths[i], { recursive: true });
+                console.log(`Removed ${paths[i]}`)
+            } catch (e) {
+                console.error(`Error removing ${paths[i]}:`, e);
+            }
         }
-        fs.mkdirSync(paths[i], { recursive: true });
+
+        try {
+            fs.mkdirSync(paths[i], { recursive: true });
+            console.log(`Created directory ${paths[i]}`);
+        } catch (e) {
+            console.error(`Error creating directory ${paths[i]}:`, e);
+        }
     }
 }
 
@@ -20,6 +31,7 @@ function download(url:string, path: string, callback: any):void {
         if (res.status == 200) {
             res.data.pipe(fs.createWriteStream(path));
             res.data.on("end", () => {
+                console.log("Report Generator: download completed");
                 callback();
             });
         } else {
@@ -30,26 +42,22 @@ function download(url:string, path: string, callback: any):void {
     })
 }
 
-function extract(zipPath: string, targetDir: string, unusedLibs: string[]) {
+function extract(zipPath: string, targetDir: string, usedLibs: string[]) {
     const zip = new AdmZip(zipPath);
-    zip.extractAllTo(targetDir);
-
-    unusedLibs.forEach((lib) => {
-        let path = targetDir + lib;
-        fs.rmSync(path, { recursive: true });
+    usedLibs.forEach((lib) => {
+        zip.extractEntryTo(lib, targetDir)
     });
+    console.log("Report Generator: Extract completed");
 }
 
-const tempFolder = './temp';
+const tempFolder = './scripts/temp';
 const url = 'https://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/ReportGenerator_4.6.1.zip';
 const path = tempFolder + '/reportGenerator.zip';
-const targetFolder = '../PublishParasoftTestResults/lib'
-const unusedLibs = ['/netcoreapp2.0_original', '/netcoreapp2.1', '/netcoreapp3.0'];
+const targetFolder = './PublishParasoftTestResults/lib'
+const usedLibs = ['netcoreapp2.0/', 'net47/'];
 
 
 cleanDir([tempFolder, targetFolder]);
 download(url, path, () => {
-    console.log("Report Generator: download completed");
-    extract(path, targetFolder, unusedLibs);
-    console.log("Report Generator: Extract completed");
+    extract(path, targetFolder, usedLibs);
 });
