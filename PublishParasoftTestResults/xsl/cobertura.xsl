@@ -25,6 +25,9 @@
                             <xsl:element name="class">
                                 <xsl:call-template name="addClassFilenameAttr"/>
                                 <xsl:call-template name="addClassNameAttr"/>
+                                <xsl:call-template name="addLinesElem">
+                                    <xsl:with-param name="locRefValue" select="@locRef"/>
+                                </xsl:call-template>
                             </xsl:element>
                         </xsl:for-each>
                     </xsl:element>
@@ -127,5 +130,21 @@
                 </xsl:call-template>
             </xsl:when>
         </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="addLinesElem">
+        <xsl:param name="locRefValue"/>
+        <xsl:element name="lines">
+            <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
+            <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
+            <xsl:for-each select="$lineNumbers">
+                <xsl:sort data-type="number"/>
+                <xsl:element name="line">
+                    <xsl:attribute name="number">
+                        <xsl:value-of select="."/>
+                    </xsl:attribute>
+                </xsl:element>
+            </xsl:for-each>
+        </xsl:element>
     </xsl:template>
 </xsl:stylesheet>
