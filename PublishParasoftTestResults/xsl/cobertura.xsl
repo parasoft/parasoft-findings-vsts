@@ -70,7 +70,7 @@
                 <xsl:when test="$toolName = 'dottest'">
                     <xsl:choose>
                         <xsl:when test="contains($resProjPath, $delimiter)">
-                            <xsl:value-of select="concat($packageNamePrefix, '.', substring-before($resProjPath, $delimiter))"/>
+                            <xsl:value-of select="concat($packageNamePrefix, '.', replace(substring-before($resProjPath, concat($delimiter, tokenize($resProjPath, '/')[last()])), $delimiter, '.'))"/>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:value-of select="$packageNamePrefix"/>
@@ -97,7 +97,8 @@
         <xsl:param name="packageName"/>
         <xsl:param name="filename"/>
         <xsl:variable name="className">
-            <xsl:value-of select="replace($filename, '\.java$', '')"/>
+            <!--To remove file extension-->
+            <xsl:value-of select="substring-before($filename, '.')"/>
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="string-length($packageName) > 0">
