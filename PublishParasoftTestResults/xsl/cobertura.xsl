@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"  standalone="yes"?>
-<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xsl:output indent="yes"/>
     <xsl:variable name="toolName" select="/Coverage/@toolId"/>
     <xsl:template match="/">
         <xsl:element name="coverage">
@@ -137,11 +139,29 @@
         <xsl:element name="lines">
             <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
             <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
+
+            <xsl:variable name="coveredLinesSeq" as="xs:string*">
+                <xsl:for-each select="/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Dynamic//DynCvg">
+                    <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
+                </xsl:for-each>
+            </xsl:variable>
+            <xsl:variable name="coveredLineNumbers" select="distinct-values(tokenize(string-join($coveredLinesSeq, ' '), '\s+'))"/>
+
             <xsl:for-each select="$lineNumbers">
                 <xsl:sort data-type="number"/>
                 <xsl:element name="line">
                     <xsl:attribute name="number">
                         <xsl:value-of select="."/>
+                    </xsl:attribute>
+                    <xsl:attribute name="hits">
+                        <xsl:choose>
+                            <xsl:when test=". = $coveredLineNumbers">
+                                <xsl:value-of select="1"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="0"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:attribute>
                 </xsl:element>
             </xsl:for-each>
