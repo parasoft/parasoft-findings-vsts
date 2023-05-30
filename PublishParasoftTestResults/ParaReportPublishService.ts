@@ -340,9 +340,9 @@ export class ParaReportPublishService {
                     tl.uploadArtifact("Container", this.sarifReports[i], "CodeAnalysisLogs");
                 }
             }
-            if (this.coberturaReports.length != 0) {
+            if (this.coberturaReports.length > 0) {
                 let tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
-                let coverageReport: string = <string> this.coberturaReports.pop();
+                let coverageReport: string = <string> this.coberturaReports[this.coberturaReports.length - 1];
                 this.generateHtmlReport(coverageReport, tempFolder);
 
                 const coveragePublisher = new tl.CodeCoveragePublisher();
@@ -362,7 +362,7 @@ export class ParaReportPublishService {
         }
         return input.replace(/\s/g, '').length < 1;
     }
-    // code from azure-pipelines-tasks
+    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
     getTempFolder = (): string => {
         try {
             tl.assertAgent('2.115.0');
@@ -373,7 +373,7 @@ export class ParaReportPublishService {
             return os.tmpdir();
         }
     }
-    // code from azure-pipelines-tasks
+    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
     generateHtmlReport = (summaryFile: string, targetDir: string): boolean => {
         const platform = process.platform;
         let dotnet: tr.ToolRunner;
