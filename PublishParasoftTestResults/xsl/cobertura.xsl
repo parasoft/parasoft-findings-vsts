@@ -15,20 +15,20 @@
 
     <xsl:template name="packages">
         <xsl:element name="packages">
-            <xsl:for-each-group select="/Coverage/Locations/Loc" group-by="substring-before(@uri, tokenize(@resProjPath, '/')[last()])">
-                <package>
+            <xsl:for-each-group select="/Coverage/Locations/Loc" group-by="substring-before(@uri, tokenize(@uri, '/')[last()])">
+                <xsl:element name="package">
                     <xsl:attribute name="name">
                         <xsl:call-template name="addPackageNameAttr"/>
                     </xsl:attribute>
-                        <xsl:element name="classes">
-                            <xsl:for-each select="current-group()">
-                                <xsl:element name="class">
-                                    <xsl:call-template name="addClassFilenameAttr"/>
-                                    <xsl:call-template name="addClassNameAttr"/>
-                                </xsl:element>
-                            </xsl:for-each>
-                        </xsl:element>
-                </package>
+                    <xsl:element name="classes">
+                        <xsl:for-each select="current-group()">
+                            <xsl:element name="class">
+                                <xsl:call-template name="addClassFilenameAttr"/>
+                                <xsl:call-template name="addClassNameAttr"/>
+                            </xsl:element>
+                        </xsl:for-each>
+                    </xsl:element>
+                </xsl:element>
             </xsl:for-each-group>
         </xsl:element>
     </xsl:template>
@@ -97,7 +97,7 @@
                 <xsl:call-template name="handleClassFilename"/>
             </xsl:variable>
             <xsl:choose>
-                <xsl:when test="@projId">
+                <xsl:when test="@projId and @resProjPath">
                     <xsl:value-of select="concat($packageNameValue, '.', $processedClassFilename)"/>
                 </xsl:when>
                 <xsl:otherwise>
@@ -120,7 +120,7 @@
 
     <xsl:template name="callPackageNameTemplate">
         <xsl:choose>
-            <xsl:when test="@projId">
+            <xsl:when test="@projId and @resProjPath">
                 <xsl:call-template name="packageName">
                     <xsl:with-param name="string" select="@resProjPath"/>
                     <xsl:with-param name="delimiter" select="'/'"/>
