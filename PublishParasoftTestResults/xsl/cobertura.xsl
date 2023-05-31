@@ -40,10 +40,12 @@
                                         <xsl:with-param name="filename" select="$filename"/>
                                     </xsl:call-template>
                                 </xsl:attribute>
+                                <xsl:element name="lines">
+                                    <xsl:call-template name="addLinesElem">
+                                        <xsl:with-param name="locRefValue" select="@locRef"/>
+                                    </xsl:call-template>
+                                </xsl:element>
                             </xsl:element>
-                            <xsl:call-template name="addLinesElem">
-                                <xsl:with-param name="locRefValue" select="@locRef"/>
-                            </xsl:call-template>
                         </xsl:for-each>
                     </xsl:element>
                 </xsl:element>
@@ -119,7 +121,6 @@
 
     <xsl:template name="addLinesElem">
         <xsl:param name="locRefValue"/>
-        <xsl:element name="lines">
             <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
             <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
 
@@ -148,6 +149,5 @@
                     </xsl:attribute>
                 </xsl:element>
             </xsl:for-each>
-        </xsl:element>
     </xsl:template>
 </xsl:stylesheet>
