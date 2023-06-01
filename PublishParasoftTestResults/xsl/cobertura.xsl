@@ -3,7 +3,11 @@
     <xsl:variable name="toolName" select="/Coverage/@toolId"/>
     <xsl:template match="/">
         <xsl:element name="coverage">
-            <xsl:attribute name="line-rate">0.8571428571428571</xsl:attribute>
+            <xsl:attribute name="line-rate">
+                <xsl:call-template name="getLineRate">
+                    <xsl:with-param name="loopCondition" select="/Coverage/Locations/Loc"/>
+                </xsl:call-template>
+            </xsl:attribute>
             <xsl:attribute name="branch-rate">0.5</xsl:attribute>
             <xsl:attribute name="lines-covered">6</xsl:attribute>
             <xsl:attribute name="lines-valid">7</xsl:attribute>
@@ -25,6 +29,11 @@
                     <xsl:attribute name="name">
                         <xsl:value-of select="$packageName"/>
                     </xsl:attribute>
+                    <xsl:attribute name="line-rate">
+                        <xsl:call-template name="getLineRate">
+                            <xsl:with-param name="loopCondition" select="current-group()"/>
+                        </xsl:call-template>
+                    </xsl:attribute>
                     <xsl:element name="classes">
                         <xsl:for-each select="current-group()">
                             <xsl:variable name="filename">
@@ -33,6 +42,11 @@
                             <xsl:element name="class">
                                 <xsl:attribute name="filename">
                                     <xsl:value-of select="$filename"/>
+                                </xsl:attribute>
+                                <xsl:attribute name="line-rate">
+                                    <xsl:call-template name="getLineRate">
+                                        <xsl:with-param name="loopCondition" select="."/>
+                                    </xsl:call-template>
                                 </xsl:attribute>
                                 <xsl:attribute name="name">
                                     <xsl:call-template name="getClassName">
@@ -51,6 +65,39 @@
                 </xsl:element>
             </xsl:for-each-group>
         </xsl:element>
+    </xsl:template>
+
+    <xsl:template name="getLineRate">
+        <xsl:param name="loopCondition"/>
+        <xsl:variable name="lineNumbers" as="xs:integer*">
+            <xsl:for-each select="$loopCondition">
+                <xsl:variable name="getLineNumber" as="xs:string*">
+                    <xsl:call-template name="getLineNumbers">
+                        <xsl:with-param name="locRefValue" select="@locRef"/>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:sequence select="count($getLineNumber)"/>
+            </xsl:for-each>
+        </xsl:variable>
+
+        <xsl:variable name="coveredLineNumbers" as="xs:integer*">
+            <xsl:for-each select="$loopCondition">
+                <xsl:variable name="getCoveredLineNumbers" as="xs:string*">
+                    <xsl:call-template name="getCoveredLineNumbers">
+                        <xsl:with-param name="locRefValue" select="@locRef"/>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:sequence select="count($getCoveredLineNumbers)"/>
+            </xsl:for-each>
+        </xsl:variable>
+        <xsl:choose>
+            <xsl:when test="sum($lineNumbers) > 0">
+                <xsl:value-of select="sum($coveredLineNumbers) div sum($lineNumbers)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="0"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="getPackageName">
@@ -121,33 +168,50 @@
 
     <xsl:template name="addLinesElem">
         <xsl:param name="locRefValue"/>
-            <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
-            <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
+        <xsl:variable name="lineNumbers" as="xs:string*">
+            <xsl:call-template name="getLineNumbers">
+                <xsl:with-param name="locRefValue" select="$locRefValue"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="coveredLineNumbers" as="xs:string*">
+            <xsl:call-template name="getCoveredLineNumbers">
+                <xsl:with-param name="locRefValue" select="$locRefValue"/>
+            </xsl:call-template>
+        </xsl:variable>
 
-            <xsl:variable name="coveredLinesSeq" as="xs:string*">
-                <xsl:for-each select="/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Dynamic//DynCvg">
-                    <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
-                </xsl:for-each>
-            </xsl:variable>
-            <xsl:variable name="coveredLineNumbers" select="distinct-values(tokenize(string-join($coveredLinesSeq, ' '), '\s+'))"/>
+        <xsl:for-each select="$lineNumbers">
+            <xsl:sort data-type="number"/>
+            <xsl:element name="line">
+                <xsl:attribute name="number">
+                    <xsl:value-of select="."/>
+                </xsl:attribute>
+                <xsl:attribute name="hits">
+                    <xsl:choose>
+                        <xsl:when test=". = $coveredLineNumbers">
+                            <xsl:value-of select="1"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="0"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                </xsl:attribute>
+            </xsl:element>
+        </xsl:for-each>
+    </xsl:template>
 
-            <xsl:for-each select="$lineNumbers">
-                <xsl:sort data-type="number"/>
-                <xsl:element name="line">
-                    <xsl:attribute name="number">
-                        <xsl:value-of select="."/>
-                    </xsl:attribute>
-                    <xsl:attribute name="hits">
-                        <xsl:choose>
-                            <xsl:when test=". = $coveredLineNumbers">
-                                <xsl:value-of select="1"/>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="0"/>
-                            </xsl:otherwise>
-                        </xsl:choose>
-                    </xsl:attribute>
-                </xsl:element>
+    <xsl:template name="getLineNumbers">
+        <xsl:param name="locRefValue"/>
+        <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
+        <xsl:sequence select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
+    </xsl:template>
+
+    <xsl:template name="getCoveredLineNumbers">
+        <xsl:param name="locRefValue"/>
+        <xsl:variable name="coveredLinesSeq" as="xs:string*">
+            <xsl:for-each select="/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Dynamic//DynCvg">
+                <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
             </xsl:for-each>
+        </xsl:variable>
+        <xsl:sequence select="(distinct-values(tokenize(string-join($coveredLinesSeq, ' '), '\s+')))"/>
     </xsl:template>
 </xsl:stylesheet>
