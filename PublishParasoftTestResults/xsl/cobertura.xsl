@@ -102,8 +102,15 @@
         <xsl:param name="packageName"/>
         <xsl:param name="filename"/>
         <xsl:variable name="className">
-            <!--To remove file extension-->
-            <xsl:value-of select="substring-before($filename, '.')"/>
+            <xsl:choose>
+                <xsl:when test="$toolName = 'c++test'">
+                    <xsl:value-of select="$filename"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!--To remove file extension-->
+                    <xsl:value-of select="substring-before($filename, '.')"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="string-length($packageName) > 0">
