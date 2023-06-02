@@ -129,7 +129,7 @@
                     <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
                 </xsl:for-each>
             </xsl:variable>
-            <xsl:variable name="coveredLineNumbers" select="distinct-values(tokenize(string-join($coveredLinesSeq, ' '), '\s+'))"/>
+            <xsl:variable name="coveredLineNumbers" select="tokenize(string-join($coveredLinesSeq, ' '), '\s+')"/>
 
             <xsl:for-each select="$lineNumbers">
                 <xsl:sort data-type="number"/>
@@ -140,7 +140,8 @@
                     <xsl:attribute name="hits">
                         <xsl:choose>
                             <xsl:when test=". = $coveredLineNumbers">
-                                <xsl:value-of select="1"/>
+                                <xsl:variable name="currentLine" select="."/>
+                                <xsl:value-of select="count($coveredLineNumbers[. = $currentLine])"/>
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:value-of select="0"/>
