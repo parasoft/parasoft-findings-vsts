@@ -149,8 +149,15 @@
         <xsl:param name="packageName"/>
         <xsl:param name="filename"/>
         <xsl:variable name="className">
-            <!--To remove file extension-->
-            <xsl:value-of select="substring-before($filename, '.')"/>
+            <xsl:choose>
+                <xsl:when test="$toolName = 'c++test'">
+                    <xsl:value-of select="$filename"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <!--To remove file extension-->
+                    <xsl:value-of select="substring-before($filename, '.')"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:variable>
         <xsl:choose>
             <xsl:when test="string-length($packageName) > 0">
@@ -168,6 +175,17 @@
 
     <xsl:template name="addLinesElem">
         <xsl:param name="locRefValue"/>
+
+        <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
+        <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
+
+        <xsl:variable name="coveredLinesSeq" as="xs:string*">
+            <xsl:for-each select="/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Dynamic//DynCvg">
+                <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
+            </xsl:for-each>
+        </xsl:variable>
+        <xsl:variable name="coveredLineNumbers" select="tokenize(string-join($coveredLinesSeq, ' '), '\s+')"/>
+
         <xsl:variable name="lineNumbers" as="xs:string*">
             <xsl:call-template name="getLineNumbers">
                 <xsl:with-param name="locRefValue" select="$locRefValue"/>
@@ -188,7 +206,8 @@
                 <xsl:attribute name="hits">
                     <xsl:choose>
                         <xsl:when test=". = $coveredLineNumbers">
-                            <xsl:value-of select="1"/>
+                            <xsl:variable name="currentLine" select="."/>
+                            <xsl:value-of select="count($coveredLineNumbers[. = $currentLine])"/>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:value-of select="0"/>
