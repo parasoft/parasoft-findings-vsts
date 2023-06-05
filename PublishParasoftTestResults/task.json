@@ -28,7 +28,7 @@
             "name": "resultsFiles",
             "type": "multiLine",
             "label": "Results files",
-            "defaultValue": "**/rep*.xml\n**/rep*.sarif",
+            "defaultValue": "**/rep*.xml\n**/rep*.sarif\n**/coverage.xml",
             "required": true,
             "helpMarkDown": "Results files path. Supports multiple lines of minimatch patterns. [More Information](https://aka.ms/minimatchexamples)",
             "properties": {
