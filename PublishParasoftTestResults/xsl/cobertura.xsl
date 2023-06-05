@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"  standalone="yes"?>
 <xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xsl:variable name="toolName" select="/Coverage/@toolId"/>
+    <xsl:variable name="pipelineBuildWorkingDirectory" select="/Coverage/@pipelineBuildWorkingDirectory"/>
     <xsl:template match="/">
         <xsl:element name="coverage">
             <xsl:attribute name="line-rate">0.8571428571428571</xsl:attribute>
@@ -19,7 +20,7 @@
                 <xsl:element name="package">
                     <xsl:variable name="packageName">
                         <xsl:call-template name="getPackageName">
-                            <xsl:with-param name="resProjPath" select="@resProjPath"/>
+                            <xsl:with-param name="projectPath" select="substring-after(@uri, concat(translate($pipelineBuildWorkingDirectory, '\', '/'), '/'))"/>
                         </xsl:call-template>
                     </xsl:variable>
                     <xsl:attribute name="name">
@@ -54,33 +55,26 @@
     </xsl:template>
 
     <xsl:template name="getPackageName">
-        <xsl:param name="resProjPath"/>
+        <xsl:param name="projectPath"/>
         <xsl:variable name="delimiter" select="'/'"/>
-        <xsl:if test="@projId and @resProjPath">
+        <xsl:if test="contains($projectPath, $delimiter)">
             <xsl:variable name="filename">
                 <xsl:call-template name="getFileName"/>
-            </xsl:variable>
-            <xsl:variable name="packageNamePrefix">
-                <xsl:call-template name="getPackageNamePrefix">
-                    <xsl:with-param name="projId" select="@projId"/>
-                </xsl:call-template>
             </xsl:variable>
             <xsl:choose>
                 <!--    Jtest    -->
                 <xsl:when test="$toolName = 'jtest'">
-                    <xsl:variable name="formattedResourceProjectPath" select="replace(substring-before($resProjPath, concat($delimiter, $filename)), $delimiter, '.')"/>
+                    <xsl:variable name="packageNamePrefix">
+                        <xsl:call-template name="getPackageNamePrefix">
+                            <xsl:with-param name="projId" select="@projId"/>
+                        </xsl:call-template>
+                    </xsl:variable>
+                    <xsl:variable name="formattedResourceProjectPath" select="replace(substring-before($projectPath, concat($delimiter, $filename)), $delimiter, '.')"/>
                     <xsl:value-of select="substring-after($formattedResourceProjectPath, substring-before($formattedResourceProjectPath, $packageNamePrefix))"/>
                 </xsl:when>
-                <!--     Dottest       -->
-                <xsl:when test="$toolName = 'dottest'">
-                    <xsl:choose>
-                        <xsl:when test="contains($resProjPath, $delimiter)">
-                            <xsl:value-of select="concat($packageNamePrefix, '.', replace(substring-before($resProjPath, concat($delimiter, tokenize($resProjPath, '/')[last()])), $delimiter, '.'))"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="$packageNamePrefix"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
+                <!--     Dottest  or CPPTest std     -->
+                <xsl:when test="$toolName = 'dottest' or $toolName = 'c++test'">
+                    <xsl:value-of select="replace(substring-before($projectPath, concat($delimiter, $filename)), $delimiter, '.')"/>
                 </xsl:when>
             </xsl:choose>
         </xsl:if>
