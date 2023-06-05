@@ -5,7 +5,7 @@
         <xsl:element name="coverage">
             <xsl:attribute name="line-rate">
                 <xsl:call-template name="getLineRate">
-                    <xsl:with-param name="loopCondition" select="/Coverage/Locations/Loc"/>
+                    <xsl:with-param name="parentsOfLines" select="/Coverage/Locations/Loc"/>
                 </xsl:call-template>
             </xsl:attribute>
             <xsl:attribute name="branch-rate">0.5</xsl:attribute>
@@ -31,7 +31,7 @@
                     </xsl:attribute>
                     <xsl:attribute name="line-rate">
                         <xsl:call-template name="getLineRate">
-                            <xsl:with-param name="loopCondition" select="current-group()"/>
+                            <xsl:with-param name="parentsOfLines" select="current-group()"/>
                         </xsl:call-template>
                     </xsl:attribute>
                     <xsl:element name="classes">
@@ -45,7 +45,7 @@
                                 </xsl:attribute>
                                 <xsl:attribute name="line-rate">
                                     <xsl:call-template name="getLineRate">
-                                        <xsl:with-param name="loopCondition" select="."/>
+                                        <xsl:with-param name="parentsOfLines" select="."/>
                                     </xsl:call-template>
                                 </xsl:attribute>
                                 <xsl:attribute name="name">
@@ -68,31 +68,31 @@
     </xsl:template>
 
     <xsl:template name="getLineRate">
-        <xsl:param name="loopCondition"/>
-        <xsl:variable name="lineNumbers" as="xs:integer*">
-            <xsl:for-each select="$loopCondition">
-                <xsl:variable name="getLineNumber" as="xs:string*">
+        <xsl:param name="parentsOfLines"/>
+        <xsl:variable name="totalLines" as="xs:integer*">
+            <xsl:for-each select="$parentsOfLines">
+                <xsl:variable name="lineNumbers" as="xs:string*">
                     <xsl:call-template name="getLineNumbers">
                         <xsl:with-param name="locRefValue" select="@locRef"/>
                     </xsl:call-template>
                 </xsl:variable>
-                <xsl:sequence select="count($getLineNumber)"/>
+                <xsl:sequence select="count($lineNumbers)"/>
             </xsl:for-each>
         </xsl:variable>
 
-        <xsl:variable name="coveredLineNumbers" as="xs:integer*">
-            <xsl:for-each select="$loopCondition">
-                <xsl:variable name="getCoveredLineNumbers" as="xs:string*">
+        <xsl:variable name="coveredLines" as="xs:integer*">
+            <xsl:for-each select="$parentsOfLines">
+                <xsl:variable name="coveredLineNumbers" as="xs:string*">
                     <xsl:call-template name="getCoveredLineNumbers">
                         <xsl:with-param name="locRefValue" select="@locRef"/>
                     </xsl:call-template>
                 </xsl:variable>
-                <xsl:sequence select="count(distinct-values($getCoveredLineNumbers))"/>
+                <xsl:sequence select="count(distinct-values($coveredLineNumbers))"/>
             </xsl:for-each>
         </xsl:variable>
         <xsl:choose>
-            <xsl:when test="sum($lineNumbers) > 0">
-                <xsl:value-of select="sum($coveredLineNumbers) div sum($lineNumbers)"/>
+            <xsl:when test="sum($totalLines) > 0">
+                <xsl:value-of select="sum($coveredLines) div sum($totalLines)"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="0"/>
