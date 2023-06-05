@@ -87,7 +87,7 @@
                         <xsl:with-param name="locRefValue" select="@locRef"/>
                     </xsl:call-template>
                 </xsl:variable>
-                <xsl:sequence select="count($getCoveredLineNumbers)"/>
+                <xsl:sequence select="count(distinct-values($getCoveredLineNumbers))"/>
             </xsl:for-each>
         </xsl:variable>
         <xsl:choose>
@@ -175,17 +175,6 @@
 
     <xsl:template name="addLinesElem">
         <xsl:param name="locRefValue"/>
-
-        <xsl:variable name="statCvgElems" select="string-join(/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Static/StatCvg/@elems, ' ')"/>
-        <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElems, '\s+'))"/>
-
-        <xsl:variable name="coveredLinesSeq" as="xs:string*">
-            <xsl:for-each select="/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Dynamic//DynCvg">
-                <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
-            </xsl:for-each>
-        </xsl:variable>
-        <xsl:variable name="coveredLineNumbers" select="tokenize(string-join($coveredLinesSeq, ' '), '\s+')"/>
-
         <xsl:variable name="lineNumbers" as="xs:string*">
             <xsl:call-template name="getLineNumbers">
                 <xsl:with-param name="locRefValue" select="$locRefValue"/>
@@ -231,6 +220,6 @@
                 <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
             </xsl:for-each>
         </xsl:variable>
-        <xsl:sequence select="(distinct-values(tokenize(string-join($coveredLinesSeq, ' '), '\s+')))"/>
+        <xsl:sequence select="tokenize(string-join($coveredLinesSeq, ' '), '\s+')"/>
     </xsl:template>
 </xsl:stylesheet>
