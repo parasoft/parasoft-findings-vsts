@@ -1,8 +1,8 @@
 import {DownloadReportGeneratorService} from './DownloadReportGeneratorService'
 import {AxiosRequestConfig} from '../PublishParasoftTestResults/node_modules/axios';
 
-// This script is used to download report generator from github and extract needed parts into PublishParasoftTestResults task
-// This lib is used to generate html coverage report by xml coverage report
+// This script is used to download the report generator from GitHub and extract the necessary components into the PublishParasoftTestResults task. 
+// These componenets is used to generate HTML coverage report from XML coverage report.
 const tempFolder = './scripts/temp';
 const pathToStore = tempFolder + '/reportGenerator.zip';
 const pathToExtract = './PublishParasoftTestResults/lib';
