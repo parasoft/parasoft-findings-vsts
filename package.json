@@ -6,7 +6,7 @@
   "scripts": {
     "downloadReportGenerator": "node ./scripts/downloadReportGenerator.js",
     "test": "npm run compile && jasmine",
-    "compile": "npx tsc && cd ./PublishParasoftTestResults && npm run compilexsl && cd ..",
+    "compile": "npx tsc --build --clean && npx tsc && cd ./PublishParasoftTestResults && npm run compilexsl && cd ..",
     "create-extension": "npm test && npm run downloadReportGenerator && npx tfx-cli extension create"
   },
   "repository": {
