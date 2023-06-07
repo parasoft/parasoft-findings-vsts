@@ -17,7 +17,7 @@ describe("Parasoft findings Azure -- DownloadReportGeneratorService", () => {
             }
         });
 
-        fit('should remove and recreate target dir when it is already existing', () => {
+        it('should remove and recreate target dir when it is already existing', () => {
             fs.mkdirSync('./spec/scripts/test');
             spyOn(fs, 'rmSync').and.callThrough();
             spyOn(fs, 'mkdirSync').and.callThrough();
