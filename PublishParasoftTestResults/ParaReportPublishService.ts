@@ -285,13 +285,15 @@ export class ParaReportPublishService {
     }
 
     transformToCobertura = (sourcePath: string): void => {
-        this.transform(sourcePath, this.COBERTURA_SEF_TEXT, sourcePath + this.COBERTURA_SUFFIX, this.coberturaReports)
+        this.transform(sourcePath, this.COBERTURA_SEF_TEXT, sourcePath + this.COBERTURA_SUFFIX, this.coberturaReports, true)
     }
 
-    transform = (sourcePath: string, sheetText: string, outPath: string, transformedReports: string[]): void => {
+    transform = (sourcePath: string, sheetText: string, outPath: string, transformedReports: string[], isCoberturaReport?: boolean): void => {
         try {
             let xmlReport = fs.readFileSync(sourcePath, 'utf8');
-            if(outPath.endsWith(this.SARIF_SUFFIX)) {
+            if(isCoberturaReport) {
+                xmlReport = xmlReport.replace("<Coverage ", "<Coverage pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
+            } else if(outPath.endsWith(this.SARIF_SUFFIX)) {
                 xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
             }
             const options: SaxonJS.options = {
@@ -493,24 +495,24 @@ export class ParaReportPublishService {
     verifyDtpRuleDocsService = () => {
         // Try to get not existing rule doc url, 404 is expected when response is returned as normal.
         return axios.default.get(this.dtpBaseUrl + "grs/api/v1.0/rules/doc?rule=notExistingRule&analyzerId=notExistingAnalyzerId", {httpsAgent: this.httpsAgent})
-                    .then(() => {
-                        // Should never reach this block unless there is a `notExistingRule` rule id
-                        // and `notExistingAnalyzerId` analyzer id pair in the future.
-                        this.isDtpRuleDocsServiceAvailable = true;
-                    }).catch((error) => {
-                        const status =  error && error.response && error.response.data ? error.response.data.status : undefined;
-                        if (status == 404) {
-                            this.isDtpRuleDocsServiceAvailable = true;
-                        } else if (status == 401) {
-                            // Need auth to get doc url for DTP version below 2023.1.
-                            this.isDtpRuleDocsServiceAvailable = false;
-                            tl.warning("Unable to retrieve the documentation for the rules from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.");
-                        } else {
-                            this.isDtpRuleDocsServiceAvailable = false;
-                            tl.warning("Unable to connect to DTP and retrieve the documentation for rules using the provided settings (error code: " + status + "). " +
-                                        "Please make sure the values for 'dtp.*' in " + this.localSettingsPath + " are correct.");
-                        }
-                    });
+            .then(() => {
+                // Should never reach this block unless there is a `notExistingRule` rule id
+                // and `notExistingAnalyzerId` analyzer id pair in the future.
+                this.isDtpRuleDocsServiceAvailable = true;
+            }).catch((error) => {
+                const status =  error && error.response && error.response.data ? error.response.data.status : undefined;
+                if (status == 404) {
+                    this.isDtpRuleDocsServiceAvailable = true;
+                } else if (status == 401) {
+                    // Need auth to get doc url for DTP version below 2023.1.
+                    this.isDtpRuleDocsServiceAvailable = false;
+                    tl.warning("Unable to retrieve the documentation for the rules from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.");
+                } else {
+                    this.isDtpRuleDocsServiceAvailable = false;
+                    tl.warning("Unable to connect to DTP and retrieve the documentation for rules using the provided settings (error code: " + status + "). " +
+                        "Please make sure the values for 'dtp.*' in " + this.localSettingsPath + " are correct.");
+                }
+            });
     }
 
     isValidPort = (port: any):boolean => {
