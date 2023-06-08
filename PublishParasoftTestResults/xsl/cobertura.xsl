@@ -37,12 +37,12 @@
                     </xsl:attribute>
                     <xsl:element name="classes">
                         <xsl:for-each select="current-group()">
-                            <xsl:variable name="filename">
-                                <xsl:call-template name="getFileName"/>
+                            <xsl:variable name="filePath">
+                               <xsl:value-of select="substring-after(@uri, concat(translate($pipelineBuildWorkingDirectory, '\', '/'), '/'))"/>
                             </xsl:variable>
                             <xsl:element name="class">
                                 <xsl:attribute name="filename">
-                                    <xsl:value-of select="$filename"/>
+                                    <xsl:value-of select="$filePath"/>
                                 </xsl:attribute>
                                 <xsl:attribute name="line-rate">
                                     <xsl:call-template name="getLineRate">
@@ -52,7 +52,7 @@
                                 <xsl:attribute name="name">
                                     <xsl:call-template name="getClassName">
                                         <xsl:with-param name="packageName" select="$packageName"/>
-                                        <xsl:with-param name="filename" select="$filename"/>
+                                        <xsl:with-param name="filePath" select="$filePath"/>
                                     </xsl:call-template>
                                 </xsl:attribute>
                                 <xsl:element name="lines">
@@ -104,27 +104,40 @@
     <xsl:template name="getPackageName">
         <xsl:param name="projectPath"/>
         <xsl:variable name="delimiter" select="'/'"/>
-        <xsl:if test="contains($projectPath, $delimiter)">
-            <xsl:variable name="filename">
-                <xsl:call-template name="getFileName"/>
-            </xsl:variable>
-            <xsl:choose>
-                <!--    Jtest    -->
-                <xsl:when test="$toolName = 'jtest'">
-                    <xsl:variable name="packageNamePrefix">
-                        <xsl:call-template name="getPackageNamePrefix">
-                            <xsl:with-param name="projId" select="@projId"/>
-                        </xsl:call-template>
-                    </xsl:variable>
-                    <xsl:variable name="formattedResourceProjectPath" select="replace(substring-before($projectPath, concat($delimiter, $filename)), $delimiter, '.')"/>
-                    <xsl:value-of select="substring-after($formattedResourceProjectPath, substring-before($formattedResourceProjectPath, $packageNamePrefix))"/>
-                </xsl:when>
-                <!--     Dottest  or CPPTest std     -->
-                <xsl:when test="$toolName = 'dottest' or $toolName = 'c++test'">
-                    <xsl:value-of select="replace(substring-before($projectPath, concat($delimiter, $filename)), $delimiter, '.')"/>
-                </xsl:when>
-            </xsl:choose>
-        </xsl:if>
+        <xsl:variable name="segments" select="tokenize(@uri, '/')"/>
+        <xsl:choose>
+            <xsl:when test="count($segments) > 1">
+                <xsl:variable name="filename">
+                     <xsl:value-of select="$segments[last()]"/>
+                </xsl:variable>
+                <xsl:choose>
+                    <!--    Jtest    -->
+                    <xsl:when test="$toolName = 'jtest'">
+                        <xsl:variable name="packageNamePrefix">
+                            <xsl:call-template name="getPackageNamePrefix">
+                                <xsl:with-param name="projId" select="@projId"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:choose>
+                            <xsl:when test="contains($projectPath, translate($packageNamePrefix, '.', '/'))">
+                                <xsl:variable name="formattedResourceProjectPath" select="replace(substring-before($projectPath, concat($delimiter, $filename)), $delimiter, '.')"/>
+                                <xsl:value-of select="substring-after($formattedResourceProjectPath, substring-before($formattedResourceProjectPath, $packageNamePrefix))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="'&lt;none&gt;'"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+                    <!--     Dottest  or CPPTest std     -->
+                    <xsl:when test="$toolName = 'dottest' or $toolName = 'c++test'">
+                        <xsl:value-of select="substring-before($projectPath, concat($delimiter, $filename))"/>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="'&lt;none&gt;'"/>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="getPackageNamePrefix">
@@ -141,30 +154,27 @@
 
     <xsl:template name="getClassName">
         <xsl:param name="packageName"/>
-        <xsl:param name="filename"/>
+        <xsl:param name="filePath"/>
+        <xsl:variable name="fileName" select="tokenize($filePath, '/')[last()]"/>
         <xsl:variable name="className">
             <xsl:choose>
                 <xsl:when test="$toolName = 'c++test'">
-                    <xsl:value-of select="$filename"/>
+                    <xsl:value-of select="$fileName"/>
                 </xsl:when>
                 <xsl:otherwise>
                     <!--To remove file extension-->
-                    <xsl:value-of select="substring-before($filename, '.')"/>
+                    <xsl:value-of select="substring-before($fileName, '.')"/>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
         <xsl:choose>
-            <xsl:when test="string-length($packageName) > 0">
+            <xsl:when test="$toolName = 'jtest' and $packageName != '&lt;none&gt;'">
                 <xsl:value-of select="concat($packageName, '.', $className)"/>
             </xsl:when>
-            <xsl:otherwise>
+             <xsl:otherwise>
                 <xsl:value-of select="$className"/>
             </xsl:otherwise>
         </xsl:choose>
-    </xsl:template>
-
-    <xsl:template name="getFileName">
-        <xsl:value-of select="tokenize(@uri, '/')[last()]"/>
     </xsl:template>
 
     <xsl:template name="addLinesElem">
