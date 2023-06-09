@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"  standalone="yes"?>
-<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:map="http://www.w3.org/2005/xpath-functions/map" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xsl:variable name="toolName" select="/Coverage/@toolId"/>
     <xsl:variable name="pipelineBuildWorkingDirectory" select="/Coverage/@pipelineBuildWorkingDirectory"/>
     <xsl:template match="/">
@@ -88,7 +89,7 @@
                         <xsl:with-param name="locRefValue" select="@locRef"/>
                     </xsl:call-template>
                 </xsl:variable>
-                <xsl:sequence select="count(distinct-values($coveredLineNumbers))"/>
+                <xsl:sequence select="count($coveredLineNumbers)"/>
             </xsl:for-each>
         </xsl:variable>
         <xsl:choose>
@@ -190,6 +191,19 @@
             </xsl:call-template>
         </xsl:variable>
 
+        <xsl:variable name="testRefsMap" as="map(*)">
+            <xsl:map>
+                <xsl:for-each-group select="/Coverage/CoverageData/CvgData[@locRef = $locRefValue]/Dynamic/DynCvg/CtxCvg" group-by="@elemRefs">
+                    <xsl:variable name="testRefsSeq">
+                        <xsl:for-each select="current-group()">
+                            <xsl:sequence select="string(string-join(@testRefs, ' '))"/>
+                        </xsl:for-each>
+                    </xsl:variable>
+                    <xsl:map-entry key="string(@elemRefs)" select="$testRefsSeq"/>
+                </xsl:for-each-group>
+            </xsl:map>
+        </xsl:variable>
+
         <xsl:for-each select="$lineNumbers">
             <xsl:sort data-type="number"/>
             <xsl:element name="line">
@@ -200,7 +214,15 @@
                     <xsl:choose>
                         <xsl:when test=". = $coveredLineNumbers">
                             <xsl:variable name="currentLine" select="."/>
-                            <xsl:value-of select="count($coveredLineNumbers[. = $currentLine])"/>
+                            <xsl:variable name="currentLineTestRefs" as="xs:string*">
+                                <xsl:for-each select="map:keys($testRefsMap)">
+                                    <xsl:variable name="currentKey" select="."/>
+                                    <xsl:if test="contains($currentKey, $currentLine)">
+                                        <xsl:sequence select="string(string-join(map:get($testRefsMap, $currentKey), ' '))"/>
+                                    </xsl:if>
+                                </xsl:for-each>
+                            </xsl:variable>
+                            <xsl:value-of select="count(distinct-values(tokenize(string-join($currentLineTestRefs, ' '), '\s+')))"/>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:value-of select="0"/>
@@ -224,6 +246,6 @@
                 <xsl:sequence select="string(string-join(.//CtxCvg/@elemRefs, ' '))"/>
             </xsl:for-each>
         </xsl:variable>
-        <xsl:sequence select="tokenize(string-join($coveredLinesSeq, ' '), '\s+')"/>
+        <xsl:sequence select="distinct-values(tokenize(string-join($coveredLinesSeq, ' '), '\s+'))"/>
     </xsl:template>
 </xsl:stylesheet>
