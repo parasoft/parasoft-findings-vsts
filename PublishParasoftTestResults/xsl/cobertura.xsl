@@ -9,10 +9,10 @@
                     <xsl:with-param name="parentsOfLines" select="/Coverage/Locations/Loc"/>
                 </xsl:call-template>
             </xsl:attribute>
-            <xsl:attribute name="branch-rate">0.5</xsl:attribute>
-            <xsl:attribute name="lines-covered">6</xsl:attribute>
-            <xsl:attribute name="lines-valid">7</xsl:attribute>
-            <xsl:attribute name="branches-covered">1</xsl:attribute>
+            <xsl:attribute name="branch-rate">0.5</xsl:attribute><!-- dummy value but this attribute is required  -->
+            <xsl:attribute name="lines-covered">6</xsl:attribute><!-- dummy value but this attribute is required  -->
+            <xsl:attribute name="lines-valid">7</xsl:attribute><!-- dummy value but this attribute is required  -->
+            <xsl:attribute name="branches-covered">1</xsl:attribute><!-- dummy value but this attribute is required  -->
             <xsl:attribute name="version">gcovr 6.0</xsl:attribute>
             <xsl:call-template name="packages"/>
         </xsl:element>
@@ -104,7 +104,7 @@
     <xsl:template name="getPackageName">
         <xsl:param name="projectPath"/>
         <xsl:variable name="delimiter" select="'/'"/>
-        <xsl:variable name="segments" select="tokenize(@uri, '/')"/>
+        <xsl:variable name="segments" select="tokenize($projectPath, '/')"/>
         <xsl:choose>
             <xsl:when test="count($segments) > 1">
                 <xsl:variable name="filename">
@@ -124,7 +124,7 @@
                                 <xsl:value-of select="substring-after($formattedResourceProjectPath, substring-before($formattedResourceProjectPath, $packageNamePrefix))"/>
                             </xsl:when>
                             <xsl:otherwise>
-                                <xsl:value-of select="'&lt;none&gt;'"/>
+                                <xsl:value-of select="'&lt;default&gt;'"/>
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:when>
@@ -168,7 +168,7 @@
             </xsl:choose>
         </xsl:variable>
         <xsl:choose>
-            <xsl:when test="$toolName = 'jtest' and $packageName != '&lt;none&gt;'">
+            <xsl:when test="$toolName = 'jtest' and $packageName != '&lt;default&gt;'">
                 <xsl:value-of select="concat($packageName, '.', $className)"/>
             </xsl:when>
              <xsl:otherwise>
