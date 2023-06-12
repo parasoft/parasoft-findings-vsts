@@ -3,6 +3,11 @@ import Axios from '../PublishParasoftTestResults/node_modules/axios';
 import {AxiosRequestConfig} from '../PublishParasoftTestResults/node_modules/axios';
 import * as AdmZip from 'adm-zip'
 
+// This enum var is used to make sure that istanbul could calculate the code coverage of this file
+enum STUB{
+    STUB
+}
+
 export class DownloadReportGeneratorService {
 
     download = (option: AxiosRequestConfig<any>, pathToStore: string, callback: any): Promise<any> => {

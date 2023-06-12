@@ -5,6 +5,8 @@ node_modules/
 .taskkey
 *.vsix
 *.sef.json
+/coverage
+/.nyc_output
 ### VS Code
 .vscode
 
