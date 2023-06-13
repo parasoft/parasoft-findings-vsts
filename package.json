@@ -59,7 +59,6 @@
   },
   "devDependencies": {
     "jasmine-reporters": "^2.5.2",
-    "nyc": "^15.1.0",
-    "source-map-support": "^0.5.21"
+    "nyc": "^15.1.0"
   }
 }
