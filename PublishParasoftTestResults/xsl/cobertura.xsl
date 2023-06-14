@@ -16,10 +16,8 @@
                 <xsl:attribute name="line-rate">
                     <xsl:value-of select="$lineRateForCoverageTag"/>
                 </xsl:attribute>
-                <xsl:attribute name="branch-rate">0.5</xsl:attribute><!-- dummy value but this attribute is required  -->
                 <xsl:attribute name="lines-covered">6</xsl:attribute><!-- dummy value but this attribute is required  -->
                 <xsl:attribute name="lines-valid">7</xsl:attribute><!-- dummy value but this attribute is required  -->
-                <xsl:attribute name="branches-covered">1</xsl:attribute><!-- dummy value but this attribute is required  -->
                 <xsl:attribute name="version">gcovr 6.0</xsl:attribute>
                 <xsl:call-template name="packages"/>
             </xsl:if>
