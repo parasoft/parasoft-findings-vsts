@@ -153,7 +153,7 @@
                 </xsl:attribute>
                 <xsl:element name="lines">
                     <xsl:for-each select="map:keys($linesMap)">
-                        <xsl:sort data-type="text"/>
+                        <xsl:sort data-type="number"/>
                         <xsl:element name="line">
                             <xsl:variable name="lineNUmber" select="."/>
                             <xsl:attribute name="number">
@@ -262,18 +262,7 @@
     <xsl:template name="getClassNameForDotNetAndCLanguage">
         <xsl:param name="filePath"/>
         <xsl:variable name="fileName" select="tokenize($filePath, '/')[last()]"/>
-        <xsl:variable name="className">
-            <xsl:choose>
-                <xsl:when test="$toolName = 'c++test'">
-                    <xsl:value-of select="$fileName"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <!--To remove file extension-->
-                    <xsl:value-of select="substring-before($fileName, '.')"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:variable>
-       <xsl:value-of select="$className"/>
+        <xsl:value-of select="$fileName"/>
     </xsl:template>
 
     <xsl:template name="getProcessedClassNameForJavaLanguage">
