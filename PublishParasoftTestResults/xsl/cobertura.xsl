@@ -223,11 +223,14 @@
                     <xsl:variable name="coveredLinesMap" as="map(xs:string, xs:integer)">
                         <xsl:map>
                             <xsl:for-each select="map:keys($linesMap)">
-                                <xsl:variable name="lineNUmber" select="."/>
-                                <!-- Leading and trailing space (' ') around the search string are included to avoid incorrect matches when using 'contains()' -->
-                                <xsl:variable name="ctxCvgNodes" select="$cvgDataNode/Dynamic/DynCvg/CtxCvg[contains(concat(' ', @elemRefs, ' '), concat(' ', $lineNUmber, ' '))]"/>
-                                <xsl:variable name="isReached" select="count(tokenize(string-join($ctxCvgNodes/@testRefs, ' '), '\s+')) > 0"/>
-                                <xsl:if test="$isReached">
+                                <xsl:variable name="lineNumber" select="."/>
+                                <xsl:variable name="lineCoveredTimes">
+                                    <xsl:call-template name="getLineCoveredTimes">
+                                        <xsl:with-param name="cvgDataNode" select="$cvgDataNode"/>
+                                        <xsl:with-param name="lineNumber" select="$lineNumber"/>
+                                    </xsl:call-template>
+                                </xsl:variable>
+                                <xsl:if test="$lineCoveredTimes > 0">
                                     <xsl:map-entry key="string(.)" select="1"/>
                                 </xsl:if>
                             </xsl:for-each>
@@ -240,13 +243,15 @@
                     <xsl:for-each select="map:keys($linesMap)">
                         <xsl:sort data-type="number"/>
                         <xsl:element name="line">
-                            <xsl:variable name="lineNUmber" select="."/>
+                            <xsl:variable name="lineNumber" select="."/>
                             <xsl:attribute name="number">
-                                <xsl:value-of select="$lineNUmber"/>
+                                <xsl:value-of select="$lineNumber"/>
                             </xsl:attribute>
                             <xsl:attribute name="hits">
-                                <xsl:variable name="ctxCvgNodes" select="$cvgDataNode/Dynamic/DynCvg/CtxCvg[contains(concat(' ', @elemRefs, ' '), concat(' ', $lineNUmber, ' '))]"/>
-                                <xsl:value-of select="count(tokenize(string-join($ctxCvgNodes/@testRefs, ' '), '\s+'))"/>
+                                <xsl:call-template name="getLineCoveredTimes">
+                                    <xsl:with-param name="cvgDataNode" select="$cvgDataNode"/>
+                                    <xsl:with-param name="lineNumber" select="$lineNumber"/>
+                                </xsl:call-template>
                             </xsl:attribute>
                         </xsl:element>
                     </xsl:for-each>
@@ -266,5 +271,13 @@
                 <xsl:value-of select="translate($originalClassName, '$', '#')"/>
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="getLineCoveredTimes">
+        <xsl:param name="cvgDataNode"/>
+        <xsl:param name="lineNumber"/>
+        <!-- Leading and trailing space (' ') around the search string are included to avoid incorrect matches when using 'contains()' -->
+        <xsl:variable name="ctxCvgNodes" select="$cvgDataNode/Dynamic/DynCvg/CtxCvg[contains(concat(' ', @elemRefs, ' '), concat(' ', $lineNumber, ' '))]"/>
+        <xsl:value-of select="count(tokenize(string-join($ctxCvgNodes/@testRefs, ' '), '\s+'))"/>
     </xsl:template>
 </xsl:stylesheet>
