@@ -59,7 +59,7 @@ describe("Parasoft findings Azure -- DownloadReportGeneratorService", () => {
     describe('download()', () => {
         let downloadOption: AxiosRequestConfig<any> = {
             method: 'GET',
-            url: 'http://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/ReportGenerator_4.6.1.zip',
+            url: 'https://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/ReportGenerator_4.6.1.zip',
             responseType: 'stream'
         };
 
@@ -84,7 +84,7 @@ describe("Parasoft findings Azure -- DownloadReportGeneratorService", () => {
 
         it('should show warning when url is unavailable ', async () => {
             let path = './spec/scripts/test.zip';
-            downloadOption.url = 'http://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/404';
+            downloadOption.url = 'https://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/404';
 
             await downloadService.download(downloadOption, path, () => {
                 downloadService.extract(path, 'fakeTargetDir', []);

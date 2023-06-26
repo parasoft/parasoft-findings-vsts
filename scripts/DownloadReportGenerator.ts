@@ -8,7 +8,7 @@ const pathToStore = tempFolder + '/reportGenerator.zip';
 const pathToExtract = './PublishParasoftTestResults/lib';
 const libsToUse = ['netcoreapp2.0/', 'net47/'];
 let downloadOptions: AxiosRequestConfig<any> = {
-    url: 'http://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/ReportGenerator_4.6.1.zip',
+    url: 'https://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/ReportGenerator_4.6.1.zip',
     method: 'GET',
     responseType: 'stream'
 }
