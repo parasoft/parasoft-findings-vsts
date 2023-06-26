@@ -15,7 +15,7 @@
         "Minor": 0,
         "Patch": 2
     },
-    "minimumAgentVersion": "2.0.0",
+    "minimumAgentVersion": "2.144.0",
     "groups": [
         {
             "name": "testResultsOptions",
@@ -108,7 +108,10 @@
     ],
     "instanceNameFormat": "Publish Parasoft Results $(resultsFiles)",
     "execution": {
-        "Node": {
+        "Node10": {
+            "target": "publishtestresults.js"
+        },
+        "Node16": {
             "target": "publishtestresults.js"
         }
     }
