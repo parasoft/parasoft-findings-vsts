@@ -201,11 +201,17 @@
         <xsl:variable name="statCvgElemsString" select="string-join($statCvgElems, ' ')"/>
         <xsl:variable name="lineNumbers" select="distinct-values(tokenize($statCvgElemsString, '\s+'))"/>
 
-        <!-- This map is used to store unique line numbers. key: line number, value: dummy value which is not used -->
+        <!-- This map is used to store unique line numbers. key: line number, value: coverd times -->
         <xsl:variable name="linesMap" as="map(xs:string, xs:integer)">
             <xsl:map>
                 <xsl:for-each select="$lineNumbers">
-                    <xsl:map-entry key="string(.)" select="-1"/>
+                    <xsl:variable name="lineCoveredTimes">
+                        <xsl:call-template name="getLineCoveredTimes">
+                            <xsl:with-param name="cvgDataNode" select="$cvgDataNode"/>
+                            <xsl:with-param name="lineNumber" select="."/>
+                        </xsl:call-template>
+                    </xsl:variable>
+                    <xsl:map-entry key="string(.)" select="xs:integer($lineCoveredTimes)"/>
                 </xsl:for-each>
             </xsl:map>
         </xsl:variable>
@@ -225,10 +231,7 @@
                             <xsl:for-each select="map:keys($linesMap)">
                                 <xsl:variable name="lineNumber" select="."/>
                                 <xsl:variable name="lineCoveredTimes">
-                                    <xsl:call-template name="getLineCoveredTimes">
-                                        <xsl:with-param name="cvgDataNode" select="$cvgDataNode"/>
-                                        <xsl:with-param name="lineNumber" select="$lineNumber"/>
-                                    </xsl:call-template>
+                                    <xsl:value-of select="map:get($linesMap, $lineNumber)"/>
                                 </xsl:variable>
                                 <xsl:if test="$lineCoveredTimes > 0">
                                     <xsl:map-entry key="string(.)" select="1"/>
@@ -248,10 +251,7 @@
                                 <xsl:value-of select="$lineNumber"/>
                             </xsl:attribute>
                             <xsl:attribute name="hits">
-                                <xsl:call-template name="getLineCoveredTimes">
-                                    <xsl:with-param name="cvgDataNode" select="$cvgDataNode"/>
-                                    <xsl:with-param name="lineNumber" select="$lineNumber"/>
-                                </xsl:call-template>
+                                <xsl:value-of select="map:get($linesMap, $lineNumber)"/>
                             </xsl:attribute>
                         </xsl:element>
                     </xsl:for-each>
