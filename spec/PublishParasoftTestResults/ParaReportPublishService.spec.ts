@@ -140,21 +140,39 @@ describe("Parasoft findings Azure", () => {
             expect(publisher.xUnitReports.length).toBe(1);
         });
 
-        it('XML_COVERAGE', async () => {
-            spyOn(path, 'join').and.returnValue('E:\\AzureAgent\\_work\\_temp\\CodeCoverageHtml');
-            spyOn(publisher, 'generateHtmlReport').and.returnValue(false);
-            publisher.transformReports([__dirname + '/resources/XML_COVERAGE.xml'], 0);
-            await waitForTransform(__dirname + '/resources/XML_COVERAGE.xml-cobertura.xml');
+        describe('XML_COVERAGE', () => {
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/expect/XML_COVERAGE.xml-cobertura.xml', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/XML_COVERAGE.xml-cobertura.xml', 'utf-8');
+            beforeEach(() => {
+                spyOn(path, 'join').and.returnValue('E:\\AzureAgent\\_work\\_temp\\CodeCoverageHtml');
+                spyOn(publisher, 'generateHtmlReport').and.returnValue(false);
+            });
 
-            expect(result).toEqual(expectedReport);
-            expect(publisher.transform).toHaveBeenCalled();
-            expect(publisher.coberturaReports.length).toBe(1);
+            let testTransformCoverageReport = async (expectedReport: string) => {
+                publisher.transformReports([__dirname + '/resources/XML_COVERAGE.xml'], 0);
+                await waitForTransform(__dirname + '/resources/XML_COVERAGE.xml-cobertura.xml');
 
-            fs.unlink(__dirname + '/resources/XML_COVERAGE.xml-cobertura.xml', () => {});
+                let result = fs.readFileSync(__dirname + '/resources/XML_COVERAGE.xml-cobertura.xml', 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.coberturaReports.length).toBe(1);
+
+                fs.unlink(__dirname + '/resources/XML_COVERAGE.xml-cobertura.xml', () => {});
+            }
+
+            it('- report is generated in pipeline', async () => {
+                publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
+                let expectedReport = fs.readFileSync(__dirname + '/resources/expect/XML_COVERAGE.xml-cobertura.xml', 'utf8');
+                await testTransformCoverageReport(expectedReport);
+            });
+
+            it('- external report', async () => {
+                publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
+                let expectedReport = fs.readFileSync(__dirname + '/resources/expect/XML_COVERAGE.xml-cobertura(for external report).xml', 'utf8');
+                await testTransformCoverageReport(expectedReport);
+            });
         });
+
     });
 
     describe('run()', () => {
