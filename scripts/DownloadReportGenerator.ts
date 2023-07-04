@@ -14,7 +14,11 @@ let downloadOptions: AxiosRequestConfig<any> = {
 }
 
 let downloadService: DownloadReportGeneratorService = new DownloadReportGeneratorService();
-downloadService.cleanDir([tempFolder, pathToExtract]);
+let dirToClean = [tempFolder];
+libsToUse.forEach((lib) => {
+    dirToClean.push(pathToExtract + '/' + lib);
+});
+downloadService.cleanDir(dirToClean);
 downloadService.download(downloadOptions, pathToStore, () => {
     downloadService.extract(pathToStore, pathToExtract, libsToUse);
 }).catch((error) =>{throw new Error(error)});

@@ -45,6 +45,14 @@
             "helpMarkDown": "Folder to search for the test result files. Defaults to $(System.DefaultWorkingDirectory)."
         },
         {
+            "name": "parasoftToolOrJavaRootPath",
+            "type": "string",
+            "label": "Parasoft Tool or Java Root Path",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": " Absolute location for root path of Parasoft Tool or Java installation. It will be used to accelerate conversion efficiency when processing reports if Java is found, otherwise using built-in Node."
+        },
+        {
             "name": "localSettingsPath",
             "type": "string",
             "label": "Settings",

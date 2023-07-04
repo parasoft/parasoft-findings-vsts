@@ -4,7 +4,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:map="http://www.w3.org/2005/xpath-functions/map">
     <xsl:variable name="toolName" select="/Coverage/@toolId"/>
-    <xsl:variable name="pipelineBuildWorkingDirectory" select="/Coverage/@pipelineBuildWorkingDirectory"/>
+    <xsl:param name="pipelineBuildWorkingDirectory"><xsl:value-of select="/Coverage/@pipelineBuildWorkingDirectory"/></xsl:param>
     <xsl:template match="/">
         <xsl:element name="coverage">
             <xsl:variable name="lineRateForCoverageTag">

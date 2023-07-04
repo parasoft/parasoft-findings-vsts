@@ -29,6 +29,11 @@ export interface ReadOnlyProperties {
     readonly [key: string]: string
 }
 
+interface XslInfo {
+    xslPath: string;
+    jsonText: string;
+}
+
 export const enum ReportType {
     SARIF = 0,
     XML_STATIC = 1,
@@ -47,10 +52,23 @@ export class ParaReportPublishService {
     readonly COBERTURA_SUFFIX: string = "-cobertura.xml";
     readonly XML_EXTENSION: string = ".xml";
     readonly SARIF_EXTENSION: string = ".sarif";
-    readonly SARIF_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8');
-    readonly XUNIT_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/xunit.sef.json", 'utf8');
-    readonly SOATEST_XUNIT_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/soatest-xunit.sef.json", 'utf8');
-    readonly COBERTURA_SEF_TEXT: string = fs.readFileSync(__dirname + "/xsl/cobertura.sef.json", 'utf8');
+
+    readonly SARIF_XSL: XslInfo = {
+        xslPath: __dirname + "/xsl/sarif.xsl",
+        jsonText: fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8')
+    };
+    readonly XUNIT_XSL: XslInfo = {
+        xslPath: __dirname + "/xsl/xunit.xsl",
+        jsonText: fs.readFileSync(__dirname + "/xsl/xunit.sef.json", 'utf8')
+    };
+    readonly SOATEST_XUNIT_XSL: XslInfo = {
+        xslPath: __dirname + "/xsl/soatest-xunit.xsl",
+        jsonText: fs.readFileSync(__dirname + "/xsl/soatest-xunit.sef.json", 'utf8')
+    };
+    readonly COBERTURA_XSL: XslInfo = {
+        xslPath: __dirname + "/xsl/cobertura.xsl",
+        jsonText: fs.readFileSync(__dirname + "/xsl/cobertura.sef.json", 'utf8')
+    }
 
     xUnitReports: string[] = [];
     sarifReports: string[] = [];
@@ -75,10 +93,13 @@ export class ParaReportPublishService {
     failOnFailures: boolean;
     searchFolder: string | undefined;
     localSettingsPath: string | undefined;
+    parasoftToolOrJavaRootPath: string | undefined;
 
     // DTP settings
     isDtpRuleDocsServiceAvailable: boolean = false;
     dtpBaseUrl: string = '';
+
+    javaPath: string | undefined;
 
     constructor() {
         this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
@@ -91,17 +112,21 @@ export class ParaReportPublishService {
         this.failOnFailures = tl.getBoolInput('failOnFailures', true);
         this.searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder')) ? this.defaultWorkingDirectory : tl.getInput('searchFolder');
         this.localSettingsPath = tl.getPathInput("localSettingsPath");
+        this.parasoftToolOrJavaRootPath = tl.getPathInput("parasoftToolOrJavaRootPath");
         const localSettings = this.loadSettings(this.localSettingsPath);
+
         if (localSettings) {
             this.dtpBaseUrl = this.getDtpBaseUrl(localSettings);
             tl.debug(this.isNullOrWhitespace(this.dtpBaseUrl) ? 'Failed to load DTP settings.' : 'DTP settings are loaded successfully.');
         }
 
+        this.javaPath = this.getJavaPath(this.parasoftToolOrJavaRootPath);
         this.matchingInputReportFiles = tl.findMatch(this.searchFolder || '', this.inputReportFiles);
 
         tl.debug('searchFolder: ' + this.searchFolder);
         tl.debug('inputReportFiles: ' + this.inputReportFiles);
-        tl.debug('localSettingsPath: ' + this.localSettingsPath)
+        tl.debug('parasoftToolOrJavaRootPath: ' + this.parasoftToolOrJavaRootPath);
+        tl.debug('localSettingsPath: ' + this.localSettingsPath);
         tl.debug('mergeResults: ' + this.mergeResults);
         tl.debug('platform: ' + this.platform);
         tl.debug('config: ' + this.config);
@@ -273,40 +298,58 @@ export class ParaReportPublishService {
 
 
     transformToSarif = (sourcePath: string): void => {
-        this.transform(sourcePath, this.SARIF_SEF_TEXT, sourcePath + this.SARIF_SUFFIX, this.sarifReports);
+        this.transform(sourcePath, this.SARIF_XSL, sourcePath + this.SARIF_SUFFIX, this.sarifReports);
     }
 
     transformToXUnit = (sourcePath: string): void => {
-        this.transform(sourcePath, this.XUNIT_SEF_TEXT, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
+        this.transform(sourcePath, this.XUNIT_XSL, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
     }
 
     transformToSOATestXUnit = (sourcePath: string): void => {
-        this.transform(sourcePath, this.SOATEST_XUNIT_SEF_TEXT, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
+        this.transform(sourcePath, this.SOATEST_XUNIT_XSL, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
     }
 
     transformToCobertura = (sourcePath: string): void => {
-        this.transform(sourcePath, this.COBERTURA_SEF_TEXT, sourcePath + this.COBERTURA_SUFFIX, this.coberturaReports, true)
+        this.transform(sourcePath, this.COBERTURA_XSL, sourcePath + this.COBERTURA_SUFFIX, this.coberturaReports, true)
     }
 
-    transform = (sourcePath: string, sheetText: string, outPath: string, transformedReports: string[], isCoberturaReport?: boolean): void => {
+    transform = (sourcePath: string, xslInfo: XslInfo, outPath: string, transformedReports: string[], isCoberturaReport?: boolean): void => {
         try {
-            let xmlReport = fs.readFileSync(sourcePath, 'utf8');
-            if(isCoberturaReport) {
-                xmlReport = xmlReport.replace("<Coverage ", "<Coverage pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
-            } else if(outPath.endsWith(this.SARIF_SUFFIX)) {
-                xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
-            }
-            const options: SaxonJS.options = {
-                stylesheetText: sheetText,
-                sourceText: xmlReport,
-                destination: "serialized"
-            };
-            const result = SaxonJS.transform(options);
-            let resultString = result.principalResult;
+            let needRuleDocs = false;
             if (this.ruleDocUrlMap.size != 0 && outPath.endsWith(this.SARIF_SUFFIX)) {
-                resultString = this.appendRuleDocUrls(result.principalResult);
+                needRuleDocs = true;
             }
-            fs.writeFileSync(outPath, resultString);
+            if (this.javaPath) {
+                // Transform with java
+                const jarPath = tl.resolve(__dirname, "lib/SaxonHE12-2J/saxon-he-12.2.jar");
+                let result = tl.execSync(this.javaPath, ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+xslInfo.xslPath, "-o:"+outPath, "-versionmsg:off", "pipelineBuildWorkingDirectory="+this.defaultWorkingDirectory]);
+                if (result.code != 0) {
+                    throw result.error;
+                }
+                if (needRuleDocs) {
+                    let resultString = fs.readFileSync(outPath, 'utf8');
+                    resultString = this.appendRuleDocUrls(resultString);
+                    fs.writeFileSync(outPath, resultString);
+                }
+            } else {
+                // Transform with built-in nodejs in agent
+                let xmlReport = fs.readFileSync(sourcePath, 'utf8');
+                if (isCoberturaReport) {
+                    xmlReport = xmlReport.replace("<Coverage ", "<Coverage pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
+                } else if (outPath.endsWith(this.SARIF_SUFFIX)) {
+                    xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
+                }
+                const options: SaxonJS.options = {
+                    stylesheetText: xslInfo.jsonText,
+                    sourceText: xmlReport,
+                    destination: "serialized"
+                };
+                let resultString = SaxonJS.transform(options).principalResult;
+                if (needRuleDocs) {
+                    resultString = this.appendRuleDocUrls(resultString);
+                }
+                fs.writeFileSync(outPath, resultString);
+            }
             transformedReports.push(outPath);
         } catch (error) {
             tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
@@ -377,12 +420,12 @@ export class ParaReportPublishService {
     }
     // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
     generateHtmlReport = (summaryFile: string, targetDir: string): boolean => {
-        const platform = process.platform;
+        const platform = os.platform();
         let dotnet: tr.ToolRunner;
 
         const dotnetPath = tl.which('dotnet', false);
         if (!dotnetPath && platform !== 'win32') {
-            tl.warning("Please install dotnet core to enable automatic generation of Html report.");
+            tl.warning("Please install dotnet core to enable automatic generation of coverage Html report.");
             return false;
         }
 
@@ -598,6 +641,34 @@ export class ParaReportPublishService {
             tl.warning('Failed to parse settings file.');
             return null;
         }
+    }
+
+    getJavaPath = (parasoftToolOrJavaRootPath: string | undefined): string | undefined => {
+        if (!parasoftToolOrJavaRootPath || !fs.existsSync(parasoftToolOrJavaRootPath)) {
+            tl.debug("Using built-in node to process report(s).");
+            return undefined;
+        }
+
+        const javaFileName = os.platform() == 'win32' ? "java.exe" : "java";
+        // Java in Java installation
+        let javaFilePath = tl.resolve(parasoftToolOrJavaRootPath, "bin", javaFileName);
+        if (!fs.existsSync(javaFilePath)) {
+            if (fs.existsSync(tl.resolve(parasoftToolOrJavaRootPath, "dottestcli.exe"))) {
+                // Java in dotTEST installation
+                javaFilePath = tl.resolve(parasoftToolOrJavaRootPath, 'bin/dottest/Jre_x64/bin', javaFileName);
+            } else {
+                // Java in C/C++test or Jtest installation
+                javaFilePath = tl.resolve(parasoftToolOrJavaRootPath, 'bin/jre/bin', javaFileName);
+            }
+        }
+
+        if (fs.existsSync(javaFilePath)) {
+            tl.debug("Using java to process report(s), java path: " + javaFilePath);
+            return javaFilePath;
+        }
+
+        tl.debug("Using built-in node to process report(s).");
+        return undefined;
     }
 
     checkRunFailures = (xUnitReports: string[], sarifReports: string[]):void => {
