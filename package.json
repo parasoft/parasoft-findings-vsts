@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "downloadReportGenerator": "node ./scripts/downloadReportGenerator.js",
-    "clean": "del-cli coverage && del-cli .nyc_output",
-    "test": "npm run compile && npm run clean && nyc jasmine",
+    "clean": "del-cli coverage .nyc_output target test-reports && npx tsc --build --clean",
+    "test": "npm run clean && npm run compile && nyc jasmine",
     "compile": "npx tsc --build --clean && npx tsc && cd ./PublishParasoftTestResults && npm run compilexsl && cd ..",
     "create-extension": "npm test && npm run downloadReportGenerator && npx tfx-cli extension create"
   },
