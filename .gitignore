@@ -19,4 +19,5 @@ node_modules/
 
 ### thrid party libs ###
 /scripts/temp
-/PublishParasoftTestResults/lib
+/PublishParasoftTestResults/lib/net47
+/PublishParasoftTestResults/lib/netcoreapp2.0
