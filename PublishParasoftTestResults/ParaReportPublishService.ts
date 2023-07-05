@@ -645,7 +645,7 @@ export class ParaReportPublishService {
 
     getJavaPath = (parasoftToolOrJavaRootPath: string | undefined): string | undefined => {
         if (!parasoftToolOrJavaRootPath || !fs.existsSync(parasoftToolOrJavaRootPath)) {
-            tl.debug("Using built-in node to process report(s).");
+            tl.debug("Using built-in Node.js to process report(s).");
             return undefined;
         }
 
@@ -663,11 +663,11 @@ export class ParaReportPublishService {
         }
 
         if (fs.existsSync(javaFilePath)) {
-            tl.debug("Using java to process report(s), java path: " + javaFilePath);
+            tl.debug("Using Java to process report(s), Java path: " + javaFilePath);
             return javaFilePath;
         }
 
-        tl.debug("Using built-in node to process report(s).");
+        tl.debug("Using built-in Node.js to process report(s).");
         return undefined;
     }
 
