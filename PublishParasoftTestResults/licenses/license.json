@@ -310,6 +310,12 @@
         "publisher": "GitHub Inc.",
         "repository": "https://github.com/npm/json-parse-even-better-errors"
     },
+    "jline@2.14.6": {
+        "licenses": "The 2-Clause BSD License",
+        "licenseFile": "jline@2.14.6-LICENSE",
+        "publisher": "the original author or authors",
+        "repository": "https://github.com/jline/jline2"
+    },
     "license-checker-rseidelsohn@4.2.5": {
         "licenses": "BSD-3-Clause",
         "licenseFile": "license-checker-rseidelsohn@4.2.5-LICENSE.txt",
@@ -494,6 +500,11 @@
         "publisher": "Tyler Kellen",
         "repository": "https://github.com/tkellen/node-rechoir"
     },
+    "reportGenerator@5.1.21": {
+        "licenses": "Apache License, Version 2.0",
+        "licenseFile": "reportGenerator@5.1.21-LICENSE.txt",
+        "repository": "https://github.com/danielpalme/ReportGenerator"
+    },
     "resolve@1.22.2": {
         "licenses": "MIT",
         "licenseFile": "resolve@1.22.2-LICENSE.txt",
@@ -511,6 +522,12 @@
         "licenseFile": "sax@1.2.4-LICENSE.txt",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/sax-js"
+    },
+    "saxon-he@12.2": {
+        "licenses": "Mozilla Public License Version 2.0",
+        "licenseFile": "saxon-he@12.2-LICENSE.txt",
+        "publisher": "Saxonica",
+        "repository": "https://github.com/Saxonica/Saxon-HE"
     },
     "saxon-js@2.5.0": {
         "licenses": "Custom: LICENSE.txt",
@@ -655,6 +672,12 @@
         "licenseFile": "wrappy@1.0.2-LICENSE.txt",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/npm/wrappy"
+    },
+    "xmlresolver@5.1.2": {
+        "licenses": "Apache License, Version 2.0",
+        "licenseFile": "xmlresolver@5.1.2-LICENSE",
+        "publisher": "Norman Walsh and contributors",
+        "repository": "https://github.com/xmlresolver/xmlresolver"
     },
     "xslt3@2.5.0": {
         "licenses": "Custom: LICENSE.txt",
