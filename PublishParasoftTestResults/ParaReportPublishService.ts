@@ -357,6 +357,7 @@ export class ParaReportPublishService {
     }
 
     isCoverageReport = (node: any): boolean => {
+        // To differentiate <Coverage> in coverage.xml with <Coverage> inside <Exec> in report.xml
         return node.attributes.hasOwnProperty('ver');
     }
 
