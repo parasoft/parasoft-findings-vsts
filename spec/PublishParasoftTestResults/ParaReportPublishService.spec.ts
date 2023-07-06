@@ -1,5 +1,6 @@
 import * as tl from '../../PublishParasoftTestResults/node_modules/azure-pipelines-task-lib';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as axios from '../../PublishParasoftTestResults/node_modules/axios';
 import * as dp from "../../PublishParasoftTestResults/node_modules/dot-properties";
 import * as path from 'path';
@@ -180,7 +181,8 @@ describe("Parasoft findings Azure", () => {
                     it('- no error', async () => {
                         spyOn(tl, 'execSync').and.callThrough();
                         publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
-                        publisher.javaPath = tl.resolve(__dirname, 'resources/toolRootPaths/java/bin/java.exe');
+                        // Need to set JAVA_HOME environment or comment this test if this test is failed.
+                        publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
                         let expectedReport = fs.readFileSync(__dirname + '/resources/reportes/expect/XML_COVERAGE.xml-java_version-cobertura.xml', 'utf8');
                         await testTransformCoverageReport(expectedReport);
                         expect(tl.execSync).toHaveBeenCalled();
@@ -630,7 +632,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('incorrect root path', () => {
-            const javaRootPath = __dirname + '/resources/toolRootPaths/noJava';
+            const javaRootPath = __dirname + '/resources/toolRootPaths/nojava';
             const result = publisher.getJavaPath(javaRootPath);
 
             expect(result).toBeUndefined();

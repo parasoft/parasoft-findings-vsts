@@ -213,8 +213,8 @@ export class ParaReportPublishService {
                     bParsingStaticAnalysisResult = true;
 
                 } else if (node.name == 'Rule') {
-                    let ruleId = node.attributes.id;
-                    let analyzerId = node.attributes.analyzer;
+                    let ruleId = node.attributes.id as string;
+                    let analyzerId = node.attributes.analyzer as string;
                     if (!bLegacyReport) {
                         // A <Rule> has a rule ID and analyzer ID in a non-legacy report
                         if (this.isDtpRuleDocsServiceAvailable) {
@@ -226,7 +226,7 @@ export class ParaReportPublishService {
                     }
 
                 } else if (bParsingStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
-                    let ruleId = node.attributes.rule;
+                    let ruleId = node.attributes.rule as string;
                     if(!this.ruleAnalyzerMap.has(ruleId)) {
                         let analyzerId = this.mapToAnalyzer(ruleId, node.name);
                         if (this.isDtpRuleDocsServiceAvailable) {
