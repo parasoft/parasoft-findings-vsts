@@ -9,6 +9,7 @@
     <xsl:param name="duplicates_as_code_flow">true</xsl:param>
     <!-- For cppTest professional report, "prjModule" attribute is not present. -->
     <xsl:variable name="isCPPProReport" select="not(/ResultsSession/@prjModule) and /ResultsSession/@toolName = 'C++test'"/>
+    <xsl:param name="pipelineBuildWorkingDirectory"><xsl:value-of select="/ResultsSession/@pipelineBuildWorkingDirectory"/></xsl:param>
     
     <xsl:variable name="qt">"</xsl:variable>
     <xsl:variable name="illegalChars" select="'\/&quot;&#xD;&#xA;&#x9;'"/>
@@ -397,11 +398,22 @@
         <xsl:choose>
              <xsl:when test="$isCPPProReport">
                 <xsl:variable name="locFile" select="@locFile"/>
+                <xsl:variable name="locNode" select="/ResultsSession/Locations/Loc[@loc=$locFile]"/>
                 <xsl:choose>
-                    <xsl:when test="/ResultsSession/Locations/Loc">
-                        <xsl:variable name="locNode" select="/ResultsSession/Locations/Loc[@loc=$locFile]"/>
-                        <xsl:variable name="pipelineBuildWorkingDirectory" select="/ResultsSession/@pipelineBuildWorkingDirectory"/>
-                        <xsl:value-of select="translate(substring-after($locNode/@fsPath, $pipelineBuildWorkingDirectory), '\', '/')"/><xsl:text>"</xsl:text>
+                    <xsl:when test="$locNode">
+                        <xsl:variable name="genericPipelineBuildWorkingDirectory">
+                             <xsl:if test="string($pipelineBuildWorkingDirectory) != ''">
+                                <xsl:value-of select="translate($pipelineBuildWorkingDirectory, '\', '/')"/>
+                            </xsl:if>
+                        </xsl:variable>
+                        <xsl:choose>
+                            <xsl:when test="string($genericPipelineBuildWorkingDirectory) != '' and contains($locNode/@fsPath, $genericPipelineBuildWorkingDirectory)">
+                               <xsl:value-of select="substring-after($locNode/@fsPath, $genericPipelineBuildWorkingDirectory)"/><xsl:text>"</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="$locNode/@fsPath"/><xsl:text>"</xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:value-of select="$locFile"/><xsl:text>"</xsl:text>
