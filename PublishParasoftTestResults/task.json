@@ -47,10 +47,10 @@
         {
             "name": "parasoftToolOrJavaRootPath",
             "type": "string",
-            "label": "Parasoft Tool or Java Root Path",
+            "label": "Root path to Parasoft tool/Java installation",
             "defaultValue": "",
             "required": false,
-            "helpMarkDown": "Absolute location for root path of Parasoft Tool or Java installation. This path is used to optimize the conversion efficiency when processing reports. Java will be utilized if it is found at the specified path. Otherwise, the built-in Node.js will be used as a fallback."
+            "helpMarkDown": "Absolute location of the root path of a Parasoft tool or a standalone Java installation (Parasoft tools contain a Java installation). When found at the specified location, Java is used to optimize the efficiency of report processing. If not specified or found, report processing will be much slower."
         },
         {
             "name": "localSettingsPath",
