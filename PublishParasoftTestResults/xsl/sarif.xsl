@@ -401,17 +401,18 @@
                 <xsl:variable name="locNode" select="/ResultsSession/Locations/Loc[@loc=$locFile]"/>
                 <xsl:choose>
                     <xsl:when test="$locNode">
-                        <xsl:variable name="genericPipelineBuildWorkingDirectory">
+                        <xsl:variable name="processedPipelineBuildWorkingDirectory">
                              <xsl:if test="string($pipelineBuildWorkingDirectory) != ''">
                                 <xsl:value-of select="translate($pipelineBuildWorkingDirectory, '\', '/')"/>
                             </xsl:if>
                         </xsl:variable>
+                        <xsl:variable name="processedFsPath" select="translate($locNode/@fsPath, '\', '/')"/>
                         <xsl:choose>
-                            <xsl:when test="string($genericPipelineBuildWorkingDirectory) != '' and contains($locNode/@fsPath, $genericPipelineBuildWorkingDirectory)">
-                               <xsl:value-of select="substring-after($locNode/@fsPath, $genericPipelineBuildWorkingDirectory)"/><xsl:text>"</xsl:text>
+                            <xsl:when test="string($processedPipelineBuildWorkingDirectory) != '' and contains($processedFsPath, $processedPipelineBuildWorkingDirectory)">
+                               <xsl:value-of select="substring-after($processedFsPath, $processedPipelineBuildWorkingDirectory)"/><xsl:text>"</xsl:text>
                             </xsl:when>
                             <xsl:otherwise>
-                                <xsl:value-of select="$locNode/@fsPath"/><xsl:text>"</xsl:text>
+                                <xsl:value-of select="$processedFsPath"/><xsl:text>"</xsl:text>
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:when>
