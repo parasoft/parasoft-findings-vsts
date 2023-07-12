@@ -425,28 +425,49 @@
                 <xsl:variable name="locRef" select="@locRef"/>
                 <xsl:variable name="locNode" select="/ResultsSession/Scope/Locations/Loc[@locRef=$locRef]"/>
                 <xsl:choose>
-                    <xsl:when test="$locNode/@scPath">
-                        <xsl:value-of select="$locNode/@scPath" /><xsl:text>"</xsl:text>
-                        <xsl:variable name="uriBaseId" select="$locNode/@repRef"/>
-                        <xsl:if test="$uriBaseId != ''">
-                            <xsl:text>, "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="$uriBaseId" /><xsl:text>"</xsl:text>
-                        </xsl:if>
-                    </xsl:when>
-                    <xsl:otherwise>
+                    <xsl:when test="$locNode">
                         <xsl:choose>
-                            <xsl:when test="/ResultsSession/@toolId = 'dottest'">
-                                <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
-                                    As a result, to use "locFile" instead. -->
-                                <xsl:value-of select="concat('/', substring-after(@locFile, '/'))"/><xsl:text>"</xsl:text>
+                            <xsl:when test="$locNode/@scPath">
+                                <xsl:value-of select="$locNode/@scPath" /><xsl:text>"</xsl:text>
+                                <xsl:variable name="uriBaseId" select="$locNode/@repRef"/>
+                                <xsl:if test="$uriBaseId != ''">
+                                    <xsl:text>, "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="$uriBaseId" /><xsl:text>"</xsl:text>
+                                </xsl:if>
                             </xsl:when>
                             <xsl:otherwise>
-                                <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
-                                <xsl:call-template name="processLocation">
-                                    <xsl:with-param name="resProjPath" select="$locNode/@resProjPath"/>
-                                    <xsl:with-param name="locFile" select="@locFile"/>
-                                </xsl:call-template>
+                                <xsl:variable name="processedPipelineBuildWorkingDirectory">
+                                    <xsl:call-template name="getProcessedPipelineBuildWorkingDirectory">
+                                        <xsl:with-param name="locNode" select="$locNode"/>
+                                    </xsl:call-template>
+                                </xsl:variable>
+                                <xsl:variable name="isExternalReport" select="$processedPipelineBuildWorkingDirectory = ''"/>
+                                <xsl:choose>
+                                    <xsl:when test="not($isExternalReport)">
+                                         <!-- Get relative source file path -->
+                                        <xsl:value-of select="substring-after($locNode/@uri, $processedPipelineBuildWorkingDirectory)"/><xsl:text>"</xsl:text>
+                                    </xsl:when>
+                                    <xsl:when test="$isExternalReport and $locNode/@resProjPath">
+                                        <xsl:choose>
+                                            <xsl:when test="/ResultsSession/@toolId = 'dottest'">
+                                                <!-- For DotTest report, project name prefix is missing in "resProjPath" of "Loc".
+                                                    As a result, to use "locFile" instead. -->
+                                                <xsl:value-of select="concat('/', substring-after(@locFile, '/'))"/><xsl:text>"</xsl:text>
+                                            </xsl:when>
+                                            <xsl:otherwise>
+                                                <!-- For Jtest and cppTest standard reports, use "resProjPath" in "Loc". -->
+                                                <xsl:value-of select="concat('/', $locNode/@resProjPath)"/><xsl:text>"</xsl:text>
+                                            </xsl:otherwise>
+                                        </xsl:choose>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="@locFile"/><xsl:text>"</xsl:text>
+                                    </xsl:otherwise>
+                                </xsl:choose>
                             </xsl:otherwise>
                         </xsl:choose>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="@locFile"/><xsl:text>"</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
              </xsl:otherwise>
@@ -455,17 +476,30 @@
         <xsl:text> }</xsl:text>
     </xsl:template>
 
-    <xsl:template name="processLocation">
-        <xsl:param name="resProjPath"/>
-        <xsl:param name="locFile"/>
+    <xsl:template name="getProcessedPipelineBuildWorkingDirectory">
+        <xsl:param name="locNode"/>
+        <xsl:variable name="uri" select="$locNode/@uri"/>
+        <xsl:variable name="uncodedPipelineBuildWorkingDirectory">
+            <xsl:if test="string($pipelineBuildWorkingDirectory) != ''">
+                <xsl:value-of select="translate($pipelineBuildWorkingDirectory, '\', '/')"/>
+            </xsl:if>
+        </xsl:variable>
+        <xsl:variable name="encodedPipelineBuildWorkingDirectory">
+            <xsl:if test="string($uncodedPipelineBuildWorkingDirectory) != ''">
+                <!-- Replace % to %25 and space to %20 to get an encoded path-->
+                <xsl:value-of select="replace(replace($uncodedPipelineBuildWorkingDirectory, '%', '%25'), ' ', '%20')"/>
+            </xsl:if>
+        </xsl:variable>
         <xsl:choose>
-            <xsl:when test="$resProjPath">
-                <xsl:value-of select="concat('/', $resProjPath)"/><xsl:text>"</xsl:text>
+            <xsl:when test="string($uncodedPipelineBuildWorkingDirectory) != '' and contains($uri, $uncodedPipelineBuildWorkingDirectory)">
+                <xsl:value-of select="$uncodedPipelineBuildWorkingDirectory"/>
+            </xsl:when>
+            <!-- Using encoded pipeline build working directory when the uri arrtibute of <Loc> tag in Parasoft tool report(e.g. jtest report) is encoded -->
+            <xsl:when test="string($encodedPipelineBuildWorkingDirectory) != '' and contains($uri, $encodedPipelineBuildWorkingDirectory)">
+                <xsl:value-of select="$encodedPipelineBuildWorkingDirectory"/>
             </xsl:when>
             <xsl:otherwise>
-                <!-- Reports structure for Jtest, dotTest, cppTest and cppTest professional are not strictly consistent.
-                       Full source path will be displayed if no rules can be applied. -->
-                <xsl:value-of select="$locFile"/><xsl:text>"</xsl:text>
+                <xsl:value-of select="''"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
