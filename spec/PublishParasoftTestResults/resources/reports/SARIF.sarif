@@ -1,0 +1,3793 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Jtest",
+          "semanticVersion": "2022.2.0",
+          "rules": [
+            {
+              "id": "BD.RES.LEAKS",
+              "name": "Ensure resources are deallocated",
+              "shortDescription": {
+                "text": "Ensure resources are deallocated"
+              },
+              "fullDescription": {
+                "text": "Ensure resources are deallocated [BD.RES.LEAKS]"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.flowanalyzer\/2022.1.0\/zh_CN\/BD.RES.LEAKS.html",
+                "markdown": "[Ensure resources are deallocated \\[BD.RES.LEAKS\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.flowanalyzer\/2022.1.0\/zh_CN\/BD.RES.LEAKS.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.flowanalyzer\/2022.1.0\/zh_CN\/BD.RES.LEAKS.html",
+              "properties": {
+                "tags": [
+                  "Flow Analysis",
+                  "Resources"
+                ]
+              }
+            },
+            {
+              "id": "BEAN.SERIALIZABLE",
+              "name": "Ensure that JavaBean classes implement 'java.io.Serializable'",
+              "shortDescription": {
+                "text": "Ensure that JavaBean classes implement 'java.io.Serializable'"
+              },
+              "fullDescription": {
+                "text": "Ensure that JavaBean classes implement 'java.io.Serializable' [BEAN.SERIALIZABLE]"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/BEAN.SERIALIZABLE.html",
+                "markdown": "[Ensure that JavaBean classes implement 'java.io.Serializable' \\[BEAN.SERIALIZABLE\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/BEAN.SERIALIZABLE.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/BEAN.SERIALIZABLE.html",
+              "properties": {
+                "tags": [
+                  "JavaBeans"
+                ]
+              }
+            },
+            {
+              "id": "EXCEPT.NTERR",
+              "name": "Do not throw exception types which are too general or are unchecked exceptions",
+              "shortDescription": {
+                "text": "Do not throw exception types which are too general or are unchecked exceptions"
+              },
+              "fullDescription": {
+                "text": "Do not throw exception types which are too general or are unchecked exceptions [EXCEPT.NTERR]"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/EXCEPT.NTERR.html",
+                "markdown": "[Do not throw exception types which are too general or are unchecked exceptions \\[EXCEPT.NTERR\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/EXCEPT.NTERR.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/EXCEPT.NTERR.html",
+              "properties": {
+                "tags": [
+                  "Exceptions"
+                ]
+              }
+            },
+            {
+              "id": "METRIC.NBD",
+              "name": "Nested Blocks Depth",
+              "shortDescription": {
+                "text": "Nested Blocks Depth"
+              },
+              "fullDescription": {
+                "text": "Nested Blocks Depth [METRIC.NBD]"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.metrics.analyzer\/2022.1.0\/zh_CN\/METRIC.NBD.html",
+                "markdown": "[Nested Blocks Depth \\[METRIC.NBD\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.metrics.analyzer\/2022.1.0\/zh_CN\/METRIC.NBD.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.metrics.analyzer\/2022.1.0\/zh_CN\/METRIC.NBD.html",
+              "properties": {
+                "tags": [
+                  "Metric"
+                ]
+              }
+            },
+            {
+              "id": "OPT.NSF",
+              "name": "Declare \"final\" fields with a known compile time value as \"static\"",
+              "shortDescription": {
+                "text": "Declare \"final\" fields with a known compile time value as \"static\""
+              },
+              "fullDescription": {
+                "text": "Declare \"final\" fields with a known compile time value as \"static\" [OPT.NSF]"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.rulewizard\/2022.1.0\/zh_CN\/OPT.NSF.html",
+                "markdown": "[Declare \"final\" fields with a known compile time value as \"static\" \\[OPT.NSF\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.rulewizard\/2022.1.0\/zh_CN\/OPT.NSF.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.rulewizard\/2022.1.0\/zh_CN\/OPT.NSF.html",
+              "properties": {
+                "tags": [
+                  "Optimization"
+                ]
+              }
+            },
+            {
+              "id": "PB.CUB.UEIC",
+              "name": "Do not use '==' or '!=' to compare objects",
+              "shortDescription": {
+                "text": "Do not use '==' or '!=' to compare objects"
+              },
+              "fullDescription": {
+                "text": "Do not use '==' or '!=' to compare objects [PB.CUB.UEIC]"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/PB.CUB.UEIC.html",
+                "markdown": "[Do not use '==' or '!=' to compare objects \\[PB.CUB.UEIC\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/PB.CUB.UEIC.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/PB.CUB.UEIC.html",
+              "properties": {
+                "tags": [
+                  "Possible Bugs",
+                  "Confusing or Unintended Behavior"
+                ]
+              }
+            },
+            {
+              "id": "TRS.UWNA",
+              "name": "Use 'wait()' and 'notifyAll()' instead of polling loops",
+              "shortDescription": {
+                "text": "Use 'wait()' and 'notifyAll()' instead of polling loops"
+              },
+              "fullDescription": {
+                "text": "Use 'wait()' and 'notifyAll()' instead of polling loops [TRS.UWNA]"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "help": {
+                "text": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/TRS.UWNA.html",
+                "markdown": "[Use 'wait()' and 'notifyAll()' instead of polling loops \\[TRS.UWNA\\]](https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/TRS.UWNA.html)"
+              },
+              "helpUri": "https:\/\/dtp.parasoftcn.com\/grs\/dtp\/rulesdoc\/com.parasoft.jtest.standards.checkers.java\/2022.1.0\/zh_CN\/TRS.UWNA.html",
+              "properties": {
+                "tags": [
+                  "Threads & Synchronization"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC resultset not closed: stmt.resultSet()",
+            "markdown": "**\\[Line 85\\] JDBC resultset not closed: stmt\\.resultSet\\(\\)**  \n  \nBookStoreDB.java&nbsp;(61)&nbsp;:&nbsp;String query = \"SELECT DISTINCT \" \\+  \nBookStoreDB.java&nbsp;(75)&nbsp;:&nbsp;titlePart\\.toLowerCase\\(\\) \\+\"%' AND \" \\+  \nBookStoreDB.java&nbsp;(61)&nbsp;:&nbsp;String query = \"SELECT DISTINCT \" \\+  \nBookStoreDB.java&nbsp;(80)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(51)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming true\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;new BookStoreDB\\(\\)  \n                BookStoreDB.java&nbsp;(42)&nbsp;:&nbsp;super\\(\\);  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;db = new BookStoreDB\\(\\);  \n        BookStoreDB.java&nbsp;(56)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(81)&nbsp;:&nbsp;db\\.getConnection\\(\\)  \n        DB.java&nbsp;(72)&nbsp;:&nbsp;return connection;  \nBookStoreDB.java&nbsp;(81)&nbsp;:&nbsp;Statement stmt = db\\.getConnection\\(\\)\\.createStatement\\(ResultSet\\.TYPE\\_SCROLL\\_INSENSITIVE, ResultSet\\.CONCUR\\_UPDATABLE\\);  \n**Point where the resource is allocated**  \nBookStoreDB.java&nbsp;(82)&nbsp;:&nbsp;stmt\\.executeQuery\\(query\\)&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt\\.resultSet\\(\\), stmt\\.executeQuery\\(query\\)_  \nBookStoreDB.java&nbsp;(82)&nbsp;:&nbsp;Book\\[\\] books= getByTitleLike\\(stmt\\.executeQuery\\(query\\), titlePart\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;BookStoreDB\\.getByTitleLike\\(\\) throws SQLException_  \n        BookStoreDB.java&nbsp;(90)&nbsp;:&nbsp;boolean hasNext = rs\\.first\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;ResultSet\\.first\\(\\) throws SQLException_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: rs_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(85)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt\\.resultSet\\(\\)_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 85,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 9,
+                            "endLine": 79,
+                            "endColumn": 50
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 75,
+                            "startColumn": 79,
+                            "endLine": 79,
+                            "endColumn": 49
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 9,
+                            "endLine": 79,
+                            "endColumn": 50
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 80,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 18,
+                            "endColumn": 35
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 42,
+                            "startColumn": 9,
+                            "endColumn": 17
+                          }
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 13,
+                            "endColumn": 36
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 26,
+                            "endColumn": 44
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 72,
+                            "startColumn": 9,
+                            "endColumn": 27
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 9,
+                            "endColumn": 124
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 82,
+                            "startColumn": 38,
+                            "endColumn": 62
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: stmt.resultSet(), stmt.executeQuery(query)"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 82,
+                            "startColumn": 9,
+                            "endColumn": 75
+                          }
+                        },
+                        "message": {
+                          "text": "  *** BookStoreDB.getByTitleLike() throws SQLException"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 90,
+                            "startColumn": 9,
+                            "endColumn": 38
+                          }
+                        },
+                        "message": {
+                          "text": "  *** ResultSet.first() throws SQLException  *** Allocated resource variable: rs"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 85,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt.resultSet()"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: stmt",
+            "markdown": "**\\[Line 85\\] JDBC statement not closed: stmt**  \n  \nBookStoreDB.java&nbsp;(61)&nbsp;:&nbsp;String query = \"SELECT DISTINCT \" \\+  \nBookStoreDB.java&nbsp;(75)&nbsp;:&nbsp;titlePart\\.toLowerCase\\(\\) \\+\"%' AND \" \\+  \nBookStoreDB.java&nbsp;(61)&nbsp;:&nbsp;String query = \"SELECT DISTINCT \" \\+  \nBookStoreDB.java&nbsp;(80)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(51)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming true\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;new BookStoreDB\\(\\)  \n                BookStoreDB.java&nbsp;(42)&nbsp;:&nbsp;super\\(\\);  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;db = new BookStoreDB\\(\\);  \n        BookStoreDB.java&nbsp;(56)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(81)&nbsp;:&nbsp;db\\.getConnection\\(\\)  \n        DB.java&nbsp;(72)&nbsp;:&nbsp;return connection;  \n**Point where the resource is allocated**  \nBookStoreDB.java&nbsp;(81)&nbsp;:&nbsp;Statement stmt = db\\.getConnection\\(\\)\\.createStatement\\(ResultSet\\.TYPE\\_SCROLL\\_INSENSITIVE, ResultSet\\.CONCUR\\_UPDATABLE\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_  \nBookStoreDB.java&nbsp;(82)&nbsp;:&nbsp;stmt\\.executeQuery\\(query\\)&nbsp;&nbsp;_\\*\\*\\*&nbsp;Statement\\.executeQuery\\(\\) throws SQLException_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(85)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 85,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 9,
+                            "endLine": 79,
+                            "endColumn": 50
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 75,
+                            "startColumn": 79,
+                            "endLine": 79,
+                            "endColumn": 49
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 61,
+                            "startColumn": 9,
+                            "endLine": 79,
+                            "endColumn": 50
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 80,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 18,
+                            "endColumn": 35
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 42,
+                            "startColumn": 9,
+                            "endColumn": 17
+                          }
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 13,
+                            "endColumn": 36
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 26,
+                            "endColumn": 44
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 72,
+                            "startColumn": 9,
+                            "endColumn": 27
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 81,
+                            "startColumn": 9,
+                            "endColumn": 124
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 82,
+                            "startColumn": 38,
+                            "endColumn": 62
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Statement.executeQuery() throws SQLException"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 85,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: stmt2",
+            "markdown": "**\\[Line 141\\] JDBC statement not closed: stmt2**  \n  \nBookStoreDB.java&nbsp;(90)&nbsp;:&nbsp;boolean hasNext = rs\\.first\\(\\);  \nBookStoreDB.java&nbsp;(91)&nbsp;:&nbsp;Vector<Book> books = new Vector<>\\(\\);  \nBookStoreDB.java&nbsp;(93)&nbsp;:&nbsp;String query2 = \"SELECT \" \\+  \nBookStoreDB.java&nbsp;(106)&nbsp;:&nbsp;while \\(hasNext\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Loop condition evaluation: hasNext \\(assuming true\\)_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Entering the loop_  \nBookStoreDB.java&nbsp;(107)&nbsp;:&nbsp;int id = rs\\.getInt\\(NL\\_ID\\);  \nBookStoreDB.java&nbsp;(108)&nbsp;:&nbsp;String isbn = rs\\.getString\\(NL\\_ISBN\\);  \nBookStoreDB.java&nbsp;(109)&nbsp;:&nbsp;String title = rs\\.getString\\(NL\\_TITLE\\);  \nBookStoreDB.java&nbsp;(110)&nbsp;:&nbsp;Date year = rs\\.getDate\\(NL\\_YEAR\\);  \nBookStoreDB.java&nbsp;(111)&nbsp;:&nbsp;String publisher = rs\\.getString\\(NL\\_PUBLISHER\\_NAME\\);  \nBookStoreDB.java&nbsp;(112)&nbsp;:&nbsp;String description = rs\\.getString\\(NL\\_DESCRIPTION\\);  \nBookStoreDB.java&nbsp;(113)&nbsp;:&nbsp;BigDecimal price = rs\\.getBigDecimal\\(NL\\_PRICE\\);  \nBookStoreDB.java&nbsp;(114)&nbsp;:&nbsp;int stock = rs\\.getInt\\(NL\\_STOCK\\);  \nBookStoreDB.java&nbsp;(116)&nbsp;:&nbsp;PreparedStatement stmt2 = db\\.prepareStatement\\(query2,  \n        **Point where the resource is allocated**  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\)_  \nBookStoreDB.java&nbsp;(119)&nbsp;:&nbsp;stmt2\\.setString\\(1, \"%\" \\+ titlePart\\.toLowerCase\\(\\) \\+ \"%\"\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;PreparedStatement\\.setString\\(\\) throws SQLException_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt2_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(141)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt2_"
+          },
+          "partialFingerprints": {
+            "lineHash": "1508372605"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 141,
+                  "startColumn": 9,
+                  "endColumn": 10
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 90,
+                            "startColumn": 9,
+                            "endColumn": 38
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 45
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 93,
+                            "startColumn": 9,
+                            "endLine": 105,
+                            "endColumn": 58
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 106,
+                            "startColumn": 9
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Loop condition evaluation: hasNext (assuming true)  *** Entering the loop"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 107,
+                            "startColumn": 13,
+                            "endColumn": 39
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 108,
+                            "startColumn": 13,
+                            "endColumn": 49
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 109,
+                            "startColumn": 13,
+                            "endColumn": 51
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 110,
+                            "startColumn": 13,
+                            "endColumn": 45
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 111,
+                            "startColumn": 13,
+                            "endColumn": 64
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 112,
+                            "startColumn": 13,
+                            "endColumn": 63
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 113,
+                            "startColumn": 13,
+                            "endColumn": 59
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 114,
+                            "startColumn": 13,
+                            "endColumn": 45
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 116,
+                            "startColumn": 13,
+                            "endLine": 118,
+                            "endColumn": 88
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: connection.prepareStatement(query, resultSetType, resultSetConcurrency)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 119,
+                            "startColumn": 13,
+                            "endColumn": 69
+                          }
+                        },
+                        "message": {
+                          "text": "  *** PreparedStatement.setString() throws SQLException  *** Allocated resource variable: stmt2"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 141,
+                            "startColumn": 9,
+                            "endColumn": 10
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt2"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC resultset not closed: stmt.resultSet(), rs",
+            "markdown": "**\\[Line 245\\] JDBC resultset not closed: stmt\\.resultSet\\(\\), rs**  \n  \nBookStoreDB.java&nbsp;(173)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(51)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;db\\.isClosed\\(\\)  \n                DB.java&nbsp;(76)&nbsp;:&nbsp;return connection == null || connection\\.isClosed\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.connection == null\\) \\(assuming false\\)_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: connection\\.isClosed\\(\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;if \\(db\\.isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: db\\.isClosed\\(\\) \\(false\\)_  \n        BookStoreDB.java&nbsp;(56)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(174)&nbsp;:&nbsp;String query = \"SELECT \" \\+ NL\\_TABLE\\_BOOK \\+ \"\\.\" \\+ NL\\_ID \\+ \",\" \\+  \nBookStoreDB.java&nbsp;(190)&nbsp;:&nbsp;PreparedStatement stmt = db\\.prepareStatement\\(query,  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);  \nBookStoreDB.java&nbsp;(193)&nbsp;:&nbsp;stmt\\.setInt\\(1, id\\);  \n**Point where the resource is allocated**  \nBookStoreDB.java&nbsp;(194)&nbsp;:&nbsp;ResultSet rs = stmt\\.executeQuery\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt\\.resultSet\\(\\), rs_  \nBookStoreDB.java&nbsp;(195)&nbsp;:&nbsp;boolean exists = rs\\.first\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;ResultSet\\.first\\(\\) throws SQLException_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(245)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt\\.resultSet\\(\\), rs_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 245,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 173,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 20,
+                            "endColumn": 33
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 9,
+                            "endColumn": 60
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.connection == null) (assuming false)  *** Condition evaluation: connection.isClosed() (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 16,
+                            "endColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: db.isClosed() (false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 174,
+                            "startColumn": 9,
+                            "endLine": 189,
+                            "endColumn": 69
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 190,
+                            "startColumn": 9,
+                            "endLine": 192,
+                            "endColumn": 73
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 193,
+                            "startColumn": 9,
+                            "endColumn": 28
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 194,
+                            "startColumn": 9,
+                            "endColumn": 44
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: stmt.resultSet(), rs"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 195,
+                            "startColumn": 9,
+                            "endColumn": 37
+                          }
+                        },
+                        "message": {
+                          "text": "  *** ResultSet.first() throws SQLException"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 245,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt.resultSet(), rs"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: stmt",
+            "markdown": "**\\[Line 245\\] JDBC statement not closed: stmt**  \n  \nBookStoreDB.java&nbsp;(173)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(51)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;db\\.isClosed\\(\\)  \n                DB.java&nbsp;(76)&nbsp;:&nbsp;return connection == null || connection\\.isClosed\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.connection == null\\) \\(assuming true\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;if \\(db\\.isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: db\\.isClosed\\(\\) \\(true\\)_  \n        BookStoreDB.java&nbsp;(54)&nbsp;:&nbsp;db\\.connect\\(\\);  \n                DB.java&nbsp;(50)&nbsp;:&nbsp;if \\(isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: isClosed\\(\\) \\(assuming true\\)_  \n                DB.java&nbsp;(51)&nbsp;:&nbsp;connection = DriverManager\\.getConnection\\(NL\\_CONNECTION\\_URL, NL\\_USERNAME, NL\\_PASSWORD\\)  \n        BookStoreDB.java&nbsp;(56)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(174)&nbsp;:&nbsp;String query = \"SELECT \" \\+ NL\\_TABLE\\_BOOK \\+ \"\\.\" \\+ NL\\_ID \\+ \",\" \\+  \nBookStoreDB.java&nbsp;(190)&nbsp;:&nbsp;PreparedStatement stmt = db\\.prepareStatement\\(query,  \n        **Point where the resource is allocated**  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\)_  \nBookStoreDB.java&nbsp;(193)&nbsp;:&nbsp;stmt\\.setInt\\(1, id\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;PreparedStatement\\.setInt\\(\\) throws SQLException_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(245)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 245,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 173,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 20,
+                            "endColumn": 33
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 9,
+                            "endColumn": 60
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.connection == null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 16,
+                            "endColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: db.isClosed() (true)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 54,
+                            "startColumn": 13,
+                            "endColumn": 26
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: isClosed() (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 13,
+                            "endColumn": 98
+                          }
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 174,
+                            "startColumn": 9,
+                            "endLine": 189,
+                            "endColumn": 69
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 190,
+                            "startColumn": 9,
+                            "endLine": 192,
+                            "endColumn": 73
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: connection.prepareStatement(query, resultSetType, resultSetConcurrency)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 193,
+                            "startColumn": 9,
+                            "endColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "  *** PreparedStatement.setInt() throws SQLException  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 245,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 252\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-581058345"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 252,
+                  "startColumn": 13,
+                  "endLine": 253,
+                  "endColumn": 161
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 24\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "270584381"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartManager.java"
+                },
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 13,
+                  "endLine": 25,
+                  "endColumn": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 57\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1553859918"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartManager.java"
+                },
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 13,
+                  "endColumn": 89
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 73\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "453875990"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartManager.java"
+                },
+                "region": {
+                  "startLine": 73,
+                  "startColumn": 25,
+                  "endLine": 75,
+                  "endColumn": 86
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 83\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "664119574"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartManager.java"
+                },
+                "region": {
+                  "startLine": 83,
+                  "startColumn": 17,
+                  "endLine": 84,
+                  "endColumn": 61
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 87\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "169057648"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartManager.java"
+                },
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 13,
+                  "endLine": 88,
+                  "endColumn": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 120\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1984314819"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartManager.java"
+                },
+                "region": {
+                  "startLine": 120,
+                  "startColumn": 9,
+                  "endLine": 121,
+                  "endColumn": 45
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 48\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "155154141"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartService.java"
+                },
+                "region": {
+                  "startLine": 48,
+                  "startColumn": 13,
+                  "endColumn": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 71\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-770009538"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartService.java"
+                },
+                "region": {
+                  "startLine": 71,
+                  "startColumn": 13,
+                  "endColumn": 83
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 74\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "169057648"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartService.java"
+                },
+                "region": {
+                  "startLine": 74,
+                  "startColumn": 13,
+                  "endLine": 75,
+                  "endColumn": 51
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 120\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "428985564"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/CartService.java"
+                },
+                "region": {
+                  "startLine": 120,
+                  "startColumn": 13,
+                  "endLine": 122,
+                  "endColumn": 41
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 12\\] Value of \"final\" field 'NL\\_USERNAME' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1579893534"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/KeystorePasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 13\\] Value of \"final\" field 'NL\\_PASSWORD' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "1039248428"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/KeystorePasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: stmt",
+            "markdown": "**\\[Line 63\\] JDBC statement not closed: stmt**  \n  \nSecureCartService.java&nbsp;(36)&nbsp;:&nbsp;String query = \"SELECT DISTINCT \" \\+  \nSecureCartService.java&nbsp;(55)&nbsp;:&nbsp;BookStoreDB db = BookStoreDB\\.getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(51)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;db\\.isClosed\\(\\)  \n                DB.java&nbsp;(76)&nbsp;:&nbsp;return connection == null || connection\\.isClosed\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.connection == null\\) \\(assuming true\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;if \\(db\\.isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: db\\.isClosed\\(\\) \\(true\\)_  \n        BookStoreDB.java&nbsp;(54)&nbsp;:&nbsp;db\\.connect\\(\\);  \n                DB.java&nbsp;(50)&nbsp;:&nbsp;if \\(isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: isClosed\\(\\) \\(assuming true\\)_  \n                DB.java&nbsp;(51)&nbsp;:&nbsp;connection = DriverManager\\.getConnection\\(NL\\_CONNECTION\\_URL, NL\\_USERNAME, NL\\_PASSWORD\\)  \n        BookStoreDB.java&nbsp;(56)&nbsp;:&nbsp;return db;  \nSecureCartService.java&nbsp;(56)&nbsp;:&nbsp;PreparedStatement stmt = db\\.prepareStatement\\(query,  \n        **Point where the resource is allocated**  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\)_  \nSecureCartService.java&nbsp;(59)&nbsp;:&nbsp;stmt\\.setString\\(1, \"%\" \\+ titlePart\\.toLowerCase\\(\\) \\+ \"%\"\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;PreparedStatement\\.setString\\(\\) throws SQLException_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_  \n**Point where the allocated resource is lost**&nbsp;  \nSecureCartService.java&nbsp;(63)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/SecureCartService.java"
+                },
+                "region": {
+                  "startLine": 63,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/SecureCartService.java"
+                          },
+                          "region": {
+                            "startLine": 36,
+                            "startColumn": 9,
+                            "endLine": 54,
+                            "endColumn": 74
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/SecureCartService.java"
+                          },
+                          "region": {
+                            "startLine": 55,
+                            "startColumn": 9,
+                            "endColumn": 54
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 20,
+                            "endColumn": 33
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 9,
+                            "endColumn": 60
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.connection == null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 16,
+                            "endColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: db.isClosed() (true)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 54,
+                            "startColumn": 13,
+                            "endColumn": 26
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: isClosed() (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 13,
+                            "endColumn": 98
+                          }
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/SecureCartService.java"
+                          },
+                          "region": {
+                            "startLine": 56,
+                            "startColumn": 9,
+                            "endLine": 58,
+                            "endColumn": 45
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: connection.prepareStatement(query, resultSetType, resultSetConcurrency)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/SecureCartService.java"
+                          },
+                          "region": {
+                            "startLine": 59,
+                            "startColumn": 9,
+                            "endColumn": 64
+                          }
+                        },
+                        "message": {
+                          "text": "  *** PreparedStatement.setString() throws SQLException  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/SecureCartService.java"
+                          },
+                          "region": {
+                            "startLine": 63,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 12\\] Value of \"final\" field 'NL\\_USERNAME' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1579893534"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 13\\] Value of \"final\" field 'NL\\_PASSWORD' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "683168573"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME2' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 14\\] Value of \"final\" field 'NL\\_USERNAME2' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1843936520"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD2' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 15\\] Value of \"final\" field 'NL\\_PASSWORD2' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-294703469"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME3' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 16\\] Value of \"final\" field 'NL\\_USERNAME3' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "332707141"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD3' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 17\\] Value of \"final\" field 'NL\\_PASSWORD3' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "2068277130"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: stmt",
+            "markdown": "**\\[Line 173\\] JDBC statement not closed: stmt**  \n  \nBookStoreDB.java&nbsp;(69)&nbsp;:&nbsp;String query = \"SELECT DISTINCT \" \\+  \nBookStoreDB.java&nbsp;(90)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(50)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;db\\.isClosed\\(\\)  \n                DB.java&nbsp;(76)&nbsp;:&nbsp;return connection == null || connection\\.isClosed\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.connection == null\\) \\(assuming true\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;if \\(db\\.isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: db\\.isClosed\\(\\) \\(true\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;db\\.connect\\(\\);  \n                DB.java&nbsp;(50)&nbsp;:&nbsp;if \\(isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: isClosed\\(\\) \\(assuming true\\)_  \n                DB.java&nbsp;(51)&nbsp;:&nbsp;connection = DriverManager\\.getConnection\\(NL\\_CONNECTION\\_URL, NL\\_USERNAME, NL\\_PASSWORD\\)  \n        BookStoreDB.java&nbsp;(55)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(91)&nbsp;:&nbsp;PreparedStatement stmt = db\\.prepareStatement\\(query,  \n        **Point where the resource is allocated**  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\)_  \nBookStoreDB.java&nbsp;(94)&nbsp;:&nbsp;stmt\\.setString\\(1, \"%\" \\+ titlePart\\.toLowerCase\\(\\) \\+ \"%\"\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;PreparedStatement\\.setString\\(\\) throws SQLException_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(173)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 173,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 69,
+                            "startColumn": 9,
+                            "endLine": 88,
+                            "endColumn": 46
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 90,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 20,
+                            "endColumn": 33
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 9,
+                            "endColumn": 60
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.connection == null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 16,
+                            "endColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: db.isClosed() (true)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 13,
+                            "endColumn": 26
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: isClosed() (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 13,
+                            "endColumn": 98
+                          }
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 55,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endLine": 93,
+                            "endColumn": 82
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: connection.prepareStatement(query, resultSetType, resultSetConcurrency)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 94,
+                            "startColumn": 9,
+                            "endColumn": 64
+                          }
+                        },
+                        "message": {
+                          "text": "  *** PreparedStatement.setString() throws SQLException  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 173,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC resultset not closed: stmt.resultSet(), rs",
+            "markdown": "**\\[Line 256\\] JDBC resultset not closed: stmt\\.resultSet\\(\\), rs**  \n  \nBookStoreDB.java&nbsp;(182)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(50)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;db\\.isClosed\\(\\)  \n                DB.java&nbsp;(76)&nbsp;:&nbsp;return connection == null || connection\\.isClosed\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.connection == null\\) \\(assuming false\\)_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: connection\\.isClosed\\(\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;if \\(db\\.isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: db\\.isClosed\\(\\) \\(false\\)_  \n        BookStoreDB.java&nbsp;(55)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(183)&nbsp;:&nbsp;String query = \"SELECT \" \\+ NL\\_TABLE\\_BOOK \\+ \"\\.\" \\+ NL\\_ID \\+ \",\" \\+  \nBookStoreDB.java&nbsp;(200)&nbsp;:&nbsp;PreparedStatement stmt = db\\.prepareStatement\\(query,  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);  \nBookStoreDB.java&nbsp;(203)&nbsp;:&nbsp;stmt\\.setInt\\(1, id\\);  \n**Point where the resource is allocated**  \nBookStoreDB.java&nbsp;(204)&nbsp;:&nbsp;ResultSet rs = stmt\\.executeQuery\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt\\.resultSet\\(\\), rs_  \nBookStoreDB.java&nbsp;(205)&nbsp;:&nbsp;boolean exists = rs\\.first\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;ResultSet\\.first\\(\\) throws SQLException_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(256)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt\\.resultSet\\(\\), rs_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 182,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 20,
+                            "endColumn": 33
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 9,
+                            "endColumn": 60
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.connection == null) (assuming false)  *** Condition evaluation: connection.isClosed() (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 16,
+                            "endColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: db.isClosed() (false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 55,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 183,
+                            "startColumn": 9,
+                            "endLine": 199,
+                            "endColumn": 69
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 200,
+                            "startColumn": 9,
+                            "endLine": 202,
+                            "endColumn": 73
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 203,
+                            "startColumn": 9,
+                            "endColumn": 28
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 204,
+                            "startColumn": 9,
+                            "endColumn": 44
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: stmt.resultSet(), rs"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 205,
+                            "startColumn": 9,
+                            "endColumn": 37
+                          }
+                        },
+                        "message": {
+                          "text": "  *** ResultSet.first() throws SQLException"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 256,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt.resultSet(), rs"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: stmt",
+            "markdown": "**\\[Line 256\\] JDBC statement not closed: stmt**  \n  \nBookStoreDB.java&nbsp;(182)&nbsp;:&nbsp;BookStoreDB db = getDBInstance\\(\\);  \n        BookStoreDB.java&nbsp;(50)&nbsp;:&nbsp;if \\(db == null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(db == null\\) \\(assuming false\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;db\\.isClosed\\(\\)  \n                DB.java&nbsp;(76)&nbsp;:&nbsp;return connection == null || connection\\.isClosed\\(\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.connection == null\\) \\(assuming true\\)_  \n        BookStoreDB.java&nbsp;(52)&nbsp;:&nbsp;if \\(db\\.isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: db\\.isClosed\\(\\) \\(true\\)_  \n        BookStoreDB.java&nbsp;(53)&nbsp;:&nbsp;db\\.connect\\(\\);  \n                DB.java&nbsp;(50)&nbsp;:&nbsp;if \\(isClosed\\(\\)\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: isClosed\\(\\) \\(assuming true\\)_  \n                DB.java&nbsp;(51)&nbsp;:&nbsp;connection = DriverManager\\.getConnection\\(NL\\_CONNECTION\\_URL, NL\\_USERNAME, NL\\_PASSWORD\\)  \n        BookStoreDB.java&nbsp;(55)&nbsp;:&nbsp;return db;  \nBookStoreDB.java&nbsp;(183)&nbsp;:&nbsp;String query = \"SELECT \" \\+ NL\\_TABLE\\_BOOK \\+ \"\\.\" \\+ NL\\_ID \\+ \",\" \\+  \nBookStoreDB.java&nbsp;(200)&nbsp;:&nbsp;PreparedStatement stmt = db\\.prepareStatement\\(query,  \n        **Point where the resource is allocated**  \n        DB.java&nbsp;(91)&nbsp;:&nbsp;return connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: connection\\.prepareStatement\\(query, resultSetType, resultSetConcurrency\\)_  \nBookStoreDB.java&nbsp;(203)&nbsp;:&nbsp;stmt\\.setInt\\(1, id\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;PreparedStatement\\.setInt\\(\\) throws SQLException_&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_  \n**Point where the allocated resource is lost**&nbsp;  \nBookStoreDB.java&nbsp;(256)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: stmt_"
+          },
+          "partialFingerprints": {
+            "lineHash": "30537853"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 256,
+                  "startColumn": 5,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 182,
+                            "startColumn": 9,
+                            "endColumn": 42
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (db == null) (assuming false)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 20,
+                            "endColumn": 33
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 76,
+                            "startColumn": 9,
+                            "endColumn": 60
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.connection == null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 52,
+                            "startColumn": 16,
+                            "endColumn": 36
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: db.isClosed() (true)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 53,
+                            "startColumn": 13,
+                            "endColumn": 26
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 50,
+                            "startColumn": 9,
+                            "endColumn": 26
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: isClosed() (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 51,
+                            "startColumn": 13,
+                            "endColumn": 98
+                          }
+                        }
+                      },
+                      "nestingLevel": 2
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 55,
+                            "startColumn": 9,
+                            "endColumn": 19
+                          }
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 183,
+                            "startColumn": 9,
+                            "endLine": 199,
+                            "endColumn": 69
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 200,
+                            "startColumn": 9,
+                            "endLine": 202,
+                            "endColumn": 73
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/DB.java"
+                          },
+                          "region": {
+                            "startLine": 91,
+                            "startColumn": 9,
+                            "endColumn": 88
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: connection.prepareStatement(query, resultSetType, resultSetConcurrency)"
+                        }
+                      },
+                      "nestingLevel": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 203,
+                            "startColumn": 9,
+                            "endColumn": 28
+                          }
+                        },
+                        "message": {
+                          "text": "  *** PreparedStatement.setInt() throws SQLException  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                          },
+                          "region": {
+                            "startLine": 256,
+                            "startColumn": 5,
+                            "endColumn": 6
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: stmt"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 263\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-581058345"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/BookStoreDB.java"
+                },
+                "region": {
+                  "startLine": 263,
+                  "startColumn": 13,
+                  "endLine": 264,
+                  "endColumn": 161
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 24\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "270584381"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartManager.java"
+                },
+                "region": {
+                  "startLine": 24,
+                  "startColumn": 13,
+                  "endLine": 25,
+                  "endColumn": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 57\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1553859918"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartManager.java"
+                },
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 13,
+                  "endColumn": 89
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 73\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "453875990"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartManager.java"
+                },
+                "region": {
+                  "startLine": 73,
+                  "startColumn": 25,
+                  "endLine": 75,
+                  "endColumn": 103
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 83\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "664119574"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartManager.java"
+                },
+                "region": {
+                  "startLine": 83,
+                  "startColumn": 17,
+                  "endLine": 84,
+                  "endColumn": 61
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 87\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "169057648"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartManager.java"
+                },
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 13,
+                  "endLine": 88,
+                  "endColumn": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 120\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1984314819"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartManager.java"
+                },
+                "region": {
+                  "startLine": 120,
+                  "startColumn": 9,
+                  "endLine": 121,
+                  "endColumn": 45
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 48\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "155154141"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartService.java"
+                },
+                "region": {
+                  "startLine": 48,
+                  "startColumn": 13,
+                  "endColumn": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 71\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-770009538"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartService.java"
+                },
+                "region": {
+                  "startLine": 71,
+                  "startColumn": 13,
+                  "endColumn": 83
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 74\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "169057648"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartService.java"
+                },
+                "region": {
+                  "startLine": 74,
+                  "startColumn": 13,
+                  "endLine": 75,
+                  "endColumn": 51
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "EXCEPT.NTERR",
+          "level": "warning",
+          "message": {
+            "text": "Avoid throwing 'Exception'",
+            "markdown": "**\\[Line 121\\] Avoid throwing 'Exception'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-915323496"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/CartService.java"
+                },
+                "region": {
+                  "startLine": 121,
+                  "startColumn": 13,
+                  "endLine": 123,
+                  "endColumn": 58
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 12\\] Value of \"final\" field 'NL\\_USERNAME' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1579893534"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/KeystorePasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 13\\] Value of \"final\" field 'NL\\_PASSWORD' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "1039248428"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/KeystorePasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 12\\] Value of \"final\" field 'NL\\_USERNAME' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1579893534"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 13\\] Value of \"final\" field 'NL\\_PASSWORD' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "683168573"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 26,
+                  "endColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME2' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 14\\] Value of \"final\" field 'NL\\_USERNAME2' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-1843936520"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD2' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 15\\] Value of \"final\" field 'NL\\_PASSWORD2' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-294703469"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_USERNAME3' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 16\\] Value of \"final\" field 'NL\\_USERNAME3' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "332707141"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OPT.NSF",
+          "level": "warning",
+          "message": {
+            "text": "Value of \"final\" field 'NL_PASSWORD3' is known at compile time, but the field is not declared as \"static\"",
+            "markdown": "**\\[Line 17\\] Value of \"final\" field 'NL\\_PASSWORD3' is known at compile time, but the field is not declared as \"static\"**"
+          },
+          "partialFingerprints": {
+            "lineHash": "2068277130"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/bookstore2/UsernameTokenPasswordCallback.java"
+                },
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 26,
+                  "endColumn": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "PB.CUB.UEIC",
+          "level": "error",
+          "message": {
+            "text": "\"!=\" is used when comparing 'String' Objects. 'equals()' should be used instead",
+            "markdown": "**\\[Line 93\\] \"\\!=\" is used when comparing 'String' Objects\\. 'equals\\(\\)' should be used instead**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-2139058036"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/HostPort.java"
+                },
+                "region": {
+                  "startLine": 93,
+                  "startColumn": 32,
+                  "endColumn": 42
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "BEAN.SERIALIZABLE",
+          "level": "warning",
+          "message": {
+            "text": "Bean class does not implement java.io.Serializable: 'ServerBean'",
+            "markdown": "**\\[Line 27\\] Bean class does not implement java\\.io\\.Serializable: 'ServerBean'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "154524163"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                },
+                "region": {
+                  "startLine": 27,
+                  "startColumn": 14,
+                  "endColumn": 24
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "BD.RES.LEAKS",
+          "level": "error",
+          "message": {
+            "text": "JDBC statement not closed: con.createStatement()",
+            "markdown": "**\\[Line 277\\] JDBC statement not closed: con\\.createStatement\\(\\)**  \n  \nServerBean.java&nbsp;(271)&nbsp;:&nbsp;log\\.info\\(\"HSQL Server Shutdown sequence initiated\"\\);  \nServerBean.java&nbsp;(272)&nbsp;:&nbsp;if \\(dataSource \\!= null\\) \\{&nbsp;&nbsp;_\\*\\*\\*&nbsp;Condition evaluation: \\(this\\.dataSource \\!= null\\) \\(assuming true\\)_  \nServerBean.java&nbsp;(273)&nbsp;:&nbsp;Connection con = null;  \nServerBean.java&nbsp;(275)&nbsp;:&nbsp;con = dataSource\\.getConnection\\(\\)  \n**Point where the resource is allocated**  \nServerBean.java&nbsp;(276)&nbsp;:&nbsp;con\\.createStatement\\(\\)\\.execute\\(\"SHUTDOWN\"\\);&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: con\\.createStatement\\(\\)_  \n**Point where the allocated resource is lost**&nbsp;  \nServerBean.java&nbsp;(277)&nbsp;:&nbsp;\\}&nbsp;&nbsp;_\\*\\*\\*&nbsp;Allocated resource variable: con\\.createStatement\\(\\)_"
+          },
+          "partialFingerprints": {
+            "lineHash": "1856254044"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                },
+                "region": {
+                  "startLine": 277,
+                  "startColumn": 13,
+                  "endColumn": 14
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                          },
+                          "region": {
+                            "startLine": 271,
+                            "startColumn": 9,
+                            "endColumn": 61
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                          },
+                          "region": {
+                            "startLine": 272,
+                            "startColumn": 9,
+                            "endColumn": 34
+                          }
+                        },
+                        "message": {
+                          "text": "  *** Condition evaluation: (this.dataSource != null) (assuming true)"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                          },
+                          "region": {
+                            "startLine": 273,
+                            "startColumn": 13,
+                            "endColumn": 35
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                          },
+                          "region": {
+                            "startLine": 275,
+                            "startColumn": 17,
+                            "endColumn": 49
+                          }
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                          },
+                          "region": {
+                            "startLine": 276,
+                            "startColumn": 17,
+                            "endColumn": 59
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Cause - Point where the resource is allocated  *** Allocated resource variable: con.createStatement()"
+                        }
+                      },
+                      "nestingLevel": 0
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                          },
+                          "region": {
+                            "startLine": 277,
+                            "startColumn": 13,
+                            "endColumn": 14
+                          }
+                        },
+                        "message": {
+                          "text": "Violation Point - Point where the allocated resource is lost  *** Allocated resource variable: con.createStatement()"
+                        }
+                      },
+                      "nestingLevel": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "TRS.UWNA",
+          "level": "warning",
+          "message": {
+            "text": "Found 'sleep()' in a loop.  You may want to use 'wait()' and 'notifyAll()' instead",
+            "markdown": "**\\[Line 297\\] Found 'sleep\\(\\)' in a loop\\.  You may want to use 'wait\\(\\)' and 'notifyAll\\(\\)' instead**"
+          },
+          "partialFingerprints": {
+            "lineHash": "1085880206"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/ServerBean.java"
+                },
+                "region": {
+                  "startLine": 297,
+                  "startColumn": 24,
+                  "endColumn": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "METRIC.NBD",
+          "level": "warning",
+          "message": {
+            "text": "Value 7 is out of acceptable range: 'lower than 7'",
+            "markdown": "**\\[Line 95\\] Value 7 is out of acceptable range: 'lower than 7'**"
+          },
+          "partialFingerprints": {
+            "lineHash": "-717967953"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file://CD-RWANG/D:/RWorkspaces/project-workspace/CICD/para%20%25%20bank/src/main/java/com/parasoft/parabank/util/Util.java"
+                },
+                "region": {
+                  "startLine": 95,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

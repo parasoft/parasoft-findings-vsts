@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+   <testsuite name="TestAssets.EnabledShowAllIterations_status_tst" tests="5" id="1" package="" time="4.612" hostname="ONYX" timestamp="2018-02-21T15:00:51" failures="5" errors="0">
+      <properties/>
+      <testcase name="Test Suite: Test Suite/Test 1: GET Status[ds (row 1)]" classname="TestAssets.EnabledShowAllIterations_status_tst" time="4.454">
+         <failure message="Multiple errors reported" type="Failure">DataSource: ds (row 1): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 1): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 1): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output</failure>
+      </testcase>
+      <testcase name="Test Suite: Test Suite/Test 1: GET Status[ds (row 2)]" classname="TestAssets.EnabledShowAllIterations_status_tst" time="0.040">
+         <failure message="Multiple errors reported" type="Failure">DataSource: ds (row 2): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 2): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 2): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output</failure>
+      </testcase>
+      <testcase name="Test Suite: Test Suite/Test 1: GET Status[ds (row 3)]" classname="TestAssets.EnabledShowAllIterations_status_tst" time="0.031">
+         <failure message="Multiple errors reported" type="Failure">DataSource: ds (row 3): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 3): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 3): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output</failure>
+      </testcase>
+      <testcase name="Test Suite: Test Suite/Test 1: GET Status[ds (row 4)]" classname="TestAssets.EnabledShowAllIterations_status_tst" time="0.061">
+         <failure message="Multiple errors reported" type="Failure">DataSource: ds (row 4): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 4): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 4): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output</failure>
+      </testcase>
+      <testcase name="Test Suite: Test Suite/Test 1: GET Status[ds (row 5)]" classname="TestAssets.EnabledShowAllIterations_status_tst" time="0.026">
+         <failure message="Multiple errors reported" type="Failure">DataSource: ds (row 5): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 5): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 5): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output
+
+DataSource: ds (row 5): The input object  contains the additional field "machineId".
+Source: GET Status Output</failure>
+      </testcase>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="TestAssets.DisabledShowAllIterations_status_tst" tests="1" id="2" package="" time="0.135" hostname="ONYX" timestamp="2018-02-21T15:00:51" failures="1" errors="0">
+      <properties/>
+      <testcase name="Test Suite: Test Suite/Test 1: GET Status" classname="TestAssets.DisabledShowAllIterations_status_tst" time="0.135">
+         <failure message="Multiple errors reported" type="Failure">DataSource: ds (row 1): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 1): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 1): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output
+
+DataSource: ds (row 2): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 2): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 2): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output
+
+DataSource: ds (row 3): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 3): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 3): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output
+
+DataSource: ds (row 4): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 4): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 4): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output
+
+DataSource: ds (row 5): The value of the property "apiUser.username" has changed from "admin" to "anonymous".
+Source: GET Status Output
+
+DataSource: ds (row 5): The value of the property "server.test.version.minor" has changed from "7" to "3".
+Source: GET Status Output
+
+DataSource: ds (row 5): The value of the property "server.test.version.major" has changed from "9" to "10".
+Source: GET Status Output
+
+DataSource: ds (row 5): The input object  contains the additional field "machineId".
+Source: GET Status Output</failure>
+      </testcase>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+</testsuites>

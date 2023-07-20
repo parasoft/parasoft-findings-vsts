@@ -157,6 +157,7 @@ export class ParaReportPublishService {
 
         if(report.toLocaleLowerCase().endsWith(this.SARIF_EXTENSION)) {
             tl.debug("Recognized SARIF report: " + report);
+            report = this.processParasoftSarifReport(report);
             this.sarifReports.push(report);
             this.processResults(inputReportFiles, index);
         } else if (report.toLocaleLowerCase().endsWith(this.XML_EXTENSION)) {
@@ -353,6 +354,59 @@ export class ParaReportPublishService {
             transformedReports.push(outPath);
         } catch (error) {
             tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
+        }
+    }
+
+    processParasoftSarifReport = (report: string): string => {
+        let isContentChanged = false;
+        let contentString = fs.readFileSync(report, 'utf8');
+        let contentJson = JSON.parse(contentString);
+        if (contentJson.runs) {
+            contentJson.runs.forEach((run: any) => {
+                if (run.results) {
+                    run.results.forEach((result: any) => {
+                        if (result.locations) {
+                            result.locations.forEach((location: any) => {
+                                const relativeUri = this.getRelativeUri(location);
+                                if (relativeUri) {
+                                    // Overwrite uri to be relative path
+                                    location.physicalLocation.artifactLocation.uri = relativeUri;
+                                    isContentChanged = true;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        if (isContentChanged) {
+            contentString = JSON.stringify(contentJson);
+            report = report + this.SARIF_SUFFIX;
+            fs.writeFileSync(report, contentString, 'utf8');
+        }
+
+        return report;
+    }
+
+    private getRelativeUri = (location: any): string | undefined => {
+        if (location.physicalLocation && location.physicalLocation.artifactLocation 
+            && location.physicalLocation.artifactLocation.uri) {
+            let uri: string = location.physicalLocation.artifactLocation.uri;
+            let start = -1;
+            if (this.defaultWorkingDirectory) {
+                let processedDefaultWorkingDirectory = this.defaultWorkingDirectory.replaceAll('\\', '/');
+                // To check uri contains the path of working directory
+                start = uri.lastIndexOf(processedDefaultWorkingDirectory);
+                if (start == -1) {
+                    // Encoding and used to check again since uri value may be encoded
+                    processedDefaultWorkingDirectory = processedDefaultWorkingDirectory.replaceAll('%', '%25').replaceAll(' ', '%20');
+                    start = uri.lastIndexOf(processedDefaultWorkingDirectory);
+                }
+                if (start != -1) {
+                    return uri.substring(start + processedDefaultWorkingDirectory.length);
+                }
+                return undefined;
+            }
         }
     }
 
