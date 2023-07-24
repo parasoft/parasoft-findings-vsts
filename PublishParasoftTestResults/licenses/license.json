@@ -1,69 +1,4 @@
 {
-    "@npmcli/fs@3.1.0": {
-        "licenses": "ISC",
-        "licenseFile": "@npmcli\\fs@3.1.0-LICENSE.txt",
-        "publisher": "GitHub Inc.",
-        "repository": "https://github.com/npm/fs"
-    },
-    "@types/concat-stream@1.6.1": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\concat-stream@1.6.1-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/form-data@0.0.33": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\form-data@0.0.33-LICENSE.txt",
-        "publisher": "Carlos Ballesteros Velasco",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/node@10.17.60": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\node@10.17.60-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/node@16.18.23": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\node@16.18.23-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/node@8.10.66": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\node@8.10.66-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/q@1.5.5": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\q@1.5.5-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/qs@6.9.7": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\qs@6.9.7-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "@types/sax@1.0.0": {
-        "licenses": "MIT",
-        "licenseFile": "@types\\sax@1.0.0-LICENSE.txt",
-        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped"
-    },
-    "abbrev@1.1.1": {
-        "licenses": "ISC",
-        "licenseFile": "abbrev@1.1.1-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/abbrev-js"
-    },
-    "ansi-styles@4.3.0": {
-        "licenses": "MIT",
-        "licenseFile": "ansi-styles@4.3.0-LICENSE.txt",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/chalk/ansi-styles"
-    },
-    "array-find-index@1.0.2": {
-        "licenses": "MIT",
-        "licenseFile": "array-find-index@1.0.2-LICENSE.txt",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/array-find-index"
-    },
     "asap@2.0.6": {
         "licenses": "MIT",
         "licenseFile": "asap@2.0.6-LICENSE.txt",
@@ -99,12 +34,6 @@
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/brace-expansion"
     },
-    "brace-expansion@2.0.1": {
-        "licenses": "MIT",
-        "licenseFile": "brace-expansion@2.0.1-LICENSE.txt",
-        "publisher": "Julian Gruber",
-        "repository": "https://github.com/juliangruber/brace-expansion"
-    },
     "buffer-from@1.1.2": {
         "licenses": "MIT",
         "licenseFile": "buffer-from@1.1.2-LICENSE.txt",
@@ -121,23 +50,6 @@
         "licenseFile": "caseless@0.12.0-LICENSE.txt",
         "publisher": "Mikeal Rogers",
         "repository": "https://github.com/mikeal/caseless"
-    },
-    "chalk@4.1.2": {
-        "licenses": "MIT",
-        "licenseFile": "chalk@4.1.2-LICENSE.txt",
-        "repository": "https://github.com/chalk/chalk"
-    },
-    "color-convert@2.0.1": {
-        "licenses": "MIT",
-        "licenseFile": "color-convert@2.0.1-LICENSE.txt",
-        "publisher": "Heather Arthur",
-        "repository": "https://github.com/Qix-/color-convert"
-    },
-    "color-name@1.1.4": {
-        "licenses": "MIT",
-        "licenseFile": "color-name@1.1.4-LICENSE.txt",
-        "publisher": "DY",
-        "repository": "https://github.com/colorjs/color-name"
     },
     "combined-stream@1.0.8": {
         "licenses": "MIT",
@@ -162,12 +74,6 @@
         "licenseFile": "core-util-is@1.0.3-LICENSE.txt",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/core-util-is"
-    },
-    "debug@4.3.4": {
-        "licenses": "MIT",
-        "licenseFile": "debug@4.3.4-LICENSE.txt",
-        "publisher": "Josh Junon",
-        "repository": "https://github.com/debug-js/debug"
     },
     "delayed-stream@1.0.0": {
         "licenses": "MIT",
@@ -228,23 +134,6 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/node-glob"
     },
-    "glob@9.3.5": {
-        "licenses": "ISC",
-        "licenseFile": "glob@9.3.5-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/node-glob"
-    },
-    "graceful-fs@4.2.11": {
-        "licenses": "ISC",
-        "licenseFile": "graceful-fs@4.2.11-LICENSE.txt",
-        "repository": "https://github.com/isaacs/node-graceful-fs"
-    },
-    "has-flag@4.0.0": {
-        "licenses": "MIT",
-        "licenseFile": "has-flag@4.0.0-LICENSE.txt",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/has-flag"
-    },
     "has-symbols@1.0.3": {
         "licenses": "MIT",
         "licenseFile": "has-symbols@1.0.3-LICENSE.txt",
@@ -256,12 +145,6 @@
         "licenseFile": "has@1.0.3-LICENSE.txt",
         "publisher": "Thiago de Arruda",
         "repository": "https://github.com/tarruda/has"
-    },
-    "hosted-git-info@6.1.1": {
-        "licenses": "ISC",
-        "licenseFile": "hosted-git-info@6.1.1-LICENSE.txt",
-        "publisher": "GitHub Inc.",
-        "repository": "https://github.com/npm/hosted-git-info"
     },
     "http-basic@8.1.3": {
         "licenses": "MIT",
@@ -304,47 +187,11 @@
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/isarray"
     },
-    "json-parse-even-better-errors@3.0.0": {
-        "licenses": "MIT",
-        "licenseFile": "json-parse-even-better-errors@3.0.0-LICENSE.txt",
-        "publisher": "GitHub Inc.",
-        "repository": "https://github.com/npm/json-parse-even-better-errors"
-    },
     "jline@2.14.6": {
-        "licenses": "The 2-Clause BSD License",
+        "licenses": "BSD",
         "licenseFile": "jline@2.14.6-LICENSE",
         "publisher": "the original author or authors",
         "repository": "https://github.com/jline/jline2"
-    },
-    "license-checker-rseidelsohn@4.2.5": {
-        "licenses": "BSD-3-Clause",
-        "licenseFile": "license-checker-rseidelsohn@4.2.5-LICENSE.txt",
-        "publisher": "Roman Seidelsohn",
-        "repository": "https://github.com/RSeidelsohn/license-checker-rseidelsohn"
-    },
-    "lodash.clonedeep@4.5.0": {
-        "licenses": "MIT",
-        "licenseFile": "lodash.clonedeep@4.5.0-LICENSE.txt",
-        "publisher": "John-David Dalton",
-        "repository": "https://github.com/lodash/lodash"
-    },
-    "lru-cache@6.0.0": {
-        "licenses": "ISC",
-        "licenseFile": "lru-cache@6.0.0-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/node-lru-cache"
-    },
-    "lru-cache@7.18.3": {
-        "licenses": "ISC",
-        "licenseFile": "lru-cache@7.18.3-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/node-lru-cache"
-    },
-    "lru-cache@9.1.1": {
-        "licenses": "ISC",
-        "licenseFile": "lru-cache@9.1.1-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/node-lru-cache"
     },
     "mime-db@1.52.0": {
         "licenses": "MIT",
@@ -368,57 +215,11 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/minimatch"
     },
-    "minimatch@8.0.4": {
-        "licenses": "ISC",
-        "licenseFile": "minimatch@8.0.4-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/minimatch"
-    },
-    "minipass@4.2.8": {
-        "licenses": "ISC",
-        "licenseFile": "minipass@4.2.8-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/minipass"
-    },
-    "minipass@5.0.0": {
-        "licenses": "ISC",
-        "licenseFile": "minipass@5.0.0-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/minipass"
-    },
-    "mkdirp@1.0.4": {
-        "licenses": "MIT",
-        "licenseFile": "mkdirp@1.0.4-LICENSE.txt",
-        "repository": "https://github.com/isaacs/node-mkdirp"
-    },
     "mockery@2.1.0": {
         "licenses": "MIT",
         "licenseFile": "mockery@2.1.0-LICENSE.txt",
         "publisher": "Martin Cooper",
         "repository": "https://github.com/mfncooper/mockery"
-    },
-    "ms@2.1.2": {
-        "licenses": "MIT",
-        "licenseFile": "ms@2.1.2-LICENSE.txt",
-        "repository": "https://github.com/zeit/ms"
-    },
-    "nopt@5.0.0": {
-        "licenses": "ISC",
-        "licenseFile": "nopt@5.0.0-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/npm/nopt"
-    },
-    "normalize-package-data@5.0.0": {
-        "licenses": "BSD-2-Clause",
-        "licenseFile": "normalize-package-data@5.0.0-LICENSE.txt",
-        "publisher": "GitHub Inc.",
-        "repository": "https://github.com/npm/normalize-package-data"
-    },
-    "npm-normalize-package-bin@3.0.0": {
-        "licenses": "ISC",
-        "licenseFile": "npm-normalize-package-bin@3.0.0-LICENSE.txt",
-        "publisher": "GitHub Inc.",
-        "repository": "https://github.com/npm/npm-normalize-package-bin"
     },
     "object-inspect@1.12.3": {
         "licenses": "MIT",
@@ -449,12 +250,6 @@
         "publisher": "Javier Blanco",
         "repository": "https://github.com/jbgutierrez/path-parse"
     },
-    "path-scurry@1.7.0": {
-        "licenses": "BlueOak-1.0.0",
-        "licenseFile": "path-scurry@1.7.0-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/path-walker"
-    },
     "process-nextick-args@2.0.1": {
         "licenses": "MIT",
         "licenseFile": "process-nextick-args@2.0.1-LICENSE.txt",
@@ -477,17 +272,10 @@
         "licenseFile": "qs@6.11.1-LICENSE.txt",
         "repository": "https://github.com/ljharb/qs"
     },
-    "read-installed-packages@2.0.0": {
-        "licenses": "ISC",
-        "licenseFile": "read-installed-packages@2.0.0-LICENSE.txt",
-        "publisher": "Dmitry Semigradsky",
-        "repository": "https://github.com/Semigradsky/read-installed"
-    },
-    "read-package-json@6.0.1": {
-        "licenses": "ISC",
-        "licenseFile": "read-package-json@6.0.1-LICENSE.txt",
-        "publisher": "GitHub Inc.",
-        "repository": "https://github.com/npm/read-package-json"
+    "reportGenerator@5.1.21": {
+        "licenses": "Apache License, Version 2.0",
+        "licenseFile": "reportGenerator@5.1.21-LICENSE.txt",
+        "repository": "https://github.com/danielpalme/ReportGenerator"
     },
     "readable-stream@2.3.8": {
         "licenses": "MIT",
@@ -499,11 +287,6 @@
         "licenseFile": "rechoir@0.6.2-LICENSE.txt",
         "publisher": "Tyler Kellen",
         "repository": "https://github.com/tkellen/node-rechoir"
-    },
-    "reportGenerator@5.1.21": {
-        "licenses": "Apache License, Version 2.0",
-        "licenseFile": "reportGenerator@5.1.21-LICENSE.txt",
-        "repository": "https://github.com/danielpalme/ReportGenerator"
     },
     "resolve@1.22.2": {
         "licenses": "MIT",
@@ -523,12 +306,6 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/sax-js"
     },
-    "saxon-he@12.2": {
-        "licenses": "Mozilla Public License Version 2.0",
-        "licenseFile": "saxon-he@12.2-LICENSE.txt",
-        "publisher": "Saxonica",
-        "repository": "https://github.com/Saxonica/Saxon-HE"
-    },
     "saxon-js@2.5.0": {
         "licenses": "Custom: LICENSE.txt",
         "licenseFile": "saxon-js@2.5.0-LICENSE.txt",
@@ -537,12 +314,6 @@
     "semver@5.6.0": {
         "licenses": "ISC",
         "licenseFile": "semver@5.6.0-LICENSE.txt",
-        "repository": "https://github.com/npm/node-semver"
-    },
-    "semver@7.5.0": {
-        "licenses": "ISC",
-        "licenseFile": "semver@7.5.0-LICENSE.txt",
-        "publisher": "GitHub Inc.",
         "repository": "https://github.com/npm/node-semver"
     },
     "shelljs@0.8.5": {
@@ -556,63 +327,10 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/side-channel"
     },
-    "slide@1.1.6": {
-        "licenses": "ISC",
-        "licenseFile": "slide@1.1.6-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/slide-flow-control"
-    },
-    "spdx-compare@1.0.0": {
-        "licenses": "MIT",
-        "licenseFile": "spdx-compare@1.0.0-LICENSE.txt",
-        "publisher": "Kyle E. Mitchell",
-        "repository": "https://github.com/kemitchell/spdx-compare.js"
-    },
-    "spdx-correct@3.2.0": {
-        "licenses": "Apache-2.0",
-        "licenseFile": "spdx-correct@3.2.0-LICENSE.txt",
-        "repository": "https://github.com/jslicense/spdx-correct.js"
-    },
-    "spdx-exceptions@2.3.0": {
-        "licenses": "CC-BY-3.0",
-        "licenseFile": "spdx-exceptions@2.3.0-LICENSE.txt",
-        "publisher": "The Linux Foundation",
-        "repository": "https://github.com/kemitchell/spdx-exceptions.json"
-    },
-    "spdx-expression-parse@3.0.1": {
-        "licenses": "MIT",
-        "licenseFile": "spdx-expression-parse@3.0.1-LICENSE.txt",
-        "publisher": "Kyle E. Mitchell",
-        "repository": "https://github.com/jslicense/spdx-expression-parse.js"
-    },
-    "spdx-license-ids@3.0.13": {
-        "licenses": "CC0-1.0",
-        "licenseFile": "spdx-license-ids@3.0.13-LICENSE.txt",
-        "publisher": "Shinnosuke Watanabe",
-        "repository": "https://github.com/jslicense/spdx-license-ids"
-    },
-    "spdx-ranges@2.1.1": {
-        "licenses": "(MIT AND CC-BY-3.0)",
-        "licenseFile": "spdx-ranges@2.1.1-LICENSE.txt",
-        "publisher": "The Linux Foundation",
-        "repository": "https://github.com/kemitchell/spdx-ranges.js"
-    },
-    "spdx-satisfies@5.0.1": {
-        "licenses": "MIT",
-        "licenseFile": "spdx-satisfies@5.0.1-LICENSE.txt",
-        "publisher": "Kyle E. Mitchell",
-        "repository": "https://github.com/kemitchell/spdx-satisfies.js"
-    },
     "string_decoder@1.1.1": {
         "licenses": "MIT",
         "licenseFile": "string_decoder@1.1.1-LICENSE.txt",
         "repository": "https://github.com/nodejs/string_decoder"
-    },
-    "supports-color@7.2.0": {
-        "licenses": "MIT",
-        "licenseFile": "supports-color@7.2.0-LICENSE.txt",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/chalk/supports-color"
     },
     "supports-preserve-symlinks-flag@1.0.0": {
         "licenses": "MIT",
@@ -632,17 +350,17 @@
         "publisher": "Forbes Lindesay",
         "repository": "https://github.com/ForbesLindesay/sync-rpc"
     },
+    "saxon-he@12.2": {
+        "licenses": "Mozilla Public License Version 2.0",
+        "licenseFile": "saxon-he@12.2-LICENSE.txt",
+        "publisher": "Saxonica",
+        "repository": "https://github.com/Saxonica/Saxon-HE"
+    },
     "then-request@6.0.2": {
         "licenses": "MIT",
         "licenseFile": "then-request@6.0.2-LICENSE.txt",
         "publisher": "ForbesLindesay",
         "repository": "https://github.com/then/then-request"
-    },
-    "treeify@1.1.0": {
-        "licenses": "MIT",
-        "licenseFile": "treeify@1.1.0-LICENSE.txt",
-        "publisher": "Luke Plaster",
-        "repository": "https://github.com/notatestuser/treeify"
     },
     "typedarray@0.0.6": {
         "licenses": "MIT",
@@ -661,12 +379,6 @@
         "licenseFile": "uuid@3.3.2-LICENSE.txt",
         "repository": "https://github.com/kelektiv/node-uuid"
     },
-    "validate-npm-package-license@3.0.4": {
-        "licenses": "Apache-2.0",
-        "licenseFile": "validate-npm-package-license@3.0.4-LICENSE.txt",
-        "publisher": "Kyle E. Mitchell",
-        "repository": "https://github.com/kemitchell/validate-npm-package-license.js"
-    },
     "wrappy@1.0.2": {
         "licenses": "ISC",
         "licenseFile": "wrappy@1.0.2-LICENSE.txt",
@@ -683,11 +395,5 @@
         "licenses": "Custom: LICENSE.txt",
         "licenseFile": "xslt3@2.5.0-LICENSE.txt",
         "publisher": "Saxonica"
-    },
-    "yallist@4.0.0": {
-        "licenses": "ISC",
-        "licenseFile": "yallist@4.0.0-LICENSE.txt",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/yallist"
     }
 }
