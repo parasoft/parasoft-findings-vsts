@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import Axios from '../PublishParasoftTestResults/node_modules/axios';
-import {AxiosRequestConfig} from '../PublishParasoftTestResults/node_modules/axios';
+import Axios from '../PublishParasoftResults/node_modules/axios';
+import {AxiosRequestConfig} from '../PublishParasoftResults/node_modules/axios';
 import * as AdmZip from 'adm-zip'
 
 export class DownloadReportGeneratorService {

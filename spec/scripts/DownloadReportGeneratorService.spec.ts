@@ -1,4 +1,4 @@
-import {AxiosRequestConfig} from '../../PublishParasoftTestResults/node_modules/axios';
+import {AxiosRequestConfig} from '../../PublishParasoftResults/node_modules/axios';
 import * as fs from 'fs';
 import {DownloadReportGeneratorService} from "../../scripts/DownloadReportGeneratorService";
 

@@ -13,7 +13,7 @@
     "demands": [],
     "files": [
         {
-            "path": "PublishParasoftTestResults"
+            "path": "PublishParasoftResults"
         },
         {
             "path": "images", "addressable": true
@@ -21,13 +21,13 @@
     ],
     "contributions": [
         {
-            "id": "publish-test-results-task",
+            "id": "publish-results-task",
             "type": "ms.vss-distributed-task.task",
             "targets": [
                 "ms.vss-distributed-task.tasks"
             ],
             "properties": {
-                "name": "PublishParasoftTestResults"
+                "name": "PublishParasoftResults"
             }
         }
     ],

@@ -1,10 +1,10 @@
-import * as tl from '../../PublishParasoftTestResults/node_modules/azure-pipelines-task-lib';
+import * as tl from '../../PublishParasoftResults/node_modules/azure-pipelines-task-lib';
 import * as fs from 'fs';
 import * as os from 'os';
-import * as axios from '../../PublishParasoftTestResults/node_modules/axios';
-import * as dp from "../../PublishParasoftTestResults/node_modules/dot-properties";
+import * as axios from '../../PublishParasoftResults/node_modules/axios';
+import * as dp from "../../PublishParasoftResults/node_modules/dot-properties";
 import * as path from 'path';
-import {ParaReportPublishService} from "../../PublishParasoftTestResults/ParaReportPublishService";
+import {ParaReportPublishService} from "../../PublishParasoftResults/ParaReportPublishService";
 
 let publisher: any;
 
