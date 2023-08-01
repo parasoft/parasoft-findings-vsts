@@ -116,6 +116,9 @@
     ],
     "instanceNameFormat": "Publish Parasoft Results $(resultsFiles)",
     "execution": {
+        "Node10": {
+            "target": "publishtestresults.js"
+        },
         "Node16": {
             "target": "publishtestresults.js"
         }
