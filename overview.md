@@ -10,6 +10,10 @@ Aggregate test result information from all of your test case executions into one
 **Associate test results to individual test cases**
 ***
 ![Associate test and test cases](images/associateResults.png)
+<br>
+<br>
+<br>
+![Associate test and test cases](images/associateResults-2.png)
 
 Tie together test cases to their pass/ fail metadata such as assertion details or event logs.
 
