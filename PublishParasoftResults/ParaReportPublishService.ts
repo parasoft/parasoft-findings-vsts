@@ -299,19 +299,27 @@ export class ParaReportPublishService {
 
 
     transformToSarif = (sourcePath: string): void => {
-        this.transform(sourcePath, this.SARIF_XSL, sourcePath + this.SARIF_SUFFIX, this.sarifReports);
+        this.transform(sourcePath, this.SARIF_XSL, this.getOutputReportFilePath(sourcePath, this.SARIF_SUFFIX), this.sarifReports);
     }
 
     transformToXUnit = (sourcePath: string): void => {
-        this.transform(sourcePath, this.XUNIT_XSL, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
+        this.transform(sourcePath, this.XUNIT_XSL, this.getOutputReportFilePath(sourcePath, this.XUNIT_SUFFIX), this.xUnitReports);
     }
 
     transformToSOATestXUnit = (sourcePath: string): void => {
-        this.transform(sourcePath, this.SOATEST_XUNIT_XSL, sourcePath + this.XUNIT_SUFFIX, this.xUnitReports);
+        this.transform(sourcePath, this.SOATEST_XUNIT_XSL, this.getOutputReportFilePath(sourcePath, this.XUNIT_SUFFIX), this.xUnitReports);
     }
 
     transformToCobertura = (sourcePath: string): void => {
-        this.transform(sourcePath, this.COBERTURA_XSL, sourcePath + this.COBERTURA_SUFFIX, this.coberturaReports, true)
+        this.transform(sourcePath, this.COBERTURA_XSL, this.getOutputReportFilePath(sourcePath, this.COBERTURA_SUFFIX), this.coberturaReports, true)
+    }
+
+    getOutputReportFilePath  = (sourcePath: string, reportSuffix: string) : string => {
+        const fileName = path.basename(sourcePath);
+        const dotIndex = fileName.lastIndexOf(".");
+        const fileNameWithoutExt = dotIndex > -1 ? fileName.substring(0, dotIndex) : fileName;
+
+        return sourcePath.replace(fileName, fileNameWithoutExt) + reportSuffix;
     }
 
     transform = (sourcePath: string, xslInfo: XslInfo, outPath: string, transformedReports: string[], isCoberturaReport?: boolean): void => {
@@ -381,7 +389,7 @@ export class ParaReportPublishService {
         }
         if (isContentChanged) {
             contentString = JSON.stringify(contentJson);
-            report = report + this.SARIF_SUFFIX;
+            report = this.getOutputReportFilePath(report, this.SARIF_SUFFIX);
             fs.writeFileSync(report, contentString, 'utf8');
         }
 
