@@ -54,92 +54,93 @@ describe("Parasoft findings Azure", () => {
             publisher.defaultWorkingDirectory = 'D:/RWorkspaces/project-workspace/CICD/para % bank';
             publisher.transformReports([__dirname + '/resources/reports/SARIF.sarif'], 0);
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/SARIF.sarif-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/SARIF.sarif-sast.sarif', 'utf-8');
+            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/SARIF-sast.sarif', 'utf8');
+            let result = fs.readFileSync(__dirname + '/resources/reports/SARIF-sast.sarif', 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).not.toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/SARIF.sarif-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/reports/SARIF-sast.sarif', () => {});
         });
 
         it('XML_STATIC', async () => {
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC.xml-sast.sarif');
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC-sast.sarif');
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC.xml-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC.xml-sast.sarif', 'utf-8');
+            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC-sast.sarif', 'utf8');
+            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC-sast.sarif', 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC.xml-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC-sast.sarif', () => {});
         });
 
         it('XML_TESTS', async () => {
             publisher.transformReports([__dirname + '/resources/reports/XML_TESTS.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_TESTS.xml-junit.xml');
+            await waitForTransform(__dirname + '/resources/reports/XML_TESTS-junit.xml');
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS.xml-junit.xml', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS.xml-junit.xml', 'utf-8');
+            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS-junit.xml', 'utf8');
+            let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS-junit.xml', 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.xUnitReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_TESTS.xml-junit.xml', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_TESTS-junit.xml', () => {});
         });
 
         it('XML_STATIC_AND_TESTS', async () => {
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml-sast.sarif');
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml-junit.xml');
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-sast.sarif');
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-junit.xml');
 
-            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS.xml-sast.sarif', 'utf8');
-            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS.xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml-junit.xml', 'utf-8');
+            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS-sast.sarif', 'utf8');
+            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-sast.sarif', 'utf-8');
+            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS-junit.xml', 'utf8');
+            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-junit.xml', 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml-sast.sarif', () => {});
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml-junit.xml', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-junit.xml', () => {});
         });
 
         it('XML_SOATEST', async () => {
             publisher.transformReports([__dirname + '/resources/reports/XML_SOATEST.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_SOATEST.xml-junit.xml');
+            await waitForTransform(__dirname + '/resources/reports/XML_SOATEST-junit.xml');
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_SOATEST.xml-junit.xml', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_SOATEST.xml-junit.xml', 'utf-8');
+            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_SOATEST-junit.xml', 'utf8');
+            let result = fs.readFileSync(__dirname + '/resources/reports/XML_SOATEST-junit.xml', 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_SOATEST.xml-junit.xml', () => {});
+
+            fs.unlink(__dirname + '/resources/reports/XML_SOATEST-junit.xml', () => {});
         });
 
         it('XML_STATIC_AND_SOATEST', async () => {
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml-sast.sarif');
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-sast.sarif');
 
-            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_SOATEST.xml-sast.sarif', 'utf8');
-            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_SOATEST.xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml-junit.xml', 'utf-8');
+            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_SOATEST-sast.sarif', 'utf8');
+            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-sast.sarif', 'utf-8');
+            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_SOATEST-junit.xml', 'utf8');
+            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-junit.xml', 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml-sast.sarif', () => {});
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml-junit.xml', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-junit.xml', () => {});
         });
 
         it('XML_XUNIT', async () => {
@@ -159,15 +160,15 @@ describe("Parasoft findings Azure", () => {
 
             let testTransformCoverageReport = async (expectedReport: string) => {
                 publisher.transformReports([__dirname + '/resources/reports/XML_COVERAGE.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_COVERAGE.xml-cobertura.xml');
+                await waitForTransform(__dirname + '/resources/reports/XML_COVERAGE-cobertura.xml');
 
-                let result = fs.readFileSync(__dirname + '/resources/reports/XML_COVERAGE.xml-cobertura.xml', 'utf-8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_COVERAGE-cobertura.xml', 'utf-8');
 
                 expect(result).toEqual(expectedReport);
                 expect(publisher.transform).toHaveBeenCalled();
                 expect(publisher.coberturaReports.length).toBe(1);
 
-                fs.unlink(__dirname + '/resources/reports/XML_COVERAGE.xml-cobertura.xml', () => {});
+                fs.unlink(__dirname + '/resources/reports/XML_COVERAGE-cobertura.xml', () => {});
             }
 
             describe('- report is generated in pipeline', () => {
@@ -190,7 +191,7 @@ describe("Parasoft findings Azure", () => {
                         publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
                         // Need to set JAVA_HOME environment or comment this test if this test is failed.
                         publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
-                        let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE.xml-java_version-cobertura.xml', 'utf8');
+                        let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-java_version-cobertura.xml', 'utf8');
                         await testTransformCoverageReport(expectedReport);
                         expect(tl.execSync).toHaveBeenCalled();
                         expect(tl.warning).not.toHaveBeenCalled();
@@ -200,14 +201,14 @@ describe("Parasoft findings Azure", () => {
                 it('- transform with node by default', async () => {
                     publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
                     publisher.javaPath = undefined;
-                    let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE.xml-node_version-cobertura.xml', 'utf8');
+                    let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-node_version-cobertura.xml', 'utf8');
                     await testTransformCoverageReport(expectedReport);
                 });
             });
 
             it('- external report', async () => {
                 publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
-                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE.xml-cobertura(for external report).xml', 'utf8');
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml', 'utf8');
                 await testTransformCoverageReport(expectedReport);
             });
         });
