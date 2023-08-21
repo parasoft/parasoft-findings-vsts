@@ -69,7 +69,7 @@
     </xsl:template>
     <!-- Help to find the first ElDesc element for each FlowViol or DupViol -->
     <xsl:accumulator name="thread_flow_counter" as="xs:integer" initial-value="0">
-        <xsl:accumulator-rule match="ElDesc" select="$value + 1"/>
+        <xsl:accumulator-rule match="ElDesc[@ln]" select="$value + 1"/>
         <xsl:accumulator-rule match="FlowViol/ElDescList | DupViol/ElDescList" phase="end" select="0"/>
     </xsl:accumulator>
     <xsl:mode use-accumulators="#all"/>
