@@ -362,6 +362,7 @@ export class ParaReportPublishService {
             transformedReports.push(outPath);
         } catch (error) {
             tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
+            console.error(error);
         }
     }
 
