@@ -78,6 +78,20 @@ describe("Parasoft findings Azure", () => {
             fs.unlink(__dirname + '/resources/reports/XML_STATIC-sast.sarif', () => {});
         });
 
+        it('XML_STATIC_BD.PB.VOVR_RULE', async () => {
+            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml'], 0);
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-sast.sarif');
+
+            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_BD.PB.VOVR_RULE-sast.sarif', 'utf8');
+            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-sast.sarif', 'utf-8');
+
+            expect(result).toEqual(expectedReport);
+            expect(publisher.transform).toHaveBeenCalled();
+            expect(publisher.sarifReports.length).toBe(1);
+
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-sast.sarif', () => {});
+        });
+
         it('XML_TESTS', async () => {
             publisher.transformReports([__dirname + '/resources/reports/XML_TESTS.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_TESTS-junit.xml');
