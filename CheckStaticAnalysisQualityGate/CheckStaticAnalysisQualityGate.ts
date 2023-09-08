@@ -1,0 +1,1 @@
+console.log("Parasoft SA Quality Gate")
