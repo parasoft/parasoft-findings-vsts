@@ -1,0 +1,46 @@
+{
+  "id": "e6ed21fe-1676-4db1-8826-9bae3e37ec5c",
+  "name": "CheckParasoftStaticAnalysisQualityGate",
+  "friendlyName": "Check Parasoft Static Analysis Quality Gate",
+  "description": "Check Parasoft Static Analysis Quality Gate",
+  "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
+  "category": "Test",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "author": "Parasoft Corporation",
+  "version": {
+    "Major": 1,
+    "Minor": 1,
+    "Patch": 4
+  },
+  "minimumAgentVersion": "2.144.0",
+  "groups": [
+    {
+      "name": "qualityGateOptions",
+      "displayName": "Quality Gate options",
+      "isExpanded": false
+    }
+  ],
+  "inputs": [
+    {
+      "name": "inputField",
+      "type": "string",
+      "label": "Quality Gate",
+      "defaultValue": "",
+      "required": false,
+      "groupName": "qualityGateOptions",
+      "helpMarkDown": "Set Quality Gate."
+    }
+  ],
+  "instanceNameFormat": "Check Parasoft Static Analysis Quality Gate",
+  "execution": {
+    "Node16": {
+      "target": "CheckStaticAnalysisQualityGate.js"
+    },
+    "Node10": {
+      "target": "CheckStaticAnalysisQualityGate.js"
+    }
+  }
+}
