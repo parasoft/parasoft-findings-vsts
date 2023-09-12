@@ -16,22 +16,59 @@
     "Patch": 4
   },
   "minimumAgentVersion": "2.144.0",
-  "groups": [
-    {
-      "name": "qualityGateOptions",
-      "displayName": "Quality Gate options",
-      "isExpanded": false
-    }
-  ],
   "inputs": [
     {
-      "name": "inputField",
+      "name": "type",
+      "type": "radio",
+      "label": "Type",
+      "defaultValue": "total",
+      "required": true,
+      "helpMarkDown": "Type of issues to be evaluated for the threshold.",
+      "options": {
+        "total": "Total issues",
+        "new": "New issues"
+      }
+    },
+    {
+      "name": "severity",
+      "type": "radio",
+      "label": "Severity",
+      "defaultValue": "error",
+      "required": true,
+      "helpMarkDown": "Severity of issues to be evaluated for the threshold.",
+      "options": {
+        "error": "Error",
+        "warning": "Warning",
+        "note": "Note"
+      }
+    },
+    {
+      "name": "threshold",
       "type": "string",
-      "label": "Quality Gate",
+      "label": "Threshold",
+      "defaultValue": "0.0",
+      "required": true,
+      "helpMarkDown": "If the actual number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively."
+    },
+    {
+      "name": "referenceBuild",
+      "type": "string",
+      "label": "Reference build",
       "defaultValue": "",
       "required": false,
-      "groupName": "qualityGateOptions",
-      "helpMarkDown": "Set Quality Gate."
+      "helpMarkDown": "Specify a reference build number. If you prefer to use the latest successful build with a Static Analysis report, leave this field empty."
+    },
+    {
+      "name": "buildStatus",
+      "type": "radio",
+      "label": "Build status if quality gate fails",
+      "defaultValue": "failed",
+      "required": true,
+      "helpMarkDown": "Mark the build as unstable or failed if the quality gate is not passed.",
+      "options": {
+        "failed": "Failed",
+        "unstable": "Unstable"
+      }
     }
   ],
   "instanceNameFormat": "Check Parasoft Static Analysis Quality Gate",
