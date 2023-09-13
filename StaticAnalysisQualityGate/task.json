@@ -1,8 +1,8 @@
 {
   "id": "e6ed21fe-1676-4db1-8826-9bae3e37ec5c",
-  "name": "CheckParasoftStaticAnalysisQualityGate",
-  "friendlyName": "Check Parasoft Static Analysis Quality Gate",
-  "description": "Check Parasoft Static Analysis Quality Gate",
+  "name": "ParasoftStaticAnalysisQualityGate",
+  "friendlyName": "Parasoft Static Analysis Quality Gate",
+  "description": "Parasoft Static Analysis Quality Gate",
   "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
   "category": "Test",
   "visibility": [
@@ -19,7 +19,7 @@
   "inputs": [
     {
       "name": "type",
-      "type": "radio",
+      "type": "picklist",
       "label": "Type",
       "defaultValue": "total",
       "required": true,
@@ -31,7 +31,7 @@
     },
     {
       "name": "severity",
-      "type": "radio",
+      "type": "picklist",
       "label": "Severity",
       "defaultValue": "error",
       "required": true,
@@ -60,7 +60,7 @@
     },
     {
       "name": "buildStatus",
-      "type": "radio",
+      "type": "picklist",
       "label": "Build status if quality gate fails",
       "defaultValue": "failed",
       "required": true,
@@ -71,13 +71,13 @@
       }
     }
   ],
-  "instanceNameFormat": "Check Parasoft Static Analysis Quality Gate",
+  "instanceNameFormat": "Parasoft Static Analysis Quality Gate",
   "execution": {
     "Node16": {
-      "target": "CheckStaticAnalysisQualityGate.js"
+      "target": "StaticAnalysisQualityGate.js"
     },
     "Node10": {
-      "target": "CheckStaticAnalysisQualityGate.js"
+      "target": "StaticAnalysisQualityGate.js"
     }
   }
 }
