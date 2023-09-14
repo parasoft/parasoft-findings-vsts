@@ -213,6 +213,7 @@
         <xsl:call-template name="severity_level">
             <xsl:with-param name="parsoft_severity" select="@sev"/>
         </xsl:call-template>
+        <xsl:text>, "violType": "</xsl:text><xsl:value-of select="name()" /><xsl:text>"</xsl:text>
         <xsl:text>, "message": { "text": "</xsl:text>
         <xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="@msg" /></xsl:call-template>
         <xsl:variable name="locationUri">
