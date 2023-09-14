@@ -4,6 +4,8 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:map="http://www.w3.org/2005/xpath-functions/map">
     <xsl:variable name="toolName" select="/Coverage/@toolId"/>
+    <xsl:variable name="toolVer" select="/Coverage/@toolVer"/>
+    <xsl:variable name="toolDispName" select="/Coverage/@toolDispName"/>
     <xsl:param name="pipelineBuildWorkingDirectory"><xsl:value-of select="/Coverage/@pipelineBuildWorkingDirectory"/></xsl:param>
     <xsl:template match="/">
         <xsl:element name="coverage">
@@ -28,7 +30,9 @@
                 <xsl:attribute name="lines-valid">
                     <xsl:value-of select="$linesValid"/>
                 </xsl:attribute>
-                <xsl:attribute name="version">gcovr 6.0</xsl:attribute>
+                <xsl:attribute name="version">
+                    <xsl:value-of select="$toolDispName"/><xsl:text> </xsl:text><xsl:value-of select="$toolVer"/>
+                </xsl:attribute>
                 <xsl:call-template name="packages"/>
             </xsl:if>
         </xsl:element>
