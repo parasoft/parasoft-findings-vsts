@@ -19,6 +19,15 @@
             "path": "StaticAnalysisQualityGate"
         },
         {
+            "path": "CustomTab/node_modules/vss-web-extension-sdk/lib",
+            "addressable": true,
+            "packagePath": "CustomTab/lib"
+        },
+        {
+            "path": "CustomTab/QualityGatesTab",
+            "addressable": true
+        },
+        {
             "path": "images", "addressable": true
         }
     ],
@@ -41,6 +50,18 @@
           ],
           "properties": {
             "name": "StaticAnalysisQualityGate"
+          }
+        },
+        {
+          "id": "quality-gate-tab",
+          "type": "ms.vss-build-web.build-results-tab",
+          "targets": [
+            "ms.vss-build-web.build-results-view"
+          ],
+          "properties": {
+            "name": "Parasoft Quality Gate",
+            "uri": "CustomTab/QualityGatesTab/QualityGatesTab.html",
+            "supportsTasks": ["e6ed21fe-1676-4db1-8826-9bae3e37ec5c"]
           }
         }
     ],

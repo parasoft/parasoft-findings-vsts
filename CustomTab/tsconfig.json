@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        "moduleResolution": "node",
+        "target": "es5",
+        "types": [
+            "vss-web-extension-sdk",
+            "jquery"
+        ]
+    },
+    "exclude": [
+      "node_modules"
+    ]
+}

@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<head>
+    <script src="../lib/VSS.SDK.min.js"></script>
+    <script type="text/javascript">
+        VSS.init({
+            usePlatformScripts: true, 
+            moduleLoaderConfig: { 
+                paths: { "./CustomTab/QualityGatesTab/": "scripts" }
+            } 
+        });
+        
+        VSS.ready(function() {
+            require(["./CustomTab/QualityGatesTab/QualityGatesTab"], function () { });
+        });   
+    </script>
+    
+    <style>
+        .build-info {
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="build-info">
+        <div id="main">foobar</div>
+    </div>
+</body>
+</html>
