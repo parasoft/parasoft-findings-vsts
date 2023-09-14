@@ -16,7 +16,7 @@
             "path": "PublishParasoftResults"
         },
         {
-            "path": "CheckStaticAnalysisQualityGate"
+            "path": "StaticAnalysisQualityGate"
         },
         {
             "path": "images", "addressable": true
@@ -34,13 +34,13 @@
             }
         },
         {
-          "id": "check-static-analysis-quality-gate-task",
+          "id": "static-analysis-quality-gate-task",
           "type": "ms.vss-distributed-task.task",
           "targets": [
             "ms.vss-distributed-task.tasks"
           ],
           "properties": {
-            "name": "CheckStaticAnalysisQualityGate"
+            "name": "StaticAnalysisQualityGate"
           }
         }
     ],

@@ -1,8 +1,8 @@
 {
   "name": "parasoft-findings-vsts-static-analysis-quality-gate",
   "version": "1.1.4",
-  "description": "Azure Pipelines Check Parasoft Static Analysis Quality Gate Task",
-  "main": "CheckStaticAnalysisQualityGate.js",
+  "description": "Azure Pipelines Parasoft Static Analysis Quality Gate Task",
+  "main": "StaticAnalysisQualityGate.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

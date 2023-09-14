@@ -1,0 +1,83 @@
+{
+  "id": "e6ed21fe-1676-4db1-8826-9bae3e37ec5c",
+  "name": "ParasoftStaticAnalysisQualityGate",
+  "friendlyName": "Parasoft Static Analysis Quality Gate",
+  "description": "Parasoft Static Analysis Quality Gate",
+  "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
+  "category": "Test",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "author": "Parasoft Corporation",
+  "version": {
+    "Major": 1,
+    "Minor": 1,
+    "Patch": 4
+  },
+  "minimumAgentVersion": "2.144.0",
+  "inputs": [
+    {
+      "name": "type",
+      "type": "picklist",
+      "label": "Type",
+      "defaultValue": "total",
+      "required": true,
+      "helpMarkDown": "Type of issues to be evaluated for the threshold.",
+      "options": {
+        "total": "Total issues",
+        "new": "New issues"
+      }
+    },
+    {
+      "name": "severity",
+      "type": "picklist",
+      "label": "Severity",
+      "defaultValue": "error",
+      "required": true,
+      "helpMarkDown": "Severity of issues to be evaluated for the threshold.",
+      "options": {
+        "error": "Error",
+        "warning": "Warning",
+        "note": "Note"
+      }
+    },
+    {
+      "name": "threshold",
+      "type": "string",
+      "label": "Threshold",
+      "defaultValue": "0.0",
+      "required": true,
+      "helpMarkDown": "If the actual number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively."
+    },
+    {
+      "name": "referenceBuild",
+      "type": "string",
+      "label": "Reference build",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Specify a reference build number. If you prefer to use the latest successful build with a Static Analysis report, leave this field empty."
+    },
+    {
+      "name": "buildStatus",
+      "type": "picklist",
+      "label": "Build status if quality gate fails",
+      "defaultValue": "failed",
+      "required": true,
+      "helpMarkDown": "Mark the build as unstable or failed if the quality gate is not passed.",
+      "options": {
+        "failed": "Failed",
+        "unstable": "Unstable"
+      }
+    }
+  ],
+  "instanceNameFormat": "Parasoft Static Analysis Quality Gate",
+  "execution": {
+    "Node16": {
+      "target": "StaticAnalysisQualityGate.js"
+    },
+    "Node10": {
+      "target": "StaticAnalysisQualityGate.js"
+    }
+  }
+}
