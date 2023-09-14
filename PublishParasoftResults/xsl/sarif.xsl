@@ -245,6 +245,12 @@
         <xsl:text>, "partialFingerprints": { </xsl:text>
         <xsl:if test="string-length(@lineHash) > 0">
             <xsl:text>"lineHash": "</xsl:text><xsl:value-of select="@lineHash" /><xsl:text>"</xsl:text>
+            <xsl:if test="string-length(@unbViolId) > 0">
+                <xsl:text>, </xsl:text>
+            </xsl:if>
+        </xsl:if>
+        <xsl:if test="string-length(@unbViolId) > 0">
+            <xsl:text>"unbViolId": "</xsl:text><xsl:value-of select="@unbViolId" /><xsl:text>"</xsl:text>
         </xsl:if>
         <xsl:text> }</xsl:text>
         <xsl:text>, "locations": [ </xsl:text>
