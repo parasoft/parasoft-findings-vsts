@@ -56,7 +56,8 @@
       "label": "Reference build",
       "defaultValue": "",
       "required": false,
-      "helpMarkDown": "Specify a reference build number. If you prefer to use the latest successful build with a Static Analysis report, leave this field empty."
+      "helpMarkDown": "Specify a reference build number. If you prefer to use the latest successful build with a Static Analysis report, leave this field empty.",
+      "visibleRule": "type = new"
     },
     {
       "name": "buildStatus",
