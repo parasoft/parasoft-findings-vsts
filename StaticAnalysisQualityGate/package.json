@@ -21,5 +21,11 @@
   "bugs": {
     "url": "https://github.com/parasoft/parasoft-findings-vsts/issues"
   },
-  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme"
+  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
+  "dependencies": {
+    "azure-pipelines-task-lib": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/q": "^1.5.5"
+  }
 }
