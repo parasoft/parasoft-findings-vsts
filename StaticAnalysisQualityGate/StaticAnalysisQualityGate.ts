@@ -1,1 +1,4 @@
-console.log("Parasoft SA Quality Gate")
+import {StaticAnalysisQualityService} from "./StaticAnalysisQualityService";
+
+let staticAnalysisQualityService = new StaticAnalysisQualityService();
+staticAnalysisQualityService.run();
