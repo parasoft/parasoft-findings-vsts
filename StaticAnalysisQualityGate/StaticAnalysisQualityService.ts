@@ -16,8 +16,8 @@
  import * as tl from 'azure-pipelines-task-lib/task';
 
  export const enum TypeEnum {
-     NEW = "new",
-     TOTAl = "total",
+     NEW = "newIssues",
+     TOTAl = "totalIssues",
  }
 
  export const enum SeverityEnum {

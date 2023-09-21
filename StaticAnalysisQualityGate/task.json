@@ -21,12 +21,12 @@
       "name": "type",
       "type": "picklist",
       "label": "Type",
-      "defaultValue": "total",
+      "defaultValue": "totalIssues",
       "required": true,
       "helpMarkDown": "Type of issues to be evaluated for the threshold.",
       "options": {
-        "total": "Total issues",
-        "new": "New issues"
+        "totalIssues": "Total issues",
+        "newIssues": "New issues"
       }
     },
     {
@@ -72,7 +72,7 @@
       }
     }
   ],
-  "instanceNameFormat": "Parasoft Static Analysis Quality Gate",
+  "instanceNameFormat": "Parasoft Static Analysis Quality Gate - $(type) - $(severity) - $(threshold)",
   "execution": {
     "Node16": {
       "target": "StaticAnalysisQualityGate.js"
