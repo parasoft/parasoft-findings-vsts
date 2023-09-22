@@ -44,17 +44,17 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
     readonly buildNumber: string;
     readonly definitionId: number;
 
-    typeString: string | undefined;
-    severityString: string | undefined;
-    buildStatusString: string | undefined;
-    referenceBuildString: string | undefined;
-    thresholdString: string | undefined;
+    readonly typeString: string;
+    readonly severityString: string;
+    readonly buildStatusString: string;
+    readonly referenceBuildString: string;
+    readonly thresholdString: string;
 
-    type: TypeEnum;
-    severity: SeverityEnum;
-    buildStatus: BuildStatusEnum;
-    referenceBuild: string | undefined;
-    threshold: number;
+    readonly type: TypeEnum;
+    readonly severity: SeverityEnum;
+    readonly buildStatus: BuildStatusEnum;
+    readonly referenceBuild: string;
+    readonly threshold: number;
 
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
@@ -65,11 +65,11 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
 
-        this.typeString = tl.getInput('type');
-        this.severityString = tl.getInput('severity');
-        this.buildStatusString = tl.getInput('buildStatus');
-        this.referenceBuildString = tl.getInput('referenceBuild');
-        this.thresholdString = tl.getInput('threshold');
+        this.typeString = tl.getInput('type') || '';
+        this.severityString = tl.getInput('severity') || '';
+        this.buildStatusString = tl.getInput('buildStatus') || '';
+        this.referenceBuildString = tl.getInput('referenceBuild') || '';
+        this.thresholdString = tl.getInput('threshold') || '';
 
         this.referenceBuild = this.referenceBuildString;
         this.threshold = parseFloat(this.thresholdString || '0.0');
@@ -80,139 +80,123 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
         }
 
         switch (this.typeString) {
-            case TypeEnum.NEW :
+            case TypeEnum.NEW:
                 this.type = TypeEnum.NEW;
                 break;
-            case TypeEnum.TOTAl :
+            case TypeEnum.TOTAl:
                 this.type = TypeEnum.TOTAl;
                 break;
-            default :
+            default:
                 this.type = TypeEnum.TOTAl;
         }
 
         switch (this.buildStatusString) {
-            case BuildStatusEnum.FAILED :
+            case BuildStatusEnum.FAILED:
                 this.buildStatus = BuildStatusEnum.FAILED;
                 break;
-            case BuildStatusEnum.UNSTABLE :
+            case BuildStatusEnum.UNSTABLE:
                 this.buildStatus = BuildStatusEnum.UNSTABLE;
                 break;
-            default :
+            default:
                 this.buildStatus = BuildStatusEnum.FAILED;
         }
 
         switch (this.severityString) {
-            case SeverityEnum.ERROR :
+            case SeverityEnum.ERROR:
                 this.severity = SeverityEnum.ERROR;
                 break;
-            case SeverityEnum.WARNING :
+            case SeverityEnum.WARNING:
                 this.severity = SeverityEnum.WARNING;
                 break;
-            case SeverityEnum.NOTE :
+            case SeverityEnum.NOTE:
                 this.severity = SeverityEnum.NOTE;
                 break;
-            default :
+            default:
                 this.severity = SeverityEnum.ERROR;
         }
-
-        tl.debug("Input type: " + this.typeString);
-        tl.debug("Static analysis quality type: " + this.type);
-
-        tl.debug("Input severity: " + this.severityString);
-        tl.debug("Static analysis quality severity: " + this.severity);
-
-        tl.debug("Input buildStatus: " + this.buildStatusString);
-        tl.debug("Static analysis quality buildStatus: " + this.buildStatus);
-
-        tl.debug("Input referenceBuild: " + this.referenceBuildString);
-        tl.debug("Static analysis quality referenceBuild: " + this.referenceBuild);
-
-        tl.debug("Input threshold: " + this.thresholdString);
-        tl.debug("Static analysis quality threshold: " + this.threshold);
     }
 
     run = async (): Promise<void> => {
-        // Check for static analysis results exist in current build
-        const artifact: Promise<BuildArtifact> = this.buildClient
-                                                    .getBuildArtifact(this.projectName, this.buildId, this.artifactName);
-        if (!await artifact) {
-            tl.warning(`No static analysis results found in this build`);
-            tl.debug("The quality gates does not take effect - skipping");
-            return;
-        }
-
-        // TODO - Will be implemented in seperate task.
-        if (this.type == TypeEnum.TOTAl) {
-            // If type is set to 'total', there will be no need to make comparision
-            // Only need to calculate the total number of result in current build, then check the quality gate.
-            // return;
-        } else if (this.referenceBuild == this.buildNumber) {
-            tl.warning("The current build cannot be used as a reference object");
-            tl.debug("All reported issues will be considered new");
-            tl.debug("The quality gates does not take effect - skipping");
-            return;
-        }
-
-        this.getReferenceReports().then((fileEntry) => {
-            if (fileEntry.length == 0) {
-                tl.debug("All reported issues will be considered new");
-                tl.debug("The quality gates does not take effect - skipping");
+        try {
+            // Check for static analysis results exist in current build
+            const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
+            if (!currentBuildArtifact) {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，no static analysis results found in this build`);
                 return;
             }
-            // TODO: Will be implemented in a separate task - Can get content of the reports here
-            fileEntry.map((file) => {
-                tl.debug("The information of SARIF reports: " + file.artifactName + ":" + file.filePath + ":" + file.name + ":");
-                file.contentsPromise?.then((text) => {
-                    tl.debug("The content of SARIF reports:" +text);
-                })
-            })
-        });
 
+            if (this.type == TypeEnum.TOTAl) {
+                // TODO - Will be implemented in separate task.
+                // If type is set to 'total', there will be no need to make comparison
+                // Only need to calculate the total number of result in current build, then check the quality gate.
+                return;
+            } else if (this.type == TypeEnum.NEW) {
+                if (this.referenceBuild == this.buildNumber) {
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped, current build is used as the reference build`);
+                    return;
+                }
+
+                const fileEntries = await this.getReferenceReports();
+                if (!fileEntries) {
+                    return;
+                }
+                if (fileEntries.length > 0) {
+                    fileEntries.map(async (fileEntry) => {
+                        tl.debug(`Found SARIF report: ${fileEntry.artifactName}/${fileEntry.filePath}`);
+                        const sarifContents = await fileEntry.contentsPromise;
+                        // TODO: Will be implemented in a separate task - Can get content of the reports here
+                        tl.debug("The content of SARIF report: " + sarifContents);
+                    })
+                } else {
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped, no static analysis results found`);
+                }
+            }
+        } catch(error) {
+            tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
+            console.error(error);
+            return;
+        }
     }
 
-    getReferenceReports = async(): Promise<FileEntry[]> => {
-        tl.debug("Obtaining reference build from same pipeline");
-        const allBuildsForCurrentPipeline: Promise<Build[]> = this.buildClient
-                                                                .getBuildsForSpecificPipeline(this.projectName, this.definitionId);
-
+    getReferenceReports = async (): Promise<FileEntry[] | undefined> => {
+        const allBuildsForCurrentPipeline: Build[] = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, this.definitionId);
+        let fileEntries: FileEntry[] | undefined = undefined;
         if (!this.referenceBuild) {
-            tl.debug("No reference build has been set");
-
-            return this.buildClient.getDefaultBuildReports(
-                allBuildsForCurrentPipeline,
-                this.projectName,
-                this.artifactName,
-                this.fileSuffix);
+            tl.debug("No reference build has been set, will use the last successful build which has static analysis results");
+            fileEntries = await this.buildClient.getDefaultBuildReports(allBuildsForCurrentPipeline, this.projectName, this.artifactName, this.fileSuffix);
         } else {
-            let fileEntryArr:FileEntry[] = [];
-            // Check for the specific reference build with succeeded/paratially-succeeded results exist in current pipeline
-            const specificReferenceBuild = (await allBuildsForCurrentPipeline).filter(build => {
-                return build.buildNumber === this.referenceBuild
-                        && (build.result === BuildResult.Succeeded
-                            || build.result === BuildResult.PartiallySucceeded);
+            const specificReferenceBuilds = allBuildsForCurrentPipeline.filter(build => {
+                return build.buildNumber == this.referenceBuild;
             });
 
-            if (specificReferenceBuild.length > 0) {
-                let specificReferenceBuildId: number = Number(specificReferenceBuild[0].id);
+            // Check for the specific reference build exist in current pipeline
+            if (specificReferenceBuilds.length == 1) {
+                const specificReferenceBuild = specificReferenceBuilds[0];
 
-                // Check for results exist in the specific reference build
-                const artifact: Promise<BuildArtifact> = this.buildClient
-                                                            .getBuildArtifact(this.projectName, specificReferenceBuildId, this.artifactName);
-                if (await artifact) {
-                    tl.debug(`Using specific reference build ${specificReferenceBuildId}`);
-
-                    fileEntryArr = await this.buildClient.getSpecificBuildReports(
-                        specificReferenceBuildId,
-                        this.projectName,
-                        this.artifactName,
-                        this.fileSuffix);
+                // Check for the succeeded or paratially-succeeded results exist in the specific reference build
+                if(specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
+                    let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
+                    // Check for Parasoft results exist in the specific reference build
+                    const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.artifactName);
+                    if (artifact) {
+                        fileEntries = await this.buildClient.getSpecificBuildReports(artifact, specificReferenceBuildId, this.fileSuffix);
+                        tl.debug(`Obtained static analysis results form reference build '${this.referenceBuild}'`);
+                    } else {
+                        tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，no static analysis results found in the specific reference build '${this.referenceBuild}'`);
+                    }
                 } else {
-                    tl.warning(`No reference results found in the specific reference build ${this.referenceBuild}`);
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，the status of specific reference build '${this.referenceBuild}' is not successful or unstable`);
                 }
+            } else if (specificReferenceBuilds.length > 1) {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，specific reference build '${this.referenceBuild}' is not unique`);
             } else {
-                tl.warning(`No valid specific reference build ${this.referenceBuild} found`);
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，specific reference build '${this.referenceBuild}' is not found`);
             }
-            return Promise.resolve(fileEntryArr);
         }
+        return Promise.resolve(fileEntries);
+    }
+
+    private getQualityGateIdentification = (): string => {
+        return "Type: " + this.type + ", Severity: " + this.severity + ", Threshold: " + this.threshold + (this.referenceBuild ? ", Reference Build: " + this.referenceBuild : "");
     }
 }

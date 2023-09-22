@@ -23,12 +23,12 @@
   },
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "devDependencies": {
+    "@types/q": "^1.5.5",
     "@types/node-fetch": "^2.6.5"
   },
   "dependencies": {
-    "@types/q": "^1.5.6",
     "azure-devops-node-api": "^12.1.0",
-    "azure-pipelines-task-lib": "^5.0.0-preview.0",
+    "azure-pipelines-task-lib": "^4.3.1",
     "jszip": "^3.10.1",
     "node-fetch": "^2.7.0"
   }
