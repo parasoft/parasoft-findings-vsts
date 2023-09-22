@@ -2,7 +2,7 @@
   "id": "e6ed21fe-1676-4db1-8826-9bae3e37ec5c",
   "name": "ParasoftStaticAnalysisQualityGate",
   "friendlyName": "Parasoft Static Analysis Quality Gate",
-  "description": "Parasoft Static Analysis Quality Gate",
+  "description": "Check Parasoft Static Analysis Quality Gate",
   "helpMarkDown": "[More Information](https://www1.parasoft.com/doc/link?product=findingsVSTS010)",
   "category": "Test",
   "visibility": [
