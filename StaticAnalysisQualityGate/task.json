@@ -57,7 +57,7 @@
       "defaultValue": "",
       "required": false,
       "helpMarkDown": "Specify a reference build number. To use the last successful build, leave this field empty.",
-      "visibleRule": "type = new"
+      "visibleRule": "type = newIssues"
     },
     {
       "name": "buildStatus",
