@@ -121,7 +121,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
             // Check for static analysis results exist in current build
             const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
             if (!currentBuildArtifact) {
-                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，no static analysis results found in this build`);
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in this build`);
                 return;
             }
 
@@ -132,7 +132,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
                 return;
             } else if (this.type == TypeEnum.NEW) {
                 if (this.referenceBuild == this.buildNumber) {
-                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped, current build is used as the reference build`);
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no new issues will be detected since the build ID set is the same as the current build`);
                     return;
                 }
 
@@ -148,7 +148,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
                         tl.debug("The content of SARIF report: " + sarifContents);
                     })
                 } else {
-                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped, no static analysis results found`);
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no static analysis reports were found in this build`);
                 }
             }
         } catch(error) {
@@ -162,7 +162,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
         const allBuildsForCurrentPipeline: Build[] = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, this.definitionId);
         let fileEntries: FileEntry[] | undefined = undefined;
         if (!this.referenceBuild) {
-            tl.debug("No reference build has been set, will use the last successful build which has static analysis results");
+            tl.debug("No reference build has been set; using the last successful build with static analysis results");
             fileEntries = await this.buildClient.getDefaultBuildReports(allBuildsForCurrentPipeline, this.projectName, this.artifactName, this.fileSuffix);
         } else {
             const specificReferenceBuilds = allBuildsForCurrentPipeline.filter(build => {
@@ -174,23 +174,23 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
                 const specificReferenceBuild = specificReferenceBuilds[0];
 
                 // Check for the succeeded or paratially-succeeded results exist in the specific reference build
-                if(specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
+                if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
                     let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
                     // Check for Parasoft results exist in the specific reference build
                     const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.artifactName);
                     if (artifact) {
-                        fileEntries = await this.buildClient.getSpecificBuildReports(artifact, specificReferenceBuildId, this.fileSuffix);
-                        tl.debug(`Obtained static analysis results form reference build '${this.referenceBuild}'`);
+                        fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, this.fileSuffix);
+                        tl.debug(`Retrieved static analysis results from the reference build '${this.referenceBuild}'`);
                     } else {
-                        tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，no static analysis results found in the specific reference build '${this.referenceBuild}'`);
+                        tl.warning(`Quality Gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in the specified reference build: '${this.referenceBuild}'`);
                     }
                 } else {
-                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，the status of specific reference build '${this.referenceBuild}' is not successful or unstable`);
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not successful or unstable`);
                 }
             } else if (specificReferenceBuilds.length > 1) {
-                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，specific reference build '${this.referenceBuild}' is not unique`);
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not unique`);
             } else {
-                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' is skipped，specific reference build '${this.referenceBuild}' is not found`);
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' could not be found`);
             }
         }
         return Promise.resolve(fileEntries);
