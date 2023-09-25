@@ -60,30 +60,28 @@ export class BuildAPIClient {
         });
 
         if (allSuccessfulBuilds.length > 0) {
-            let hasResult: boolean = false;
             for (let index = 0; index < allSuccessfulBuilds.length; index++) {
                 let lastSuccessfulBuildId: number = Number(allSuccessfulBuilds[index].id);
 
                 // Check for results exist in the default reference build
                 const artifact: BuildArtifact = await (await this.buildApi).getArtifact(projectName, lastSuccessfulBuildId, artifactName);
                 if (artifact) {
-                    fileEntries = await this.getSpecificBuildReports(artifact, lastSuccessfulBuildId, fileSuffix);
-                    hasResult = true;
-                    tl.debug(`Found default reference build with build id: ${lastSuccessfulBuildId}`);
+                    fileEntries = await this.getBuildReportsWithId(artifact, lastSuccessfulBuildId, fileSuffix);
+                    tl.debug(`Set build with ID ${lastSuccessfulBuildId} as the default reference build`);
                     break;
                 }
             }
-            if (!hasResult) {
-                tl.debug("Can not find a default reference build which has Parasoft results");
+            if (fileEntries.length == 0) {
+                tl.debug("Unable to find a build which has Parasoft reports to be used as the default reference build");
             }
         } else {
-            tl.debug("Can not find a default reference build which is successful");
+            tl.debug("Unable to find a successful build to be used as the default reference build");
         }
 
         return Promise.resolve(fileEntries);
     }
 
-    async getSpecificBuildReports(
+    async getBuildReportsWithId(
         artifact: BuildArtifact,
         buildId: number,
         fileSuffix: FileSuffixEnum
@@ -106,7 +104,7 @@ export class BuildAPIClient {
     }
 
     async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer> {
-        tl.debug(`Downloading the artifact content from ${downloadUrl}`);
+        tl.debug(`Downloading artifact: ${downloadUrl}`);
         const acceptType = "application/zip";
         const acceptHeaderValue = `${acceptType};excludeUrls=true;enumsAsNumbers=true;msDateFormat=true;noArrayWrap=true`;
 
