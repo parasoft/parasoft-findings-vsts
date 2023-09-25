@@ -182,7 +182,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
                         fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, this.fileSuffix);
                         tl.debug(`Retrieved static analysis results from the reference build '${this.referenceBuild}'`);
                     } else {
-                        tl.warning(`Quality Gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in the specified reference build: '${this.referenceBuild}'`);
+                        tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in the specified reference build: '${this.referenceBuild}'`);
                     }
                 } else {
                     tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not successful or unstable`);
