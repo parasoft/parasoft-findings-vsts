@@ -22,10 +22,14 @@
     "url": "https://github.com/parasoft/parasoft-findings-vsts/issues"
   },
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
-  "dependencies": {
-    "azure-pipelines-task-lib": "^4.3.1"
-  },
   "devDependencies": {
-    "@types/q": "^1.5.5"
+    "@types/q": "^1.5.5",
+    "@types/node-fetch": "^2.6.5"
+  },
+  "dependencies": {
+    "azure-devops-node-api": "^12.1.0",
+    "azure-pipelines-task-lib": "^4.3.1",
+    "jszip": "^3.10.1",
+    "node-fetch": "^2.7.0"
   }
 }

@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- import * as tl from 'azure-pipelines-task-lib/task';
+import * as tl from 'azure-pipelines-task-lib/task';
+import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
 
  export const enum TypeEnum {
      NEW = "newIssues",
@@ -32,23 +34,42 @@
  }
 
  export class StaticAnalysisQualityService {
-    typeString: string | undefined;
-    severityString: string | undefined;
-    buildStatusString: string | undefined;
-    referenceBuildString: string | undefined;
-    thresholdString: string | undefined;
+    readonly artifactName: string = 'CodeAnalysisLogs';
+    readonly fileSuffix: FileSuffixEnum;
+    readonly buildClient: BuildAPIClient;
 
-    type: TypeEnum;
-    severity: SeverityEnum;
-    buildStatus: BuildStatusEnum;
-    referenceBuild: string | undefined;
-    threshold: number;
+    // Predefined variables
+    readonly projectName: string;
+    readonly buildId: number;
+    readonly buildNumber: string;
+    readonly definitionId: number;
+
+    readonly typeString: string;
+    readonly severityString: string;
+    readonly buildStatusString: string;
+    readonly referenceBuildString: string;
+    readonly thresholdString: string;
+
+    readonly type: TypeEnum;
+    readonly severity: SeverityEnum;
+    readonly buildStatus: BuildStatusEnum;
+    readonly referenceBuild: string;
+    readonly threshold: number;
+
     constructor() {
-        this.typeString = tl.getInput('type');
-        this.severityString = tl.getInput('severity');
-        this.buildStatusString = tl.getInput('buildStatus');
-        this.referenceBuildString = tl.getInput('referenceBuild');
-        this.thresholdString = tl.getInput('threshold');
+        this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
+        this.buildClient = new BuildAPIClient();
+
+        this.projectName = tl.getVariable('System.TeamProject') || '';
+        this.buildId = Number(tl.getVariable('Build.BuildId'));
+        this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
+        this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+
+        this.typeString = tl.getInput('type') || '';
+        this.severityString = tl.getInput('severity') || '';
+        this.buildStatusString = tl.getInput('buildStatus') || '';
+        this.referenceBuildString = tl.getInput('referenceBuild') || '';
+        this.thresholdString = tl.getInput('threshold') || '';
 
         this.referenceBuild = this.referenceBuildString;
         this.threshold = parseFloat(this.thresholdString || '0.0');
@@ -59,57 +80,123 @@
         }
 
         switch (this.typeString) {
-            case TypeEnum.NEW :
+            case TypeEnum.NEW:
                 this.type = TypeEnum.NEW;
                 break;
-            case TypeEnum.TOTAl :
+            case TypeEnum.TOTAl:
                 this.type = TypeEnum.TOTAl;
                 break;
-            default :
+            default:
                 this.type = TypeEnum.TOTAl;
         }
 
         switch (this.buildStatusString) {
-            case BuildStatusEnum.FAILED :
+            case BuildStatusEnum.FAILED:
                 this.buildStatus = BuildStatusEnum.FAILED;
                 break;
-            case BuildStatusEnum.UNSTABLE :
+            case BuildStatusEnum.UNSTABLE:
                 this.buildStatus = BuildStatusEnum.UNSTABLE;
                 break;
-            default :
+            default:
                 this.buildStatus = BuildStatusEnum.FAILED;
         }
 
         switch (this.severityString) {
-            case SeverityEnum.ERROR :
+            case SeverityEnum.ERROR:
                 this.severity = SeverityEnum.ERROR;
                 break;
-            case SeverityEnum.WARNING :
+            case SeverityEnum.WARNING:
                 this.severity = SeverityEnum.WARNING;
                 break;
-            case SeverityEnum.NOTE :
+            case SeverityEnum.NOTE:
                 this.severity = SeverityEnum.NOTE;
                 break;
-            default :
+            default:
                 this.severity = SeverityEnum.ERROR;
         }
-
-        tl.debug("Input type: " + this.typeString);
-        tl.debug("Static analysis quality type: " + this.type);
-
-        tl.debug("Input severity: " + this.severityString);
-        tl.debug("Static analysis quality severity: " + this.severity);
-
-        tl.debug("Input buildStatus: " + this.buildStatusString);
-        tl.debug("Static analysis quality buildStatus: " + this.buildStatus);
-
-        tl.debug("Input referenceBuild: " + this.referenceBuildString);
-        tl.debug("Static analysis quality referenceBuild: " + this.referenceBuild);
-
-        tl.debug("Input threshold: " + this.thresholdString);
-        tl.debug("Static analysis quality threshold: " + this.threshold);
     }
-    run = (): void => {
-        tl.debug("TODO");
+
+    run = async (): Promise<void> => {
+        try {
+            // Check for static analysis results exist in current build
+            const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
+            if (!currentBuildArtifact) {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in this build`);
+                return;
+            }
+
+            if (this.type == TypeEnum.TOTAl) {
+                // TODO - Will be implemented in separate task.
+                // If type is set to 'total', there will be no need to make comparison
+                // Only need to calculate the total number of result in current build, then check the quality gate.
+                return;
+            } else if (this.type == TypeEnum.NEW) {
+                if (this.referenceBuild == this.buildNumber) {
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no new issues will be detected since the build ID set is the same as the current build`);
+                    return;
+                }
+
+                const fileEntries = await this.getReferenceReports();
+                if (!fileEntries) {
+                    return;
+                }
+                if (fileEntries.length > 0) {
+                    fileEntries.map(async (fileEntry) => {
+                        tl.debug(`Found SARIF report: ${fileEntry.artifactName}/${fileEntry.filePath}`);
+                        const sarifContents = await fileEntry.contentsPromise;
+                        // TODO: Will be implemented in a separate task - Can get content of the reports here
+                        tl.debug("The content of SARIF report: " + sarifContents);
+                    })
+                } else {
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no static analysis reports were found in this build`);
+                }
+            }
+        } catch(error) {
+            tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
+            console.error(error);
+            return;
+        }
     }
- }
+
+    getReferenceReports = async (): Promise<FileEntry[] | undefined> => {
+        const allBuildsForCurrentPipeline: Build[] = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, this.definitionId);
+        let fileEntries: FileEntry[] | undefined = undefined;
+        if (!this.referenceBuild) {
+            tl.debug("No reference build has been set; using the last successful build with static analysis results");
+            fileEntries = await this.buildClient.getDefaultBuildReports(allBuildsForCurrentPipeline, this.projectName, this.artifactName, this.fileSuffix);
+        } else {
+            const specificReferenceBuilds = allBuildsForCurrentPipeline.filter(build => {
+                return build.buildNumber == this.referenceBuild;
+            });
+
+            // Check for the specific reference build exist in current pipeline
+            if (specificReferenceBuilds.length == 1) {
+                const specificReferenceBuild = specificReferenceBuilds[0];
+
+                // Check for the succeeded or paratially-succeeded results exist in the specific reference build
+                if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
+                    let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
+                    // Check for Parasoft results exist in the specific reference build
+                    const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.artifactName);
+                    if (artifact) {
+                        fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, this.fileSuffix);
+                        tl.debug(`Retrieved static analysis results from the reference build '${this.referenceBuild}'`);
+                    } else {
+                        tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in the specified reference build: '${this.referenceBuild}'`);
+                    }
+                } else {
+                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not successful or unstable`);
+                }
+            } else if (specificReferenceBuilds.length > 1) {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not unique`);
+            } else {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' could not be found`);
+            }
+        }
+        return Promise.resolve(fileEntries);
+    }
+
+    private getQualityGateIdentification = (): string => {
+        return "Type: " + this.type + ", Severity: " + this.severity + ", Threshold: " + this.threshold + (this.referenceBuild ? ", Reference Build: " + this.referenceBuild : "");
+    }
+}
