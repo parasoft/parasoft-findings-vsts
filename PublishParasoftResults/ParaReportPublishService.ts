@@ -25,6 +25,8 @@ import { URL } from 'url';
 import * as https from 'https';
 import * as axios from 'axios';
 
+(sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
+
 export interface ReadOnlyProperties {
     readonly [key: string]: string
 }
