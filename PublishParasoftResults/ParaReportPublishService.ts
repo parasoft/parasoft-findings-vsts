@@ -24,6 +24,7 @@ import * as SaxonJS from 'saxon-js';
 import { URL } from 'url';
 import * as https from 'https';
 import * as axios from 'axios';
+import * as uuid from 'uuid';
 
 export interface ReadOnlyProperties {
     readonly [key: string]: string
@@ -397,8 +398,63 @@ export class ParaReportPublishService {
         return report;
     }
 
+    processSarifReport = (report: string): string => {
+        let isContentChanged = false;
+        let contentString = fs.readFileSync(report, 'utf8');
+        let contentJson = JSON.parse(contentString);
+
+        if (contentJson.runs) {
+            contentJson.runs.forEach((run: any) => {
+                let order: number = 0;
+                let unbViolMap: Map<string, number> = new Map();
+
+                if (run.results) {
+                    for (let i = 0; i < run.results.length; i++) {
+                        if (run.results[i].partialFingerprints && run.results[i].partialFingerprints.unbViolId) {
+                            break;
+                        }
+                        if (!run.results[i].partialFingerprints) {
+                            run.results[i].partialFingerprints = {};
+                        }
+                        // Generate unique uuid
+                        let unbViolId = this.generateUnbViolId(run.results[i], order);
+                        if (unbViolMap.has(unbViolId)) {
+                            order = <number> unbViolMap.get(unbViolId);
+                            run.results[i].partialFingerprints.unbViolId = this.generateUnbViolId(run.results[i], order);
+                        } else {
+                            run.results[i].partialFingerprints.unbViolId = unbViolId;
+                        }
+                        unbViolMap.set(unbViolId, order + 1);
+                        order = 0;
+                        isContentChanged = true;
+                    }
+                }
+            });
+        }
+
+        if (isContentChanged) {
+            contentString = JSON.stringify(contentJson);
+            fs.writeFileSync(report, contentString, 'utf8');
+        }
+
+        return report;
+    }
+
+    private generateUnbViolId = (result: any, order: number): string => {
+        const namespace = '6af5b03d-5276-49ef-bfed-d445f2752b02';
+        let violType = result.partialFingerprints?.violType || '';
+        let ruleId = result.ruleId || '';
+        let msg = result.message?.text || '';
+        let severity = result.level || '';
+        let lineHash = result.partialFingerprints?.lineHash || '';
+        let uri = result.locations[0]?.physicalLocation?.artifactLocation?.uri || '';
+
+        return uuid.v5(violType + ruleId + msg + severity + lineHash + uri + order, namespace);
+    }
+
+
     private getRelativeUri = (location: any): string | undefined => {
-        if (location.physicalLocation && location.physicalLocation.artifactLocation 
+        if (location.physicalLocation && location.physicalLocation.artifactLocation
             && location.physicalLocation.artifactLocation.uri) {
             let uri: string = location.physicalLocation.artifactLocation.uri;
             let start = -1;
@@ -446,6 +502,7 @@ export class ParaReportPublishService {
             }
             if (this.sarifReports.length > 0) {
                 for (var i = 0; i < this.sarifReports.length; ++i) {
+                    this.processSarifReport(this.sarifReports[i]);
                     tl.uploadArtifact("Container", this.sarifReports[i], "CodeAnalysisLogs");
                 }
             }
