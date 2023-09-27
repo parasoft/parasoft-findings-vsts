@@ -18,14 +18,14 @@ import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfa
 import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
 
  export const enum TypeEnum {
-     NEW = "newIssues",
-     TOTAl = "totalIssues",
+     NEW = "New",
+     TOTAl = "Total",
  }
 
  export const enum SeverityEnum {
-     ERROR = "error",
-     WARNING = "warning",
-     NOTE = "note"
+     ERROR = "Error",
+     WARNING = "Warning",
+     NOTE = "Note"
  }
 
  export const enum BuildStatusEnum {
@@ -72,11 +72,11 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
         this.thresholdString = tl.getInput('threshold') || '';
 
         this.referenceBuild = this.referenceBuildString;
-        this.threshold = parseFloat(this.thresholdString || '0.0');
+        this.threshold = parseInt(this.thresholdString || '0');
 
         if (isNaN(this.threshold)) {
-            tl.warning('Illegal threshold value \'' + this.thresholdString + '\', using default value 0.0');
-            this.threshold = 0.0;
+            tl.warning('Illegal threshold value \'' + this.thresholdString + '\', using default value 0');
+            this.threshold = 0;
         }
 
         switch (this.typeString) {
