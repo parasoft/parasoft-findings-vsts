@@ -16,24 +16,25 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
+import { QualityGateResult, QualityGateStatusEnum } from './QualityGateResult';
 
- export const enum TypeEnum {
-     NEW = "newIssues",
-     TOTAl = "totalIssues",
- }
+export const enum TypeEnum {
+    NEW = "newIssues",
+    TOTAl = "totalIssues",
+}
 
- export const enum SeverityEnum {
-     ERROR = "error",
-     WARNING = "warning",
-     NOTE = "note"
- }
+export const enum SeverityEnum {
+    ERROR = "error",
+    WARNING = "warning",
+    NOTE = "note"
+}
 
- export const enum BuildStatusEnum {
-     FAILED = "failed",
-     UNSTABLE = "unstable"
- }
+export const enum BuildStatusEnum {
+    FAILED = "failed",
+    UNSTABLE = "unstable"
+}
 
- export class StaticAnalysisQualityService {
+export class StaticAnalysisQualityService {
     readonly artifactName: string = 'CodeAnalysisLogs';
     readonly fileSuffix: FileSuffixEnum;
     readonly buildClient: BuildAPIClient;
@@ -43,6 +44,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
     readonly buildId: number;
     readonly buildNumber: string;
     readonly definitionId: number;
+    readonly displayName: string;
 
     readonly typeString: string;
     readonly severityString: string;
@@ -64,6 +66,7 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
         this.buildId = Number(tl.getVariable('Build.BuildId'));
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+        this.displayName = tl.getVariable('Task.DisplayName') || '';
 
         this.typeString = tl.getInput('type') || '';
         this.severityString = tl.getInput('severity') || '';
@@ -125,10 +128,20 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
                 return;
             }
 
-            if (this.type == TypeEnum.TOTAl) {
+            if (this.type == TypeEnum.TOTAl) { // Calculate the total number of issues in current build
+                const fileEntries = await this.buildClient.getBuildReportsWithId(currentBuildArtifact, this.buildId, this.fileSuffix);
+
+                let numberOfIssues: number = 0;
+                let fileEntry: FileEntry;
+                for (fileEntry of fileEntries) {
+                    const contentString = await fileEntry.contentsPromise;
+                    const contentJson = JSON.parse(contentString);
+                    numberOfIssues = this.countNumberOfIssues(contentJson) + numberOfIssues;
+                }
+                const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
                 // TODO - Will be implemented in separate task.
-                // If type is set to 'total', there will be no need to make comparison
-                // Only need to calculate the total number of result in current build, then check the quality gate.
+                // Display result
+                console.log(`The results of quality gate: ${qualityGateResult.string}`);
                 return;
             } else if (this.type == TypeEnum.NEW) {
                 if (this.referenceBuild == this.buildNumber) {
@@ -194,6 +207,68 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
             }
         }
         return Promise.resolve(fileEntries);
+    }
+
+    private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.type, this.severity, this.threshold);
+
+        tl.debug("Evaluating quality gate");
+        qualityGateResult.actualNumberOfIssues = numberOfIssues;
+
+        if (numberOfIssues < this.threshold) { // When the actual number of issues is less than this threshold
+            qualityGateResult.status = QualityGateStatusEnum.PASSED;
+            tl.setResult(tl.TaskResult.Succeeded, `Quality gate '${this.getQualityGateIdentification()}' has been passed`);
+        } else { // When the actual number of issues is greater than or equal to this threshold
+            switch (this.buildStatus) {
+                case BuildStatusEnum.UNSTABLE:
+                    qualityGateResult.status = QualityGateStatusEnum.UNSTABLE;
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is UNSTABLE`);
+                    break;
+                case BuildStatusEnum.FAILED:
+                    qualityGateResult.status = QualityGateStatusEnum.FAILED;
+                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is FAILED`);
+                    break;
+                default:
+                    qualityGateResult.status = QualityGateStatusEnum.FAILED;
+                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is FAILED`);
+            }
+        }
+        tl.debug(`${qualityGateResult.status} - ${this.type} (${this.severity} severity): ${numberOfIssues} - Quality Gate: ${this.threshold}`);
+        return qualityGateResult;
+    }
+
+    private countNumberOfIssues(contentJson: any): number {
+        let numberOfIssues: number = 0;
+        if (contentJson.runs) {
+            contentJson.runs.forEach((run: any) => {
+                if (run.results) {
+                    if (run.results.length > 0) {
+                        switch (this.severity) {
+                            case SeverityEnum.ERROR:
+                                numberOfIssues = run.results.filter((result: any) => {
+                                    return result.level == SeverityEnum.ERROR;
+                                }).length + numberOfIssues;
+                                break;
+                            case SeverityEnum.WARNING:
+                                numberOfIssues = run.results.filter((result: any) => {
+                                    return result.level == SeverityEnum.WARNING;
+                                }).length + numberOfIssues;
+                                break;
+                            case SeverityEnum.NOTE:
+                                numberOfIssues = run.results.filter((result: any) => {
+                                    return result.level == SeverityEnum.NOTE;
+                                }).length + numberOfIssues;
+                                break;
+                            default:
+                                numberOfIssues = run.results.filter((result: any) => {
+                                    return result.level == SeverityEnum.ERROR;
+                                }).length + numberOfIssues;
+                        }
+                    }
+                }
+            });
+        }
+        return numberOfIssues;
     }
 
     private getQualityGateIdentification = (): string => {
