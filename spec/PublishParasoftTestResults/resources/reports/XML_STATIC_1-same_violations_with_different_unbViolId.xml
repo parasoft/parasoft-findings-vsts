@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?><ResultsSession buildId="Default Project-2023-08-29" date="08/29/23 15:14:23" machine="CD-LLI" project="Default Project" tag="cpptest_settings" time="2023-08-29T15:14:23+08:00" toolName="C++test" toolVer="2023.1.0.20230525B2127" user="liwbo">
+   <TestConfig machine="CD-LLI" name="cpptest_settings" pseudoUrl="c++test.file:/flowanalysiscpp/conf/pro/cpptest_settings.properties" user="liwbo"/>
+   <Authors>
+      <Author id="dev1" name="liwbo"/>
+   </Authors>
+   <VersionInfos>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.execution" resultId="IExecutionViolation" ver="2"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.execution" resultId="InsureViolation" ver="3"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.scope" resultId="IScopeProjectInfo" ver="3"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IMetricsViolation" ver="2"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IDupCodeViolation" ver="2"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IFlowAnalysisViolation" ver="2"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="ICodingStandardsViolation" ver="2"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.generation" resultId="IGenerationInfo" ver="2"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.generation" resultId="IGenerationProjectInfo" ver="2"/>
+   </VersionInfos>
+   
+      <Locations>
+         <Loc fsPath="E:\flowanalysiscpp\MemoryLeak.cpp" loc="/flowanalysiscpp/MemoryLeak.cpp" projPath="/flowanalysiscpp" project="flowanalysiscpp"/>
+         <Loc fsPath="E:\flowanalysiscpp\Shapes.hpp" loc="/flowanalysiscpp/Shapes.hpp" projPath="/flowanalysiscpp" project="flowanalysiscpp"/>
+         <Loc fsPath="E:\flowanalysiscpp\DivisionByZero.cpp" loc="/flowanalysiscpp/DivisionByZero.cpp" projPath="/flowanalysiscpp" project="flowanalysiscpp"/>
+         <Loc fsPath="E:\flowanalysiscpp\DeadLock.cpp" loc="/flowanalysiscpp/DeadLock.cpp" projPath="/flowanalysiscpp" project="flowanalysiscpp"/>
+         <Loc fsPath="E:\flowanalysiscpp\Point.hpp" loc="/flowanalysiscpp/Point.hpp" projPath="/flowanalysiscpp" project="flowanalysiscpp"/>
+         <Loc fsPath="E:\flowanalysiscpp\NullPointer.cpp" loc="/flowanalysiscpp/NullPointer.cpp" projPath="/flowanalysiscpp" project="flowanalysiscpp"/>
+      </Locations>
+   
+   <Scope>
+      <ProjectInformations>
+         <ScopeProjectInfo fltFiles="12" fltLns="5871" project="/flowanalysiscpp" totFiles="12" totLns="5871"/>
+      </ProjectInformations>
+   </Scope>
+   <CodingStandards ownerId="com.parasoft.xtest.checkers.api.standards" time="0:00:35">
+      <Projects>
+         <Project bdCheckedFiles="4" bdTotalFiles="4" checkedFiles="6" checkedLns="245" name="flowanalysiscpp" qfixErrs="0" suppErrs="0" totErrs="3145" totFiles="6" totLns="245"/>
+      </Projects>
+      <Rules>
+          <RulesList>
+              <Rule cat="MISRA2004" desc="typedefs should be used in place of the basic types" id="MISRA2004-6_3_b" sev="3">
+                  <Stats authTot="5;" total="5"/>
+              </Rule>
+          </RulesList>
+         <CategoriesList>
+             <Category desc="MISRA C 2004" name="MISRA2004" total="5">
+                 <Stats authTot="5;" total="5"/>
+             </Category>
+         </CategoriesList>
+         <SeverityList>
+            <Severity id="3">
+               <Stats authTot="5;" total="5"/>
+            </Severity>
+         </SeverityList>
+      </Rules>
+  <StdViols>
+    <StdViol msg="The basic numerical type 'double' should not be used" ln="9" sev="3" auth="liwbo" rule="MISRA2004-6_3_b" tool="c++test" cat="MISRA2004" lang="cpp" locType="sr" config="1" hash="1537905639" locStartln="9" locStartPos="12" locEndLn="9" locEndPos="13" locFile="/flowanalysiscpp/Shapes.hpp"/>
+    <StdViol msg="The basic numerical type 'double' should not be used" ln="19" sev="3" auth="liwbo" rule="MISRA2004-6_3_b" tool="c++test" cat="MISRA2004" lang="cpp" locType="sr" config="1" hash="1537905639" locStartln="19" locStartPos="4" locEndLn="19" locEndPos="5" locFile="/flowanalysiscpp/Shapes.hpp"/>
+    <StdViol msg="The basic numerical type 'double' should not be used" ln="23" sev="3" auth="liwbo" rule="MISRA2004-6_3_b" tool="c++test" cat="MISRA2004" lang="cpp" locType="sr" config="1" hash="1537905639" locStartln="23" locStartPos="1" locEndLn="23" locEndPos="2" locFile="/flowanalysiscpp/Shapes.hpp"/>
+    <StdViol msg="The basic numerical type 'double' should not be used" ln="25" sev="3" auth="liwbo" rule="MISRA2004-6_3_b" tool="c++test" cat="MISRA2004" lang="cpp" locType="sr" config="1" hash="1537905639" locStartln="25" locStartPos="27" locEndLn="25" locEndPos="28" locFile="/flowanalysiscpp/Shapes.hpp"/>
+    <StdViol msg="The basic numerical type 'double' should not be used" ln="26" sev="3" auth="liwbo" rule="MISRA2004-6_3_b" tool="c++test" cat="MISRA2004" lang="cpp" locType="sr" config="1" hash="1537905639" locStartln="26" locStartPos="4" locEndLn="26" locEndPos="5" locFile="/flowanalysiscpp/Shapes.hpp"/>
+  </StdViols>
+
+      <Supps/>
+      <TestedFilesDetails>
+         <Total name="Suppressed / Total" supp="0" total="3145">
+            <Project name="flowanalysiscpp" supp="0" total="3145">
+               <Res loc="/flowanalysiscpp/MemoryLeak.cpp" locType="sr" name="MemoryLeak.cpp" supp="0" total="320"/>
+               <Res loc="/flowanalysiscpp/Shapes.hpp" locType="sr" name="Shapes.hpp" supp="0" total="479"/>
+               <Res loc="/flowanalysiscpp/DivisionByZero.cpp" locType="sr" name="DivisionByZero.cpp" supp="0" total="99"/>
+               <Res loc="/flowanalysiscpp/Point.hpp" locType="sr" name="Point.hpp" supp="0" total="262"/>
+               <Res loc="/flowanalysiscpp/DeadLock.cpp" locType="sr" name="DeadLock.cpp" supp="0" total="1810"/>
+               <Res loc="/flowanalysiscpp/NullPointer.cpp" locType="sr" name="NullPointer.cpp" supp="0" total="175"/>
+            </Project>
+         </Total>
+      </TestedFilesDetails>
+   </CodingStandards>
+   <AssocUrls/>
+</ResultsSession>
