@@ -50,7 +50,7 @@
             "label": "Root path to Parasoft tool/Java installation",
             "defaultValue": "",
             "required": false,
-            "helpMarkDown": "Absolute location of the root path of a Parasoft tool or a standalone Java installation (Parasoft tools contain a Java installation). When found at the specified location, Java is used to optimize the efficiency of report processing. If not specified or found, report processing will be much slower."
+            "helpMarkDown": "Absolute location of the root path of a Parasoft tool (Jtest, dotTest, or C/C++test that includes a Java installation) or a standalone Java installation. When found at the specified location, Java optimizes the efficiency of report processing. Otherwise, report processing will be significantly slower and may encounter memory issues when handling large reports."
         },
         {
             "name": "localSettingsPath",

@@ -21,34 +21,34 @@
       "name": "type",
       "type": "picklist",
       "label": "Type",
-      "defaultValue": "totalIssues",
+      "defaultValue": "Total",
       "required": true,
       "helpMarkDown": "Type of issues to be evaluated for the threshold.",
       "options": {
-        "totalIssues": "Total issues",
-        "newIssues": "New issues"
+        "Total": "Total issues",
+        "New": "New issues"
       }
     },
     {
       "name": "severity",
       "type": "picklist",
       "label": "Severity",
-      "defaultValue": "error",
+      "defaultValue": "Error",
       "required": true,
       "helpMarkDown": "Severity of issues to be evaluated for the threshold.",
       "options": {
-        "error": "Error",
-        "warning": "Warning",
-        "note": "Note"
+        "Error": "Error",
+        "Warning": "Warning",
+        "Note": "Note"
       }
     },
     {
       "name": "threshold",
       "type": "string",
       "label": "Threshold",
-      "defaultValue": "0.0",
+      "defaultValue": "0",
       "required": true,
-      "helpMarkDown": "If the actual number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively. Default value is 0.0."
+      "helpMarkDown": "If the actual number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively. Default value is 0."
     },
     {
       "name": "referenceBuild",
@@ -57,7 +57,7 @@
       "defaultValue": "",
       "required": false,
       "helpMarkDown": "Specify a reference build number. To use the last successful build, leave this field empty.",
-      "visibleRule": "type = newIssues"
+      "visibleRule": "type = New"
     },
     {
       "name": "buildStatus",
@@ -72,7 +72,7 @@
       }
     }
   ],
-  "instanceNameFormat": "Parasoft Static Analysis Quality Gate - $(type) - $(severity) - $(threshold)",
+  "instanceNameFormat": "Parasoft Static Analysis Quality Gate - $(type) $(severity)s - $(threshold)",
   "execution": {
     "Node16": {
       "target": "StaticAnalysisQualityGate.js"

@@ -33,9 +33,11 @@
     "fs": "0.0.1-security",
     "sax": "^1.2.4",
     "saxon-js": "^2.5.0",
+    "uuid": "^9.0.1",
     "xslt3": "^2.5.0"
   },
   "devDependencies": {
+    "@types/uuid": "^9.0.1",
     "@types/node": "^16.18.23",
     "@types/q": "^1.5.5",
     "@types/sax": "^1.0.0",
