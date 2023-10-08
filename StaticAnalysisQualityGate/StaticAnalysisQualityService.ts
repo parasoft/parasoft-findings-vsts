@@ -63,6 +63,7 @@ export class StaticAnalysisQualityService {
     readonly buildStatus: BuildStatusEnum;
     readonly referenceBuild: string;
     readonly threshold: number;
+    referenceBuildId: number | undefined = undefined;
 
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
@@ -145,7 +146,7 @@ export class StaticAnalysisQualityService {
                     numberOfIssues += this.countNumberOfIssues(contentJson);
                 }
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
-                // TODO - Display result, will be implemented in separate task.
+                qualityGateResult.uploadQualityGateSummary(this.displayName, tl.getVariable('System.DefaultWorkingDirectory') || '')
                 return;
             } else if (this.type == TypeEnum.NEW) {
                 if (this.referenceBuild == this.buildNumber) {
@@ -189,7 +190,7 @@ export class StaticAnalysisQualityService {
             // Check for the specific reference build exist in current pipeline
             if (specificReferenceBuilds.length == 1) {
                 const specificReferenceBuild = specificReferenceBuilds[0];
-
+                this.referenceBuildId = specificReferenceBuild.id;
                 // Check for the succeeded or paratially-succeeded results exist in the specific reference build
                 if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
                     let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
@@ -214,7 +215,7 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.type, this.severity, this.threshold);
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName,this.referenceBuild, this.referenceBuildId, this.type, this.severity, this.threshold);
 
         tl.debug("Evaluating quality gate");
         qualityGateResult.actualNumberOfIssues = numberOfIssues;
