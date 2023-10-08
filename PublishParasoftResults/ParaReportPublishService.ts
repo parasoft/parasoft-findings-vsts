@@ -86,6 +86,7 @@ export class ParaReportPublishService {
         maxSockets: 50
     })
 
+    referenceBuild: string;
     defaultWorkingDirectory: string;
     inputReportFiles: string[];
     mergeResults: string | undefined;
@@ -105,6 +106,9 @@ export class ParaReportPublishService {
     javaPath: string | undefined;
 
     constructor() {
+        this.referenceBuild = tl.getInput('referenceBuild') || '';
+        tl.setVariable('PF.ReferenceBuild', this.referenceBuild); // Pass the reference build to subsequent tasks
+
         this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
         this.inputReportFiles = tl.getDelimitedInput('resultsFiles', '\n', true);
         this.mergeResults = tl.getInput('mergeTestResults');
@@ -126,6 +130,7 @@ export class ParaReportPublishService {
         this.javaPath = this.getJavaPath(this.parasoftToolOrJavaRootPath);
         this.matchingInputReportFiles = tl.findMatch(this.searchFolder || '', this.inputReportFiles);
 
+        tl.debug('referenceBuild: ' + this.referenceBuild);
         tl.debug('searchFolder: ' + this.searchFolder);
         tl.debug('inputReportFiles: ' + this.inputReportFiles);
         tl.debug('parasoftToolOrJavaRootPath: ' + this.parasoftToolOrJavaRootPath);

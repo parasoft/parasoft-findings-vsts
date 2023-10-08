@@ -43,17 +43,16 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
     readonly buildId: number;
     readonly buildNumber: string;
     readonly definitionId: number;
+    readonly referenceBuild: string;
 
     readonly typeString: string;
     readonly severityString: string;
     readonly buildStatusString: string;
-    readonly referenceBuildString: string;
     readonly thresholdString: string;
 
     readonly type: TypeEnum;
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
-    readonly referenceBuild: string;
     readonly threshold: number;
 
     constructor() {
@@ -64,14 +63,13 @@ import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
         this.buildId = Number(tl.getVariable('Build.BuildId'));
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+        this.referenceBuild = tl.getVariable('PF.ReferenceBuild') || '';
 
         this.typeString = tl.getInput('type') || '';
         this.severityString = tl.getInput('severity') || '';
         this.buildStatusString = tl.getInput('buildStatus') || '';
-        this.referenceBuildString = tl.getInput('referenceBuild') || '';
         this.thresholdString = tl.getInput('threshold') || '';
 
-        this.referenceBuild = this.referenceBuildString;
         this.threshold = parseInt(this.thresholdString || '0');
 
         if (isNaN(this.threshold)) {
