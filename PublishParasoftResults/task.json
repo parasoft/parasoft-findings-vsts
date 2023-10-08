@@ -61,6 +61,14 @@
             "helpMarkDown": "Relative location in project check out directory or absolute location for settings file to load rule documentation.\n \\- configure \"dtp.url\" property to specify DTP server address."
         },
         {
+          "name": "referenceBuild",
+          "type": "string",
+          "label": "Reference build",
+          "defaultValue": "",
+          "required": false,
+          "helpMarkDown": "Specify a reference build number which can be found in pipeline run title after #, e.g. build number is 20 in title '#20 • commit message'. To use the last successful build, leave this field empty. It will be used as a reference build if Parasoft Quality Gates task is configured."
+        },
+        {
             "name": "failOnFailures",
             "type": "boolean",
             "label": "Fail if there are any failures",

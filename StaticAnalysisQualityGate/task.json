@@ -51,15 +51,6 @@
       "helpMarkDown": "If the actual number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively. Default value is 0."
     },
     {
-      "name": "referenceBuild",
-      "type": "string",
-      "label": "Reference build",
-      "defaultValue": "",
-      "required": false,
-      "helpMarkDown": "Specify a reference build number. To use the last successful build, leave this field empty.",
-      "visibleRule": "type = New"
-    },
-    {
       "name": "buildStatus",
       "type": "picklist",
       "label": "Build status if quality gate fails",
