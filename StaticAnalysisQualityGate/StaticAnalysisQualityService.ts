@@ -16,7 +16,7 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
-import { QualityGateResult, QualityGateStatusEnum } from './QualityGateResult';
+import { QualityGateResult } from './QualityGateResult';
 
 export const enum TypeEnum {
     NEW = "New",
@@ -32,6 +32,12 @@ export const enum SeverityEnum {
 export const enum BuildStatusEnum {
     FAILED = "failed",
     UNSTABLE = "unstable"
+}
+
+export enum QualityGateStatusEnum {
+    PASSED = "PASSED",
+    UNSTABLE = "UNSTABLE",
+    FAILED = "FAILED"
 }
 
 export class StaticAnalysisQualityService {
@@ -136,12 +142,10 @@ export class StaticAnalysisQualityService {
                 for (fileEntry of fileEntries) {
                     const contentString = await fileEntry.contentsPromise;
                     const contentJson = JSON.parse(contentString);
-                    numberOfIssues = this.countNumberOfIssues(contentJson) + numberOfIssues;
+                    numberOfIssues += this.countNumberOfIssues(contentJson);
                 }
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
-                // TODO - Will be implemented in separate task.
-                // Display result
-                console.log(`The results of quality gate: ${qualityGateResult.string}`);
+                // TODO - Display result, will be implemented in separate task.
                 return;
             } else if (this.type == TypeEnum.NEW) {
                 if (this.referenceBuild == this.buildNumber) {
@@ -229,8 +233,8 @@ export class StaticAnalysisQualityService {
                     tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is FAILED`);
                     break;
                 default:
-                    qualityGateResult.status = QualityGateStatusEnum.FAILED;
-                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is FAILED`);
+                    // User will never come here
+                    tl.error(`The build status should be unstable or failed instead of ${this.buildStatus}`);
             }
         }
         tl.debug(`${qualityGateResult.status} - ${this.type} (${this.severity} severity): ${numberOfIssues} - Quality Gate: ${this.threshold}`);
@@ -241,29 +245,26 @@ export class StaticAnalysisQualityService {
         let numberOfIssues: number = 0;
         if (contentJson.runs) {
             contentJson.runs.forEach((run: any) => {
-                if (run.results) {
-                    if (run.results.length > 0) {
-                        switch (this.severity) {
-                            case SeverityEnum.ERROR:
-                                numberOfIssues = run.results.filter((result: any) => {
-                                    return result.level == SeverityEnum.ERROR;
-                                }).length + numberOfIssues;
-                                break;
-                            case SeverityEnum.WARNING:
-                                numberOfIssues = run.results.filter((result: any) => {
-                                    return result.level == SeverityEnum.WARNING;
-                                }).length + numberOfIssues;
-                                break;
-                            case SeverityEnum.NOTE:
-                                numberOfIssues = run.results.filter((result: any) => {
-                                    return result.level == SeverityEnum.NOTE;
-                                }).length + numberOfIssues;
-                                break;
-                            default:
-                                numberOfIssues = run.results.filter((result: any) => {
-                                    return result.level == SeverityEnum.ERROR;
-                                }).length + numberOfIssues;
-                        }
+                if (run.results && run.results.length > 0) {
+                    switch (this.severity) {
+                        case SeverityEnum.ERROR:
+                            numberOfIssues += run.results.filter((result: any) => {
+                                return result.level == 'error';
+                            }).length;
+                            break;
+                        case SeverityEnum.WARNING:
+                            numberOfIssues += run.results.filter((result: any) => {
+                                return result.level == 'warning';
+                            }).length;
+                            break;
+                        case SeverityEnum.NOTE:
+                            numberOfIssues += run.results.filter((result: any) => {
+                                return result.level == 'note';
+                            }).length;
+                            break;
+                        default:
+                            // User will never come here
+                            tl.error(`The severity status should be error, warning or note instead of ${this.buildStatus}`);
                     }
                 }
             });

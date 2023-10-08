@@ -1,23 +1,19 @@
-export enum QualityGateStatusEnum {
-  PASSED = "PASSED",
-  UNSTABLE = "UNSTABLE",
-  FAILED = "FAILED"
-}
+import { QualityGateStatusEnum, SeverityEnum, TypeEnum } from "./StaticAnalysisQualityService";
 
 export class QualityGateResult {
     private _displayName: string;
     private _referenceBuild: string;
-    private _type: string;
-    private _severity: string;
+    private _type: TypeEnum;
+    private _severity: SeverityEnum;
     private _threshold: number;
 
-    private _status: string = '';
+    private _status: QualityGateStatusEnum = QualityGateStatusEnum.FAILED;
     private _actualNumberOfIssues: number = 0;
 
     constructor(displayName: string,
                 referenceBuild: string,
-                type: string,
-                severity: string,
+                type: TypeEnum,
+                severity: SeverityEnum,
                 threshold: number) {
       this._displayName = displayName;
       this._referenceBuild = referenceBuild;
@@ -29,54 +25,49 @@ export class QualityGateResult {
     public get displayName() : string {
       return this._displayName;
     }
-    public set displayName(v : string) {
-      this._displayName = v;
+    public set displayName(displayName : string) {
+      this._displayName = displayName;
     }
 
     public get referenceBuild() : string {
       return this._referenceBuild;
     }
-    public set referenceBuild(v : string) {
-      this._referenceBuild = v;
+    public set referenceBuild(referenceBuild : string) {
+      this._referenceBuild = referenceBuild;
     }
 
-    public get type() : string {
+    public get type() : TypeEnum {
       return this._type;
     }
-    public set type(v : string) {
-      this._type = v;
+    public set type(type : TypeEnum) {
+      this._type = type;
     }
 
-    public get severity() : string {
+    public get severity() : SeverityEnum {
       return this._severity;
     }
-    public set severity(v : string) {
-      this._severity = v;
+    public set severity(severity : SeverityEnum) {
+      this._severity = severity;
     }
 
     public get threshold() : number {
       return this._threshold;
     }
-    public set threshold(v : number) {
-      this._threshold = v;
+    public set threshold(threshold : number) {
+      this._threshold = threshold;
     }
 
-    public get status() : string {
+    public get status() : QualityGateStatusEnum {
       return this._status;
     }
-    public set status(v : string) {
-      this._status = v;
+    public set status(status : QualityGateStatusEnum) {
+      this._status = status;
     }
 
     public get actualNumberOfIssues() : number {
       return this._actualNumberOfIssues;
     }
-    public set actualNumberOfIssues(v : number) {
-      this._actualNumberOfIssues = v;
-    }
-
-    // TODO - will remove, currently used to output the result which will be implemented in separate task
-    public get string(): string {
-      return `Display name: ${this._displayName}, Actual number of issues: ${this._actualNumberOfIssues}, ${this.referenceBuild ? 'Reference build: ' + this._referenceBuild + ', ' : ''} Status: ${this._status}, Type: ${this._type}, Sverity: ${this._severity}, Thershold: ${this._threshold}`;
+    public set actualNumberOfIssues(actualNumberOfIssues : number) {
+      this._actualNumberOfIssues = actualNumberOfIssues;
     }
  }
