@@ -44,6 +44,7 @@ export class StaticAnalysisQualityService {
     readonly artifactName: string = 'CodeAnalysisLogs';
     readonly fileSuffix: FileSuffixEnum;
     readonly buildClient: BuildAPIClient;
+    readonly defaultWorkingDirectory: string;
 
     // Predefined variables
     readonly projectName: string;
@@ -68,6 +69,7 @@ export class StaticAnalysisQualityService {
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
         this.buildClient = new BuildAPIClient();
+        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
 
         this.projectName = tl.getVariable('System.TeamProject') || '';
         this.buildId = Number(tl.getVariable('Build.BuildId'));
@@ -146,7 +148,7 @@ export class StaticAnalysisQualityService {
                     numberOfIssues += this.countNumberOfIssues(contentJson);
                 }
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
-                qualityGateResult.uploadQualityGateSummary(this.displayName, tl.getVariable('System.DefaultWorkingDirectory') || '')
+                qualityGateResult.uploadQualityGateSummary();
                 return;
             } else if (this.type == TypeEnum.NEW) {
                 if (this.referenceBuild == this.buildNumber) {
@@ -215,7 +217,8 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName,this.referenceBuild, this.referenceBuildId, this.type, this.severity, this.threshold);
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.referenceBuildId, this.type, 
+                                                                         this.severity, this.threshold, this.defaultWorkingDirectory);
 
         tl.debug("Evaluating quality gate");
         qualityGateResult.actualNumberOfIssues = numberOfIssues;
