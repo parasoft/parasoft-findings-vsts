@@ -14,7 +14,7 @@ export interface FileEntry {
 }
 
 export enum FileSuffixEnum {
-    SARIF_SUFFIX = ".sarif",
+    SARIF_SUFFIX = "-pf-sast.sarif",
     // COBERTURA_SUFFIX = "-cobertura.xml"
 }
 
