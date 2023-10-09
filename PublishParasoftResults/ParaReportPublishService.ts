@@ -51,7 +51,7 @@ export const enum ReportType {
 
 export class ParaReportPublishService {
     readonly XUNIT_SUFFIX: string = "-junit.xml";
-    readonly SARIF_SUFFIX: string = "-sast.sarif";
+    readonly SARIF_SUFFIX: string = "-pf-sast.sarif";
     readonly COBERTURA_SUFFIX: string = "-cobertura.xml";
     readonly XML_EXTENSION: string = ".xml";
     readonly SARIF_EXTENSION: string = ".sarif";
@@ -321,8 +321,8 @@ export class ParaReportPublishService {
         const fileName = path.basename(sourcePath);
         const dotIndex = fileName.lastIndexOf(".");
         const fileNameWithoutExt = dotIndex > -1 ? fileName.substring(0, dotIndex) : fileName;
-
-        return sourcePath.replace(fileName, fileNameWithoutExt) + reportSuffix;
+        const extension = dotIndex > -1 ? fileName.substring(dotIndex + 1) : '';
+        return sourcePath.replace(fileName, fileNameWithoutExt) + (extension ? ('-' + extension) : '') + reportSuffix;
     }
 
     transform = (sourcePath: string, xslInfo: XslInfo, outPath: string, transformedReports: string[], isCoberturaReport?: boolean): void => {
@@ -370,7 +370,6 @@ export class ParaReportPublishService {
     }
 
     processParasoftSarifReport = (report: string): string => {
-        let isContentChanged = false;
         let contentString = fs.readFileSync(report, 'utf8');
         let contentJson = JSON.parse(contentString);
         if (contentJson.runs) {
@@ -383,7 +382,6 @@ export class ParaReportPublishService {
                                 if (relativeUri) {
                                     // Overwrite uri to be relative path
                                     location.physicalLocation.artifactLocation.uri = relativeUri;
-                                    isContentChanged = true;
                                 }
                             });
                         }
@@ -391,11 +389,9 @@ export class ParaReportPublishService {
                 }
             });
         }
-        if (isContentChanged) {
-            contentString = JSON.stringify(contentJson);
-            report = this.getOutputReportFilePath(report, this.SARIF_SUFFIX);
-            fs.writeFileSync(report, contentString, 'utf8');
-        }
+        contentString = JSON.stringify(contentJson);
+        report = this.getOutputReportFilePath(report, this.SARIF_SUFFIX);
+        fs.writeFileSync(report, contentString, 'utf8');
 
         return report;
     }
