@@ -251,17 +251,17 @@ export class StaticAnalysisQualityService {
                     switch (this.severity) {
                         case SeverityEnum.ERROR:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'error';
+                                return result.level == 'error' && !this.isSuppressedIssue(result);
                             }).length;
                             break;
                         case SeverityEnum.WARNING:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'warning';
+                                return result.level == 'warning' && !this.isSuppressedIssue(result);
                             }).length;
                             break;
                         case SeverityEnum.NOTE:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'note';
+                                return result.level == 'note' && !this.isSuppressedIssue(result);
                             }).length;
                             break;
                         default:
@@ -272,6 +272,10 @@ export class StaticAnalysisQualityService {
             });
         }
         return numberOfIssues;
+    }
+
+    private isSuppressedIssue(result: any): boolean {
+        return Boolean(result) && Boolean(result.suppressions) && Boolean(result.suppressions[0]) && result.suppressions[0].kind == "external";
     }
 
     private getQualityGateIdentification = (): string => {
