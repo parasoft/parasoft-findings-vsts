@@ -75,6 +75,7 @@ export class ParaReportPublishService {
 
     xUnitReports: string[] = [];
     sarifReports: string[] = [];
+    originalStaticAnalysisReportMap: Map<string, string> = new Map<string, string>();
     coberturaReports: string[] = [];
     matchingInputReportFiles: string[];
     rulesInGlobalCategory: Set<string> = new Set();
@@ -165,8 +166,10 @@ export class ParaReportPublishService {
 
         if(report.toLocaleLowerCase().endsWith(this.SARIF_EXTENSION)) {
             tl.debug("Recognized SARIF report: " + report);
-            report = this.processParasoftSarifReport(report);
-            this.sarifReports.push(report);
+            if (!this.checkDuplicatedStaticAnalysisReportName(report)){
+                report = this.processParasoftSarifReport(report);
+                this.sarifReports.push(report);
+            }
             this.processResults(inputReportFiles, index);
         } else if (report.toLocaleLowerCase().endsWith(this.XML_EXTENSION)) {
             this.rulesInGlobalCategory.clear();
@@ -307,6 +310,9 @@ export class ParaReportPublishService {
 
 
     transformToSarif = (sourcePath: string): void => {
+        if (this.checkDuplicatedStaticAnalysisReportName(sourcePath)){
+            return;
+        }
         this.transform(sourcePath, this.SARIF_XSL, this.getOutputReportFilePath(sourcePath, this.SARIF_SUFFIX), this.sarifReports);
     }
 
@@ -848,5 +854,15 @@ export class ParaReportPublishService {
         let uri = result.locations[0]?.physicalLocation?.artifactLocation?.uri || '';
 
         return uuid.v5(violType + ruleId + msg + severity + lineHash + uri + order, namespace);
+    }
+
+    private checkDuplicatedStaticAnalysisReportName = (sourcePath: string): boolean => {
+        let filename = path.basename(sourcePath);
+        if (this.originalStaticAnalysisReportMap.has(filename)) {
+            tl.warning(`Can't handle report with the duplicate name '${filename}', which may cause processing issues. ${sourcePath} is skipped.`);
+            return true;
+        }
+        this.originalStaticAnalysisReportMap.set(filename, sourcePath);
+        return false;
     }
 }
