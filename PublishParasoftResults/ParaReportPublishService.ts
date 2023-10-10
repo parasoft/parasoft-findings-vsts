@@ -845,7 +845,7 @@ export class ParaReportPublishService {
         let msg = result.message?.text || '';
         let severity = result.level || '';
         let lineHash = result.partialFingerprints?.lineHash || '';
-        let uri = result.locations[0]?.physicalLocation?.artifactLocation?.uri || '';
+        let uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || '';
 
         return uuid.v5(violType + ruleId + msg + severity + lineHash + uri + order, namespace);
     }
