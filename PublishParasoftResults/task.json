@@ -66,7 +66,7 @@
           "label": "Reference build",
           "defaultValue": "",
           "required": false,
-          "helpMarkDown": "Specify a reference build number which can be found in pipeline run title after #, e.g. build number is 20 in title '#20 • commit message'. To use the last successful build, leave this field empty. It will be used as a reference build if Parasoft Quality Gates task is configured."
+          "helpMarkDown": "Specify a reference build to use if Parasoft Quality Gates task is configured. To use the last successful build, leave this field empty. Specify the reference build number - this can be found in the pipeline run title after the '#' and before '•' symbol - e.g. the build number is 20 if the title contains \"#20 •\"."
         },
         {
             "name": "failOnFailures",
