@@ -9,11 +9,6 @@
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/node-agent-base"
     },
-    "axios@0.24.0": {
-        "licenses": "MIT",
-        "publisher": "Matt Zabriskie",
-        "repository": "https://github.com/axios/axios"
-    },
     "azure-devops-node-api@12.1.0": {
         "licenses": "MIT",
         "publisher": "Microsoft Corporation",
@@ -64,17 +59,12 @@
         "publisher": "Josh Junon",
         "repository": "https://github.com/debug-js/debug"
     },
-    "dot-properties@1.0.1": {
-        "licenses": "MIT",
-        "publisher": "Eemeli Aro",
-        "repository": "https://github.com/eemeli/dot-properties"
-    },
     "file-uri-to-path@1.0.0": {
         "licenses": "MIT",
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/file-uri-to-path"
     },
-    "follow-redirects@1.15.2": {
+    "follow-redirects@1.15.3": {
         "licenses": "MIT",
         "publisher": "Ruben Verborgh",
         "repository": "https://github.com/follow-redirects/follow-redirects"
@@ -83,10 +73,6 @@
         "licenses": "ISC",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/fs.realpath"
-    },
-    "fs@0.0.1-security": {
-        "licenses": "ISC",
-        "repository": "https://github.com/npm/security-holder"
     },
     "function-bind@1.1.1": {
         "licenses": "MIT",
@@ -141,7 +127,7 @@
         "publisher": "Gulp Team",
         "repository": "https://github.com/gulpjs/interpret"
     },
-    "is-core-module@2.12.0": {
+    "is-core-module@2.13.0": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/inspect-js/is-core-module"
@@ -215,6 +201,11 @@
         "licenses": "(MIT AND Zlib)",
         "repository": "https://github.com/nodeca/pako"
     },
+    "parasoft-findings-vsts-static-analysis-quality-gate@1.1.4": {
+        "licenses": "Apache-2.0",
+        "publisher": "Parasoft Corporation",
+        "repository": "https://github.com/parasoft/parasoft-findings-vsts"
+    },
     "path-is-absolute@1.0.1": {
         "licenses": "MIT",
         "publisher": "Sindre Sorhus",
@@ -247,7 +238,7 @@
         "publisher": "Tyler Kellen",
         "repository": "https://github.com/tkellen/node-rechoir"
     },
-    "resolve@1.22.2": {
+    "resolve@1.22.5": {
         "licenses": "MIT",
         "publisher": "James Halliday",
         "repository": "https://github.com/browserify/resolve"
@@ -261,15 +252,6 @@
         "licenses": "WTFPL OR ISC",
         "publisher": "Parsha Pourkhomami",
         "repository": "https://github.com/parshap/node-sanitize-filename"
-    },
-    "sax@1.2.4": {
-        "licenses": "ISC",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/sax-js"
-    },
-    "saxon-js@2.5.0": {
-        "licenses": "Custom: LICENSE.txt",
-        "publisher": "Saxonica"
     },
     "semver@5.7.2": {
         "licenses": "ISC",
@@ -338,10 +320,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/uuidjs/uuid"
     },
-    "uuid@9.0.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/uuidjs/uuid"
-    },
     "webidl-conversions@3.0.1": {
         "licenses": "BSD-2-Clause",
         "publisher": "Domenic Denicola",
@@ -356,9 +334,5 @@
         "licenses": "ISC",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/npm/wrappy"
-    },
-    "xslt3@2.5.0": {
-        "licenses": "Custom: LICENSE.txt",
-        "publisher": "Saxonica"
     }
 }
