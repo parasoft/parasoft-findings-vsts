@@ -25,6 +25,8 @@ import { URL } from 'url';
 import * as https from 'https';
 import * as axios from 'axios';
 import * as uuid from 'uuid';
+import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
+import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 
 (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
 
@@ -49,12 +51,18 @@ export const enum ReportType {
     XML_COVERAGE = 8
 }
 
+const enum BaselineStateEnum {
+    NEW = 'new',
+    UNCHANGED = 'unchanged'
+}
+
 export class ParaReportPublishService {
     readonly XUNIT_SUFFIX: string = "-junit.xml";
     readonly SARIF_SUFFIX: string = "-pf-sast.sarif";
     readonly COBERTURA_SUFFIX: string = "-cobertura.xml";
     readonly XML_EXTENSION: string = ".xml";
     readonly SARIF_EXTENSION: string = ".sarif";
+    readonly SARIF_ARTIFACT_NAME: string = "CodeAnalysisLogs";
 
     readonly SARIF_XSL: XslInfo = {
         xslPath: __dirname + "/xsl/sarif.xsl",
@@ -88,6 +96,10 @@ export class ParaReportPublishService {
     })
 
     referenceBuild: string;
+    buildClient: BuildAPIClient;
+    projectName: string;
+    buildNumber: string;
+    definitionId: number;
     defaultWorkingDirectory: string;
     inputReportFiles: string[];
     mergeResults: string | undefined;
@@ -109,6 +121,11 @@ export class ParaReportPublishService {
     constructor() {
         this.referenceBuild = tl.getInput('referenceBuild') || '';
         tl.setVariable('PF.ReferenceBuild', this.referenceBuild); // Pass the reference build to subsequent tasks
+
+        this.buildClient = new BuildAPIClient();
+        this.projectName = tl.getVariable('System.TeamProject') || '';
+        this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
+        this.definitionId = Number(tl.getVariable('System.DefinitionId'));
 
         this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
         this.inputReportFiles = tl.getDelimitedInput('resultsFiles', '\n', true);
@@ -144,20 +161,20 @@ export class ParaReportPublishService {
         tl.debug('failOnFailures: ' + this.failOnFailures);
     }
 
-    run = (): void => {
+    run = async (): Promise<void> => {
         if (!this.matchingInputReportFiles || this.matchingInputReportFiles.length === 0) {
             tl.warning('No test result files matching ' + this.inputReportFiles + ' were found.');
             tl.setResult(tl.TaskResult.Succeeded, '');
         } else {
             if (!this.isNullOrWhitespace(this.dtpBaseUrl)) {
-                this.verifyDtpRuleDocsService().then(() => this.transformReports(this.matchingInputReportFiles, 0));
+                this.verifyDtpRuleDocsService().then(async () => await this.transformReports(this.matchingInputReportFiles, 0));
             } else {
-                this.transformReports(this.matchingInputReportFiles, 0);
+                await this.transformReports(this.matchingInputReportFiles, 0);
             }
         }
     }
 
-    transformReports = (inputReportFiles: string[], index: number): void => {
+    transformReports = async (inputReportFiles: string[], index: number): Promise<void> => {
         let reportType: ReportType = ReportType.UNKNOWN;
         let report: string = inputReportFiles[index];
         let bLegacyReport: boolean = false;
@@ -170,7 +187,7 @@ export class ParaReportPublishService {
                 report = this.processParasoftSarifReport(report);
                 this.sarifReports.push(report);
             }
-            this.processResults(inputReportFiles, index);
+            await this.processResults(inputReportFiles, index);
         } else if (report.toLocaleLowerCase().endsWith(this.XML_EXTENSION)) {
             this.rulesInGlobalCategory.clear();
             this.ruleAnalyzerMap.clear();
@@ -258,7 +275,7 @@ export class ParaReportPublishService {
             });
             saxStream.on("end", () => {
                 // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
-                Promise.all(this.ruleDocUrlPromises).then((errors) =>{
+                Promise.all(this.ruleDocUrlPromises).then(async (errors) =>{
                     let firstError: any = errors.find(error => error !== null && error !== undefined);
                     if (firstError) {
                         this.ruleDocUrlMap.clear();
@@ -268,13 +285,13 @@ export class ParaReportPublishService {
                         tl.debug("The documentation for rules has been successfully loaded.");
                     }
                     this.transformToReport(reportType, report);
-                    this.processResults(inputReportFiles, index);
+                    await this.processResults(inputReportFiles, index);
                 });
             });
             fs.createReadStream(report).pipe(saxStream);
         } else {
             tl.warning("Skipping unrecognized report file: " + report);
-            this.processResults(inputReportFiles, index);
+            await this.processResults(inputReportFiles, index);
         }
     }
 
@@ -446,18 +463,34 @@ export class ParaReportPublishService {
         return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test' && !node.attributes.hasOwnProperty('prjModule');
     }
 
-    processResults = (inputReportFiles: string[], index: number): void =>{
+    processResults = async (inputReportFiles: string[], index: number): Promise<void> =>{
         if (index < inputReportFiles.length - 1) {
-            this.transformReports(inputReportFiles, ++index);
+            await this.transformReports(inputReportFiles, ++index);
         } else {
             if (this.xUnitReports.length > 0) {
                 let tp: tl.TestPublisher = new tl.TestPublisher('JUnit');
                 tp.publish(this.xUnitReports, this.mergeResults, this.platform, this.config, this.testRunTitle, this.publishRunAttachments);
             }
             if (this.sarifReports.length > 0) {
-                for (var i = 0; i < this.sarifReports.length; ++i) {
-                    this.checkAndAddUnbViolIdForSarifReport(this.sarifReports[i]);
-                    tl.uploadArtifact("Container", this.sarifReports[i], "CodeAnalysisLogs");
+                let referenceSarifReports: FileEntry[] = [];
+                if (this.referenceBuild == this.buildNumber) {
+                    tl.warning(`Using the current build as the reference - all issues will be treated as new`);
+                } else {
+                    referenceSarifReports = await this.getReferenceSarifReports();
+                }
+
+                for (var i = 0; i < this.sarifReports.length; i++) {
+                    let currentSarifReport = this.sarifReports[i];
+                    let currentSarifContentString = fs.readFileSync(currentSarifReport, 'utf8');
+                    let currentSarifContentJson = JSON.parse(currentSarifContentString);
+
+                    currentSarifContentJson = this.checkAndAddUnbViolIdForSarifReport(currentSarifContentJson);
+                    let referenceSarifReport: FileEntry | undefined = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'Container/' + path.basename(currentSarifReport));
+                    await this.appendBaselineState(currentSarifContentJson, referenceSarifReport);
+
+                    currentSarifContentString = JSON.stringify(currentSarifContentJson);
+                    fs.writeFileSync(currentSarifReport, currentSarifContentString, 'utf8');
+                    tl.uploadArtifact("Container", this.sarifReports[i], this.SARIF_ARTIFACT_NAME);
                 }
             }
             if (this.coberturaReports.length > 0) {
@@ -804,13 +837,9 @@ export class ParaReportPublishService {
         }
     }
 
-    private checkAndAddUnbViolIdForSarifReport = (report: string): string => {
-        let isContentChanged = false;
-        let contentString = fs.readFileSync(report, 'utf8');
-        let contentJson = JSON.parse(contentString);
-
-        if (contentJson.runs) {
-            contentJson.runs.forEach((run: any) => {
+    private checkAndAddUnbViolIdForSarifReport = (sarifContentJson: any): string => {
+        if (sarifContentJson.runs) {
+            sarifContentJson.runs.forEach((run: any) => {
                 let unbViolIdMap: Map<string, number> = new Map();
 
                 if (run.results) {
@@ -830,18 +859,11 @@ export class ParaReportPublishService {
                             run.results[i].partialFingerprints.unbViolId = unbViolId;
                         }
                         unbViolIdMap.set(unbViolId, order + 1);
-                        isContentChanged = true;
                     }
                 }
             });
         }
-
-        if (isContentChanged) {
-            contentString = JSON.stringify(contentJson);
-            fs.writeFileSync(report, contentString, 'utf8');
-        }
-
-        return report;
+        return sarifContentJson;
     }
 
     private generateUnbViolId = (result: any, order: number): string => {
@@ -864,5 +886,84 @@ export class ParaReportPublishService {
         }
         this.originalStaticAnalysisReportMap.set(filename, sourcePath);
         return false;
+    }
+
+    private getReferenceSarifReports = async (): Promise<FileEntry[]> => {
+        const allBuildsForCurrentPipeline: Build[] = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, this.definitionId);
+        let fileEntries: FileEntry[] = [];
+        if (!this.referenceBuild) {
+            tl.debug("No reference build has been set; using the last successful build as reference.");
+            fileEntries = await this.buildClient.getDefaultBuildReports(allBuildsForCurrentPipeline, this.projectName, this.SARIF_ARTIFACT_NAME, FileSuffixEnum.SARIF_SUFFIX);
+        } else {
+            const specificReferenceBuilds = allBuildsForCurrentPipeline.filter(build => {
+                return build.buildNumber == this.referenceBuild;
+            });
+
+            // Check for the specific reference build exist in current pipeline
+            if (specificReferenceBuilds.length == 1) {
+                const specificReferenceBuild = specificReferenceBuilds[0];
+
+                // Check for the succeeded or paratially-succeeded results exist in the specific reference build
+                if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
+                    let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
+                    // Check for Parasoft results exist in the specific reference build
+                    const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.SARIF_ARTIFACT_NAME);
+                    if (artifact) {
+                        fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, FileSuffixEnum.SARIF_SUFFIX);
+                        tl.debug(`Retrieved static analysis results from the reference build '${this.referenceBuild}'`);
+                    } else {
+                        tl.warning(`No static analysis results were found in the specified reference build: '${this.referenceBuild}'`);
+                    }
+                } else {
+                    tl.warning(`The specified reference build '${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`);
+                }
+            } else if (specificReferenceBuilds.length > 1) {
+                tl.warning(`The specified reference build '${this.referenceBuild}' is not unique`);
+            } else {
+                tl.warning(`The specified reference build '${this.referenceBuild}' could not be found`);
+            }
+        }
+        return Promise.resolve(fileEntries);
+    }
+
+    private appendBaselineState = async (currentSarifContentJson: any, referenceSarifReport: FileEntry | undefined): Promise<string> => {
+        let referenceUnbViolIds: string[] = await this.getUnbViolIdsFromReferenceSarifReport(referenceSarifReport);
+        if (currentSarifContentJson.runs) {
+            currentSarifContentJson.runs.forEach((run: any) => {
+                if (run.results) {
+                    run.results.forEach((result: any) => {
+                        let unbViolId: string = result.partialFingerprints?.unbViolId;
+
+                        if (unbViolId && referenceUnbViolIds.includes(unbViolId)) {
+                            result.baselineState = BaselineStateEnum.UNCHANGED;
+                        } else {
+                            result.baselineState = BaselineStateEnum.NEW;
+                        }
+                    })
+                }
+            })
+        }
+        return currentSarifContentJson;
+    }
+
+    private getUnbViolIdsFromReferenceSarifReport = async (referenceSarifReport: FileEntry | undefined): Promise<string[]> => {
+        let referenceUnbViolIds: string[] = [];
+        if (referenceSarifReport) {
+            let referenceSarifContentString: string = await referenceSarifReport.contentsPromise;
+                let referenceSarifContentJson: any = JSON.parse(referenceSarifContentString);
+                if (referenceSarifContentJson.runs) {
+                    referenceSarifContentJson.runs.forEach((run: any) => {
+                        if (run.results) {
+                            run.results.forEach(async (result: any) => {
+                                let unbViolId: string = result.partialFingerprints?.unbViolId;
+                                if (unbViolId) {
+                                    referenceUnbViolIds.push(unbViolId);
+                                }
+                            })
+                        }
+                    })
+                }
+        }
+        return referenceUnbViolIds;
     }
 }

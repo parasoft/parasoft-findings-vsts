@@ -33,7 +33,7 @@ export enum FileSuffixEnum {
     // COBERTURA_SUFFIX = "-cobertura.xml"
 }
 
-/* This file is a copy of PublishParasoftResults/BuildApiClient.ts */
+/* This file is a copy of StaticAnalysisQualityGate/BuildApiClient.ts */
 export class BuildAPIClient {
     private readonly accessToken: string;
     private readonly buildApi: Promise<BuildApi.IBuildApi>;
