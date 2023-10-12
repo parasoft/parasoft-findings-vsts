@@ -44,6 +44,7 @@ export class StaticAnalysisQualityService {
     readonly artifactName: string = 'CodeAnalysisLogs';
     readonly fileSuffix: FileSuffixEnum;
     readonly buildClient: BuildAPIClient;
+    readonly defaultWorkingDirectory: string;
 
     // Predefined variables
     readonly projectName: string;
@@ -62,10 +63,12 @@ export class StaticAnalysisQualityService {
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
     readonly threshold: number;
+    referenceBuildId: number | undefined = undefined;
 
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
         this.buildClient = new BuildAPIClient();
+        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
 
         this.projectName = tl.getVariable('System.TeamProject') || '';
         this.buildId = Number(tl.getVariable('Build.BuildId'));
@@ -143,7 +146,7 @@ export class StaticAnalysisQualityService {
                     numberOfIssues += this.countNumberOfIssues(contentJson);
                 }
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
-                // TODO - Display result, will be implemented in separate task.
+                qualityGateResult.uploadQualityGateSummary();
                 return;
             } else if (this.type == TypeEnum.NEW) {
                 if (this.referenceBuild == this.buildNumber) {
@@ -187,7 +190,7 @@ export class StaticAnalysisQualityService {
             // Check for the specific reference build exist in current pipeline
             if (specificReferenceBuilds.length == 1) {
                 const specificReferenceBuild = specificReferenceBuilds[0];
-
+                this.referenceBuildId = specificReferenceBuild.id;
                 // Check for the succeeded or paratially-succeeded results exist in the specific reference build
                 if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
                     let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
@@ -212,7 +215,8 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.type, this.severity, this.threshold);
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.referenceBuildId, this.type, 
+                                                                         this.severity, this.threshold, this.defaultWorkingDirectory);
 
         tl.debug("Evaluating quality gate");
         qualityGateResult.actualNumberOfIssues = numberOfIssues;
@@ -247,17 +251,17 @@ export class StaticAnalysisQualityService {
                     switch (this.severity) {
                         case SeverityEnum.ERROR:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'error';
+                                return result.level == 'error' && !this.isSuppressedIssue(result);
                             }).length;
                             break;
                         case SeverityEnum.WARNING:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'warning';
+                                return result.level == 'warning' && !this.isSuppressedIssue(result);
                             }).length;
                             break;
                         case SeverityEnum.NOTE:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'note';
+                                return result.level == 'note' && !this.isSuppressedIssue(result);
                             }).length;
                             break;
                         default:
@@ -268,6 +272,10 @@ export class StaticAnalysisQualityService {
             });
         }
         return numberOfIssues;
+    }
+
+    private isSuppressedIssue(result: any): boolean {
+        return Boolean(result) && Boolean(result.suppressions) && Boolean(result.suppressions[0]) && result.suppressions[0].kind == "external";
     }
 
     private getQualityGateIdentification = (): string => {
