@@ -239,7 +239,7 @@ export class StaticAnalysisQualityService {
                     tl.error(`The build status should be unstable or failed instead of ${this.buildStatus}`);
             }
         }
-        tl.debug(`${qualityGateResult.status} - ${this.type} (${this.severity} severity): ${numberOfIssues} - Quality Gate: ${this.threshold}`);
+        tl.debug(`Quality Gate ${qualityGateResult.status} - ${this.type} ${this.severity}s: ${numberOfIssues} - Threshold: ${this.threshold}`);
         return qualityGateResult;
     }
 

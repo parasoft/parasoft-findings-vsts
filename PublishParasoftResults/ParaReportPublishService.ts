@@ -859,7 +859,7 @@ export class ParaReportPublishService {
     private checkDuplicatedStaticAnalysisReportName = (sourcePath: string): boolean => {
         let filename = path.basename(sourcePath);
         if (this.originalStaticAnalysisReportMap.has(filename)) {
-            tl.warning(`Can't handle report with the duplicate name '${filename}', which may cause processing issues. ${sourcePath} is skipped.`);
+            tl.warning(`Skipping ${sourcePath} since reports with duplicate names are not supported.`);
             return true;
         }
         this.originalStaticAnalysisReportMap.set(filename, sourcePath);
