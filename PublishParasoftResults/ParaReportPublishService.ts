@@ -902,7 +902,7 @@ export class ParaReportPublishService {
             // Check for the specific reference build exist in current pipeline
             if (specificReferenceBuilds.length == 1) {
                 const specificReferenceBuild = specificReferenceBuilds[0];
-
+                tl.setVariable('PF.ReferenceBuildId', specificReferenceBuild.id?.toString() || '');
                 // Check for the succeeded or paratially-succeeded results exist in the specific reference build
                 if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
                     let specificReferenceBuildId: number = Number(specificReferenceBuild.id);

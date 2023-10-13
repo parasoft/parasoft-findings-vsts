@@ -15,14 +15,14 @@ export class QualityGateResult {
 
     constructor(displayName: string,
                 referenceBuild: string,
-                referenceBuildId: number | undefined,
+                referenceBuildId: string,
                 type: TypeEnum,
                 severity: SeverityEnum,
                 threshold: number,
                 workingDir: string) {
       this._displayName = displayName;
       this._referenceBuild = referenceBuild;
-      this._referenceBuildId = referenceBuildId ? referenceBuildId.toString() : '';
+      this._referenceBuildId = referenceBuildId;
       this._type = type;
       this._severity = severity;
       this._threshold = threshold;

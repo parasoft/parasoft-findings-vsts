@@ -63,7 +63,7 @@ export class StaticAnalysisQualityService {
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
     readonly threshold: number;
-    referenceBuildId: number | undefined = undefined;
+    readonly referenceBuildId: string;
 
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
@@ -75,6 +75,7 @@ export class StaticAnalysisQualityService {
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
         this.referenceBuild = tl.getVariable('PF.ReferenceBuild') || '';
+        this.referenceBuildId = tl.getVariable('PF.ReferenceBuildId') || '';
         this.displayName = tl.getVariable('Task.DisplayName') || '';
 
         this.typeString = tl.getInput('type') || '';
@@ -135,83 +136,21 @@ export class StaticAnalysisQualityService {
                 return;
             }
 
-            if (this.type == TypeEnum.TOTAl) { // Calculate the total number of issues in current build
-                const fileEntries = await this.buildClient.getBuildReportsWithId(currentBuildArtifact, this.buildId, this.fileSuffix);
-
-                let numberOfIssues: number = 0;
-                let fileEntry: FileEntry;
-                for (fileEntry of fileEntries) {
-                    const contentString = await fileEntry.contentsPromise;
-                    const contentJson = JSON.parse(contentString);
-                    numberOfIssues += this.countNumberOfIssues(contentJson);
-                }
-                const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
-                qualityGateResult.uploadQualityGateSummary();
-                return;
-            } else if (this.type == TypeEnum.NEW) {
-                if (this.referenceBuild == this.buildNumber) {
-                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no new issues will be detected since the build ID set is the same as the current build`);
-                    return;
-                }
-
-                const fileEntries = await this.getReferenceReports();
-                if (!fileEntries) {
-                    return;
-                }
-                if (fileEntries.length > 0) {
-                    fileEntries.map(async (fileEntry) => {
-                        tl.debug(`Found SARIF report: ${fileEntry.artifactName}/${fileEntry.filePath}`);
-                        const sarifContents = await fileEntry.contentsPromise;
-                        // TODO: Will be implemented in a separate task - Can get content of the reports here
-                        tl.debug("The content of SARIF report: " + sarifContents);
-                    })
-                } else {
-                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no static analysis reports were found in this build`);
-                }
+            let numberOfIssues: number = 0;
+            const fileEntries = await this.buildClient.getBuildReportsWithId(currentBuildArtifact, this.buildId, this.fileSuffix);
+            for (let fileEntry of fileEntries) {
+                const contentString = await fileEntry.contentsPromise;
+                const contentJson = JSON.parse(contentString);
+                numberOfIssues += this.countNumberOfIssues(contentJson);
             }
+
+            const qualityGateResult: QualityGateResult = this.evaluateQualityGate(numberOfIssues);
+            qualityGateResult.uploadQualityGateSummary();
         } catch(error) {
             tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
             console.error(error);
             return;
         }
-    }
-
-    getReferenceReports = async (): Promise<FileEntry[] | undefined> => {
-        const allBuildsForCurrentPipeline: Build[] = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, this.definitionId);
-        let fileEntries: FileEntry[] | undefined = undefined;
-        if (!this.referenceBuild) {
-            tl.debug("No reference build has been set; using the last successful build with static analysis results");
-            fileEntries = await this.buildClient.getDefaultBuildReports(allBuildsForCurrentPipeline, this.projectName, this.artifactName, this.fileSuffix);
-        } else {
-            const specificReferenceBuilds = allBuildsForCurrentPipeline.filter(build => {
-                return build.buildNumber == this.referenceBuild;
-            });
-
-            // Check for the specific reference build exist in current pipeline
-            if (specificReferenceBuilds.length == 1) {
-                const specificReferenceBuild = specificReferenceBuilds[0];
-                this.referenceBuildId = specificReferenceBuild.id;
-                // Check for the succeeded or paratially-succeeded results exist in the specific reference build
-                if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
-                    let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
-                    // Check for Parasoft results exist in the specific reference build
-                    const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.artifactName);
-                    if (artifact) {
-                        fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, this.fileSuffix);
-                        tl.debug(`Retrieved static analysis results from the reference build '${this.referenceBuild}'`);
-                    } else {
-                        tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in the specified reference build: '${this.referenceBuild}'`);
-                    }
-                } else {
-                    tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not successful or unstable`);
-                }
-            } else if (specificReferenceBuilds.length > 1) {
-                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' is not unique`);
-            } else {
-                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped，the specified reference build '${this.referenceBuild}' could not be found`);
-            }
-        }
-        return Promise.resolve(fileEntries);
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
@@ -251,17 +190,17 @@ export class StaticAnalysisQualityService {
                     switch (this.severity) {
                         case SeverityEnum.ERROR:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'error' && !this.isSuppressedIssue(result);
+                                return result.level == 'error' && !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
                             }).length;
                             break;
                         case SeverityEnum.WARNING:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'warning' && !this.isSuppressedIssue(result);
+                                return result.level == 'warning' && !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
                             }).length;
                             break;
                         case SeverityEnum.NOTE:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'note' && !this.isSuppressedIssue(result);
+                                return result.level == 'note' && !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
                             }).length;
                             break;
                         default:
@@ -272,6 +211,15 @@ export class StaticAnalysisQualityService {
             });
         }
         return numberOfIssues;
+    }
+
+    private filterViolsByQualityGateType(baselineState: string): boolean {
+        switch (this.type) {
+            case TypeEnum.NEW:
+                return baselineState == 'new';
+            default:
+                return true;
+        }
     }
 
     private isSuppressedIssue(result: any): boolean {
