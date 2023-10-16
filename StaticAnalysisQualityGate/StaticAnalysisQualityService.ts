@@ -41,6 +41,15 @@ export enum QualityGateStatusEnum {
     FAILED = "FAILED"
 }
 
+interface ReferenceBuildResult {
+    originalBuildNumber: string,
+    staticAnalysis?: {
+        buildId: string | undefined,
+        buildNumber:  string | undefined,
+        warningMessage: string | undefined
+    }
+}
+
 export class StaticAnalysisQualityService {
     readonly artifactName: string = 'CodeAnalysisLogs';
     readonly fileSuffix: FileSuffixEnum;
@@ -52,7 +61,6 @@ export class StaticAnalysisQualityService {
     readonly buildId: number;
     readonly buildNumber: string;
     readonly definitionId: number;
-    readonly referenceBuild: string;
     readonly displayName: string;
 
     readonly typeString: string;
@@ -64,7 +72,10 @@ export class StaticAnalysisQualityService {
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
     readonly threshold: number;
-    readonly referenceBuildId: string;
+    originalReferenceBuildNumber: string | undefined;
+    referenceBuildNumber: string | undefined;
+    referenceBuildId: string | undefined;
+    referenceBuildWarningMessage: string | undefined;
 
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
@@ -75,8 +86,6 @@ export class StaticAnalysisQualityService {
         this.buildId = Number(tl.getVariable('Build.BuildId'));
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
-        this.referenceBuild = tl.getVariable('PF.ReferenceBuild') || '';
-        this.referenceBuildId = tl.getVariable('PF.ReferenceBuildId') || '';
         this.displayName = tl.getVariable('Task.DisplayName') || '';
 
         this.typeString = tl.getInput('type') || '';
@@ -133,6 +142,21 @@ export class StaticAnalysisQualityService {
 
     run = async (): Promise<void> => {
         try {
+            let staticAnalysisReferenceBuild = tl.getVariable('PF.ReferenceBuildResult');
+            if (!staticAnalysisReferenceBuild) {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped: please run 'Publish Parasoft Results' task first`);
+                return;
+            }
+            let referenceBuild: ReferenceBuildResult = JSON.parse(<string> staticAnalysisReferenceBuild);
+            this.originalReferenceBuildNumber = referenceBuild.originalBuildNumber;
+            this.referenceBuildNumber = referenceBuild.staticAnalysis?.buildNumber;
+            this.referenceBuildId = referenceBuild.staticAnalysis?.buildId;
+            this.referenceBuildWarningMessage = referenceBuild.staticAnalysis?.warningMessage;
+
+            if (this.referenceBuildWarningMessage) {
+                tl.debug(this.referenceBuildWarningMessage);
+            }
+
             // Check for static analysis results exist in current build
             const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
             if (!currentBuildArtifact) {
@@ -158,8 +182,12 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.referenceBuildId, this.type, 
-                                                                         this.severity, this.threshold, this.defaultWorkingDirectory);
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, 
+                                                                         this.referenceBuildNumber || '',
+                                                                         this.referenceBuildId || '', 
+                                                                         this.referenceBuildWarningMessage || '',
+                                                                         this.type, this.severity, this.threshold, 
+                                                                         this.defaultWorkingDirectory);
 
         tl.debug("Evaluating quality gate");
         qualityGateResult.actualNumberOfIssues = numberOfIssues;
@@ -194,22 +222,22 @@ export class StaticAnalysisQualityService {
                     switch (this.severity) {
                         case SeverityEnum.ALL:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
+                                return !this.isSuppressedIssue(result) && this.doesViolMatchQualityGateType(result);
                             }).length;
                             break;
                         case SeverityEnum.ERROR:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'error' && !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
+                                return result.level == 'error' && !this.isSuppressedIssue(result) && this.doesViolMatchQualityGateType(result);
                             }).length;
                             break;
                         case SeverityEnum.WARNING:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'warning' && !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
+                                return result.level == 'warning' && !this.isSuppressedIssue(result) && this.doesViolMatchQualityGateType(result);
                             }).length;
                             break;
                         case SeverityEnum.NOTE:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return result.level == 'note' && !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
+                                return result.level == 'note' && !this.isSuppressedIssue(result) && this.doesViolMatchQualityGateType(result);
                             }).length;
                             break;
                         default:
@@ -222,10 +250,16 @@ export class StaticAnalysisQualityService {
         return numberOfIssues;
     }
 
-    private filterViolsByQualityGateType(baselineState: string): boolean {
+    private doesViolMatchQualityGateType(result: any): boolean {
+        if (!result) {
+            return false;
+        }
+        const baselineState = result.baselineState || 'new';
+
         switch (this.type) {
             case TypeEnum.NEW:
                 return baselineState == 'new';
+            case TypeEnum.TOTAl:
             default:
                 return true;
         }
@@ -236,6 +270,6 @@ export class StaticAnalysisQualityService {
     }
 
     private getQualityGateIdentification = (): string => {
-        return "Type: " + this.type + ", Severity: " + this.severity + ", Threshold: " + this.threshold + (this.referenceBuild ? ", Reference Build: " + this.referenceBuild : "");
+        return "Type: " + this.type + ", Severity: " + this.severity + ", Threshold: " + this.threshold + (this.originalReferenceBuildNumber ? ", Reference Build: " + this.originalReferenceBuildNumber : "");
     }
 }

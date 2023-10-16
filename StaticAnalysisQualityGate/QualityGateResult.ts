@@ -18,8 +18,9 @@ import { QualityGateStatusEnum, SeverityEnum, TypeEnum } from "./StaticAnalysisQ
 
 export class QualityGateResult {
     private _displayName: string;
-    private _referenceBuild: string;
+    private _referenceBuildNumber: string;
     private _referenceBuildId: string;
+    private _referenceBuildWarning: string;
     private _type: TypeEnum;
     private _severity: SeverityEnum;
     private _threshold: number;
@@ -29,15 +30,17 @@ export class QualityGateResult {
     private _actualNumberOfIssues: number = 0;
 
     constructor(displayName: string,
-                referenceBuild: string,
+                referenceBuildNumber: string,
                 referenceBuildId: string,
+                referenceBuildWarning: string,
                 type: TypeEnum,
                 severity: SeverityEnum,
                 threshold: number,
                 workingDir: string) {
       this._displayName = displayName;
-      this._referenceBuild = referenceBuild;
+      this._referenceBuildNumber = referenceBuildNumber;
       this._referenceBuildId = referenceBuildId;
+      this._referenceBuildWarning = referenceBuildWarning;
       this._type = type;
       this._severity = severity;
       this._threshold = threshold;
@@ -103,7 +106,13 @@ export class QualityGateResult {
       let text = `<div>${this._type} ${this._severity}s: ${this.getActualNumberOfIssuesText()}</div>\n`;
 
       if (this._type == TypeEnum.NEW) {
-          text += `<div>Reference build: <a href="./?buildId=${this._referenceBuildId}">#${this._referenceBuild}</a></div>\n`;
+          let buildText = 'N/A';
+          if (this._referenceBuildWarning == '' && this._referenceBuildId) {
+              buildText = `<a href="./?buildId=${this._referenceBuildId}">#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
+          } else if (this._referenceBuildWarning != '') {
+              buildText = `<span style="font-size: 12px;line-height:13px; color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildWarning}`;
+          }
+          text += `<div>Reference build: ${buildText}</div>\n`;
       }
 
       text += '<div>Quality gate: </div>\n' +
