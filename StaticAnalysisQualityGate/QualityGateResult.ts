@@ -20,6 +20,7 @@ export class QualityGateResult {
     private _displayName: string;
     private _referenceBuild: string;
     private _referenceBuildId: string;
+    private _referenceBuildWarning: string;
     private _type: TypeEnum;
     private _severity: SeverityEnum;
     private _threshold: number;
@@ -31,6 +32,7 @@ export class QualityGateResult {
     constructor(displayName: string,
                 referenceBuild: string,
                 referenceBuildId: string,
+                referenceBuildWarning: string,
                 type: TypeEnum,
                 severity: SeverityEnum,
                 threshold: number,
@@ -38,6 +40,7 @@ export class QualityGateResult {
       this._displayName = displayName;
       this._referenceBuild = referenceBuild;
       this._referenceBuildId = referenceBuildId;
+      this._referenceBuildWarning = referenceBuildWarning;
       this._type = type;
       this._severity = severity;
       this._threshold = threshold;
@@ -103,7 +106,13 @@ export class QualityGateResult {
       let text = `<div>${this._type} ${this._severity}s: ${this.getActualNumberOfIssuesText()}</div>\n`;
 
       if (this._type == TypeEnum.NEW) {
-          text += `<div>Reference build: <a href="./?buildId=${this._referenceBuildId}">#${this._referenceBuild}</a></div>\n`;
+          let buildText = '';
+          if (this._referenceBuildWarning == '') {
+              buildText = `<a href="./?buildId=${this._referenceBuildId}">#${this._referenceBuild}</a>`;
+          } else {
+              buildText = `<span style="font-size: 12px;line-height:13px; color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildWarning}`;
+          }
+          text += `<div>Reference build: ${buildText}</div>\n`;
       }
 
       text += '<div>Quality gate: </div>\n' +

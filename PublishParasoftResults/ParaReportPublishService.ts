@@ -120,7 +120,6 @@ export class ParaReportPublishService {
 
     constructor() {
         this.referenceBuild = tl.getInput('referenceBuild') || '';
-        tl.setVariable('PF.ReferenceBuild', this.referenceBuild); // Pass the reference build to subsequent tasks
 
         this.buildClient = new BuildAPIClient();
         this.projectName = tl.getVariable('System.TeamProject') || '';
@@ -902,7 +901,12 @@ export class ParaReportPublishService {
             // Check for the specific reference build exist in current pipeline
             if (specificReferenceBuilds.length == 1) {
                 const specificReferenceBuild = specificReferenceBuilds[0];
-                tl.setVariable('PF.ReferenceBuildId', specificReferenceBuild.id?.toString() || '');
+                // Pass the reference build to subsequent tasks
+                let staticAnalysisReferenceBuild = {
+                    referenceBuild: this.referenceBuild,
+                    referenceBuildId: (<number> specificReferenceBuild.id).toString()
+                }
+                tl.setVariable('PF.StaticAnalysisReferenceBuild', JSON.stringify(staticAnalysisReferenceBuild));
                 // Check for the succeeded or paratially-succeeded results exist in the specific reference build
                 if (specificReferenceBuild.result == BuildResult.Succeeded || specificReferenceBuild.result == BuildResult.PartiallySucceeded) {
                     let specificReferenceBuildId: number = Number(specificReferenceBuild.id);
@@ -918,9 +922,9 @@ export class ParaReportPublishService {
                     tl.warning(`The specified reference build '${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`);
                 }
             } else if (specificReferenceBuilds.length > 1) {
-                tl.warning(`The specified reference build '${this.referenceBuild}' is not unique`);
+                tl.setVariable('PF.StaticAnalysisReferenceBuildWarning', `The specified reference build '${this.referenceBuild}' is not unique`);
             } else {
-                tl.warning(`The specified reference build '${this.referenceBuild}' could not be found`);
+                tl.setVariable('PF.StaticAnalysisReferenceBuildWarning', `The specified reference build '${this.referenceBuild}' could not be found`);
             }
         }
         return Promise.resolve(fileEntries);

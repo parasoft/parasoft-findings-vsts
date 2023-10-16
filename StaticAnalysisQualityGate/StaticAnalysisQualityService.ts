@@ -65,6 +65,7 @@ export class StaticAnalysisQualityService {
     readonly buildStatus: BuildStatusEnum;
     readonly threshold: number;
     readonly referenceBuildId: string;
+    readonly referenceBuildWarning: string;
 
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
@@ -75,6 +76,18 @@ export class StaticAnalysisQualityService {
         this.buildId = Number(tl.getVariable('Build.BuildId'));
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+        let staticAnalysisReferenceBuild = tl.getVariable('PF.StaticAnalysisReferenceBuild');
+        let staticAnalysisReferenceBuildWarning = tl.getVariable('PF.StaticAnalysisReferenceBuildWarning');
+        if (staticAnalysisReferenceBuild && !staticAnalysisReferenceBuildWarning) {
+            let build = JSON.parse(<string> staticAnalysisReferenceBuild);
+            this.referenceBuild = build.referenceBuild;
+            this.referenceBuildId = build.referenceBuildId;
+            this.referenceBuildWarning = '';
+        } else {
+            this.referenceBuild = '';
+            this.referenceBuildId = '';
+            this.referenceBuildWarning = <string> staticAnalysisReferenceBuildWarning;
+        }
         this.referenceBuild = tl.getVariable('PF.ReferenceBuild') || '';
         this.referenceBuildId = tl.getVariable('PF.ReferenceBuildId') || '';
         this.displayName = tl.getVariable('Task.DisplayName') || '';
@@ -158,7 +171,7 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.referenceBuildId, this.type, 
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, this.referenceBuild, this.referenceBuildId, this.referenceBuildWarning, this.type,
                                                                          this.severity, this.threshold, this.defaultWorkingDirectory);
 
         tl.debug("Evaluating quality gate");

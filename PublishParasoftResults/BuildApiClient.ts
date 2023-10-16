@@ -84,6 +84,12 @@ export class BuildAPIClient {
                 if (artifact) {
                     fileEntries = await this.getBuildReportsWithId(artifact, lastSuccessfulBuildId, fileSuffix);
                     tl.debug(`Set build with ID ${lastSuccessfulBuildId} as the default reference build`);
+                    // Pass the reference build to subsequent tasks
+                    let staticAnalysisReferenceBuild = {
+                        referenceBuild: <string> allSuccessfulBuilds[index].buildNumber,
+                        referenceBuildId: lastSuccessfulBuildId.toString()
+                    }
+                    tl.setVariable('PF.StaticAnalysisReferenceBuild', JSON.stringify(staticAnalysisReferenceBuild));
                     break;
                 }
             }
