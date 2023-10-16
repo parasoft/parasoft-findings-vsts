@@ -194,7 +194,7 @@ export class StaticAnalysisQualityService {
                     switch (this.severity) {
                         case SeverityEnum.ALL:
                             numberOfIssues += run.results.filter((result: any) => {
-                                return !this.isSuppressedIssue(result);
+                                return !this.isSuppressedIssue(result) && this.filterViolsByQualityGateType(result.baselineState || 'new');
                             }).length;
                             break;
                         case SeverityEnum.ERROR:
