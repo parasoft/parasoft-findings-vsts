@@ -33,10 +33,11 @@
       "name": "severity",
       "type": "picklist",
       "label": "Severity",
-      "defaultValue": "Error",
+      "defaultValue": "Issue",
       "required": true,
       "helpMarkDown": "Severity of issues to be evaluated for the threshold.",
       "options": {
+        "Issue": "All",
         "Error": "Error",
         "Warning": "Warning",
         "Note": "Note"
@@ -54,12 +55,12 @@
       "name": "buildStatus",
       "type": "picklist",
       "label": "Build status if quality gate fails",
-      "defaultValue": "failed",
+      "defaultValue": "Failed",
       "required": true,
       "helpMarkDown": "Mark the build as unstable or failed if the quality gate is not passed.",
       "options": {
-        "failed": "Failed",
-        "unstable": "Unstable"
+        "Failed": "Failed",
+        "Unstable": "Unstable"
       }
     }
   ],

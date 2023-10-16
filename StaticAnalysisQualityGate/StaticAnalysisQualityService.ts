@@ -24,14 +24,15 @@ export const enum TypeEnum {
 }
 
 export const enum SeverityEnum {
+    ALL = "Issue",
     ERROR = "Error",
     WARNING = "Warning",
     NOTE = "Note"
 }
 
 export const enum BuildStatusEnum {
-    FAILED = "failed",
-    UNSTABLE = "unstable"
+    FAILED = "Failed",
+    UNSTABLE = "Unstable"
 }
 
 export enum QualityGateStatusEnum {
@@ -112,6 +113,9 @@ export class StaticAnalysisQualityService {
         }
 
         switch (this.severityString) {
+            case SeverityEnum.ALL:
+                this.severity = SeverityEnum.ALL;
+                break;
             case SeverityEnum.ERROR:
                 this.severity = SeverityEnum.ERROR;
                 break;
@@ -122,7 +126,7 @@ export class StaticAnalysisQualityService {
                 this.severity = SeverityEnum.NOTE;
                 break;
             default:
-                this.severity = SeverityEnum.ERROR;
+                this.severity = SeverityEnum.ALL;
         }
     }
 
@@ -249,6 +253,11 @@ export class StaticAnalysisQualityService {
             contentJson.runs.forEach((run: any) => {
                 if (run.results && run.results.length > 0) {
                     switch (this.severity) {
+                        case SeverityEnum.ALL:
+                            numberOfIssues += run.results.filter((result: any) => {
+                                return !this.isSuppressedIssue(result);
+                            }).length;
+                            break;
                         case SeverityEnum.ERROR:
                             numberOfIssues += run.results.filter((result: any) => {
                                 return result.level == 'error' && !this.isSuppressedIssue(result);
