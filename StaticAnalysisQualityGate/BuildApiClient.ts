@@ -115,8 +115,7 @@ export class BuildAPIClient {
                     filePath:        entry.name.replace(`${artifact.name}/`, ''),
                     buildId:         buildId,
                     contentsPromise: entry.async('string')
-                }))
-                .flat();
+                }));
     }
 
     async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer> {
