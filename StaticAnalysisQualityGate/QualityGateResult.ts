@@ -86,6 +86,15 @@ export class QualityGateResult {
         }
     }
 
+    public getSeverityText(): string {
+        switch (this._severity) {
+            case SeverityEnum.ALL:
+                return 'All';
+            default:
+                return `${this._severity}`;
+        }
+    }
+
     public uploadQualityGateSummary() : void {
       const mdStoragePath = this._workingDir + '/ParasoftQualityGatesMD';
       if (fs.existsSync(mdStoragePath)) {
@@ -109,7 +118,7 @@ export class QualityGateResult {
       text += '<div>Quality gate: </div>\n' +
               `<div style="margin-left: 20px;">Status: ${this.getStatusText()}</div>\n` +
               `<div style="margin-left: 20px;">Type: ${this.getQualityGateTypeText()}</div>\n` +
-              `<div style="margin-left: 20px;">Severity: ${this._severity}</div>\n` +
+              `<div style="margin-left: 20px;">Severity: ${this.getSeverityText()}</div>\n` +
               `<div style="margin-left: 20px;">Threshold: ${this._threshold.toString()}</div>`;
       return text;
     }
