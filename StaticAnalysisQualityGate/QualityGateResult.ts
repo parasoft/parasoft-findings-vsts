@@ -15,6 +15,7 @@
  */
 import * as fs from "fs";
 import { QualityGateStatusEnum, SeverityEnum, TypeEnum } from "./StaticAnalysisQualityService";
+import * as path from "path";
 
 export class QualityGateResult {
     private _displayName: string;
@@ -101,8 +102,11 @@ export class QualityGateResult {
     public uploadQualityGateSummary() : void {
       const mdStoragePath = this._workingDir + '/ParasoftQualityGatesMD';
       if (fs.existsSync(mdStoragePath)) {
-        // Remove all old markdown files
-        fs.rmSync(mdStoragePath, { recursive: true, force: true });
+          fs.readdirSync(mdStoragePath).forEach((file) => {
+              const filePath = path.join(mdStoragePath, file);
+              fs.unlinkSync(filePath);
+          });
+          fs.rmdirSync(mdStoragePath);
       }
       fs.mkdirSync(mdStoragePath);
       let markdownPath = `${mdStoragePath}/${this._displayName}.md`;
