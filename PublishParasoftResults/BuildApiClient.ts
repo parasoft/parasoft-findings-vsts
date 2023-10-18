@@ -20,6 +20,20 @@ import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfa
 import * as JSZip from 'jszip';
 import fetch, { Headers, RequestInit } from 'node-fetch';
 
+export interface DefaultBuildReportResults {
+    status: DefaultBuildReportResultsStatus,
+    buildId: number | undefined,
+    buildNumber: string | undefined,
+    reports: FileEntry[] | undefined
+}
+
+export enum DefaultBuildReportResultsStatus {
+    OK,
+    NO_SUCCESSFUL_BUILD,
+    NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS,
+    NO_PREVIOUS_BUILD_WAS_FOUND
+}
+
 export interface FileEntry {
     name: string,
     artifactName: string,
@@ -33,7 +47,6 @@ export enum FileSuffixEnum {
     // COBERTURA_SUFFIX = "-cobertura.xml"
 }
 
-/* This file is a copy of StaticAnalysisQualityGate/BuildApiClient.ts */
 export class BuildAPIClient {
     private readonly accessToken: string;
     private readonly buildApi: Promise<BuildApi.IBuildApi>;
@@ -69,8 +82,21 @@ export class BuildAPIClient {
         projectName: string,
         artifactName: string,
         fileSuffix: FileSuffixEnum
-        ): Promise<FileEntry[]> {
+        ): Promise<DefaultBuildReportResults> {
+
+        let defaultBuildReportResults: DefaultBuildReportResults = {
+            status: DefaultBuildReportResultsStatus.OK,
+            buildId: undefined,
+            buildNumber: undefined,
+            reports: undefined
+        }
+
         let fileEntries: FileEntry[] = [];
+        if (builds.length == 1) { // only include current build
+            defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND;
+            return Promise.resolve(defaultBuildReportResults);
+        }
+
         const allSuccessfulBuilds = builds.filter(build => {
             return build.result == BuildResult.Succeeded;
         });
@@ -83,18 +109,20 @@ export class BuildAPIClient {
                 const artifact: BuildArtifact = await (await this.buildApi).getArtifact(projectName, lastSuccessfulBuildId, artifactName);
                 if (artifact) {
                     fileEntries = await this.getBuildReportsWithId(artifact, lastSuccessfulBuildId, fileSuffix);
-                    tl.debug(`Set build with ID ${lastSuccessfulBuildId} as the default reference build`);
+                    defaultBuildReportResults.reports = fileEntries;
+                    defaultBuildReportResults.buildId = lastSuccessfulBuildId;
+                    defaultBuildReportResults.buildNumber = allSuccessfulBuilds[index].buildNumber;
                     break;
                 }
             }
             if (fileEntries.length == 0) {
-                tl.debug("Unable to find a build which has Parasoft reports to be used as the default reference build");
+                defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS;
             }
         } else {
-            tl.debug("Unable to find a successful build to be used as the default reference build");
+            defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD
         }
 
-        return Promise.resolve(fileEntries);
+        return Promise.resolve(defaultBuildReportResults);
     }
 
     async getBuildReportsWithId(

@@ -33,7 +33,6 @@ export enum FileSuffixEnum {
     // COBERTURA_SUFFIX = "-cobertura.xml"
 }
 
-/* This file is a copy of PublishParasoftResults/BuildApiClient.ts */
 export class BuildAPIClient {
     private readonly accessToken: string;
     private readonly buildApi: Promise<BuildApi.IBuildApi>;
@@ -62,39 +61,6 @@ export class BuildAPIClient {
         ): Promise<BuildArtifact> {
 
         return (await this.buildApi).getArtifact(projectName, buildId, artifactName);
-    }
-
-    async getDefaultBuildReports(
-        builds: Build[],
-        projectName: string,
-        artifactName: string,
-        fileSuffix: FileSuffixEnum
-        ): Promise<FileEntry[]> {
-        let fileEntries: FileEntry[] = [];
-        const allSuccessfulBuilds = builds.filter(build => {
-            return build.result == BuildResult.Succeeded;
-        });
-
-        if (allSuccessfulBuilds.length > 0) {
-            for (let index = 0; index < allSuccessfulBuilds.length; index++) {
-                let lastSuccessfulBuildId: number = Number(allSuccessfulBuilds[index].id);
-
-                // Check for results exist in the default reference build
-                const artifact: BuildArtifact = await (await this.buildApi).getArtifact(projectName, lastSuccessfulBuildId, artifactName);
-                if (artifact) {
-                    fileEntries = await this.getBuildReportsWithId(artifact, lastSuccessfulBuildId, fileSuffix);
-                    tl.debug(`Set build with ID ${lastSuccessfulBuildId} as the default reference build`);
-                    break;
-                }
-            }
-            if (fileEntries.length == 0) {
-                tl.debug("Unable to find a build which has Parasoft reports to be used as the default reference build");
-            }
-        } else {
-            tl.debug("Unable to find a successful build to be used as the default reference build");
-        }
-
-        return Promise.resolve(fileEntries);
     }
 
     async getBuildReportsWithId(
