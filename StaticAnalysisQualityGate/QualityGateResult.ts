@@ -57,11 +57,11 @@ export class QualityGateResult {
     public getStatusText() : string {
       switch (this._status) {
           case QualityGateStatusEnum.FAILED:
-              return  '<span style="color:red"><span style="font-size: 12px;line-height:14px" class="icon bowtie-icon bowtie-edit-delete"></span>Failed</span>';
+              return '<span style="color:red"><span style="font-size:13px;line-height:14px" class="icon bowtie-icon bowtie-edit-delete"></span>Failed</span>';
           case QualityGateStatusEnum.PASSED:
-              return '<span style="color:green"><span style="font-size: 12px;line-height:14px" class="icon bowtie-icon bowtie-check"></span>Passed</span>';
+              return '<span style="color:green"><span style="font-size:13px;line-height:14px" class="icon bowtie-icon bowtie-check"></span>Passed</span>';
           case QualityGateStatusEnum.UNSTABLE:
-              return '<span style="color:orange"><span style="font-size: 12px;line-height:13px" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span>Unstable</span>';
+              return '<span style="color:orange"><span style="font-size:13px;line-height:12px" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span>Unstable</span>';
       }
     }
 
@@ -119,16 +119,16 @@ export class QualityGateResult {
           if (this._referenceBuildWarning == '' && this._referenceBuildId) {
               buildText = `<a href="./?buildId=${this._referenceBuildId}">#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
           } else if (this._referenceBuildWarning != '') {
-              buildText = `<span style="font-size: 12px;line-height:13px; color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildWarning}`;
+              buildText = `<span style="font-size:13px;line-height:13px;color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildWarning}`;
           }
           text += `<div>Reference build: ${buildText}</div>\n`;
       }
 
       text += '<div>Quality gate: </div>\n' +
-              `<div style="margin-left: 20px;">Status: ${this.getStatusText()}</div>\n` +
-              `<div style="margin-left: 20px;">Type: ${this.getQualityGateTypeText()}</div>\n` +
-              `<div style="margin-left: 20px;">Severity: ${this.getSeverityText()}</div>\n` +
-              `<div style="margin-left: 20px;">Threshold: ${this._threshold.toString()}</div>`;
-      return text;
+              `<div style="margin-left:20px;">Status: ${this.getStatusText()}</div>\n` +
+              `<div style="margin-left:20px;">Type: ${this.getQualityGateTypeText()}</div>\n` +
+              `<div style="margin-left:20px;">Severity: ${this.getSeverityText()}</div>\n` +
+              `<div style="margin-left:20px;">Threshold: ${this._threshold.toString()}</div>`;
+      return `<div style="font-size:13px">${text}</div>`;
     }
  }
