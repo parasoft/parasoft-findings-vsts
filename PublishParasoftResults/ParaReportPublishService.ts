@@ -971,9 +971,9 @@ export class ParaReportPublishService {
         }
         if (warningMessage) {
             if (isDebugMessage) {
-                tl.debug(`${warningMessage} - all issues will be treated as new'`);
+                tl.debug(`${warningMessage} - all issues will be treated as new`);
             } else {
-                tl.warning(`${warningMessage} - all issues will be treated as new'`);
+                tl.warning(`${warningMessage} - all issues will be treated as new`);
             }
             this.referenceBuildResult.staticAnalysis.warningMessage = warningMessage + ' - all issues were treated as new';
         }

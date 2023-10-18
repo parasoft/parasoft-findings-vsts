@@ -270,6 +270,7 @@ export class StaticAnalysisQualityService {
     }
 
     private getQualityGateIdentification = (): string => {
-        return "Type: " + this.type + ", Severity: " + this.severity + ", Threshold: " + this.threshold + (this.originalReferenceBuildNumber ? ", Reference Build: " + this.originalReferenceBuildNumber : "");
+        const severityText: string = this.severity == SeverityEnum.ALL ? 'All' : this.severity;
+        return "Type: " + this.type + ", Severity: " + severityText + ", Threshold: " + this.threshold + (this.originalReferenceBuildNumber ? ", Reference Build: " + this.originalReferenceBuildNumber : "");
     }
 }
