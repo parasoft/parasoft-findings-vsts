@@ -160,12 +160,16 @@ export class StaticAnalysisQualityService {
             // Check for static analysis results exist in current build
             const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
             if (!currentBuildArtifact) {
-                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no artifacts were found in this build`);
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no Parasoft static analysis results were found in this build`);
                 return;
             }
 
             let numberOfIssues: number = 0;
             const fileEntries = await this.buildClient.getBuildReportsWithId(currentBuildArtifact, this.buildId, this.fileSuffix);
+            if (fileEntries.length == 0) {
+                tl.warning(`Quality gate '${this.getQualityGateIdentification()}' was skipped; no Parasoft static analysis results were found in this build`);
+                return;
+            }
             for (let fileEntry of fileEntries) {
                 const contentString = await fileEntry.contentsPromise;
                 const contentJson = JSON.parse(contentString);

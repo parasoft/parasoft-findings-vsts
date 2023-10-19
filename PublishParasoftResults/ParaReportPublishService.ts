@@ -926,7 +926,7 @@ export class ParaReportPublishService {
                         this.referenceBuildResult.staticAnalysis.buildNumber = defaultBuildReportResults.buildNumber;
                         break;
                     case DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS:
-                        warningMessage = 'No static analysis results were found in any of the previous successful builds';
+                        warningMessage = 'No Parasoft static analysis results were found in any of the previous successful builds';
                         break;
                     case DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND:
                         warningMessage = 'No previous build was found';
@@ -953,11 +953,11 @@ export class ParaReportPublishService {
                             fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, FileSuffixEnum.SARIF_SUFFIX);
                         }
                         if (artifact && fileEntries.length > 0) {
-                            tl.debug(`Retrieved static analysis results from the reference build '${this.referenceBuild}'`);
+                            tl.debug(`Retrieved Parasoft static analysis results from the reference build '${this.referenceBuild}'`);
                             this.referenceBuildResult.staticAnalysis.buildId = specificReferenceBuildId;
                             this.referenceBuildResult.staticAnalysis.buildNumber = this.referenceBuild;
                         } else {
-                            warningMessage = `No static analysis results were found in the specified reference build: '${this.referenceBuild}'`;
+                            warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${this.referenceBuild}'`;
                         }
                     } else {
                         warningMessage = `The specified reference build '${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
