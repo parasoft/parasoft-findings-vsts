@@ -198,16 +198,16 @@ export class StaticAnalysisQualityService {
 
         if (numberOfIssues < this.threshold) { // When the actual number of issues is less than this threshold
             qualityGateResult.status = QualityGateStatusEnum.PASSED;
-            tl.setResult(tl.TaskResult.Succeeded, `Quality gate '${this.getQualityGateIdentification()}' has been passed`);
+            tl.setResult(tl.TaskResult.Succeeded, `Quality gate '${this.getQualityGateIdentification()}' passed`);
         } else { // When the actual number of issues is greater than or equal to this threshold
             switch (this.buildStatus) {
                 case BuildStatusEnum.UNSTABLE:
                     qualityGateResult.status = QualityGateStatusEnum.UNSTABLE;
-                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is UNSTABLE`);
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' failed: build result is UNSTABLE`);
                     break;
                 case BuildStatusEnum.FAILED:
                     qualityGateResult.status = QualityGateStatusEnum.FAILED;
-                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' has been missed: result is FAILED`);
+                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' failed: build result is FAILED`);
                     break;
                 default:
                     // User will never come here
