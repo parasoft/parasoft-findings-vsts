@@ -16,7 +16,7 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as azdev from "azure-devops-node-api";
 import * as BuildApi from "azure-devops-node-api/BuildApi";
-import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import { BuildArtifact} from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import * as JSZip from 'jszip';
 import fetch, { Headers, RequestInit } from 'node-fetch';
 
@@ -44,14 +44,6 @@ export class BuildAPIClient {
         let authHandler = azdev.getPersonalAccessTokenHandler(this.accessToken);
         let connection = new azdev.WebApi(orgUrl, authHandler);
         this.buildApi = connection.getBuildApi();
-    }
-
-    async getBuildsForSpecificPipeline(
-        projectName: string,
-        definitionId: number
-        ): Promise<Build[]> {
-
-        return (await this.buildApi).getBuilds(projectName, [definitionId]);
     }
 
     async getBuildArtifact(
