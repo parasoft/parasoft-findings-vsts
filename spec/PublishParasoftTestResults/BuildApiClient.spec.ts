@@ -7,8 +7,16 @@ import { BuildResult } from '../../PublishParasoftResults/node_modules/azure-dev
 let buildClient: any;
 
 describe('Test Builds API Client', () => {
+    let mockWebApi: any;
     beforeEach(() => {
         spyOn(tl, 'getEndpointAuthorization');
+        mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
+            getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
+                getBuilds: jasmine.createSpy('getBuilds'),
+                getArtifact: jasmine.createSpy('getArtifact'),
+            }),
+        });
+        spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
     });
 
     it('getBuildsForSpecificPipeline()', async () => {
@@ -16,13 +24,7 @@ describe('Test Builds API Client', () => {
             id: 1,
             buildNumber: '20'
         }];
-        let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-            getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                getBuilds: jasmine.createSpy('getBuilds').and.returnValue(Promise.resolve(exceptedResult)),
-                getArtifact: jasmine.createSpy('getArtifact'),
-            }),
-        });
-        spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
+        mockWebApi().getBuildApi().getBuilds.and.returnValue(Promise.resolve(exceptedResult));
         buildClient = new BuildAPIClient();
 
         const result = await buildClient.getBuildsForSpecificPipeline('test-project', 1);
@@ -34,13 +36,7 @@ describe('Test Builds API Client', () => {
             id: 1,
             name: 'CodeAnalysisLogs'
         }];
-        let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-            getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                getBuilds: jasmine.createSpy('getBuilds'),
-                getArtifact: jasmine.createSpy('getArtifact').and.returnValue(exceptedResult),
-            }),
-        });
-        spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
+        mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(exceptedResult));
         buildClient = new BuildAPIClient();
 
         const result = await buildClient.getBuildArtifact('test-project', 1, 'CodeAnalysisLogs');
@@ -52,15 +48,8 @@ describe('Test Builds API Client', () => {
             let builds: any[] = [{
                 id: 1,
                 buildNumber: '20',
-                result: BuildResult.Failed
+                result: undefined
             }];
-            let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-                getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                    getBuilds: jasmine.createSpy('getBuilds'),
-                    getArtifact: jasmine.createSpy('getArtifact'),
-                }),
-            });
-            spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
             buildClient = new BuildAPIClient();
             spyOn(buildClient, 'getBuildReportsWithId');
 
@@ -86,13 +75,6 @@ describe('Test Builds API Client', () => {
                 buildNumber: '21',
                 result: BuildResult.PartiallySucceeded
             }];
-            let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-                getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                    getBuilds: jasmine.createSpy('getBuilds'),
-                    getArtifact: jasmine.createSpy('getArtifact'),
-                }),
-            });
-            spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
             buildClient = new BuildAPIClient();
             spyOn(buildClient, 'getBuildReportsWithId');
 
@@ -127,74 +109,79 @@ describe('Test Builds API Client', () => {
                     id: 1,
                     name: 'CodeAnalysisLogs'
                 };
-                let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-                    getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                        getBuilds: jasmine.createSpy('getBuilds'),
-                        getArtifact: jasmine.createSpy('getArtifact').and.returnValue(artifact),
-                    }),
-                });
-                spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
+                mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
                 buildClient = new BuildAPIClient();
-                const sarifContentString = '{"runs":[{"results":[{"ruleId":"ruleId","level":"level","partialFingerprints":{"unbViolId":testUnbViolId}}]}]}';
+                const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
+                const testBuildId = 1;
                 const fileEntries = [{
                     name: "Container/report-xml-sast.sarif",
-                    artifactName: "CodeAnalysisLogs",
+                    artifactName: artifact.name,
                     filePath: "Container/report-xml-sast.sarif",
-                    buildId: 1,
+                    buildId: testBuildId,
                     contentsPromise: Promise.resolve(sarifContentString)
                 }];
                 const expectedResult: DefaultBuildReportResults = {
                     status: DefaultBuildReportResultsStatus.OK,
-                    buildId: 1,
+                    buildId: testBuildId,
                     buildNumber: '20',
                     reports: fileEntries
                 };
                 spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(fileEntries);
 
-                const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX);
+                const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX);
                 expect(result).toEqual(expectedResult);
                 expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                 expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
             });
 
-            it('but does not have static analysis results', async () => {
-                const artifact = undefined;
-                let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-                    getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                        getBuilds: jasmine.createSpy('getBuilds'),
-                        getArtifact: jasmine.createSpy('getArtifact').and.returnValue(artifact),
-                    }),
+            describe('but does not have static analysis results', async () => {
+                it('- artifact is undefined', async () => {
+                    const artifact = undefined;
+                    mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
+                    buildClient = new BuildAPIClient();
+                                        spyOn(buildClient, 'getBuildReportsWithId');
+    
+                    const expectedResult: DefaultBuildReportResults = {
+                        status: DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS,
+                        buildId: undefined,
+                        buildNumber: undefined,
+                        reports: undefined
+                    }
+                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX);
+                    expect(result).toEqual(expectedResult);
+                    expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
+                    expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
                 });
-                spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
-                buildClient = new BuildAPIClient();
-                spyOn(buildClient, 'getBuildReportsWithId');
 
-                const expectedResult: DefaultBuildReportResults = {
-                    status: DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS,
-                    buildId: undefined,
-                    buildNumber: undefined,
-                    reports: undefined
-                }
-                const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX);
-                expect(result).toEqual(expectedResult);
-                expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
-                expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
+                it('- artifact is not undefined', async () => {
+                    const artifact = {
+                        id: 1,
+                        name: 'CodeAnalysisLogs'
+                    };
+                    mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
+                    buildClient = new BuildAPIClient();
+                    const mockFileEntries: any[] = [];
+                    spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(mockFileEntries);
+
+                    const expectedResult: DefaultBuildReportResults = {
+                        status: DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS,
+                        buildId: 1,
+                        buildNumber: '20',
+                        reports: mockFileEntries
+                    }
+                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX);
+                    expect(result).toEqual(expectedResult);
+                    expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
+                    expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
+                });
             });
         });
     });
 
     it('getBuildReportsWithId()', async () => {
-        let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-            getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                getBuilds: jasmine.createSpy('getBuilds'),
-                getArtifact: jasmine.createSpy('getArtifact'),
-            }),
-        });
-        spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
         buildClient = new BuildAPIClient();
-
         const mockArtifact = {
-            resource: { downloadUrl: 'http://example.com/downloads/CodeAnalysisLogs.zip' },
+            resource: { downloadUrl: 'https://example.com/downloads/CodeAnalysisLogs.zip' },
             name: 'CodeAnalysisLogs',
         };
         const mockZip: any = {
@@ -220,23 +207,24 @@ describe('Test Builds API Client', () => {
                 return this.files[name];
             },
         };
+        const testBuildId = 1;
         const expectedResult: any[] = [{
             name: "report1-sarif-pf-sast.sarif",
-            artifactName: "CodeAnalysisLogs",
+            artifactName: mockArtifact.name,
             filePath: "report1-sarif-pf-sast.sarif",
-            buildId: 1,
+            buildId: testBuildId,
             contentsPromise: 'report_1_content_promise_resolved'
         }, {
             name: "report2-sarif-pf-sast.sarif",
-            artifactName: "CodeAnalysisLogs",
+            artifactName: mockArtifact.name,
             filePath: "report2-sarif-pf-sast.sarif",
-            buildId: 1,
+            buildId: testBuildId,
             contentsPromise: 'report_2_content_promise_resolved'
         }];
         spyOn(buildClient, 'getArtifactContentZip').and.returnValue(new ArrayBuffer(0));
         spyOn(JSZip, 'loadAsync').and.returnValue(Promise.resolve(mockZip));
 
-        const result = await buildClient.getBuildReportsWithId(mockArtifact, 1, FileSuffixEnum.SARIF_SUFFIX);
+        const result = await buildClient.getBuildReportsWithId(mockArtifact, testBuildId, FileSuffixEnum.SARIF_SUFFIX);
         expect(result).toEqual(expectedResult);
         expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
         expect(JSZip.loadAsync).toHaveBeenCalled();
@@ -244,19 +232,11 @@ describe('Test Builds API Client', () => {
 
     describe ('getArtifactContentZip()', async () => {
         beforeEach(() => {
-            let mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
-                getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
-                    getBuilds: jasmine.createSpy('getBuilds'),
-                    getArtifact: jasmine.createSpy('getArtifact'),
-                }),
-            });
-            spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
             buildClient = new BuildAPIClient();
-        })
+        });
 
         it('should throw a TypeError for non-absolute URLs', async () => {
             const downloadUrl = 'example.com/artifact.zip'; // Non-absolute URL
-
             try {
                 await buildClient.getArtifactContentZip(downloadUrl);
             } catch (error: any) {
@@ -267,7 +247,6 @@ describe('Test Builds API Client', () => {
 
         it('should return empty when url is not available', async () => {
             const downloadUrl = 'https://example.com/CodeAnalysisLogs.zip';
-
             const resultArrayBuffer = await buildClient.getArtifactContentZip(downloadUrl);
             const result: string = String.fromCharCode.apply(null, resultArrayBuffer); // Transfer arrayBuffer to string
             expect(result).toEqual('');

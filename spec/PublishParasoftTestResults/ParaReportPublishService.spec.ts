@@ -6,7 +6,7 @@ import * as axios from '../../PublishParasoftResults/node_modules/axios';
 import * as dp from "../../PublishParasoftResults/node_modules/dot-properties";
 import * as path from 'path';
 import { ParaReportPublishService } from "../../PublishParasoftResults/ParaReportPublishService";
-import { DefaultBuildReportResults, DefaultBuildReportResultsStatus, FileEntry } from '../../PublishParasoftResults/BuildApiClient';
+import { DefaultBuildReportResultsStatus } from '../../PublishParasoftResults/BuildApiClient';
 import { BuildResult } from '../../PublishParasoftResults/node_modules/azure-devops-node-api/interfaces/BuildInterfaces';
 
 let publisher: any;
@@ -19,6 +19,7 @@ describe("Parasoft findings Azure", () => {
         spyOn(tl, 'getBoolInput').and.returnValue(false);
         spyOn(tl, 'debug');
         spyOn(tl, 'setResult');
+        spyOn(tl, 'setVariable');
         spyOn(tl, 'warning');
         spyOn(tl, 'error');
         spyOn(tl, 'getEndpointAuthorization');
@@ -62,6 +63,7 @@ describe("Parasoft findings Azure", () => {
             expect(publisher.xUnitReports.length).toBe(0);
             expect(publisher.coberturaReports.length).toBe(0);
             expect(publisher.transform).not.toHaveBeenCalled();
+            expect(tl.setVariable).toHaveBeenCalledTimes(1);
         });
 
         it('SARIF', async () => {
@@ -74,6 +76,7 @@ describe("Parasoft findings Azure", () => {
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).not.toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
+            expect(tl.setVariable).toHaveBeenCalledTimes(2);
 
             fs.unlink(__dirname + '/resources/reports/SARIF-sarif-pf-sast.sarif', () => {});
         });
@@ -726,18 +729,9 @@ describe("Parasoft findings Azure", () => {
     });
 
     describe('getReferenceSarifReports()', () => {
-        let defaultBuildReportResults: DefaultBuildReportResults;
-        let warningMessage: string;
-        let testWarningMessage: (isDebugMessage: boolean) => void;
+        let testWarningMessage: (warningMessage: string, isDebugMessage: boolean) => void;
 
         beforeEach(() => {
-            defaultBuildReportResults = {
-                status: DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND,
-                buildId: 19,
-                buildNumber: '19',
-                reports: undefined
-            };
-
             let builds: any[] = [{
                 id: 1,
                 buildNumber: '20',
@@ -763,7 +757,7 @@ describe("Parasoft findings Azure", () => {
             spyOn(publisher.buildClient, 'getBuildsForSpecificPipeline').and.returnValue(builds);
             spyOn(publisher.buildClient, 'getDefaultBuildReports');
 
-            testWarningMessage = (isDebugMessage: boolean) => {
+            testWarningMessage = (warningMessage: string, isDebugMessage: boolean) => {
                 const expectedWarningMessage: string = warningMessage + ' - all issues will be treated as new'
                 if (isDebugMessage) {
                     expect(tl.debug).toHaveBeenCalledWith(expectedWarningMessage);
@@ -780,54 +774,70 @@ describe("Parasoft findings Azure", () => {
             });
 
             it('- has available default report', async () => {
-                defaultBuildReportResults.status = DefaultBuildReportResultsStatus.OK;
+                const defaultBuildReportResults = {
+                    status: DefaultBuildReportResultsStatus.OK,
+                    buildId: 19,
+                    buildNumber: '19',
+                    reports: ['path/to/sarif/report']
+                };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
 
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
+                expect(await publisher.getReferenceSarifReports()).toEqual(defaultBuildReportResults.reports);
                 expect(publisher.referenceBuildResult.staticAnalysis.buildId).toEqual(defaultBuildReportResults.buildId);
                 expect(publisher.referenceBuildResult.staticAnalysis.buildNumber).toEqual(defaultBuildReportResults.buildNumber);
             });
 
             it('- no parasoft results in default report', async () => {
-                defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS;
+                const defaultBuildReportResults = {
+                    status: DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS,
+                    buildId: 19,
+                    buildNumber: '19',
+                    reports: undefined
+                };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-                warningMessage = 'No Parasoft static analysis results were found in any of the previous successful builds';
+                const warningMessage = 'No Parasoft static analysis results were found in any of the previous successful builds';
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
 
             it('- no previous build is found', async () => {
-                defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND;
+                const defaultBuildReportResults = {
+                    status: DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND,
+                    buildId: undefined,
+                    buildNumber: undefined,
+                    reports: undefined
+                };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-                warningMessage = 'No previous build was found';
+                const warningMessage = 'No previous build was found';
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(true);
+                testWarningMessage(warningMessage, true);
             });
 
             it('- no successful build', async () => {
-                defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD;
+                const defaultBuildReportResults = {
+                    status: DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD,
+                    buildId: undefined,
+                    buildNumber: undefined,
+                    reports: undefined
+                };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-                warningMessage = 'No successful build was found';
+                const warningMessage = 'No successful build was found';
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
         });
 
         describe('when the reference build is set', () => {
-            beforeEach(() => {
-                publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-            });
-
             it('- is same as current build number', async () => {
                 publisher.referenceBuild = 20;
                 publisher.buildNumber = 20;
-                warningMessage = 'Using the current build as the reference';
+                const warningMessage = 'Using the current build as the reference';
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
 
             it('- exists in current pipeline and is succeed with static analysis results', async () => {
@@ -836,12 +846,12 @@ describe("Parasoft findings Azure", () => {
                     name: 'CodeAnalysisLogs'
                 };
                 spyOn(publisher.buildClient, 'getBuildArtifact').and.returnValue(buildArtifact);
-                const sarifContentString = '{"runs":[{"results":[{"ruleId":"ruleId","level":"level","partialFingerprints":{"unbViolId":testUnbViolId}}]}]}';
+                const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
                 const expectedResult: any[] = [{
                     name: "Container/report-xml-sast.sarif",
-                    artifactName: "CodeAnalysisLogs",
+                    artifactName: buildArtifact.name,
                     filePath: "Container/report-xml-sast.sarif",
-                    buildId: 1,
+                    buildId: 2,
                     contentsPromise: Promise.resolve(sarifContentString)
                 }];
                 spyOn(publisher.buildClient, 'getBuildReportsWithId').and.returnValue(expectedResult);
@@ -852,34 +862,34 @@ describe("Parasoft findings Azure", () => {
 
             it('- exists in current pipeline and is partially succeed with no static analysis results', async () => {
                 publisher.referenceBuild = 21;
-                warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${publisher.referenceBuild}'`;
+                const warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${publisher.referenceBuild}'`;
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
 
             it('- exists in current pipeline and is neither succeed nor partially succeed', async () => {
                 publisher.referenceBuild = 22;
-                warningMessage = `The specified reference build '${publisher.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
+                const warningMessage = `The specified reference build '${publisher.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
 
             it('- exists in current pipeline but is not unique', async () => {
                 publisher.referenceBuild = 23;
-                warningMessage = `The specified reference build '${publisher.referenceBuild}' is not unique`;
+                const warningMessage = `The specified reference build '${publisher.referenceBuild}' is not unique`;
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
 
             it('- does not exist in current pipeline', async () => {
-                publisher.referenceBuild = 19;
-                warningMessage = `The specified reference build '${publisher.referenceBuild}' could not be found`;
+                publisher.referenceBuild = 32;
+                const warningMessage = `The specified reference build '${publisher.referenceBuild}' could not be found`;
 
                 expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(false);
+                testWarningMessage(warningMessage, false);
             });
         });
     });
@@ -893,8 +903,8 @@ describe("Parasoft findings Azure", () => {
             testUnbViolId = "95f6cbd1-cbe0-597a-8b6f-11f4da185fec";
 
             testAppendBaselineState = async (baselineState: string) => {
-                const currentSarifContentJson: any = {"runs":[{"results":[{"ruleId":"ruleId","level":"level","partialFingerprints":{"unbViolId":testUnbViolId}}]}]};
-                const expectedResult = {"runs":[{"results":[{"ruleId":"ruleId","level":"level","partialFingerprints":{"unbViolId":testUnbViolId},"baselineState":baselineState}]}]};
+                const currentSarifContentJson: any = {"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":testUnbViolId}}]}]};
+                const expectedResult = {"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":testUnbViolId},"baselineState":baselineState}]}]};
 
                 expect(await publisher.appendBaselineState(currentSarifContentJson, undefined)).toEqual(expectedResult);
             }
@@ -921,8 +931,8 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('when unbViolId exists in the reference SARIF report', async () => {
-            const referenceSarifContentPromise: Promise<string> = Promise.resolve('{"runs":[{"results":[{"ruleId":"ruleId","level":"level","partialFingerprints":{"unbViolId":"95f6cbd1-cbe0-597a-8b6f-11f4da185fec"}}]}]}');
-            const referenceSarifReport: FileEntry = {
+            const referenceSarifContentPromise: Promise<string> = Promise.resolve(`{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":"95f6cbd1-cbe0-597a-8b6f-11f4da185fec"}}]}]}`);
+            const referenceSarifReport = {
                 name: "name",
                 artifactName: "artifactName",
                 filePath: "filePath",
