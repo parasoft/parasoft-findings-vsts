@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
-import { Build, BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
-import { BuildAPIClient, FileEntry, FileSuffixEnum } from './BuildApiClient';
+import { BuildArtifact } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import { BuildAPIClient, FileSuffixEnum } from './BuildApiClient';
 import { QualityGateResult } from './QualityGateResult';
 
 export const enum TypeEnum {

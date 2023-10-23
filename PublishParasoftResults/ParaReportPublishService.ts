@@ -181,10 +181,16 @@ export class ParaReportPublishService {
             tl.warning('No test result files matching ' + this.inputReportFiles + ' were found.');
             tl.setResult(tl.TaskResult.Succeeded, '');
         } else {
-            if (!this.isNullOrWhitespace(this.dtpBaseUrl)) {
-                this.verifyDtpRuleDocsService().then(async () => await this.transformReports(this.matchingInputReportFiles, 0));
-            } else {
-                await this.transformReports(this.matchingInputReportFiles, 0);
+            try {
+                if (!this.isNullOrWhitespace(this.dtpBaseUrl)) {
+                    this.verifyDtpRuleDocsService().then(async () => await this.transformReports(this.matchingInputReportFiles, 0));
+                } else {
+                    await this.transformReports(this.matchingInputReportFiles, 0);
+                }
+            } catch (error) {
+                tl.error('Error. See log for details');
+                console.error(error);
+                return;
             }
         }
     }
@@ -226,7 +232,7 @@ export class ParaReportPublishService {
                             reportType = ReportType.XML_STATIC_AND_SOATEST;
                         }
                     } else {
-                        tl.debug("Recognized and skipped legacy XML Static Analysis report : " + report);
+                        tl.debug("Recognized and skipped legacy XML Static Analysis report: " + report);
                     }
 
                 } else if (node.name == 'Exec') {
