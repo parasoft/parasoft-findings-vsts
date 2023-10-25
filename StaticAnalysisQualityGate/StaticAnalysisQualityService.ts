@@ -96,46 +96,49 @@ export class StaticAnalysisQualityService {
         this.threshold = parseInt(this.thresholdString || '0');
 
         if (isNaN(this.threshold)) {
-            tl.warning('Illegal threshold value \'' + this.thresholdString + '\', using default value 0');
+            tl.warning(`Invalid value for 'threshold': ${this.thresholdString}, using default value 0`);
             this.threshold = 0;
         }
 
-        switch (this.typeString) {
-            case TypeEnum.NEW:
+        switch (this.typeString.toLowerCase()) {
+            case TypeEnum.NEW.toLowerCase():
                 this.type = TypeEnum.NEW;
                 break;
-            case TypeEnum.TOTAl:
+            case TypeEnum.TOTAl.toLowerCase():
                 this.type = TypeEnum.TOTAl;
                 break;
             default:
+                tl.warning(`Invalid value for 'type': ${this.typeString}, using default value 'Total'`);
                 this.type = TypeEnum.TOTAl;
         }
 
-        switch (this.buildStatusString) {
-            case BuildStatusEnum.FAILED:
+        switch (this.buildStatusString.toLowerCase()) {
+            case BuildStatusEnum.FAILED.toLowerCase():
                 this.buildStatus = BuildStatusEnum.FAILED;
                 break;
-            case BuildStatusEnum.UNSTABLE:
+            case BuildStatusEnum.UNSTABLE.toLowerCase():
                 this.buildStatus = BuildStatusEnum.UNSTABLE;
                 break;
             default:
+                tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'Failed'`);
                 this.buildStatus = BuildStatusEnum.FAILED;
         }
 
-        switch (this.severityString) {
-            case SeverityEnum.ALL:
+        switch (this.severityString.toLowerCase()) {
+            case SeverityEnum.ALL.toLowerCase():
                 this.severity = SeverityEnum.ALL;
                 break;
-            case SeverityEnum.ERROR:
+            case SeverityEnum.ERROR.toLowerCase():
                 this.severity = SeverityEnum.ERROR;
                 break;
-            case SeverityEnum.WARNING:
+            case SeverityEnum.WARNING.toLowerCase():
                 this.severity = SeverityEnum.WARNING;
                 break;
-            case SeverityEnum.NOTE:
+            case SeverityEnum.NOTE.toLowerCase():
                 this.severity = SeverityEnum.NOTE;
                 break;
             default:
+                tl.warning(`Invalid value for 'severity': ${this.severityString}, using default value 'Issue'`);
                 this.severity = SeverityEnum.ALL;
         }
     }

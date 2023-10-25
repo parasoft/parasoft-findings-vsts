@@ -109,57 +109,94 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         }];
     });
 
-    it('When thresholds is empty, should set threshold to 0', () => {
-        settings.threshold = 'NaN';
-
+    it('Setting Quality Gate thresholds', () => {
+        settings.threshold = 'a10';
         let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
+        expect(staticAnalysisQualityService.threshold).toEqual(0);
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'threshold\': a10, using default value 0');
 
-        expect(tl.warning).toHaveBeenCalledWith('Illegal threshold value \'NaN\', using default value 0');
+        settings.threshold = '10a';
+        staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
+        expect(staticAnalysisQualityService.threshold).toEqual(10);
+
+        settings.threshold='10.0';
+        staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
+        expect(staticAnalysisQualityService.threshold).toEqual(10);
     });
 
     it('Setting Quality Gate type', () => {
-        settings.type = 'Total';
-        let typeTotal = createQualityGate(settings, mockWebApi);
-        settings.type = 'New';
-        let typeNew = createQualityGate(settings, mockWebApi);
         settings.type = 'unknown';
         let typeUnknown = createQualityGate(settings, mockWebApi);
-
-        expect(typeTotal.type).toEqual(TypeEnum.TOTAl);
-        expect(typeNew.type).toEqual(TypeEnum.NEW);
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'type\': unknown, using default value \'Total\'');
         expect(typeUnknown.type).toEqual(TypeEnum.TOTAl);
+
+        settings.type = 'total';
+        let typeTotal = createQualityGate(settings, mockWebApi);
+        expect(typeTotal.type).toEqual(TypeEnum.TOTAl);
+        settings.type = 'new';
+        let typeNew = createQualityGate(settings, mockWebApi);
+        expect(typeNew.type).toEqual(TypeEnum.NEW);
+
+        settings.type = 'Total';
+        typeTotal = createQualityGate(settings, mockWebApi);
+        expect(typeTotal.type).toEqual(TypeEnum.TOTAl);
+        settings.type = 'New';
+        typeNew = createQualityGate(settings, mockWebApi);
+        expect(typeNew.type).toEqual(TypeEnum.NEW);
     });
 
     it('Setting Quality Gate status', () => {
-        settings.buildStatus = 'Unstable';
-        let unstable = createQualityGate(settings, mockWebApi);
-        settings.buildStatus = 'Failed';
-        let failed = createQualityGate(settings, mockWebApi);
         settings.buildStatus = 'unknown';
         let unknown = createQualityGate(settings, mockWebApi);
-
-        expect(unstable.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
-        expect(failed.buildStatus).toEqual(BuildStatusEnum.FAILED);
         expect(unknown.buildStatus).toEqual(BuildStatusEnum.FAILED);
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'buildStatus\': unknown, using default value \'Failed\'');
+
+        settings.buildStatus = 'unstable';
+        let unstable = createQualityGate(settings, mockWebApi);
+        expect(unstable.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
+        settings.buildStatus = 'failed';
+        let failed = createQualityGate(settings, mockWebApi);
+        expect(failed.buildStatus).toEqual(BuildStatusEnum.FAILED);
+
+        settings.buildStatus = 'Unstable';
+        unstable = createQualityGate(settings, mockWebApi);
+        expect(unstable.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
+        settings.buildStatus = 'Failed';
+        failed = createQualityGate(settings, mockWebApi);
+        expect(failed.buildStatus).toEqual(BuildStatusEnum.FAILED);
     });
 
     it('Setting Quality Gate severity', () => {
-        settings.severity = 'Issue';
-        let severityIssue = createQualityGate(settings, mockWebApi);
-        settings.severity = 'Error';
-        let severityError = createQualityGate(settings, mockWebApi);
-        settings.severity = 'Warning';
-        let severityWarning = createQualityGate(settings, mockWebApi);
-        settings.severity = 'Note';
-        let severityNote = createQualityGate(settings, mockWebApi);
-        settings.severity = 'UnKnow';
+        settings.severity = 'UnKnown';
         let severityUnKnow = createQualityGate(settings, mockWebApi);
-
-        expect(severityIssue.severity).toEqual(SeverityEnum.ALL);
-        expect(severityError.severity).toEqual(SeverityEnum.ERROR);
-        expect(severityWarning.severity).toEqual(SeverityEnum.WARNING);
-        expect(severityNote.severity).toEqual(SeverityEnum.NOTE);
         expect(severityUnKnow.severity).toEqual(SeverityEnum.ALL);
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'severity\': UnKnown, using default value \'Issue\'');
+
+        settings.severity = 'issue';
+        let severityIssue = createQualityGate(settings, mockWebApi);
+        expect(severityIssue.severity).toEqual(SeverityEnum.ALL);
+        settings.severity = 'error';
+        let severityError = createQualityGate(settings, mockWebApi);
+        expect(severityError.severity).toEqual(SeverityEnum.ERROR);
+        settings.severity = 'warning';
+        let severityWarning = createQualityGate(settings, mockWebApi);
+        expect(severityWarning.severity).toEqual(SeverityEnum.WARNING);
+        settings.severity = 'note';
+        let severityNote = createQualityGate(settings, mockWebApi);
+        expect(severityNote.severity).toEqual(SeverityEnum.NOTE);
+
+        settings.severity = 'Issue';
+        severityIssue = createQualityGate(settings, mockWebApi);
+        expect(severityIssue.severity).toEqual(SeverityEnum.ALL);
+        settings.severity = 'Error';
+        severityError = createQualityGate(settings, mockWebApi);
+        expect(severityError.severity).toEqual(SeverityEnum.ERROR);
+        settings.severity = 'Warning';
+        severityWarning = createQualityGate(settings, mockWebApi);
+        expect(severityWarning.severity).toEqual(SeverityEnum.WARNING);
+        settings.severity = 'Note';
+        severityNote = createQualityGate(settings, mockWebApi);
+        expect(severityNote.severity).toEqual(SeverityEnum.NOTE);
     });
 
     it('When reference build result is empty, Quality Gate should be skipped', async () => {
