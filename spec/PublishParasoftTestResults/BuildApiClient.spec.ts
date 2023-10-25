@@ -12,11 +12,24 @@ describe('Test Builds API Client', () => {
         spyOn(tl, 'getEndpointAuthorization');
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
             getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
+                getDefinitions: jasmine.createSpy('getBuilds'),
                 getBuilds: jasmine.createSpy('getBuilds'),
                 getArtifact: jasmine.createSpy('getArtifact'),
             }),
         });
         spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
+    });
+
+    it('getSpecificPipelines()', async () => {
+        const exceptedResult: any[] = [{
+            id: 1,
+            name: 'test-definitiaon-name'
+        }];
+        mockWebApi().getBuildApi().getDefinitions.and.returnValue(Promise.resolve(exceptedResult));
+        buildClient = new BuildAPIClient();
+
+        const result = await buildClient.getSpecificPipelines('test-project', 'test-pipeline');
+        expect(result).toEqual(exceptedResult);
     });
 
     it('getBuildsForSpecificPipeline()', async () => {
