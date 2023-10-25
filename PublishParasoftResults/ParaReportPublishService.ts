@@ -944,8 +944,7 @@ export class ParaReportPublishService {
         } else {
             if (!this.referencePipeline) { // Reference pipeline is not specified
                 tl.debug("No reference pipeline has been set; using the current pipeline as reference.");
-                referenceBuildInfo = await this.getBuildsForSpecificPipeline(this.definitionId);
-                referenceBuildInfo.staticAnalysis.pipelineName = this.pipelineName;
+                referenceBuildInfo = await this.getBuildsForSpecificPipeline(this.definitionId, this.pipelineName);
             } else { // Reference pipeline is specified
                 // Get the reference pipeline id based on the reference pipeline name specified in the configuration UI
                 const specificPipelines: BuildDefinitionReference[] = await this.buildClient.getSpecificPipelines(this.projectName, this.referencePipeline);
@@ -953,8 +952,7 @@ export class ParaReportPublishService {
                 if (specificPipelines.length == 1) {
                     const specificReferencePipeline = specificPipelines[0];
                     let specificReferencePipelineId : number = Number(specificReferencePipeline.id);
-                    referenceBuildInfo = await this.getBuildsForSpecificPipeline(specificReferencePipelineId);
-                    referenceBuildInfo.staticAnalysis.pipelineName = specificReferencePipeline.name;
+                    referenceBuildInfo = await this.getBuildsForSpecificPipeline(specificReferencePipelineId, specificReferencePipeline.name || '');
                 } else if (specificPipelines.length > 1) {
                     referenceBuildInfo.warningMessage = `The specified reference pipeline '${this.referencePipeline}' is not unique`;
                 } else {
@@ -974,11 +972,11 @@ export class ParaReportPublishService {
         return Promise.resolve(referenceBuildInfo.fileEntries);
     }
 
-    private async getBuildsForSpecificPipeline(specificReferencePipelineId: number): Promise<ReferenceBuildInformation> {
+    private async getBuildsForSpecificPipeline(specificReferencePipelineId: number, pipelineName: string): Promise<ReferenceBuildInformation> {
         const referenceBuildInfo: ReferenceBuildInformation = {
             fileEntries: [],
             staticAnalysis: {
-                pipelineName: undefined,
+                pipelineName: pipelineName,
                 buildId: undefined,
                 buildNumber: undefined,
                 warningMessage: undefined
@@ -988,25 +986,25 @@ export class ParaReportPublishService {
         };
         const allBuildsForSpecificPipeline = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, specificReferencePipelineId);
         if (!this.referenceBuild) { // Reference build is not specified
-            tl.debug("No reference build has been set; using the last successful build as reference.");
+            tl.debug(`No reference build has been set; using the last successful build in pipeline '${pipelineName}' as reference.`);
             let defaultBuildReportResults: DefaultBuildReportResults = await this.buildClient.getDefaultBuildReports(allBuildsForSpecificPipeline, this.projectName, this.SARIF_ARTIFACT_NAME, FileSuffixEnum.SARIF_SUFFIX);
             switch (defaultBuildReportResults.status) {
                 case DefaultBuildReportResultsStatus.OK:
                     referenceBuildInfo.fileEntries = defaultBuildReportResults.reports || [];
-                    tl.debug(`Set build '${defaultBuildReportResults.buildNumber}' as the default reference build`);
+                    tl.debug(`Set build '${pipelineName}#${defaultBuildReportResults.buildNumber}' as the default reference build`);
                     referenceBuildInfo.staticAnalysis.buildId = defaultBuildReportResults.buildId;
                     referenceBuildInfo.staticAnalysis.buildNumber = defaultBuildReportResults.buildNumber;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS:
-                    referenceBuildInfo.warningMessage = 'No Parasoft static analysis results were found in any of the previous successful builds';
+                    referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in any of the previous successful builds in pipeline '${pipelineName}'`;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND:
-                    referenceBuildInfo.warningMessage = 'No previous build was found';
+                    referenceBuildInfo.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
                     referenceBuildInfo.isDebugMessage = true;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD:
                 default:
-                    referenceBuildInfo.warningMessage = 'No successful build was found';
+                    referenceBuildInfo.warningMessage = `No successful build was found in pipeline '${pipelineName}'`;
                     return referenceBuildInfo;
             }
         } else { // Reference build is specified
@@ -1015,12 +1013,12 @@ export class ParaReportPublishService {
             });
 
             if (specificReferenceBuilds.length > 1) {
-                referenceBuildInfo.warningMessage = `The specified reference build '${this.referenceBuild}' is not unique`;
+                referenceBuildInfo.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' is not unique`;
                 return referenceBuildInfo;
             }
 
             if (specificReferenceBuilds.length == 0) {
-                referenceBuildInfo.warningMessage = `The specified reference build '${this.referenceBuild}' could not be found`;
+                referenceBuildInfo.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' could not be found`;
                 return referenceBuildInfo;
             }
 
@@ -1028,7 +1026,7 @@ export class ParaReportPublishService {
             const specificReferenceBuild = specificReferenceBuilds[0];
             // Check for the succeeded or paratially-succeeded results exist in the specific reference build
             if (specificReferenceBuild.result != BuildResult.Succeeded && specificReferenceBuild.result != BuildResult.PartiallySucceeded) {
-                referenceBuildInfo.warningMessage = `The specified reference build '${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
+                referenceBuildInfo.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
                 return referenceBuildInfo;
             }
 
@@ -1036,18 +1034,18 @@ export class ParaReportPublishService {
             // Check for Parasoft results exist in the specific reference build
             const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.SARIF_ARTIFACT_NAME);
             if (!artifact) {
-                referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${this.referenceBuild}'`;
+                referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuild}'`;
                 return referenceBuildInfo;
             }
 
             referenceBuildInfo.fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, FileSuffixEnum.SARIF_SUFFIX);
 
             if (referenceBuildInfo.fileEntries.length == 0) {
-                referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${this.referenceBuild}'`;
+                referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuild}'`;
                 return referenceBuildInfo;
             }
 
-            tl.debug(`Retrieved Parasoft static analysis results from the reference build '${this.referenceBuild}'`);
+            tl.debug(`Retrieved Parasoft static analysis results from the reference build '${pipelineName}#${this.referenceBuild}'`);
             referenceBuildInfo.staticAnalysis.buildId = specificReferenceBuildId;
             referenceBuildInfo.staticAnalysis.buildNumber = this.referenceBuild;
             return referenceBuildInfo;
