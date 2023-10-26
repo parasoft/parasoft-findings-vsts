@@ -4,7 +4,8 @@
   "description": "Azure Pipelines Parasoft Static Analysis Quality Gate Task",
   "main": "StaticAnalysisQualityGate.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "licenses": "license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-publish\" --limitAttributes \"licenses,publisher,repository\" --relativeLicensePath --json --out licenses/license.json --production"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,8 @@
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "devDependencies": {
     "@types/q": "^1.5.5",
-    "@types/node-fetch": "^2.6.5"
+    "@types/node-fetch": "^2.6.5",
+    "license-checker-rseidelsohn": "^4.2.5"
   },
   "dependencies": {
     "azure-devops-node-api": "^12.1.0",
