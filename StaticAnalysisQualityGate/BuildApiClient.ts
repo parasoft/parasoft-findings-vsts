@@ -61,10 +61,10 @@ export class BuildAPIClient {
         fileSuffix: FileSuffixEnum
         ): Promise<FileEntry[]> {
         const requestUrl = artifact.resource?.downloadUrl || '';
-        const arrayBuffer = this.getArtifactContentZip(requestUrl);
-        const zip = JSZip.loadAsync(arrayBuffer);
-
-        return Object
+        const arrayBuffer = await this.getArtifactContentZip(requestUrl);
+        if (arrayBuffer) {
+            const zip = JSZip.loadAsync(arrayBuffer);
+            return Object
                 .values((await zip).files)
                 .filter(entry => !entry.dir && entry.name.endsWith(fileSuffix))
                 .map(entry => ({
@@ -74,9 +74,11 @@ export class BuildAPIClient {
                     buildId:         buildId,
                     contentsPromise: entry.async('string')
                 }));
+        }
+        return [];
     }
 
-    async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer> {
+    async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer | undefined> {
         tl.debug(`Downloading artifact: ${downloadUrl}`);
         const acceptType = "application/zip";
         const acceptHeaderValue = `${acceptType};excludeUrls=true;enumsAsNumbers=true;msDateFormat=true;noArrayWrap=true`;
@@ -91,8 +93,17 @@ export class BuildAPIClient {
             method: "GET",
             headers: headers
         };
-        const response = await fetch(downloadUrl, options);
-
-        return response.arrayBuffer();
+        try {
+            const response = await fetch(downloadUrl, options);
+            if (response.status === undefined || response.status < 200 || response.status >= 300) {
+                tl.warning(`An error(${response.status}) occurred while attempting to download artifact from: ${downloadUrl}`);
+                return undefined;
+            }
+            return response.arrayBuffer();
+        } catch (error) {
+            tl.warning(`Download artifact error: ${downloadUrl}`);
+            console.error(error);
+            return undefined;
+        }
     }
 }
