@@ -61,6 +61,14 @@
             "helpMarkDown": "Relative location in project check out directory or absolute location for settings file to load rule documentation.\n \\- configure \"dtp.url\" property to specify DTP server address."
         },
         {
+          "name": "referencePipeline",
+          "type": "string",
+          "label": "Reference pipeline",
+          "defaultValue": "",
+          "required": false,
+          "helpMarkDown": "Specify a reference pipeline to use if Parasoft Quality Gates task is configured. To use current pipeline, leave this field empty. Specify the reference pipeline name."
+        },
+        {
           "name": "referenceBuild",
           "type": "string",
           "label": "Reference build",
