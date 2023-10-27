@@ -1,0 +1,25 @@
+{
+  "name": "parasoft-findings-vsts-code-coverage-quality-gate",
+  "version": "1.1.4",
+  "description": "Azure Pipelines Parasoft Code Coverage Quality Gate Task",
+  "main": "CodeCoverageQualityGate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parasoft/parasoft-findings-vsts.git"
+  },
+  "keywords": [
+    "azure",
+    "vsts",
+    "parasoft",
+    "Quality Gate"
+  ],
+  "author": "Parasoft Corporation",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/parasoft/parasoft-findings-vsts/issues"
+  },
+  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme"
+}
