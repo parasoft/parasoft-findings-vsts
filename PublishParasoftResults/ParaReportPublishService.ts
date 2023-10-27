@@ -75,7 +75,6 @@ interface ReferenceBuildInformation {
         buildNumber:  string | undefined,
         warningMessage: string | undefined
     },
-    warningMessage: string | undefined,
     isDebugMessage: boolean
 }
 
@@ -936,11 +935,10 @@ export class ParaReportPublishService {
                 buildNumber: undefined,
                 warningMessage: undefined
             },
-            warningMessage: undefined,
             isDebugMessage: false
         };
         if (this.referencePipeline == this.pipelineName && this.referenceBuild == this.buildNumber) {
-            referenceBuildInfo.warningMessage = 'Using the current build as the reference';
+            referenceBuildInfo.staticAnalysis.warningMessage = 'Using the current build as the reference';
         } else {
             if (!this.referencePipeline) { // Reference pipeline is not specified
                 tl.debug("No reference pipeline has been set; using the current pipeline as reference.");
@@ -954,19 +952,19 @@ export class ParaReportPublishService {
                     let specificReferencePipelineId : number = Number(specificReferencePipeline.id);
                     referenceBuildInfo = await this.getBuildsForSpecificPipeline(specificReferencePipelineId, specificReferencePipeline.name || '');
                 } else if (specificPipelines.length > 1) {
-                    referenceBuildInfo.warningMessage = `The specified reference pipeline '${this.referencePipeline}' is not unique`;
+                    referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference pipeline '${this.referencePipeline}' is not unique`;
                 } else {
-                    referenceBuildInfo.warningMessage = `The specified reference pipeline '${this.referencePipeline}' could not be found`;
+                    referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference pipeline '${this.referencePipeline}' could not be found`;
                 }
             }
         }
-        if (referenceBuildInfo.warningMessage) {
+        if (referenceBuildInfo.staticAnalysis.warningMessage) {
             if (referenceBuildInfo.isDebugMessage) {
-                tl.debug(`${referenceBuildInfo.warningMessage} - all issues will be treated as new`);
+                tl.debug(`${referenceBuildInfo.staticAnalysis.warningMessage} - all issues will be treated as new`);
             } else {
-                tl.warning(`${referenceBuildInfo.warningMessage} - all issues will be treated as new`);
+                tl.warning(`${referenceBuildInfo.staticAnalysis.warningMessage} - all issues will be treated as new`);
             }
-            referenceBuildInfo.staticAnalysis.warningMessage = referenceBuildInfo.warningMessage + ' - all issues were treated as new';
+            referenceBuildInfo.staticAnalysis.warningMessage = referenceBuildInfo.staticAnalysis.warningMessage + ' - all issues were treated as new';
         }
         this.referenceBuildResult.staticAnalysis = referenceBuildInfo.staticAnalysis;
         return Promise.resolve(referenceBuildInfo.fileEntries);
@@ -981,7 +979,6 @@ export class ParaReportPublishService {
                 buildNumber: undefined,
                 warningMessage: undefined
             },
-            warningMessage: undefined,
             isDebugMessage: false
         };
         const allBuildsForSpecificPipeline = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, specificReferencePipelineId);
@@ -996,15 +993,15 @@ export class ParaReportPublishService {
                     referenceBuildInfo.staticAnalysis.buildNumber = defaultBuildReportResults.buildNumber;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS:
-                    referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in any of the previous successful builds in pipeline '${pipelineName}'`;
+                    referenceBuildInfo.staticAnalysis.warningMessage = `No Parasoft static analysis results were found in any of the previous successful builds in pipeline '${pipelineName}'`;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND:
-                    referenceBuildInfo.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
+                    referenceBuildInfo.staticAnalysis.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
                     referenceBuildInfo.isDebugMessage = true;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD:
                 default:
-                    referenceBuildInfo.warningMessage = `No successful build was found in pipeline '${pipelineName}'`;
+                    referenceBuildInfo.staticAnalysis.warningMessage = `No successful build was found in pipeline '${pipelineName}'`;
                     return referenceBuildInfo;
             }
         } else { // Reference build is specified
@@ -1013,12 +1010,12 @@ export class ParaReportPublishService {
             });
 
             if (specificReferenceBuilds.length > 1) {
-                referenceBuildInfo.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' is not unique`;
+                referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' is not unique`;
                 return referenceBuildInfo;
             }
 
             if (specificReferenceBuilds.length == 0) {
-                referenceBuildInfo.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' could not be found`;
+                referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' could not be found`;
                 return referenceBuildInfo;
             }
 
@@ -1026,7 +1023,7 @@ export class ParaReportPublishService {
             const specificReferenceBuild = specificReferenceBuilds[0];
             // Check for the succeeded or paratially-succeeded results exist in the specific reference build
             if (specificReferenceBuild.result != BuildResult.Succeeded && specificReferenceBuild.result != BuildResult.PartiallySucceeded) {
-                referenceBuildInfo.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
+                referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
                 return referenceBuildInfo;
             }
 
@@ -1034,14 +1031,14 @@ export class ParaReportPublishService {
             // Check for Parasoft results exist in the specific reference build
             const artifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, specificReferenceBuildId, this.SARIF_ARTIFACT_NAME);
             if (!artifact) {
-                referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuild}'`;
+                referenceBuildInfo.staticAnalysis.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuild}'`;
                 return referenceBuildInfo;
             }
 
             referenceBuildInfo.fileEntries = await this.buildClient.getBuildReportsWithId(artifact, specificReferenceBuildId, FileSuffixEnum.SARIF_SUFFIX);
 
             if (referenceBuildInfo.fileEntries.length == 0) {
-                referenceBuildInfo.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuild}'`;
+                referenceBuildInfo.staticAnalysis.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuild}'`;
                 return referenceBuildInfo;
             }
 
