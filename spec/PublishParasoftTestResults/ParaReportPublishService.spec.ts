@@ -12,8 +12,7 @@ import { BuildResult } from '../../PublishParasoftResults/node_modules/azure-dev
 let publisher: any;
 let mockWebApi: any;
 
-// CICD-523： TODO will update tests after code review
-xdescribe("Parasoft findings Azure", () => {
+describe("Parasoft findings Azure", () => {
     beforeEach(() => {
         spyOn(tl, 'getDelimitedInput').and.returnValue(['foobar']);
         spyOn(tl, 'getInput').and.returnValue('foobar');
@@ -28,6 +27,7 @@ xdescribe("Parasoft findings Azure", () => {
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
             getBuildApi: jasmine.createSpy('getBuildApi').and.returnValue({
+                getDefinitions: jasmine.createSpy('getDefinitions'),
                 getBuilds: jasmine.createSpy('getBuilds'),
                 getArtifact: jasmine.createSpy('getArtifact'),
             }),
@@ -730,8 +730,105 @@ xdescribe("Parasoft findings Azure", () => {
     });
 
     describe('getReferenceSarifReports()', () => {
-        let testWarningMessage: (warningMessage: string, isDebugMessage: boolean) => void;
+        beforeEach(() => {
+            publisher = new ParaReportPublishService();
+            publisher.projectName = 'test-project';
+            publisher.definitionId = 12;
+            spyOn(publisher, 'getBuildsForSpecificPipeline');
+            spyOn(publisher.buildClient, 'getSpecificPipelines');
+        });
 
+        it('when the reference pipeline is undefined', async () => {
+            publisher.referencePipeline = undefined;
+            publisher.pipelineName = 'current-pipeline';
+            const warningMessage = 'Any warning message(debug message here) when getting builds for a specific pipeline';
+            const referenceBuildInfo: any = {
+                fileEntries: [],
+                staticAnalysis: {
+                    pipelineName: publisher.pipelineName,
+                    buildId: undefined,
+                    buildNumber: undefined,
+                    warningMessage: warningMessage
+                },
+                isDebugMessage: true
+            };
+            publisher.getBuildsForSpecificPipeline.and.returnValue(referenceBuildInfo);
+
+            expect(await publisher.getReferenceSarifReports()).toEqual([]);
+            expect(publisher.getBuildsForSpecificPipeline).toHaveBeenCalledWith(publisher.definitionId, publisher.pipelineName);
+            expect(tl.debug).toHaveBeenCalledWith(`${warningMessage} - all issues will be treated as new`);
+            expect(publisher.referenceBuildResult.staticAnalysis.warningMessage).toEqual(`${warningMessage} - all issues were treated as new`);
+        });
+
+        describe('when the reference pipeline is defined', () => {
+            beforeEach(() => {
+                publisher.referencePipeline = 'reference-pipeline';
+                publisher.pipelineName = 'specific-pipeline';
+            });
+
+            it('- the reference pipeline is valid', async () => {
+                const specificPipelines: any[] = [{
+                    id: 1,
+                    name: 'reference-pipeline'
+                }];
+                const referenceBuildInfo: any = {
+                    fileEntries: [],
+                    staticAnalysis: {
+                        pipelineName: publisher.referencePipeline,
+                        buildId: 20,
+                        buildNumber: 20,
+                        warningMessage: undefined
+                    },
+                    isDebugMessage: false
+                };
+                publisher.buildClient.getSpecificPipelines.and.returnValue(specificPipelines);
+                publisher.getBuildsForSpecificPipeline.and.returnValue(referenceBuildInfo);
+
+                expect(await publisher.getReferenceSarifReports()).toEqual([]);
+                expect(publisher.buildClient.getSpecificPipelines).toHaveBeenCalledWith(publisher.projectName, publisher.referencePipeline);
+                expect(publisher.getBuildsForSpecificPipeline).toHaveBeenCalledWith(1, publisher.referencePipeline);
+                expect(publisher.referenceBuildResult.staticAnalysis).toEqual(referenceBuildInfo.staticAnalysis);
+            });
+
+            it('- the reference pipeline is not unique', async () => {
+                const specificPipelines: any[] = [{
+                    id: 1,
+                    name: 'reference-pipeline'
+                }, {
+                    id: 2,
+                    name: 'reference-pipeline'
+                }];
+                publisher.buildClient.getSpecificPipelines.and.returnValue(specificPipelines);
+                const warningMessage = `The specified reference pipeline '${publisher.referencePipeline}' is not unique`;
+
+                expect(await publisher.getReferenceSarifReports()).toEqual([]);
+                expect(tl.warning).toHaveBeenCalledWith(`${warningMessage} - all issues will be treated as new`);
+                expect(publisher.referenceBuildResult.staticAnalysis).toEqual({
+                    pipelineName: undefined,
+                    buildId: undefined,
+                    buildNumber: undefined,
+                    warningMessage: `${warningMessage} - all issues were treated as new`
+                });
+            });
+
+            it('- the reference pipeline could not be found', async () => {
+                const specificPipelines: any[] = [];
+                publisher.buildClient.getSpecificPipelines.and.returnValue(specificPipelines);
+                const warningMessage = `The specified reference pipeline '${publisher.referencePipeline}' could not be found`;
+
+                expect(await publisher.getReferenceSarifReports()).toEqual([]);
+                expect(tl.warning).toHaveBeenCalledWith(`${warningMessage} - all issues will be treated as new`);
+                expect(publisher.referenceBuildResult.staticAnalysis).toEqual({
+                    pipelineName: undefined,
+                    buildId: undefined,
+                    buildNumber: undefined,
+                    warningMessage: `${warningMessage} - all issues were treated as new`
+                });
+            });
+        });
+    });
+
+    describe('getBuildsForSpecificPipeline()', () => {
         beforeEach(() => {
             let builds: any[] = [{
                 id: 1,
@@ -755,23 +852,15 @@ xdescribe("Parasoft findings Azure", () => {
                 result: BuildResult.Succeeded
             }];
             publisher = new ParaReportPublishService();
+            publisher.pipelineName = 'default-pipeline';
             spyOn(publisher.buildClient, 'getBuildsForSpecificPipeline').and.returnValue(builds);
             spyOn(publisher.buildClient, 'getDefaultBuildReports');
-
-            testWarningMessage = (warningMessage: string, isDebugMessage: boolean) => {
-                const expectedWarningMessage: string = warningMessage + ' - all issues will be treated as new'
-                if (isDebugMessage) {
-                    expect(tl.debug).toHaveBeenCalledWith(expectedWarningMessage);
-                } else {
-                    expect(tl.warning).toHaveBeenCalledWith(expectedWarningMessage);
-                }
-                expect(publisher.referenceBuildResult.staticAnalysis.warningMessage).toEqual(warningMessage + ' - all issues were treated as new');
-            };
         });
 
         describe('when the reference build is undefined', () => {
             beforeEach(() => {
                 publisher.referenceBuild = undefined;
+                publisher.pipelineName = 'default-pipeline';
             });
 
             it('- has available default report', async () => {
@@ -782,10 +871,19 @@ xdescribe("Parasoft findings Azure", () => {
                     reports: ['path/to/sarif/report']
                 };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
+                const expectedReferenceBuildInfo: any = {
+                    fileEntries: defaultBuildReportResults.reports,
+                    staticAnalysis: {
+                        pipelineName: publisher.pipelineName,
+                        buildId: defaultBuildReportResults.buildId,
+                        buildNumber: defaultBuildReportResults.buildNumber,
+                        warningMessage: undefined
+                    },
+                    isDebugMessage: false
+                };
 
-                expect(await publisher.getReferenceSarifReports()).toEqual(defaultBuildReportResults.reports);
-                expect(publisher.referenceBuildResult.staticAnalysis.buildId).toEqual(defaultBuildReportResults.buildId);
-                expect(publisher.referenceBuildResult.staticAnalysis.buildNumber).toEqual(defaultBuildReportResults.buildNumber);
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.pipelineName);
+                expect(result).toEqual(expectedReferenceBuildInfo);
             });
 
             it('- no parasoft results in default report', async () => {
@@ -796,10 +894,11 @@ xdescribe("Parasoft findings Azure", () => {
                     reports: undefined
                 };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-                const warningMessage = 'No Parasoft static analysis results were found in any of the previous successful builds';
+                const warningMessage = `No Parasoft static analysis results were found in any of the previous successful builds in pipeline '${publisher.pipelineName}'`;
 
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.pipelineName);
+                expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                expect(result.isDebugMessage).toBeFalsy();
             });
 
             it('- no previous build is found', async () => {
@@ -810,10 +909,11 @@ xdescribe("Parasoft findings Azure", () => {
                     reports: undefined
                 };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-                const warningMessage = 'No previous build was found';
+                const warningMessage = `No previous build was found in pipeline '${publisher.pipelineName}'`;
 
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, true);
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.pipelineName);
+                expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                expect(result.isDebugMessage).toBeTruthy();
             });
 
             it('- no successful build', async () => {
@@ -824,73 +924,107 @@ xdescribe("Parasoft findings Azure", () => {
                     reports: undefined
                 };
                 publisher.buildClient.getDefaultBuildReports.and.returnValue(defaultBuildReportResults);
-                const warningMessage = 'No successful build was found';
+                const warningMessage = `No successful build was found in pipeline '${publisher.pipelineName}'`;
 
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.pipelineName);
+                expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                expect(result.isDebugMessage).toBeFalsy();
             });
         });
 
         describe('when the reference build is set', () => {
-            it('- is same as current build number', async () => {
-                publisher.referenceBuild = 20;
-                publisher.buildNumber = 20;
-                const warningMessage = 'Using the current build as the reference';
-
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
-            });
-
-            it('- exists in current pipeline and is succeed with static analysis results', async () => {
-                const buildArtifact = {
-                    id: 1,
-                    name: 'CodeAnalysisLogs'
-                };
-                spyOn(publisher.buildClient, 'getBuildArtifact').and.returnValue(buildArtifact);
-                const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
-                const expectedResult: any[] = [{
-                    name: "Container/report-xml-sast.sarif",
-                    artifactName: buildArtifact.name,
-                    filePath: "Container/report-xml-sast.sarif",
-                    buildId: 2,
-                    contentsPromise: Promise.resolve(sarifContentString)
-                }];
-                spyOn(publisher.buildClient, 'getBuildReportsWithId').and.returnValue(expectedResult);
-
-                publisher.referenceBuild = 20;
-                expect(await publisher.getReferenceSarifReports()).toEqual(expectedResult);
-            });
-
-            it('- exists in current pipeline and is partially succeed with no static analysis results', async () => {
-                publisher.referenceBuild = 21;
-                const warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${publisher.referenceBuild}'`;
-
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
-            });
-
-            it('- exists in current pipeline and is neither succeed nor partially succeed', async () => {
-                publisher.referenceBuild = 22;
-                const warningMessage = `The specified reference build '${publisher.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
-
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
+            beforeEach(() => {
+                spyOn(publisher.buildClient, 'getBuildArtifact');
+                publisher.referencePipeline = 'reference-pipeline';
             });
 
             it('- exists in current pipeline but is not unique', async () => {
                 publisher.referenceBuild = 23;
-                const warningMessage = `The specified reference build '${publisher.referenceBuild}' is not unique`;
+                const warningMessage = `The specified reference build '${publisher.referencePipeline}#${publisher.referenceBuild}' is not unique`;
 
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.referencePipeline);
+                expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                expect(result.isDebugMessage).toBeFalsy();
             });
 
             it('- does not exist in current pipeline', async () => {
                 publisher.referenceBuild = 32;
-                const warningMessage = `The specified reference build '${publisher.referenceBuild}' could not be found`;
+                const warningMessage = `The specified reference build '${publisher.referencePipeline}#${publisher.referenceBuild}' could not be found`;
 
-                expect(await publisher.getReferenceSarifReports()).toEqual([]);
-                testWarningMessage(warningMessage, false);
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.referencePipeline);
+                expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                expect(result.isDebugMessage).toBeFalsy();
+            });
+
+            it('- exists in current pipeline and is neither succeed nor partially succeed', async () => {
+                publisher.referenceBuild = 22;
+                const warningMessage = `The specified reference build '${publisher.referencePipeline}#${publisher.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
+
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.referencePipeline);
+                expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                expect(result.isDebugMessage).toBeFalsy();
+            });
+
+            describe('- exists in current pipeline and is partially succeed with no static analysis results', () => {
+                beforeEach(() => {
+                    publisher.referenceBuild = '21';
+                });
+
+                it('- artifact is undefined', async () => {
+                    const artifact = undefined;
+                    publisher.buildClient.getBuildArtifact.and.returnValue(artifact);
+                    const warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${publisher.referencePipeline}#${publisher.referenceBuild}'`;
+
+                    const result = await publisher.getBuildsForSpecificPipeline(1, publisher.referencePipeline);
+                    expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                    expect(result.isDebugMessage).toBeFalsy();
+                 });
+
+                it('- artifact is not undefined', async () => {
+                    const artifact = {
+                        id: 1,
+                        name: 'CodeAnalysisLogs'
+                    };
+                    publisher.buildClient.getBuildArtifact.and.returnValue(artifact);
+                    const mockFileEntries: any[] = [];
+                    spyOn(publisher.buildClient, 'getBuildReportsWithId').and.returnValue(mockFileEntries);
+                    const warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${publisher.referencePipeline}#${publisher.referenceBuild}'`;
+
+                    const result = await publisher.getBuildsForSpecificPipeline(1, publisher.referencePipeline);
+                    expect(result.staticAnalysis.warningMessage).toEqual(warningMessage);
+                    expect(result.isDebugMessage).toBeFalsy();
+                });
+            });
+
+            it('- exists in current pipeline and is succeed with static analysis results', async () => {
+                publisher.referenceBuild = 20;
+                const artifact = {
+                    id: 1,
+                    name: 'CodeAnalysisLogs'
+                };
+                publisher.buildClient.getBuildArtifact.and.returnValue(artifact);
+                const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
+                const expectedResult: any[] = [{
+                    name: "Container/report-xml-sast.sarif",
+                    artifactName: artifact.name,
+                    filePath: "Container/report-xml-sast.sarif",
+                    buildId: 1,
+                    contentsPromise: Promise.resolve(sarifContentString)
+                }];
+                spyOn(publisher.buildClient, 'getBuildReportsWithId').and.returnValue(expectedResult);
+                const expectedReferenceBuildInfo: any = {
+                    fileEntries: expectedResult,
+                    staticAnalysis: {
+                        pipelineName: publisher.referencePipeline,
+                        buildId: 1,
+                        buildNumber: publisher.referenceBuild,
+                        warningMessage: undefined
+                    },
+                    isDebugMessage: false
+                };
+
+                const result = await publisher.getBuildsForSpecificPipeline(1, publisher.referencePipeline);
+                expect(result).toEqual(expectedReferenceBuildInfo);
             });
         });
     });
