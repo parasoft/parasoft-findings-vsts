@@ -19,6 +19,7 @@ import * as path from "path";
 
 export class QualityGateResult {
     private _displayName: string;
+    private _referencePipelineName: string;
     private _referenceBuildNumber: string;
     private _referenceBuildId: string;
     private _referenceBuildWarning: string;
@@ -31,6 +32,7 @@ export class QualityGateResult {
     private _actualNumberOfIssues: number = 0;
 
     constructor(displayName: string,
+                referencePipelineName: string,
                 referenceBuildNumber: string,
                 referenceBuildId: string,
                 referenceBuildWarning: string,
@@ -39,6 +41,7 @@ export class QualityGateResult {
                 threshold: number,
                 workingDir: string) {
       this._displayName = displayName;
+      this._referencePipelineName = referencePipelineName;
       this._referenceBuildNumber = referenceBuildNumber;
       this._referenceBuildId = referenceBuildId;
       this._referenceBuildWarning = referenceBuildWarning;
@@ -120,8 +123,8 @@ export class QualityGateResult {
 
       if (this._type == TypeEnum.NEW) {
           let buildText = 'N/A';
-          if (this._referenceBuildWarning == '' && this._referenceBuildId) {
-              buildText = `<a href="./?buildId=${this._referenceBuildId}">#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
+          if (this._referenceBuildWarning == '' && this._referencePipelineName && this._referenceBuildId) {
+              buildText = `<a href="./?buildId=${this._referenceBuildId}">${this._referencePipelineName}#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
           } else if (this._referenceBuildWarning != '') {
               buildText = `<span style="font-size:13px;line-height:13px;color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildWarning}`;
           }

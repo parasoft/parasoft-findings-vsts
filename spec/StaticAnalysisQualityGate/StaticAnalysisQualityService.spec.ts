@@ -90,7 +90,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             severity: 'Issue',
             buildStatus: 'Failed',
             threshold: '10',
-            referenceBuildResult: '{"originalBuildNumber":"260","staticAnalysis":{"buildId":"260","buildNumber":"260","warningMessage":"test"}}'
+            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260","warningMessage":"any warning messages when getting Parasoft static analysis reports from reference build"}}'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
@@ -213,11 +213,12 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         await staticAnalysisQualityService.run();
 
+        expect(staticAnalysisQualityService.originalReferencePipelineName).toEqual('TestPipelineName');
         expect(staticAnalysisQualityService.originalReferenceBuildNumber).toEqual('260');
         expect(staticAnalysisQualityService.referenceBuildNumber).toEqual('260');
         expect(staticAnalysisQualityService.referenceBuildId).toBe('260');
-        expect(staticAnalysisQualityService.referenceBuildWarningMessage).toEqual('test');
-        expect(tl.debug).toHaveBeenCalledWith('test');
+        expect(staticAnalysisQualityService.referenceBuildWarningMessage).toEqual('any warning messages when getting Parasoft static analysis reports from reference build');
+        expect(tl.debug).toHaveBeenCalledWith('any warning messages when getting Parasoft static analysis reports from reference build');
     });
 
     it('When No Build Artifact was found, should print warning message', async () => {
@@ -227,7 +228,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         await staticAnalysisQualityService.run();
 
-        expect(tl.warning).toHaveBeenCalledWith('Quality gate \'Type: Total, Severity: All, Threshold: 10, Reference Build: 260\' was skipped; no Parasoft static analysis results were found in this build');
+        expect(tl.warning).toHaveBeenCalledWith('Quality gate \'Type: Total, Severity: All, Threshold: 10, Reference pipeline: TestPipelineName, Reference build: 260\' was skipped; no Parasoft static analysis results were found in this build');
     });
 
     it('When Quality Gate failed, should handle error', async () => {
@@ -236,7 +237,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         await staticAnalysisQualityService.run();
 
-        expect(tl.warning).toHaveBeenCalledWith('Failed to process the quality gate \'Type: Total, Severity: All, Threshold: 10, Reference Build: 260\'. See logs for details.');
+        expect(tl.warning).toHaveBeenCalledWith('Failed to process the quality gate \'Type: Total, Severity: All, Threshold: 10, Reference pipeline: TestPipelineName, Reference build: 260\'. See logs for details.');
     });
 
     describe('When task process report and', () => {
@@ -256,17 +257,28 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             fs.rmSync(markDownDir, {recursive: true});
         }
 
-        it('pass the gate -- Total issues, should set task success', async () => {
+        it('pass the gate -- Total Issues, should set task success', async () => {
             settings.threshold = '10000000';
             let staticAnalysisQualityService = setUpQualityGate();
 
             await staticAnalysisQualityService.run();
 
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Total, Severity: All, Threshold: 10000000, Reference Build: 260\' passed');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Total, Severity: All, Threshold: 10000000, Reference pipeline: TestPipelineName, Reference build: 260\' passed');
             compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Issues - 10000000.md.md');
         });
 
-        it('pass the gate -- New Error, should set task success', async () => {
+        it('pass the gate -- Total Notes, should set task success', async () => {
+            settings.threshold = '0';
+            settings.severity = 'Note';
+            let staticAnalysisQualityService = setUpQualityGate();
+
+            await staticAnalysisQualityService.run();
+
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Total, Severity: Note, Threshold: 0, Reference pipeline: TestPipelineName, Reference build: 260\' passed');
+            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Notes - 0.md');
+        });
+
+        it('pass the gate -- New Errors, should set task success', async () => {
             settings.threshold = '10000000';
             settings.type = 'New';
             settings.severity = 'Error';
@@ -274,24 +286,24 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
             await staticAnalysisQualityService.run();
 
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: New, Severity: Error, Threshold: 10000000, Reference Build: 260\' passed');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Error - 10000000.md');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: New, Severity: Error, Threshold: 10000000, Reference pipeline: TestPipelineName, Reference build: 260\' passed');
+            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Errors - 10000000.md');
         });
 
-        it('pass the gate -- New Error and without warning message, should set task success', async () => {
+        it('pass the gate -- New Errors and without warning message, should set task success', async () => {
             settings.threshold = '10000000';
             settings.type = 'New';
             settings.severity = 'Error';
-            settings.referenceBuildResult = '{"originalBuildNumber":"260","staticAnalysis":{"buildId":"260","buildNumber":"260"}}';
+            settings.referenceBuildResult = '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260"}}';
             let staticAnalysisQualityService = setUpQualityGate();
 
             await staticAnalysisQualityService.run();
 
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: New, Severity: Error, Threshold: 10000000, Reference Build: 260\' passed');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Error - 10000000 Without Warning message.md');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: New, Severity: Error, Threshold: 10000000, Reference pipeline: TestPipelineName, Reference build: 260\' passed');
+            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Errors - 10000000 Without Warning message.md');
         });
 
-        it('not pass the gate -- Total Warning, should set task unstable', async () => {
+        it('not pass the gate -- Total Warnings, should set task unstable', async () => {
             settings.threshold = '0';
             settings.severity = 'Warning';
             settings.buildStatus = 'Unstable';
@@ -299,25 +311,25 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
             await staticAnalysisQualityService.run();
 
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: Warning, Threshold: 0, Reference Build: 260\' failed: build result is UNSTABLE');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Warning - 0.md');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: Warning, Threshold: 0, Reference pipeline: TestPipelineName, Reference build: 260\' failed: build result is UNSTABLE');
+            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Warnings - 0.md');
         });
 
-        it('not pass the gate -- Total Note, should set task failed', async () => {
+        it('not pass the gate -- Total Errors, should set task failed', async () => {
             // Should clean storage before generating markdown
             let mdDirPath = __dirname + '/ParasoftQualityGatesMD';
             fs.mkdirSync(mdDirPath);
             fs.writeFileSync(mdDirPath + '/temp.md', 'test');
 
             settings.threshold = '0';
-            settings.severity = 'Note';
+            settings.severity = 'Error';
             settings.buildStatus = 'Failed';
             let staticAnalysisQualityService = setUpQualityGate();
 
             await staticAnalysisQualityService.run();
 
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Failed, 'Quality gate \'Type: Total, Severity: Note, Threshold: 0, Reference Build: 260\' failed: build result is FAILED');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Note - 0.md');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Failed, 'Quality gate \'Type: Total, Severity: Error, Threshold: 0, Reference pipeline: TestPipelineName, Reference build: 260\' failed: build result is FAILED');
+            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Errors - 0.md');
         });
     });
 });
