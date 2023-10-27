@@ -42,8 +42,10 @@ export enum QualityGateStatusEnum {
 }
 
 interface ReferenceBuildResult {
+    originalPipelineName: string,
     originalBuildNumber: string,
     staticAnalysis?: {
+        pipelineName: string | undefined,
         buildId: string | undefined,
         buildNumber:  string | undefined,
         warningMessage: string | undefined
@@ -72,7 +74,9 @@ export class StaticAnalysisQualityService {
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
     readonly threshold: number;
+    originalReferencePipelineName: string | undefined;
     originalReferenceBuildNumber: string | undefined;
+    referencePipelineName: string | undefined;
     referenceBuildNumber: string | undefined;
     referenceBuildId: string | undefined;
     referenceBuildWarningMessage: string | undefined;
@@ -151,7 +155,9 @@ export class StaticAnalysisQualityService {
                 return;
             }
             let referenceBuild: ReferenceBuildResult = JSON.parse(<string> staticAnalysisReferenceBuild);
+            this.originalReferencePipelineName = referenceBuild.originalPipelineName;
             this.originalReferenceBuildNumber = referenceBuild.originalBuildNumber;
+            this.referencePipelineName = referenceBuild.staticAnalysis?.pipelineName;
             this.referenceBuildNumber = referenceBuild.staticAnalysis?.buildNumber;
             this.referenceBuildId = referenceBuild.staticAnalysis?.buildId;
             this.referenceBuildWarningMessage = referenceBuild.staticAnalysis?.warningMessage;
@@ -189,7 +195,8 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName, 
+        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName,
+                                                                         this.referencePipelineName || '',
                                                                          this.referenceBuildNumber || '',
                                                                          this.referenceBuildId || '', 
                                                                          this.referenceBuildWarningMessage || '',
@@ -199,7 +206,7 @@ export class StaticAnalysisQualityService {
         tl.debug("Evaluating quality gate");
         qualityGateResult.actualNumberOfIssues = numberOfIssues;
 
-        if (numberOfIssues < this.threshold) { // When the actual number of issues is less than this threshold
+        if (numberOfIssues == 0 || numberOfIssues < this.threshold) { // When the actual number of issues is equal to zero or less than this threshold
             qualityGateResult.status = QualityGateStatusEnum.PASSED;
             tl.setResult(tl.TaskResult.Succeeded, `Quality gate '${this.getQualityGateIdentification()}' passed`);
         } else { // When the actual number of issues is greater than or equal to this threshold
@@ -278,6 +285,8 @@ export class StaticAnalysisQualityService {
 
     private getQualityGateIdentification = (): string => {
         const severityText: string = this.severity == SeverityEnum.ALL ? 'All' : this.severity;
-        return "Type: " + this.type + ", Severity: " + severityText + ", Threshold: " + this.threshold + (this.originalReferenceBuildNumber ? ", Reference Build: " + this.originalReferenceBuildNumber : "");
+        const referencePipeline: string = this.originalReferencePipelineName ? ", Reference pipeline: " + this.originalReferencePipelineName : "";
+        const referenceBuild: string = this.originalReferenceBuildNumber ? ", Reference build: " + this.originalReferenceBuildNumber : "";
+        return "Type: " + this.type + ", Severity: " + severityText + ", Threshold: " + this.threshold + referencePipeline + referenceBuild;
     }
 }
