@@ -538,6 +538,7 @@ export class ParaReportPublishService {
 
                 const coveragePublisher = new tl.CodeCoveragePublisher();
                 coveragePublisher.publish('Cobertura', coverageReport, tempFolder, '');
+                tl.uploadArtifact('Container', coverageReport, 'ParasoftCoverageLogs');
             }
             if(this.failOnFailures){
                 this.checkRunFailures(this.xUnitReports, this.sarifReports);
