@@ -89,7 +89,8 @@ export class BuildAPIClient {
         builds: Build[],
         projectName: string,
         artifactName: string,
-        fileSuffix: FileSuffixEnum
+        fileSuffix: FileSuffixEnum,
+        currentBuildId: string
         ): Promise<DefaultBuildReportResults> {
 
         let defaultBuildReportResults: DefaultBuildReportResults = {
@@ -100,7 +101,7 @@ export class BuildAPIClient {
         }
 
         let fileEntries: FileEntry[] = [];
-        if (builds.length == 1) { // only include current build
+        if (builds.length == 1 && builds[0].id?.toString() == currentBuildId) { // only include current build
             defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND;
             return Promise.resolve(defaultBuildReportResults);
         }

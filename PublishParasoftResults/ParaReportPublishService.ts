@@ -123,6 +123,7 @@ export class ParaReportPublishService {
     projectName: string;
     pipelineName: string;
     buildNumber: string;
+    buildId: string;
     definitionId: number;
     defaultWorkingDirectory: string;
     inputReportFiles: string[];
@@ -157,6 +158,7 @@ export class ParaReportPublishService {
         this.buildClient = new BuildAPIClient();
         this.projectName = tl.getVariable('System.TeamProject') || '';
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
+        this.buildId = tl.getVariable('Build.BuildId') || '';
         this.pipelineName = tl.getVariable('Build.DefinitionName') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
 
@@ -985,7 +987,7 @@ export class ParaReportPublishService {
         const allBuildsForSpecificPipeline = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, specificReferencePipelineId);
         if (!this.referenceBuild) { // Reference build is not specified
             tl.debug(`No reference build has been set; using the last successful build in pipeline '${pipelineName}' as reference.`);
-            let defaultBuildReportResults: DefaultBuildReportResults = await this.buildClient.getDefaultBuildReports(allBuildsForSpecificPipeline, this.projectName, this.SARIF_ARTIFACT_NAME, FileSuffixEnum.SARIF_SUFFIX);
+            let defaultBuildReportResults: DefaultBuildReportResults = await this.buildClient.getDefaultBuildReports(allBuildsForSpecificPipeline, this.projectName, this.SARIF_ARTIFACT_NAME, FileSuffixEnum.SARIF_SUFFIX, this.buildId);
             switch (defaultBuildReportResults.status) {
                 case DefaultBuildReportResultsStatus.OK:
                     referenceBuildInfo.fileEntries = defaultBuildReportResults.reports || [];
