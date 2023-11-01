@@ -5,7 +5,7 @@
   "main": "StaticAnalysisQualityGate.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "licenses": "license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-publish\" --limitAttributes \"licenses,publisher,repository\" --relativeLicensePath --json --out licenses/license.json --production"
+    "licenses": "license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-static-analysis-quality-gate\" --limitAttributes \"licenses,publisher,repository\" --relativeLicensePath --json --out licenses/license.json --production"
   },
   "repository": {
     "type": "git",

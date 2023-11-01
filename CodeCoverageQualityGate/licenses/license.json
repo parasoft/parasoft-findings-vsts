@@ -14,7 +14,7 @@
         "publisher": "Microsoft Corporation",
         "repository": "https://github.com/Microsoft/azure-devops-node-api"
     },
-    "azure-pipelines-task-lib@4.6.0": {
+    "azure-pipelines-task-lib@4.6.1": {
         "licenses": "MIT",
         "publisher": "Microsoft",
         "repository": "https://github.com/Microsoft/azure-pipelines-task-lib"
@@ -34,7 +34,7 @@
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/brace-expansion"
     },
-    "call-bind@1.0.2": {
+    "call-bind@1.0.5": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/call-bind"
@@ -49,7 +49,7 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/core-util-is"
     },
-    "deasync@0.1.28": {
+    "deasync@0.1.29": {
         "licenses": "MIT",
         "publisher": "Vladimir Kurchatkin",
         "repository": "https://github.com/abbr/deasync"
@@ -58,6 +58,11 @@
         "licenses": "MIT",
         "publisher": "Josh Junon",
         "repository": "https://github.com/debug-js/debug"
+    },
+    "define-data-property@1.1.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/define-data-property"
     },
     "file-uri-to-path@1.0.0": {
         "licenses": "MIT",
@@ -74,12 +79,12 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/fs.realpath"
     },
-    "function-bind@1.1.1": {
+    "function-bind@1.1.2": {
         "licenses": "MIT",
         "publisher": "Raynos",
         "repository": "https://github.com/Raynos/function-bind"
     },
-    "get-intrinsic@1.2.1": {
+    "get-intrinsic@1.2.2": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/get-intrinsic"
@@ -88,6 +93,16 @@
         "licenses": "ISC",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/node-glob"
+    },
+    "gopd@1.0.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/gopd"
+    },
+    "has-property-descriptors@1.0.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/has-property-descriptors"
     },
     "has-proto@1.0.1": {
         "licenses": "MIT",
@@ -99,10 +114,10 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/inspect-js/has-symbols"
     },
-    "has@1.0.3": {
+    "hasown@2.0.0": {
         "licenses": "MIT",
-        "publisher": "Thiago de Arruda",
-        "repository": "https://github.com/tarruda/has"
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/hasOwn"
     },
     "https-proxy-agent@5.0.1": {
         "licenses": "MIT",
@@ -127,7 +142,7 @@
         "publisher": "Gulp Team",
         "repository": "https://github.com/gulpjs/interpret"
     },
-    "is-core-module@2.13.0": {
+    "is-core-module@2.13.1": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/inspect-js/is-core-module"
@@ -187,7 +202,7 @@
         "publisher": "ibrod83",
         "repository": "https://github.com/ibrod83/nodejs-file-downloader"
     },
-    "object-inspect@1.12.3": {
+    "object-inspect@1.13.1": {
         "licenses": "MIT",
         "publisher": "James Halliday",
         "repository": "https://github.com/inspect-js/object-inspect"
@@ -233,7 +248,7 @@
         "publisher": "Tyler Kellen",
         "repository": "https://github.com/tkellen/node-rechoir"
     },
-    "resolve@1.22.5": {
+    "resolve@1.22.8": {
         "licenses": "MIT",
         "publisher": "James Halliday",
         "repository": "https://github.com/browserify/resolve"
@@ -252,6 +267,11 @@
         "licenses": "ISC",
         "publisher": "GitHub Inc.",
         "repository": "https://github.com/npm/node-semver"
+    },
+    "set-function-length@1.1.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/set-function-length"
     },
     "setimmediate@1.0.5": {
         "licenses": "MIT",
