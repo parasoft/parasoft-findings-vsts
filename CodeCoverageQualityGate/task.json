@@ -18,15 +18,43 @@
   "minimumAgentVersion": "2.144.0",
   "inputs": [
     {
-      "name": "foobar",
-      "type": "string",
-      "label": "Foobar",
-      "defaultValue": "foobar",
+      "name": "type",
+      "type": "picklist",
+      "label": "Type",
+      "defaultValue": "Overall",
       "required": true,
-      "helpMarkDown": "foobar"
+      "helpMarkDown": "Type of code coverage to be evaluated for the threshold.",
+      "options": {
+        "Overall": "Overall project",
+        "Modified": "Modified code lines"
+      }
+    },
+    {
+      "name": "threshold",
+      "type": "string",
+      "label": "Threshold",
+      "defaultValue": "0.0",
+      "required": true,
+      "helpMarkDown": "If the actual value of code coverage is greater than or equal to this threshold, then a build is considered unstable or failed, respectively. Default value is 0.0. The range must be between 0 and 100, any value outside this range will be cast to 0 or 100.",
+      "validation": {
+        "expression": "and(ge(value, 0), not(lt(100, value)))",
+        "message": "The range must be between 0 and 100"
+      }
+    },
+    {
+      "name": "buildStatus",
+      "type": "picklist",
+      "label": "Build status if quality gate fails",
+      "defaultValue": "Failed",
+      "required": true,
+      "helpMarkDown": "Mark the build as unstable or failed if the quality gate is not passed.",
+      "options": {
+        "Failed": "Failed",
+        "Unstable": "Unstable"
+      }
     }
   ],
-  "instanceNameFormat": "Parasoft Code Coverage Quality Gate - TODO",
+  "instanceNameFormat": "Parasoft Code Coverage Quality Gate - $(type) code lines - $(threshold)",
   "execution": {
     "Node16": {
       "target": "CodeCoverageQualityGate.js"
