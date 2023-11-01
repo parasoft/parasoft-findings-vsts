@@ -72,7 +72,7 @@ describe('Test Builds API Client', () => {
                 buildNumber: undefined,
                 reports: undefined
             }
-            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX);
+            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX, builds[0].id);
             expect(result).toEqual(expectedResult);
             expect(buildClient.buildApi.getArtifact).not.toHaveBeenCalled();
             expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe('Test Builds API Client', () => {
                 buildNumber: undefined,
                 reports: undefined
             };
-            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX);
+            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
             expect(result).toEqual(expectedResult);
             expect(buildClient.buildApi.getArtifact).not.toHaveBeenCalled();
             expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
@@ -141,7 +141,7 @@ describe('Test Builds API Client', () => {
                 };
                 spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(fileEntries);
 
-                const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX);
+                const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
                 expect(result).toEqual(expectedResult);
                 expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                 expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
@@ -160,7 +160,7 @@ describe('Test Builds API Client', () => {
                         buildNumber: undefined,
                         reports: undefined
                     }
-                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX);
+                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
                     expect(result).toEqual(expectedResult);
                     expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                     expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
@@ -182,12 +182,48 @@ describe('Test Builds API Client', () => {
                         buildNumber: '20',
                         reports: mockFileEntries
                     }
-                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX);
+                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
                     expect(result).toEqual(expectedResult);
                     expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                     expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
                 });
             });
+        });
+
+        it('when there is a successful build and the reference pipeline is not the current pipeline', async () => {
+            let currentBuildId = '2';
+            let builds: any[] = [{
+                id: 1,
+                buildNumber: '20',
+                result: BuildResult.Succeeded
+            }];
+            const artifact = {
+                id: 1,
+                name: 'CodeAnalysisLogs'
+            };
+            mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
+            buildClient = new BuildAPIClient();
+            const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
+            const testBuildId = 1;
+            const fileEntries = [{
+                name: "Container/report-xml-sast.sarif",
+                artifactName: artifact.name,
+                filePath: "Container/report-xml-sast.sarif",
+                buildId: testBuildId,
+                contentsPromise: Promise.resolve(sarifContentString)
+            }];
+            const expectedResult: DefaultBuildReportResults = {
+                status: DefaultBuildReportResultsStatus.OK,
+                buildId: testBuildId,
+                buildNumber: '20',
+                reports: fileEntries
+            };
+            spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(fileEntries);
+
+            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX, currentBuildId);
+            expect(result).toEqual(expectedResult);
+            expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
+            expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
         });
     });
 
