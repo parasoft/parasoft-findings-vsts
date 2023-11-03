@@ -57,7 +57,7 @@
       "label": "Build status if quality gate fails",
       "defaultValue": "Failed",
       "required": true,
-      "helpMarkDown": "Mark the build as unstable or failed if the quality gate is not passed.",
+      "helpMarkDown": "Mark the build as unstable or failed if the quality gate fails.",
       "options": {
         "Failed": "Failed",
         "Unstable": "Unstable"
