@@ -177,7 +177,7 @@ export class ParaReportPublishService {
 
         if (localSettings) {
             this.dtpBaseUrl = this.getDtpBaseUrl(localSettings);
-            tl.debug(this.isNullOrWhitespace(this.dtpBaseUrl) ? 'Failed to load DTP settings.' : 'DTP settings are loaded successfully.');
+            tl.debug(this.isNullOrWhitespace(this.dtpBaseUrl) ? 'Failed to load DTP settings.' : 'DTP settings have been successfully loaded.');
         }
 
         this.javaPath = this.getJavaPath(this.parasoftToolOrJavaRootPath);
@@ -698,11 +698,11 @@ export class ParaReportPublishService {
                 } else if (status == 401) {
                     // Need auth to get doc url for DTP version below 2023.1.
                     this.isDtpRuleDocsServiceAvailable = false;
-                    tl.warning("Unable to retrieve the documentation for the rules from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.");
+                    tl.warning("Unable to retrieve the documentation for rules from DTP. It is likely that the current DTP version is older than 2023.1 and is no longer supported.");
                 } else {
                     this.isDtpRuleDocsServiceAvailable = false;
                     tl.warning("Unable to connect to DTP and retrieve the documentation for rules using the provided settings (error code: " + status + "). " +
-                        "Please make sure the values for 'dtp.*' in " + this.localSettingsPath + " are correct.");
+                        "Please make sure the values of 'dtp.*' in " + this.localSettingsPath + " are correct.");
                 }
             });
     }
@@ -842,7 +842,7 @@ export class ParaReportPublishService {
             }
         });
         saxStream.on("error", (e) => {
-            tl.warning('Failed to parse ' + report + '. Error was: ' + e.message);
+            tl.warning('Failed to parse ' + report + '. Error: ' + e.message);
         });
         saxStream.on("end", () => {
             if (success) {
@@ -851,7 +851,7 @@ export class ParaReportPublishService {
                 } else if (sarifReports.length > 0) {
                     this.checkStaticAnalysisViolations(sarifReports, 0);
                 } else {
-                    tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
+                    tl.setResult(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
                 }
             } else {
                 tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
@@ -871,7 +871,7 @@ export class ParaReportPublishService {
             if (index < sarifReports.length -1) {
                 this.checkStaticAnalysisViolations(sarifReports, ++index);
             } else {
-                tl.setResult(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
+                tl.setResult(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
             }
         } else {
             tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
@@ -1024,7 +1024,7 @@ export class ParaReportPublishService {
 
             // When specificReferenceBuilds.length equals 1
             const specificReferenceBuild = specificReferenceBuilds[0];
-            // Check for the succeeded or paratially-succeeded results exist in the specific reference build
+            // Check for the successful or partially-successful results exist in the specific reference build
             if (specificReferenceBuild.result != BuildResult.Succeeded && specificReferenceBuild.result != BuildResult.PartiallySucceeded) {
                 referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuild}' cannot be used. Only successful or unstable builds are valid references`;
                 return referenceBuildInfo;
