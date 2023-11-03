@@ -4,7 +4,8 @@
   "description": "Azure Pipelines Parasoft Code Coverage Quality Gate Task",
   "main": "CodeCoverageQualityGate.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "licenses": "license-checker-rseidelsohn --excludePackages \"parasoft-findings-vsts-code-coverage-quality-gate\" --limitAttributes \"licenses,publisher,repository\" --relativeLicensePath --json --out licenses/license.json --production"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,16 @@
   "bugs": {
     "url": "https://github.com/parasoft/parasoft-findings-vsts/issues"
   },
-  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme"
+  "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
+  "devDependencies": {
+    "@types/q": "^1.5.5",
+    "@types/node-fetch": "^2.6.5",
+    "license-checker-rseidelsohn": "^4.2.5"
+  },
+  "dependencies": {
+    "azure-devops-node-api": "^12.1.0",
+    "azure-pipelines-task-lib": "^4.3.1",
+    "jszip": "^3.10.1",
+    "node-fetch": "^2.7.0"
+  }
 }
