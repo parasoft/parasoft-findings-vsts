@@ -9,7 +9,7 @@ export class DownloadReportGeneratorService {
         return Axios(option).then(res => {
             if (res.status == 200) {
                 res.data.on("end", () => {
-                    console.log("Report Generator: download completed");
+                    console.log("Report Generator: Download completed");
                     callback();
                 });
                 const writer = fs.createWriteStream(pathToStore);

@@ -256,7 +256,7 @@ export class StaticAnalysisQualityService {
                             break;
                         default:
                             // User will never come here
-                            tl.error(`The severity status should be error, warning or note instead of ${this.buildStatus}`);
+                            tl.error(`The severity status should be error, warning, or note instead of ${this.buildStatus}`);
                     }
                 }
             });
