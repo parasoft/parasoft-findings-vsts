@@ -444,13 +444,13 @@ describe("Parasoft findings Azure", () => {
                         }
                     }
                 };
-                const message = 'Unable to retrieve the documentation for the rules from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.';
+                const message = 'Unable to retrieve the documentation for rules from DTP. It is likely that the current DTP version is older than 2023.1 and is no longer supported.';
                 verifyDtpRuleDocsServiceSpec(error, false, done, message);
             });
 
             it('and the status code is undefined', (done) => {
                 const message = "Unable to connect to DTP and retrieve the documentation for rules using the provided settings (error code: " + undefined + "). " +
-                    "Please make sure the values for 'dtp.*' in " + publisher.localSettingsPath + " are correct."
+                    "Please make sure the values of 'dtp.*' in " + publisher.localSettingsPath + " are correct."
                 verifyDtpRuleDocsServiceSpec(null, false, done, message);
             });
         });
@@ -630,7 +630,7 @@ describe("Parasoft findings Azure", () => {
             const sarifReport = '{"runs": [{"results": [null]}]}';
             spyOn(fs, 'readFileSync').and.returnValue(sarifReport);
             publisher.checkStaticAnalysisViolations(sarifReports, 0);
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
         });
 
         it('failed build', () => {
