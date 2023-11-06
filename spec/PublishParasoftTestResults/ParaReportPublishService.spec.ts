@@ -242,7 +242,7 @@ describe("Parasoft findings Azure", () => {
                         await testTransformCoverageReport(expectedReport);
                         expect(tl.execSync).toHaveBeenCalled();
                         expect(tl.warning).not.toHaveBeenCalled();
-                        expect(tl.uploadArtifact).toHaveBeenCalledWith('Container', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
+                        expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
                     });
                 });
 
@@ -251,7 +251,7 @@ describe("Parasoft findings Azure", () => {
                     publisher.javaPath = undefined;
                     let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-node_version-cobertura.xml', 'utf8');
                     await testTransformCoverageReport(expectedReport);
-                    expect(tl.uploadArtifact).toHaveBeenCalledWith('Container', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
+                    expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
                 });
             });
 
@@ -259,7 +259,7 @@ describe("Parasoft findings Azure", () => {
                 publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
                 let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml', 'utf8');
                 await testTransformCoverageReport(expectedReport);
-                expect(tl.uploadArtifact).toHaveBeenCalledWith('Container', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
+                expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
             });
         });
 

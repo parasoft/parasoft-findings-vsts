@@ -528,7 +528,7 @@ export class ParaReportPublishService {
 
                     currentSarifContentString = JSON.stringify(currentSarifContentJson);
                     fs.writeFileSync(currentSarifReport, currentSarifContentString, 'utf8');
-                    tl.uploadArtifact("Container", this.sarifReports[i], this.SARIF_ARTIFACT_NAME);
+                    tl.uploadArtifact("SarifContainer", this.sarifReports[i], this.SARIF_ARTIFACT_NAME);
                 }
                 // Pass the reference build and static analysis info to subsequent static analysis quality gate tasks
                 tl.setVariable('PF.ReferenceBuildResult', JSON.stringify(this.referenceBuildResult));
@@ -540,7 +540,7 @@ export class ParaReportPublishService {
 
                 const coveragePublisher = new tl.CodeCoveragePublisher();
                 coveragePublisher.publish('Cobertura', coverageReport, tempFolder, '');
-                tl.uploadArtifact('Container', coverageReport, 'ParasoftCoverageLogs');
+                tl.uploadArtifact('CoberturaContainer', coverageReport, 'ParasoftCoverageLogs');
             }
             if(this.failOnFailures){
                 this.checkRunFailures(this.xUnitReports, this.sarifReports);
