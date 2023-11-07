@@ -200,7 +200,7 @@ export class ParaReportPublishService {
     run = async (): Promise<void> => {
         let taskPublishParasoftResultsExists = tl.getVariable('PF.PublishParasoftResultsExists');
         if (taskPublishParasoftResultsExists == 'true') {
-            tl.warning('Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored.');
+            tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored.');
             return;
         }
 
