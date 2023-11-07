@@ -198,6 +198,13 @@ export class ParaReportPublishService {
     }
 
     run = async (): Promise<void> => {
+        let taskPublishParasoftResultsExists = tl.getVariable('PF.PublishParasoftResultsExists');
+        if (taskPublishParasoftResultsExists == 'true') {
+            tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored.');
+            return;
+        }
+
+        tl.setVariable('PF.PublishParasoftResultsExists', 'true');
         if (!this.matchingInputReportFiles || this.matchingInputReportFiles.length === 0) {
             tl.warning('No test result files matching ' + this.inputReportFiles + ' were found.');
             tl.setResult(tl.TaskResult.Succeeded, '');

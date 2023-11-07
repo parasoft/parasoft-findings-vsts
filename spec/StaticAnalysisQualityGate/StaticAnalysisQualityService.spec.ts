@@ -204,7 +204,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
         await staticAnalysisQualityService.run();
 
-        expect(tl.warning).toHaveBeenCalledWith('Quality gate \'Type: Total, Severity: All, Threshold: 10\' was skipped: please run \'Publish Parasoft Results\' task first');
+        expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: All, Threshold: 10\' was skipped: please run \'Publish Parasoft Results\' task first');
     });
 
     it('When reference build result is not empty, Quality Gate should parse result', async () => {
@@ -228,7 +228,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         await staticAnalysisQualityService.run();
 
-        expect(tl.warning).toHaveBeenCalledWith('Quality gate \'Type: Total, Severity: All, Threshold: 10, Reference pipeline: TestPipelineName, Reference build: 260\' was skipped; no Parasoft static analysis results were found in this build');
+        expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: All, Threshold: 10, Reference pipeline: TestPipelineName, Reference build: 260\' was skipped; no Parasoft static analysis results were found in this build');
     });
 
     it('When Quality Gate failed, should handle error', async () => {
