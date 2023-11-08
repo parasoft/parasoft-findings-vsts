@@ -96,12 +96,12 @@ export class BuildAPIClient {
         try {
             const response = await fetch(downloadUrl, options);
             if (response.status === undefined || response.status < 200 || response.status >= 300) {
-                tl.warning(`An error(${response.status}) occurred while attempting to download artifact from: ${downloadUrl}`);
+                tl.warning(`An error (${response.status}) occurred while attempting to download artifact from: ${downloadUrl}`);
                 return undefined;
             }
             return response.arrayBuffer();
         } catch (error) {
-            tl.warning(`Download artifact error: ${downloadUrl}`);
+            tl.warning(`Artifact download error: ${downloadUrl}`);
             console.error(error);
             return undefined;
         }

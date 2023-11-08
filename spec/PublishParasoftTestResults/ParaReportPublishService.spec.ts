@@ -266,50 +266,68 @@ describe("Parasoft findings Azure", () => {
     });
 
     describe('run()', () => {
-        it('when no input file is matched', async () => {
-            spyOn(tl, 'findMatch').and.returnValue([]);
+        it('- not unique.', async () => {
+            spyOn(tl, 'getVariable').and.callFake((variable) => {
+                if (variable === 'PF.PublishParasoftResultsExists') return 'true';
+            });
             publisher = new ParaReportPublishService();
-            spyOn(publisher, 'verifyDtpRuleDocsService');
-            spyOn(publisher, 'transformReports');
             await publisher.run();
 
-            expect(tl.warning).toHaveBeenCalledOnceWith('No test result files matching '+ publisher.inputReportFiles +' were found.');
-            expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.Succeeded, '');
-            expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
-            expect(publisher.transformReports).not.toHaveBeenCalled();
+            expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored.');
         });
 
-        describe('when matched to the input report file', () => {
+        describe('- unique.', () => {
             beforeEach(() => {
-                spyOn(tl, 'findMatch').and.returnValue(['foobar']);
-                publisher = new ParaReportPublishService();
-                spyOn(publisher, 'transformReports');
-            });
-
-            it('and the dtp url exists', (done) => {
-                spyOn(publisher, 'isNullOrWhitespace').and.returnValue(false);
-                spyOn(publisher, 'verifyDtpRuleDocsService').and.returnValue(Promise.resolve());
-                publisher.run();
-                publisher.verifyDtpRuleDocsService().then(() =>{
-                    expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
-                    done();
+                spyOn(tl, 'getVariable').and.callFake((variable) => {
+                    if (variable === 'PF.PublishParasoftResultsExists') return 'false';
                 });
-                expect(publisher.verifyDtpRuleDocsService).toHaveBeenCalled();
             });
 
-            it('but the dtp url does not exist', async () => {
+            it('when no input file is matched', async () => {
+                spyOn(tl, 'findMatch').and.returnValue([]);
+                publisher = new ParaReportPublishService();
                 spyOn(publisher, 'verifyDtpRuleDocsService');
-                spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
+                spyOn(publisher, 'transformReports');
                 await publisher.run();
+    
+                expect(tl.warning).toHaveBeenCalledOnceWith('No test result files matching '+ publisher.inputReportFiles +' were found.');
+                expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.Succeeded, '');
                 expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
-                expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
+                expect(publisher.transformReports).not.toHaveBeenCalled();
             });
-
-            it('error will be catched if promise reject', async () => {
-                spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
-                publisher.transformReports.and.returnValue(Promise.reject());
-                await publisher.run();
-                expect(tl.error).toHaveBeenCalledOnceWith('Error. See log for details');
+    
+            describe('when matched to the input report file', () => {
+                beforeEach(() => {
+                    spyOn(tl, 'findMatch').and.returnValue(['foobar']);
+                    publisher = new ParaReportPublishService();
+                    spyOn(publisher, 'transformReports');
+                });
+    
+                it('and the dtp url exists', (done) => {
+                    spyOn(publisher, 'isNullOrWhitespace').and.returnValue(false);
+                    spyOn(publisher, 'verifyDtpRuleDocsService').and.returnValue(Promise.resolve());
+                    publisher.run();
+                    publisher.verifyDtpRuleDocsService().then(() =>{
+                        expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
+                        done();
+                    });
+                    expect(publisher.verifyDtpRuleDocsService).toHaveBeenCalled();
+                });
+    
+                it('but the dtp url does not exist', async () => {
+                    spyOn(publisher, 'verifyDtpRuleDocsService');
+                    spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
+                    await publisher.run();
+                    expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
+                    expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
+                });
+    
+                it('error will be catched if promise reject', async () => {
+                    spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
+                    publisher.transformReports.and.returnValue(Promise.reject());
+                    await publisher.run();
+                    expect(tl.error).toHaveBeenCalledOnceWith('Error. See log for details');
+                });
             });
         });
     });
@@ -444,13 +462,13 @@ describe("Parasoft findings Azure", () => {
                         }
                     }
                 };
-                const message = 'Unable to retrieve the documentation for the rules from DTP. It is highly possible that the current version of DTP is older than the 2023.1 which is not supported.';
+                const message = 'Unable to retrieve the documentation for rules from DTP. It is likely that the current DTP version is older than 2023.1 and is no longer supported.';
                 verifyDtpRuleDocsServiceSpec(error, false, done, message);
             });
 
             it('and the status code is undefined', (done) => {
                 const message = "Unable to connect to DTP and retrieve the documentation for rules using the provided settings (error code: " + undefined + "). " +
-                    "Please make sure the values for 'dtp.*' in " + publisher.localSettingsPath + " are correct."
+                    "Please make sure the values of 'dtp.*' in " + publisher.localSettingsPath + " are correct."
                 verifyDtpRuleDocsServiceSpec(null, false, done, message);
             });
         });
@@ -630,7 +648,7 @@ describe("Parasoft findings Azure", () => {
             const sarifReport = '{"runs": [{"results": [null]}]}';
             spyOn(fs, 'readFileSync').and.returnValue(sarifReport);
             publisher.checkStaticAnalysisViolations(sarifReports, 0);
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Build succeed. Test failures and/or static analysis violation were not found.');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
         });
 
         it('failed build', () => {
