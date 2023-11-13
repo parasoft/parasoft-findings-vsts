@@ -59,6 +59,11 @@ export enum QualityGateStatusEnum {
     FAILED = "FAILED"
 }
 
+interface CoverageLineInfo {
+    coveredLines: number,
+    coverableLines: number
+}
+
 export class CodeCoverageQualityService {
     readonly COBERTURA_ARTIFACT_NAME: string = "ParasoftCoverageLogs";
     // Predefined variables
@@ -87,12 +92,7 @@ export class CodeCoverageQualityService {
     referenceBuildNumber: string | undefined;
     referenceBuildId: string | undefined;
 
-    private overallCoveredLines = 0;
-    private overallCoverabledLines = 0;
-
     dmp: DiffMatchPatch;
-    private modifiedCodeLines: number = 0;
-    private coveredModifiedCodeLines: number = 0;
 
     constructor() {
         this.projectName = tl.getVariable('System.TeamProject') || '';
@@ -175,8 +175,8 @@ export class CodeCoverageQualityService {
 
             if (this.type == TypeEnum.OVERALL) {
                 let currentCoberturaContentString: string = await (<FileEntry> currentCoberturaReport).contentsPromise;
-                this.getOverallCodeCoverage(currentCoberturaContentString);
-                const qualityGateResult: QualityGateResult = this.evaluateQualityGate(this.overallCoverabledLines, this.overallCoveredLines);
+                const coverageLineInfo: CoverageLineInfo = this.getOverallCodeCoverage(currentCoberturaContentString);
+                const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageLineInfo.coverableLines, coverageLineInfo.coveredLines);
                 // TODO - Display result, will be implemented in separate task.
             } else if (this.type == TypeEnum.MODIFIED) {
                 // To get Cobertura report in reference build
@@ -355,12 +355,16 @@ export class CodeCoverageQualityService {
         return qualityGateResult;
     }
 
-    private getOverallCodeCoverage = (coberturaContentString: string): void => {
+    private getOverallCodeCoverage = (coberturaContentString: string): CoverageLineInfo => {
         const saxParser = sax.parser(true);
+        let coverageLineInfo: CoverageLineInfo = {
+            coveredLines:0,
+            coverableLines: 0
+        }
         saxParser.onopentag = (node) => {
             if (node.name == 'coverage') {
-                this.overallCoveredLines = parseInt(<string>node.attributes['lines-covered']);
-                this.overallCoverabledLines = parseInt(<string>node.attributes['lines-valid']);
+                coverageLineInfo.coveredLines = parseInt(<string>node.attributes['lines-covered']);
+                coverageLineInfo.coverableLines = parseInt(<string>node.attributes['lines-valid']);
             }
         }
 
@@ -374,6 +378,7 @@ export class CodeCoverageQualityService {
         };
 
         saxParser.write(coberturaContentString).close();
+        return coverageLineInfo;
     }
 
 
@@ -384,16 +389,15 @@ export class CodeCoverageQualityService {
     }
 
     private getModifiedCodeCoverage = (referenceBuildCoverageReport: string, currentBuildCoverageReport: string): void => {
-        const currentBuildCodeFileContainer: CodeFile[] = [];
-        this.getCoverageDataFromReport(currentBuildCoverageReport, currentBuildCodeFileContainer);
-        const referenceBuildCodeFileContainer: CodeFile[] = [];
-        this.getCoverageDataFromReport(referenceBuildCoverageReport, referenceBuildCodeFileContainer);
+        const currentBuildCodeFileContainer: CodeFile[] = this.getCoverageDataFromReport(currentBuildCoverageReport);
+        const referenceBuildCodeFileContainer: CodeFile[] = this.getCoverageDataFromReport(referenceBuildCoverageReport);
 
-        this.calculateModifiedCodeLines(currentBuildCodeFileContainer, referenceBuildCodeFileContainer);
+        let coverageResult = this.calculateModifiedCodeLines(currentBuildCodeFileContainer, referenceBuildCodeFileContainer);
     }
 
-    private getCoverageDataFromReport = (reportContent: string, container: CodeFile[]): void => {
+    private getCoverageDataFromReport = (reportContent: string): CodeFile[] => {
         const saxParser = sax.parser(true);
+        let container: CodeFile[] = [];
         let currentCodeFile : CodeFile = {
             fileIdentity: '',
             codeLines: []
@@ -436,10 +440,16 @@ export class CodeCoverageQualityService {
         };
 
         saxParser.write(reportContent).close();
+        return container;
     }
 
-    private calculateModifiedCodeLines = (currentBuildCodeFileContainer: CodeFile[], referenceBuildCodeFileContainer: CodeFile[]): void => {
-        for (let codeFile of currentBuildCodeFileContainer) {
+    private calculateModifiedCodeLines = (currentBuildCodeFileContainer: CodeFile[], referenceBuildCodeFileContainer: CodeFile[]): CoverageLineInfo => {
+        let coverageInfo: CoverageLineInfo = {
+            coveredLines: 0,
+            coverableLines: 0
+        }
+
+        currentBuildCodeFileContainer.forEach((codeFile) => {
             let currentCodeFileIdentity = codeFile.fileIdentity;
             let currentCodeLines = codeFile.codeLines;
             let referenceCodeFile = referenceBuildCodeFileContainer.find(codeFle => codeFle.fileIdentity === currentCodeFileIdentity);
@@ -449,7 +459,7 @@ export class CodeCoverageQualityService {
                 let diffs = this.getDiffLines(referenceCodeFileText, currentCodeFileText);
 
                 let lineCursor = 0;
-                for (let diff of diffs) {
+                diffs.forEach((diff) => {
                     let [changeType, text] = diff;
 
                     if (changeType == 0) {  // Unchanged code line
@@ -460,25 +470,26 @@ export class CodeCoverageQualityService {
                     if (changeType == 1) {// modified code line
                         let modifiedLines = text.split('\n');
                         modifiedLines.pop(); // Remove the last empty string
-                        for (let modifiedLine in modifiedLines) {
+                        modifiedLines.forEach((modifiedLine) => {
                             lineCursor += 1;
-                            this.modifiedCodeLines += 1;
+                            coverageInfo.coverableLines += 1;
                             let modifiedLineData = currentCodeLines[lineCursor - 1];
                             if (modifiedLineData.hits > 0){
-                                this.coveredModifiedCodeLines += 1;
+                                coverageInfo.coveredLines += 1;
                             }
-                        }
+                        });
                     }
-                }
+                });
             } else {
-                for (let codeLine of currentCodeLines) {
-                    this.modifiedCodeLines += 1;
+                currentCodeLines.forEach((codeLine) => {
+                    coverageInfo.coverableLines += 1;
                     if (codeLine.hits > 0) {
-                        this.coveredModifiedCodeLines += 1;
+                        coverageInfo.coveredLines += 1;
                     }
-                }
+                });
             }
-        }
+        });
+        return coverageInfo;
     }
 
     private getCodeFileContent = (lines: CodeLine[]): string => {
