@@ -267,6 +267,9 @@ export class CodeCoverageQualityService {
             switch (defaultBuildReportResults.status) {
                 case DefaultBuildReportResultsStatus.OK:
                     referenceBuildInfo.fileEntry = defaultBuildReportResults.reports?.at(0);
+                    this.referencePipelineName = pipelineName;
+                    this.referenceBuildId = (<number> defaultBuildReportResults.buildId).toString();
+                    this.referenceBuildNumber = <string> defaultBuildReportResults.buildNumber;
                     tl.debug(`Set build '${pipelineName}#${defaultBuildReportResults.buildNumber}' as the default reference build`);
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS:
@@ -319,6 +322,9 @@ export class CodeCoverageQualityService {
             }
             tl.debug(`Retrieved Parasoft coverage results from the reference build '${pipelineName}#${this.originalReferenceBuildNumber}'`);
             referenceBuildInfo.fileEntry = fileEntries[0]; // Only get the first report since there is only one Cobertura report in Azure Artifact
+            this.referencePipelineName = pipelineName;
+            this.referenceBuildId = (<number> specificReferenceBuild.id).toString();
+            this.referenceBuildNumber = <string> specificReferenceBuild.buildNumber;
             return referenceBuildInfo;
         }
     }

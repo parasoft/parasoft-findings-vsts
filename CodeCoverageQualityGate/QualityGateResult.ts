@@ -121,7 +121,10 @@ export class QualityGateResult {
         let text = `<div>${this.getCodeCoverageText()}</div>\n`;
 
         if (this._type == TypeEnum.MODIFIED) {
-            let buildText = `<a href="./?buildId=${this._referenceBuildId}">${this._referencePipelineName}#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
+            let buildText = 'N/A';
+            if (this._referencePipelineName && this._referenceBuildId) {
+                buildText = `<a href="./?buildId=${this._referenceBuildId}">${this._referencePipelineName}#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
+            }
             text += `<div>Reference build: ${buildText}</div>\n`;
         }
 
