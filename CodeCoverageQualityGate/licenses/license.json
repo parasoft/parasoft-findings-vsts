@@ -64,6 +64,10 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/define-data-property"
     },
+    "diff-match-patch@1.0.5": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/JackuB/diff-match-patch"
+    },
     "file-uri-to-path@1.0.0": {
         "licenses": "MIT",
         "publisher": "Nathan Rajlich",
@@ -262,6 +266,11 @@
         "licenses": "WTFPL OR ISC",
         "publisher": "Parsha Pourkhomami",
         "repository": "https://github.com/parshap/node-sanitize-filename"
+    },
+    "sax@1.2.4": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/isaacs/sax-js"
     },
     "semver@5.7.2": {
         "licenses": "ISC",

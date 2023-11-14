@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
+import * as sax from 'sax';
+import * as DiffMatchPatch from "diff-match-patch";
+import {Diff} from "diff-match-patch";
 import { BuildArtifact, BuildDefinitionReference, BuildResult} from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import { BuildAPIClient, DefaultBuildReportResults, DefaultBuildReportResultsStatus, FileEntry, FileSuffixEnum } from './BuildApiClient';
+import {QualityGateResult} from "./QualityGateResult";
 
 interface ReferenceBuildResult {
     originalPipelineName: string,
@@ -30,12 +34,34 @@ interface BuildInformation {
 
 export const enum TypeEnum {
     OVERALL = "Overall",
-    MODIFIED = "Modified",
+    MODIFIED = "Modified"
 }
 
 export const enum BuildStatusEnum {
     FAILED = "Failed",
     UNSTABLE = "Unstable"
+}
+
+interface FileInfo {
+    fileId: string,
+    codeLines: LineInfo[]
+}
+
+interface LineInfo {
+    lineNumber: number,
+    lineHash: string,
+    hits: number
+}
+
+export enum QualityGateStatusEnum {
+    PASSED = "PASSED",
+    UNSTABLE = "UNSTABLE",
+    FAILED = "FAILED"
+}
+
+interface CoverageInfo {
+    coveredLines: number,
+    coverableLines: number
 }
 
 export class CodeCoverageQualityService {
@@ -46,6 +72,8 @@ export class CodeCoverageQualityService {
     readonly buildNumber: string;
     readonly buildId: string;
     readonly definitionId: number;
+    readonly displayName: string;
+    readonly defaultWorkingDirectory: string;
 
     readonly fileSuffix: FileSuffixEnum;
     readonly buildClient: BuildAPIClient;
@@ -60,6 +88,11 @@ export class CodeCoverageQualityService {
 
     originalReferencePipelineName: string | undefined;
     originalReferenceBuildNumber: string | undefined;
+    referencePipelineName: string | undefined;
+    referenceBuildNumber: string | undefined;
+    referenceBuildId: string | undefined;
+
+    dmp: DiffMatchPatch;
 
     constructor() {
         this.projectName = tl.getVariable('System.TeamProject') || '';
@@ -67,6 +100,8 @@ export class CodeCoverageQualityService {
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+        this.displayName = tl.getVariable('Task.DisplayName') || '';
+        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
 
         this.fileSuffix = FileSuffixEnum.COBERTURA_SUFFIX;
         this.buildClient = new BuildAPIClient();
@@ -76,6 +111,8 @@ export class CodeCoverageQualityService {
         this.buildStatusString = tl.getInput('buildStatus') || '';
 
         this.threshold = parseFloat(this.thresholdString || '0.0');
+
+        this.dmp = new DiffMatchPatch();
 
         if (isNaN(this.threshold)) {
             tl.warning(`Invalid threshold value '${this.thresholdString}', using default value 0.0`);
@@ -111,15 +148,6 @@ export class CodeCoverageQualityService {
                 tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'Failed'`);
                 this.buildStatus = BuildStatusEnum.FAILED;
         }
-
-        tl.debug("Input type: " + this.typeString);
-        tl.debug("Code coverage quality type: " + this.type);
-
-        tl.debug("Input threshold: " + this.thresholdString);
-        tl.debug("Code coverage quality threshold: " + this.threshold);
-
-        tl.debug("Input buildStatus: " + this.buildStatusString);
-        tl.debug("Code coverage quality buildStatus: " + this.buildStatus);
     }
 
     run = async (): Promise<void> => {
@@ -146,7 +174,10 @@ export class CodeCoverageQualityService {
             const currentCoberturaReport = currentBuildInformation.fileEntry;
 
             if (this.type == TypeEnum.OVERALL) {
-                // TODO (CICD-533) Implement the function of quality gate - support total type
+                let currentCoberturaContentString: string = await (<FileEntry> currentCoberturaReport).contentsPromise;
+                const coverageInfo: CoverageInfo = this.getOverallCodeCoverage(currentCoberturaContentString);
+                const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageInfo);
+                // TODO - Display result, will be implemented in separate task.
             } else if (this.type == TypeEnum.MODIFIED) {
                 // To get Cobertura report in reference build
                 const referenceBuildInformation: BuildInformation = await this.getReferenceBuildInformation();
@@ -159,6 +190,10 @@ export class CodeCoverageQualityService {
                     }
                 }
                 const referenceCoberturaReport = referenceBuildInformation.fileEntry;
+
+                let referenceCoberturaReportContent = await (<FileEntry> referenceCoberturaReport).contentsPromise;
+                let currentCoberturaReportContent = await (<FileEntry> currentCoberturaReport).contentsPromise;
+                const coverageInfo: CoverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
                 // TODO (CICD-534)Calculate modified code coverage
             }
         } catch(error) {
@@ -184,7 +219,7 @@ export class CodeCoverageQualityService {
             currentBuildInfo.warningMessage = "no Parasoft coverage results were found in this build";
             return currentBuildInfo;
         }
-        currentBuildInfo.fileEntry = fileEntries[0]; // Only get the first report since there is only one cobertura report in Azure Artifact
+        currentBuildInfo.fileEntry = fileEntries[0]; // Only get the first report since there is only one Cobertura report in Azure Artifact
         return currentBuildInfo;
     }
 
@@ -218,7 +253,7 @@ export class CodeCoverageQualityService {
         return referenceBuildInfo;
     }
 
-    private async getBuildsForSpecificPipeline(specificReferencePipelineId: number, pipelineName: string): Promise<BuildInformation> {
+    private getBuildsForSpecificPipeline = async (specificReferencePipelineId: number, pipelineName: string): Promise<BuildInformation> => {
         const referenceBuildInfo: BuildInformation = {
             fileEntry: undefined,
             warningMessage: undefined,
@@ -282,14 +317,190 @@ export class CodeCoverageQualityService {
                 return referenceBuildInfo;
             }
             tl.debug(`Retrieved Parasoft coverage results from the reference build '${pipelineName}#${this.originalReferenceBuildNumber}'`);
-            referenceBuildInfo.fileEntry = fileEntries[0]; // Only get the first report since there is only one cobertura report in Azure Artifact
+            referenceBuildInfo.fileEntry = fileEntries[0]; // Only get the first report since there is only one Cobertura report in Azure Artifact
             return referenceBuildInfo;
         }
     }
+
+    private evaluateQualityGate = (coverageInfo: CoverageInfo): QualityGateResult => {
+        let qualityGateResult: QualityGateResult = new QualityGateResult(
+            this.displayName,
+            coverageInfo.coverableLines, coverageInfo.coveredLines,
+            this.referencePipelineName || '',
+            this.referenceBuildNumber || '',
+            this.referenceBuildId || '',
+            this.type, this.threshold,
+            this.defaultWorkingDirectory);
+
+        tl.debug("Evaluating quality gate");
+        if (qualityGateResult.codeCoverage == 'N/A' || parseFloat(qualityGateResult.codeCoverage) >= this.threshold) {
+            qualityGateResult.status = QualityGateStatusEnum.PASSED;
+            tl.setResult(tl.TaskResult.Succeeded, `Quality gate '${this.getQualityGateIdentification()}' passed`);
+        } else {
+            switch (this.buildStatus) {
+                case BuildStatusEnum.UNSTABLE:
+                    qualityGateResult.status = QualityGateStatusEnum.UNSTABLE;
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' failed: build result is UNSTABLE`);
+                    break;
+                case BuildStatusEnum.FAILED:
+                    qualityGateResult.status = QualityGateStatusEnum.FAILED;
+                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.getQualityGateIdentification()}' failed: build result is FAILED`);
+                    break;
+                default:
+                    // User will never come here
+                    tl.error(`The build status should be unstable or failed instead of ${this.buildStatus}`);
+            }
+        }
+        tl.debug(`Quality Gate ${qualityGateResult.status} - ${this.type} code coverage: ${qualityGateResult.codeCoverage} (${coverageInfo.coveredLines}/${coverageInfo.coverableLines}) - Threshold: ${this.threshold}%`);
+        return qualityGateResult;
+    }
+
+    private getOverallCodeCoverage = (coberturaContentString: string): CoverageInfo => {
+        const saxParser = sax.parser(true);
+        let coverageInfo: CoverageInfo = {
+            coveredLines:0,
+            coverableLines: 0
+        }
+        saxParser.onopentag = (node) => {
+            if (node.name == 'coverage') {
+                coverageInfo.coveredLines = parseInt(<string>node.attributes['lines-covered']);
+                coverageInfo.coverableLines = parseInt(<string>node.attributes['lines-valid']);
+            }
+        }
+
+        saxParser.onend = () => {
+            // do nothing
+        };
+
+        saxParser.onerror = (e) => {
+            tl.warning('Failed to parse the content of the Cobertura code coverage report.');
+            console.error(e);
+        };
+
+        saxParser.write(coberturaContentString).close();
+        return coverageInfo;
+    }
+
 
     private getQualityGateIdentification() {
         const referencePipeline: string = this.originalReferencePipelineName ? ", Reference pipeline: " + this.originalReferencePipelineName : "";
         const referenceBuild: string = this.originalReferenceBuildNumber ? ", Reference build: " + this.originalReferenceBuildNumber : "";
         return "Type: " + this.type + ", Threshold: " + this.threshold + referencePipeline + referenceBuild;
+    }
+
+    private getCoverageDataFromReport = (reportContent: string): FileInfo[] => {
+        const saxParser = sax.parser(true);
+        let fileInfos: FileInfo[] = [];
+        let currentFileInfo : FileInfo = {
+            fileId: '',
+            codeLines: []
+        }
+
+        saxParser.onopentag = (node) => {
+            if (node.name == 'class') {
+                currentFileInfo = {
+                    fileId: <string>node.attributes.filename + ':' + <string>node.attributes.name,
+                    codeLines: []
+                }
+            }
+            if (node.name == 'line') {
+                let line: LineInfo = {
+                    lineNumber: parseInt(<string>node.attributes.number),
+                    lineHash: <string>node.attributes.hash,
+                    hits: parseInt(<string>node.attributes.hits)
+                }
+                currentFileInfo.codeLines.push(line);
+            }
+        };
+
+        saxParser.onerror = (e) => {
+            tl.warning('Failed to parse the content of the Cobertura code coverage report.');
+            console.error(e);
+        };
+
+        saxParser.onclosetag = (nodeName) => {
+            if (nodeName == 'class') {
+                fileInfos.push(currentFileInfo);
+                currentFileInfo = {
+                    fileId: '',
+                    codeLines: []
+                };
+            }
+        };
+
+        saxParser.onend = () => {
+            // do nothing
+        };
+
+        saxParser.write(reportContent).close();
+        return fileInfos;
+    }
+
+    private getModifiedCodeCoverage = (referenceBuildCoverageReport: string, currentBuildCoverageReport: string): CoverageInfo => {
+        const currentBuildFileInfos: FileInfo[] = this.getCoverageDataFromReport(currentBuildCoverageReport);
+        const referenceBuildFileInfos: FileInfo[] = this.getCoverageDataFromReport(referenceBuildCoverageReport);
+        let coverageInfo: CoverageInfo = {
+            coveredLines: 0,
+            coverableLines: 0
+        }
+
+        currentBuildFileInfos.forEach((currentBuildFileInfo) => {
+            let referenceBuildFileInfo = referenceBuildFileInfos.find(codeFle => codeFle.fileId === currentBuildFileInfo.fileId);
+            if (referenceBuildFileInfo) {
+                let referenceBuildFileText = this.getCodeFileContent(referenceBuildFileInfo.codeLines);
+                let currentBuildFileText = this.getCodeFileContent(currentBuildFileInfo.codeLines);
+                let diffs = this.getDiffLines(referenceBuildFileText, currentBuildFileText);
+
+                let lineCursor = 0;
+                diffs.forEach((diff) => {
+                    let [modified, text] = diff;
+
+                    if (modified == 0) {  // Unchanged code line
+                        let lines = text.split('\n');
+                        lines.pop(); // Remove the last empty string
+                        lineCursor += lines.length;
+                    }
+                    if (modified == 1) {// modified code line
+                        let modifiedLines = text.split('\n');
+                        modifiedLines.pop(); // Remove the last empty string
+                        modifiedLines.forEach((modifiedLine) => {
+                            lineCursor += 1;
+                            coverageInfo.coverableLines += 1;
+                            let modifiedLineData = currentBuildFileInfo.codeLines[lineCursor - 1];
+                            if (modifiedLineData.hits > 0){
+                                coverageInfo.coveredLines += 1;
+                            }
+                        });
+                    }
+                });
+            } else {
+                currentBuildFileInfo.codeLines.forEach((codeLine) => {
+                    coverageInfo.coverableLines += 1;
+                    if (codeLine.hits > 0) {
+                        coverageInfo.coveredLines += 1;
+                    }
+                });
+            }
+        });
+        return coverageInfo;
+    }
+
+    private getCodeFileContent = (lines: LineInfo[]): string => {
+        let fileContent: string = '';
+        for (let i = 0; i < lines.length; i++) {
+            fileContent += lines[i].lineHash + '\n';
+        }
+        return fileContent;
+    }
+
+    private getDiffLines = (referenceFile: string, currentFile: string): Diff[] => {
+        let chars = this.dmp.diff_linesToChars_(referenceFile, currentFile);
+        let referenceChars = chars.chars1;
+        let currentChars = chars.chars2;
+        let lineArray = chars.lineArray;
+        let diffs = this.dmp.diff_main(referenceChars, currentChars, false);
+        this.dmp.diff_charsToLines_(diffs, lineArray);
+
+        return diffs;
     }
 }
