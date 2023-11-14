@@ -127,9 +127,9 @@ describe('Test Builds API Client', () => {
                 const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
                 const testBuildId = 1;
                 const fileEntries = [{
-                    name: "Container/report-xml-sast.sarif",
+                    name: "SarifContainer/report-xml-sast.sarif",
                     artifactName: artifact.name,
-                    filePath: "Container/report-xml-sast.sarif",
+                    filePath: "SarifContainer/report-xml-sast.sarif",
                     buildId: testBuildId,
                     contentsPromise: Promise.resolve(sarifContentString)
                 }];
@@ -206,9 +206,9 @@ describe('Test Builds API Client', () => {
             const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
             const testBuildId = 1;
             const fileEntries = [{
-                name: "Container/report-xml-sast.sarif",
+                name: "SarifContainer/report-xml-sast.sarif",
                 artifactName: artifact.name,
-                filePath: "Container/report-xml-sast.sarif",
+                filePath: "SarifContainer/report-xml-sast.sarif",
                 buildId: testBuildId,
                 contentsPromise: Promise.resolve(sarifContentString)
             }];

@@ -1027,9 +1027,9 @@ describe("Parasoft findings Azure", () => {
                 publisher.buildClient.getBuildArtifact.and.returnValue(artifact);
                 const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
                 const expectedResult: any[] = [{
-                    name: "Container/report-xml-sast.sarif",
+                    name: "SarifContainer/report-xml-sast.sarif",
                     artifactName: artifact.name,
-                    filePath: "Container/report-xml-sast.sarif",
+                    filePath: "SarifContainer/report-xml-sast.sarif",
                     buildId: 1,
                     contentsPromise: Promise.resolve(sarifContentString)
                 }];
