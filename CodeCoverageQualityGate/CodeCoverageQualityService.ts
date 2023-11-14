@@ -177,7 +177,7 @@ export class CodeCoverageQualityService {
                 let currentCoberturaContentString: string = await (<FileEntry> currentCoberturaReport).contentsPromise;
                 const coverageInfo: CoverageInfo = this.getOverallCodeCoverage(currentCoberturaContentString);
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageInfo);
-                // TODO - Display result, will be implemented in separate task.
+                qualityGateResult.uploadQualityGateSummary();
             } else if (this.type == TypeEnum.MODIFIED) {
                 // To get Cobertura report in reference build
                 const referenceBuildInformation: BuildInformation = await this.getReferenceBuildInformation();
@@ -195,7 +195,7 @@ export class CodeCoverageQualityService {
                 let currentCoberturaReportContent = await (<FileEntry> currentCoberturaReport).contentsPromise;
                 const coverageInfo: CoverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageInfo);
-                // TODO - Display result, will be implemented in separate task.
+                qualityGateResult.uploadQualityGateSummary();
             }
         } catch(error) {
             tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
