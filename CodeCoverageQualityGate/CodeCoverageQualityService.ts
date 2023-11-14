@@ -194,7 +194,8 @@ export class CodeCoverageQualityService {
                 let referenceCoberturaReportContent = await (<FileEntry> referenceCoberturaReport).contentsPromise;
                 let currentCoberturaReportContent = await (<FileEntry> currentCoberturaReport).contentsPromise;
                 const coverageInfo: CoverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
-                // TODO (CICD-534)Calculate modified code coverage
+                const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageInfo);
+                // TODO - Display result, will be implemented in separate task.
             }
         } catch(error) {
             tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
