@@ -530,7 +530,7 @@ export class ParaReportPublishService {
                     let currentSarifContentJson = JSON.parse(currentSarifContentString);
 
                     currentSarifContentJson = this.checkAndAddUnbViolIdForSarifReport(currentSarifContentJson);
-                    let referenceSarifReport: FileEntry | undefined = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'Container/' + path.basename(currentSarifReport));
+                    let referenceSarifReport: FileEntry | undefined = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'SarifContainer/' + path.basename(currentSarifReport));
                     await this.appendBaselineState(currentSarifContentJson, referenceSarifReport);
 
                     currentSarifContentString = JSON.stringify(currentSarifContentJson);
