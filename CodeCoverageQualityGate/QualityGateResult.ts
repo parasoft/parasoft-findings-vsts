@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as fs from "fs";
+import * as path from "path";
 import { QualityGateStatusEnum, TypeEnum } from "./CodeCoverageQualityService";
 
 export class QualityGateResult {
@@ -67,5 +69,69 @@ export class QualityGateResult {
 
     public set codeCoverage(codeCoverage: string) {
         this._codeCoverage = codeCoverage;
+    }
+
+    public getStatusText() : string {
+        switch (this._status) {
+            case QualityGateStatusEnum.FAILED:
+                return '<span style="color:red"><span style="font-size:13px;line-height:14px" class="icon bowtie-icon bowtie-edit-delete"></span>Failed</span>';
+            case QualityGateStatusEnum.PASSED:
+                return '<span style="color:green"><span style="font-size:13px;line-height:14px" class="icon bowtie-icon bowtie-check"></span>Passed</span>';
+            case QualityGateStatusEnum.UNSTABLE:
+                return '<span style="color:orange"><span style="font-size:13px;line-height:12px" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span>Unstable</span>';
+        }
+    }
+
+    public getCodeCoverageText() : string {
+        let coverageText = `${this._type}  code coverage: `;
+        if (this._codeCoverage != 'N/A') {
+            coverageText += `${this._codeCoverage} (${this._coveredLines}/${this._coverableLines})`;
+        } else {
+            coverageText += `${this._codeCoverage} (no modified code)`;
+        }
+        return coverageText;
+    }
+
+    public getQualityGateTypeText(): string {
+        switch (this._type) {
+            case TypeEnum.OVERALL:
+                return 'Overall project';
+            case TypeEnum.MODIFIED:
+                return 'Modified code lines'
+        }
+    }
+
+    public uploadQualityGateSummary() : void {
+        const mdStoragePath = this._workingDir + '/ParasoftQualityGatesMD';
+        if (fs.existsSync(mdStoragePath)) {
+            fs.readdirSync(mdStoragePath).forEach((file) => {
+                const filePath = path.join(mdStoragePath, file);
+                fs.unlinkSync(filePath);
+            });
+            fs.rmdirSync(mdStoragePath);
+        }
+        fs.mkdirSync(mdStoragePath);
+        let markdownPath = `${mdStoragePath}/${this._displayName}.md`;
+        let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
+        fs.writeFileSync(markdownPath, summaryMarkdownContent);
+        console.log('##vso[task.uploadsummary]' + markdownPath);
+    }
+
+    private getQualityGateResultSummaryContent(): string {
+        let text = `<div>${this.getCodeCoverageText()}</div>\n`;
+
+        if (this._type == TypeEnum.MODIFIED) {
+            let buildText = 'N/A';
+            if (this._referencePipelineName && this._referenceBuildId) {
+                buildText = `<a href="./?buildId=${this._referenceBuildId}">${this._referencePipelineName}#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
+            }
+            text += `<div>Reference build: ${buildText}</div>\n`;
+        }
+
+        text += '<div>Quality gate: </div>\n' +
+            `<div style="margin-left:20px;">Status: ${this.getStatusText()}</div>\n` +
+            `<div style="margin-left:20px;">Type: ${this.getQualityGateTypeText()}</div>\n` +
+            `<div style="margin-left:20px;">Threshold: ${this._threshold.toString()}%</div>`;
+        return `<div style="font-size:13px">${text}</div>`;
     }
 }
