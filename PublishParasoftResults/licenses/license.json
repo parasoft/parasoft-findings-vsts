@@ -9,7 +9,12 @@
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/node-agent-base"
     },
-    "axios@0.24.0": {
+    "asynckit@0.4.0": {
+        "licenses": "MIT",
+        "publisher": "Alex Indigo",
+        "repository": "https://github.com/alexindigo/asynckit"
+    },
+    "axios@1.6.2": {
         "licenses": "MIT",
         "publisher": "Matt Zabriskie",
         "repository": "https://github.com/axios/axios"
@@ -44,6 +49,11 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/call-bind"
     },
+    "combined-stream@1.0.8": {
+        "licenses": "MIT",
+        "publisher": "Felix Geisendörfer",
+        "repository": "https://github.com/felixge/node-combined-stream"
+    },
     "concat-map@0.0.1": {
         "licenses": "MIT",
         "publisher": "James Halliday",
@@ -64,6 +74,11 @@
         "publisher": "Josh Junon",
         "repository": "https://github.com/debug-js/debug"
     },
+    "delayed-stream@1.0.0": {
+        "licenses": "MIT",
+        "publisher": "Felix Geisendörfer",
+        "repository": "https://github.com/felixge/node-delayed-stream"
+    },
     "dot-properties@1.0.1": {
         "licenses": "MIT",
         "publisher": "Eemeli Aro",
@@ -78,6 +93,11 @@
         "licenses": "MIT",
         "publisher": "Ruben Verborgh",
         "repository": "https://github.com/follow-redirects/follow-redirects"
+    },
+    "form-data@4.0.0": {
+        "licenses": "MIT",
+        "publisher": "Felix Geisendörfer",
+        "repository": "https://github.com/form-data/form-data"
     },
     "fs.realpath@1.0.0": {
         "licenses": "ISC",
@@ -224,6 +244,11 @@
         "licenses": "MIT",
         "repository": "https://github.com/calvinmetcalf/process-nextick-args"
     },
+    "proxy-from-env@1.1.0": {
+        "licenses": "MIT",
+        "publisher": "Rob Wu",
+        "repository": "https://github.com/Rob--W/proxy-from-env"
+    },
     "q@1.5.1": {
         "licenses": "MIT",
         "publisher": "Kris Kowal",
@@ -262,7 +287,7 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/sax-js"
     },
-    "saxon-js@2.5.0": {
+    "saxon-js@2.6.0": {
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
     },
@@ -352,7 +377,7 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/npm/wrappy"
     },
-    "xslt3@2.5.0": {
+    "xslt3@2.6.0": {
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
     }
