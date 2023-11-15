@@ -2,12 +2,12 @@ import * as tl from '../../PublishParasoftResults/node_modules/azure-pipelines-t
 import * as azdev from '../../PublishParasoftResults/node_modules/azure-devops-node-api';
 import * as fs from 'fs';
 import * as os from 'os';
-import * as axios from '../../PublishParasoftResults/node_modules/axios';
 import * as dp from "../../PublishParasoftResults/node_modules/dot-properties";
 import * as path from 'path';
 import { ParaReportPublishService } from "../../PublishParasoftResults/ParaReportPublishService";
 import { DefaultBuildReportResultsStatus } from '../../PublishParasoftResults/BuildApiClient';
 import { BuildResult } from '../../PublishParasoftResults/node_modules/azure-devops-node-api/interfaces/BuildInterfaces';
+const axios = require('../../PublishParasoftResults/node_modules/axios/dist/node/axios.cjs');
 
 let publisher: any;
 let mockWebApi: any;
@@ -434,7 +434,7 @@ describe("Parasoft findings Azure", () => {
                 publisher.verifyDtpRuleDocsService();
                 axios.default.get(publisher.dtpBaseUrl+ "grs/api/v1.0/rules/doc?rule=notExistingRule&analyzerId=notExistingAnalyzerId", {httpsAgent: publisher.httpsAgent}).then(() => {
                     done();
-                }).catch((err) => {
+                }).catch((err: any) => {
                     expect(publisher.isDtpRuleDocsServiceAvailable).toEqual(isDtpRuleDocsServiceAvailable);
                     expect(err).toEqual(error);
                     if (message) {

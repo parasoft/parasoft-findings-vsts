@@ -35,9 +35,9 @@
     "jszip": "^3.10.1",
     "node-fetch": "^2.7.0",
     "sax": "^1.2.4",
-    "saxon-js": "^2.5.0",
+    "saxon-js": "^2.6.0",
     "uuid": "^9.0.1",
-    "xslt3": "^2.5.0"
+    "xslt3": "^2.6.0"
   },
   "devDependencies": {
     "@types/node": "^16.18.23",
