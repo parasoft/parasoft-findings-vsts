@@ -102,6 +102,9 @@ export class StaticAnalysisQualityService {
         if (isNaN(this.threshold)) {
             tl.warning(`Invalid value for 'threshold': ${this.thresholdString}, using default value 0`);
             this.threshold = 0;
+        } else if (this.threshold < 0) {
+            tl.warning(`The threshold value '${this.thresholdString}' is less than 0, the value is set to 0`);
+            this.threshold = 0;
         }
 
         switch (this.typeString.toLowerCase()) {

@@ -124,6 +124,13 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         expect(staticAnalysisQualityService.threshold).toEqual(10);
     });
 
+    it('Setting Quality Gate thresholds - less than 0', () => {
+        settings.threshold = '-1';
+        let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
+        expect(staticAnalysisQualityService.threshold).toEqual(0);
+        expect(tl.warning).toHaveBeenCalledWith('The threshold value \'-1\' is less than 0, the value is set to 0');
+    });
+
     it('Setting Quality Gate type', () => {
         settings.type = 'unknown';
         let typeUnknown = createQualityGate(settings, mockWebApi);
