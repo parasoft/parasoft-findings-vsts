@@ -115,6 +115,11 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         expect(staticAnalysisQualityService.threshold).toEqual(0);
         expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'threshold\': a10, using default value 0');
 
+        settings.threshold = '-1';
+        staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
+        expect(staticAnalysisQualityService.threshold).toEqual(0);
+        expect(tl.warning).toHaveBeenCalledWith('The threshold value \'-1\' is less than 0, the value is set to 0');
+
         settings.threshold = '10a';
         staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
         expect(staticAnalysisQualityService.threshold).toEqual(10);
@@ -122,13 +127,6 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         settings.threshold='10.0';
         staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
         expect(staticAnalysisQualityService.threshold).toEqual(10);
-    });
-
-    it('Setting Quality Gate thresholds - less than 0', () => {
-        settings.threshold = '-1';
-        let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
-        expect(staticAnalysisQualityService.threshold).toEqual(0);
-        expect(tl.warning).toHaveBeenCalledWith('The threshold value \'-1\' is less than 0, the value is set to 0');
     });
 
     it('Setting Quality Gate type', () => {
