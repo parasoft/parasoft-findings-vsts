@@ -31,7 +31,7 @@
     },
     {
       "name": "threshold",
-      "type": "string",
+      "type": "number",
       "label": "Threshold",
       "defaultValue": "0.0",
       "required": true,
