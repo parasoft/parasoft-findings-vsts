@@ -31,7 +31,6 @@
     "azure-devops-node-api": "^12.1.0",
     "azure-pipelines-task-lib": "^4.3.1",
     "dot-properties": "^1.0.1",
-    "fs": "0.0.1-security",
     "jszip": "^3.10.1",
     "node-fetch": "^2.7.0",
     "sax": "^1.2.4",

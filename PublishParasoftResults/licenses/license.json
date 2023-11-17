@@ -104,10 +104,6 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/fs.realpath"
     },
-    "fs@0.0.1-security": {
-        "licenses": "ISC",
-        "repository": "https://github.com/npm/security-holder"
-    },
     "function-bind@1.1.1": {
         "licenses": "MIT",
         "publisher": "Raynos",
