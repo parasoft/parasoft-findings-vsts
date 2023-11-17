@@ -154,7 +154,7 @@ export class StaticAnalysisQualityService {
         try {
             let staticAnalysisReferenceBuild = tl.getVariable('PF.ReferenceBuildResult');
             if (!staticAnalysisReferenceBuild) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped: please run 'Publish Parasoft Results' task first`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; please run 'Publish Parasoft Results' task first`);
                 return;
             }
             let referenceBuild: ReferenceBuildResult = JSON.parse(<string> staticAnalysisReferenceBuild);
@@ -172,14 +172,14 @@ export class StaticAnalysisQualityService {
             // Check for static analysis results exist in current build
             const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
             if (!currentBuildArtifact) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; no Parasoft static analysis results were found in this build`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; no Parasoft static analysis results were found in this build`);
                 return;
             }
 
             let numberOfIssues: number = 0;
             const fileEntries = await this.buildClient.getBuildReportsWithId(currentBuildArtifact, this.buildId, this.fileSuffix);
             if (fileEntries.length == 0) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; no Parasoft static analysis results were found in this build`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; no Parasoft static analysis results were found in this build`);
                 return;
             }
             for (let fileEntry of fileEntries) {

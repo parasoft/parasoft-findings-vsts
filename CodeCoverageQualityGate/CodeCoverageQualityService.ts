@@ -154,7 +154,7 @@ export class CodeCoverageQualityService {
         try {
             let codeCoverageReferenceBuild = tl.getVariable('PF.ReferenceBuildResult');
             if (!codeCoverageReferenceBuild) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; please run 'Publish Parasoft Results' task first`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; please run 'Publish Parasoft Results' task first`);
                 return;
             }
             let referenceBuild: ReferenceBuildResult = JSON.parse(<string> codeCoverageReferenceBuild);
@@ -167,17 +167,23 @@ export class CodeCoverageQualityService {
                 if (currentBuildInformation.isDebugMessage) {
                     tl.debug(`${currentBuildInformation.warningMessage}`);
                 } else {
-                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; ${currentBuildInformation.warningMessage}`);
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${currentBuildInformation.warningMessage}`);
                     return;
                 }
             }
             const currentCoberturaReport = currentBuildInformation.fileEntry;
-
+            let coverageInfo: CoverageInfo;
             if (this.type == TypeEnum.OVERALL) {
                 let currentCoberturaContentString: string = await (<FileEntry> currentCoberturaReport).contentsPromise;
-                const coverageInfo: CoverageInfo = this.getOverallCodeCoverage(currentCoberturaContentString);
+                try {
+                    coverageInfo = this.getOverallCodeCoverage(currentCoberturaContentString);
+                } catch (error: any) {
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${error.message}`);
+                    return;
+                }
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageInfo);
                 qualityGateResult.uploadQualityGateSummary();
+
             } else if (this.type == TypeEnum.MODIFIED) {
                 // To get Cobertura report in reference build
                 const referenceBuildInformation: BuildInformation = await this.getReferenceBuildInformation();
@@ -185,7 +191,7 @@ export class CodeCoverageQualityService {
                     if (referenceBuildInformation.isDebugMessage) {
                         tl.debug(`${referenceBuildInformation.warningMessage}`);
                     } else {
-                        tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; ${referenceBuildInformation.warningMessage}`);
+                        tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${referenceBuildInformation.warningMessage}`);
                         return;
                     }
                 }
@@ -193,9 +199,15 @@ export class CodeCoverageQualityService {
 
                 let referenceCoberturaReportContent = await (<FileEntry> referenceCoberturaReport).contentsPromise;
                 let currentCoberturaReportContent = await (<FileEntry> currentCoberturaReport).contentsPromise;
-                const coverageInfo: CoverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
+                try {
+                    coverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
+                } catch (error: any) {
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${error.message}`);
+                    return;
+                }
                 const qualityGateResult: QualityGateResult = this.evaluateQualityGate(coverageInfo);
                 qualityGateResult.uploadQualityGateSummary();
+
             }
         } catch(error) {
             tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
@@ -370,8 +382,17 @@ export class CodeCoverageQualityService {
         }
         saxParser.onopentag = (node) => {
             if (node.name == 'coverage') {
-                coverageInfo.coveredLines = parseInt(<string>node.attributes['lines-covered']);
-                coverageInfo.coverableLines = parseInt(<string>node.attributes['lines-valid']);
+                let coveredLines = <string>node.attributes['lines-covered'];
+                let coverableLines = <string>node.attributes['lines-valid'];
+
+                if (!coveredLines || isNaN(parseInt(coveredLines))) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'lines-covered' attribute.");
+                } else if (!coverableLines || isNaN(parseInt(coverableLines))) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'lines-valid' attribute.");
+                } else {
+                    coverageInfo.coveredLines = parseInt(coveredLines);
+                    coverageInfo.coverableLines = parseInt(coverableLines);
+                }
             }
         }
 
@@ -405,18 +426,37 @@ export class CodeCoverageQualityService {
 
         saxParser.onopentag = (node) => {
             if (node.name == 'class') {
-                currentFileInfo = {
-                    fileId: <string>node.attributes.filename + ':' + <string>node.attributes.name,
-                    codeLines: []
+                const filename = <string>node.attributes.filename;
+                const name = <string>node.attributes.name;
+                if (!filename) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'filename' attribute.");
+                } else if (!name) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'name' attribute.");
+                } else {
+                    currentFileInfo = {
+                        fileId: filename + ':' + name,
+                        codeLines: []
+                    }
                 }
             }
             if (node.name == 'line') {
-                let line: LineInfo = {
-                    lineNumber: parseInt(<string>node.attributes.number),
-                    lineHash: <string>node.attributes.hash,
-                    hits: parseInt(<string>node.attributes.hits)
+                let lineNumber = <string>node.attributes.number;
+                let lineHash = <string>node.attributes.hash;
+                let hits = <string>node.attributes.hits;
+                if (!lineNumber || isNaN(parseInt(lineNumber))) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'number' attribute.");
+                } else if (!lineHash) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'hash' attribute.");
+                } else if (!hits || isNaN(parseInt(hits))) {
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'hits' attribute.");
+                } else {
+                    let line: LineInfo = {
+                        lineNumber: parseInt(lineNumber),
+                        lineHash: lineHash,
+                        hits: parseInt(hits)
+                    }
+                    currentFileInfo.codeLines.push(line);
                 }
-                currentFileInfo.codeLines.push(line);
             }
         };
 
