@@ -386,9 +386,9 @@ export class CodeCoverageQualityService {
                 let coverableLines = <string>node.attributes['lines-valid'];
 
                 if (!coveredLines || isNaN(parseInt(coveredLines))) {
-                    throw new Error("error in Cobertura code coverage report: Failed to parse 'lines-covered' attribute.");
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'lines-covered' attribute.");
                 } else if (!coverableLines || isNaN(parseInt(coverableLines))) {
-                    throw new Error("error in Cobertura code coverage report: Failed to parse 'lines-valid' attribute.");
+                    throw new Error("error in Cobertura code coverage report: failed to parse 'lines-valid' attribute.");
                 } else {
                     coverageInfo.coveredLines = parseInt(coveredLines);
                     coverageInfo.coverableLines = parseInt(coverableLines);
