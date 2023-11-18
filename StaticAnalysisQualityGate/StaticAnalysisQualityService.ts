@@ -102,6 +102,9 @@ export class StaticAnalysisQualityService {
         if (isNaN(this.threshold)) {
             tl.warning(`Invalid value for 'threshold': ${this.thresholdString}, using default value 0`);
             this.threshold = 0;
+        } else if (this.threshold < 0) {
+            tl.warning(`The threshold value '${this.thresholdString}' is less than 0, the value is set to 0`);
+            this.threshold = 0;
         }
 
         switch (this.typeString.toLowerCase()) {
@@ -151,7 +154,7 @@ export class StaticAnalysisQualityService {
         try {
             let staticAnalysisReferenceBuild = tl.getVariable('PF.ReferenceBuildResult');
             if (!staticAnalysisReferenceBuild) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped: please run 'Publish Parasoft Results' task first`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; please run 'Publish Parasoft Results' task first`);
                 return;
             }
             let referenceBuild: ReferenceBuildResult = JSON.parse(<string> staticAnalysisReferenceBuild);
@@ -169,14 +172,14 @@ export class StaticAnalysisQualityService {
             // Check for static analysis results exist in current build
             const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, this.buildId, this.artifactName);
             if (!currentBuildArtifact) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; no Parasoft static analysis results were found in this build`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; no Parasoft static analysis results were found in this build`);
                 return;
             }
 
             let numberOfIssues: number = 0;
             const fileEntries = await this.buildClient.getBuildReportsWithId(currentBuildArtifact, this.buildId, this.fileSuffix);
             if (fileEntries.length == 0) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' was skipped; no Parasoft static analysis results were found in this build`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; no Parasoft static analysis results were found in this build`);
                 return;
             }
             for (let fileEntry of fileEntries) {

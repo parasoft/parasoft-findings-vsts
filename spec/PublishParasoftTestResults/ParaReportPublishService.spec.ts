@@ -273,7 +273,7 @@ describe("Parasoft findings Azure", () => {
             publisher = new ParaReportPublishService();
             await publisher.run();
 
-            expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored.');
+            expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
         });
 
         describe('- unique.', () => {
@@ -602,22 +602,6 @@ describe("Parasoft findings Azure", () => {
         publisher.ruleDocUrlMap.clear();
     });
 
-    describe('checkRunFailures(), When the report are', () => {
-        beforeEach(() => {
-            publisher = new ParaReportPublishService();
-        });
-
-        it('unit reports', () => {
-            spyOn(publisher, 'checkFailures');
-            publisher.checkRunFailures(['unit.xml'], []);
-        });
-
-        it('sarif reports', () => {
-            spyOn(publisher, 'checkStaticAnalysisViolations');
-            publisher.checkRunFailures([], ['static.xml']);
-        });
-    });
-
     describe('loadProperties()', () => {
         beforeEach(() => {
             publisher = new ParaReportPublishService();
@@ -635,28 +619,6 @@ describe("Parasoft findings Azure", () => {
         it('failed to read settings file', () => {
             expect(publisher.loadProperties('')).toEqual(null);
             expect(tl.warning).toHaveBeenCalledOnceWith('Failed to read settings file.');
-        });
-    });
-
-    describe('checkStaticAnalysisViolations()', () => {
-        beforeEach(() => {
-            publisher = new ParaReportPublishService();
-        });
-
-        it('build succeed', () => {
-            const sarifReports = ['static_1.xml', 'static_2.xml'];
-            const sarifReport = '{"runs": [{"results": [null]}]}';
-            spyOn(fs, 'readFileSync').and.returnValue(sarifReport);
-            publisher.checkStaticAnalysisViolations(sarifReports, 0);
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
-        });
-
-        it('failed build', () => {
-            const sarifReports = ['static_1.xml'];
-            const sarifReport = '{"runs": [{"results": [{}]}]}';
-            spyOn(fs, 'readFileSync').and.returnValue(sarifReport);
-            publisher.checkStaticAnalysisViolations(sarifReports, 0);
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
         });
     });
 

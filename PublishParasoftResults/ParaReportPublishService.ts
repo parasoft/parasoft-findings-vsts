@@ -132,7 +132,6 @@ export class ParaReportPublishService {
     config: string | undefined;
     testRunTitle: string | undefined;
     publishRunAttachments: string | undefined;
-    failOnFailures: boolean;
     searchFolder: string | undefined;
     localSettingsPath: string | undefined;
     parasoftToolOrJavaRootPath: string | undefined;
@@ -169,7 +168,6 @@ export class ParaReportPublishService {
         this.config = tl.getInput('configuration');
         this.testRunTitle = tl.getInput('testRunTitle');
         this.publishRunAttachments = tl.getInput('publishRunAttachments');
-        this.failOnFailures = tl.getBoolInput('failOnFailures', true);
         this.searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder')) ? this.defaultWorkingDirectory : tl.getInput('searchFolder');
         this.localSettingsPath = tl.getPathInput("localSettingsPath");
         this.parasoftToolOrJavaRootPath = tl.getPathInput("parasoftToolOrJavaRootPath");
@@ -194,13 +192,12 @@ export class ParaReportPublishService {
         tl.debug('config: ' + this.config);
         tl.debug('testRunTitle: ' + this.testRunTitle);
         tl.debug('publishRunAttachments: ' + this.publishRunAttachments);
-        tl.debug('failOnFailures: ' + this.failOnFailures);
     }
 
     run = async (): Promise<void> => {
         let taskPublishParasoftResultsExists = tl.getVariable('PF.PublishParasoftResultsExists');
         if (taskPublishParasoftResultsExists == 'true') {
-            tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored.');
+            tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
             return;
         }
 
@@ -549,11 +546,7 @@ export class ParaReportPublishService {
                 coveragePublisher.publish('Cobertura', coverageReport, tempFolder, '');
                 tl.uploadArtifact('CoberturaContainer', coverageReport, 'ParasoftCoverageLogs');
             }
-            if(this.failOnFailures){
-                this.checkRunFailures(this.xUnitReports, this.sarifReports);
-            } else {
-                tl.setResult(tl.TaskResult.Succeeded, '');
-            }
+            tl.setResult(tl.TaskResult.Succeeded, '');
         }
     }
 
@@ -827,62 +820,8 @@ export class ParaReportPublishService {
         return undefined;
     }
 
-    checkRunFailures = (xUnitReports: string[], sarifReports: string[]):void => {
-        if (xUnitReports.length > 0) {
-            this.checkFailures(xUnitReports, sarifReports, 0);
-        } else if (sarifReports.length > 0) {
-            this.checkStaticAnalysisViolations(sarifReports, 0);
-        }
-    }
-
     isNone = (node: any, propertyName: string):boolean => {
         return !node.attributes.hasOwnProperty(propertyName) || node.attributes[propertyName] == 0;
-    }
-
-    checkFailures = (xUnitReports: string[], sarifReports: string[], index: number):void => {
-        let success: boolean = true;
-        let report: string = xUnitReports[index];
-        const saxStream = sax.createStream(true, {});
-        saxStream.on("opentag", (node) => {
-            if (node.name == 'testsuite') {
-                success = success && (this.isNone(node, "failures") && this.isNone(node, "errors"));
-            }
-        });
-        saxStream.on("error", (e) => {
-            tl.warning('Failed to parse ' + report + '. Error: ' + e.message);
-        });
-        saxStream.on("end", () => {
-            if (success) {
-                if (index < xUnitReports.length - 1) {
-                    this.checkFailures(xUnitReports, sarifReports, ++index);
-                } else if (sarifReports.length > 0) {
-                    this.checkStaticAnalysisViolations(sarifReports, 0);
-                } else {
-                    tl.setResult(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
-                }
-            } else {
-                tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
-            }
-        });
-        fs.createReadStream(report).pipe(saxStream);
-    }
-
-    checkStaticAnalysisViolations = (sarifReports: string[], index: number):void => {
-        let success: boolean = true;
-        let sarifReportPath: string = sarifReports[index];
-        let sarifReport = JSON.parse(fs.readFileSync(sarifReportPath,'utf-8'));
-        let resultsValue = sarifReport.runs[0].results[0];
-
-        success = (resultsValue == null) || (!resultsValue);
-        if (success) {
-            if (index < sarifReports.length -1) {
-                this.checkStaticAnalysisViolations(sarifReports, ++index);
-            } else {
-                tl.setResult(tl.TaskResult.Succeeded, 'Build succeeded. No test failures and/or static analysis violation were found.');
-            }
-        } else {
-            tl.setResult(tl.TaskResult.Failed, 'Failed build due to test failures and/or static analysis violations.');
-        }
     }
 
     private checkAndAddUnbViolIdForSarifReport = (sarifContentJson: any): string => {

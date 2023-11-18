@@ -115,6 +115,11 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         expect(staticAnalysisQualityService.threshold).toEqual(0);
         expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'threshold\': a10, using default value 0');
 
+        settings.threshold = '-1';
+        staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
+        expect(staticAnalysisQualityService.threshold).toEqual(0);
+        expect(tl.warning).toHaveBeenCalledWith('The threshold value \'-1\' is less than 0, the value is set to 0');
+
         settings.threshold = '10a';
         staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
         expect(staticAnalysisQualityService.threshold).toEqual(10);
@@ -204,7 +209,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
         await staticAnalysisQualityService.run();
 
-        expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: All, Threshold: 10\' was skipped: please run \'Publish Parasoft Results\' task first');
+        expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: All, Threshold: 10\' skipped; please run \'Publish Parasoft Results\' task first');
     });
 
     it('When reference build result is not empty, Quality Gate should parse result', async () => {
