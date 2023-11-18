@@ -411,9 +411,13 @@ export class CodeCoverageQualityService {
 
 
     private getQualityGateIdentification() {
-        const referencePipeline: string = this.originalReferencePipelineName ? ", Reference pipeline: " + this.originalReferencePipelineName : "";
-        const referenceBuild: string = this.originalReferenceBuildNumber ? ", Reference build: " + this.originalReferenceBuildNumber : "";
-        return "Type: " + this.type + ", Threshold: " + this.threshold + referencePipeline + referenceBuild;
+        let text = "Type: " + this.type + ", Threshold: " + this.threshold;
+        if (this.type == TypeEnum.MODIFIED) {
+            const referencePipeline: string = this.originalReferencePipelineName ? ", Reference pipeline: " + this.originalReferencePipelineName : "";
+            const referenceBuild: string = this.originalReferenceBuildNumber ? ", Reference build: " + this.originalReferenceBuildNumber : "";
+            text += referencePipeline + referenceBuild;
+        }
+        return text;
     }
 
     private getCoverageDataFromReport = (reportContent: string): FileInfo[] => {
