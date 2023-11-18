@@ -233,7 +233,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         await staticAnalysisQualityService.run();
 
-        expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: All, Threshold: 10\' was skipped; no Parasoft static analysis results were found in this build');
+        expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: All, Threshold: 10\' skipped; no Parasoft static analysis results were found in this build');
     });
 
     it('When Quality Gate failed, should handle error', async () => {
