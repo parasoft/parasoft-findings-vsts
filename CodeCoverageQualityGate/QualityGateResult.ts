@@ -87,7 +87,11 @@ export class QualityGateResult {
         if (this._codeCoverage != 'N/A') {
             coverageText += `${this._codeCoverage} (${this._coveredLines}/${this._coverableLines})`;
         } else {
-            coverageText += `${this._codeCoverage} (no modified code)`;
+            if (this._type == TypeEnum.MODIFIED) {
+                coverageText += `${this._codeCoverage} (no modified code)`;
+            } else {
+                coverageText += `${this._codeCoverage} (no code)`;
+            }
         }
         return coverageText;
     }

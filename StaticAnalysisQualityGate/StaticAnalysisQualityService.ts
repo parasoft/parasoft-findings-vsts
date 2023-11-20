@@ -288,8 +288,12 @@ export class StaticAnalysisQualityService {
 
     private getQualityGateIdentification = (): string => {
         const severityText: string = this.severity == SeverityEnum.ALL ? 'All' : this.severity;
-        const referencePipeline: string = this.originalReferencePipelineName ? ", Reference pipeline: " + this.originalReferencePipelineName : "";
-        const referenceBuild: string = this.originalReferenceBuildNumber ? ", Reference build: " + this.originalReferenceBuildNumber : "";
-        return "Type: " + this.type + ", Severity: " + severityText + ", Threshold: " + this.threshold + referencePipeline + referenceBuild;
+        let text = "Type: " + this.type + ", Severity: " + severityText + ", Threshold: " + this.threshold;
+        if (this.type == TypeEnum.NEW) {
+            const referencePipeline: string = this.originalReferencePipelineName ? ", Reference pipeline: " + this.originalReferencePipelineName : "";
+            const referenceBuild: string = this.originalReferenceBuildNumber ? ", Reference build: " + this.originalReferenceBuildNumber : "";
+            text += referencePipeline + referenceBuild;
+        }
+        return text;
     }
 }
