@@ -22,6 +22,9 @@
             "path": "CodeCoverageQualityGate"
         },
         {
+            "path": "TestResultsQualityGate"
+        },
+        {
             "path": "images", "addressable": true
         }
     ],
@@ -54,6 +57,16 @@
             ],
             "properties": {
               "name": "CodeCoverageQualityGate"
+            }
+        },
+        {
+            "id": "test-results-quality-gate-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+              "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+              "name": "TestResultsQualityGate"
             }
         }
     ],
