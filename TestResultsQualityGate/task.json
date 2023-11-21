@@ -21,14 +21,14 @@
       "name": "type",
       "type": "picklist",
       "label": "Type",
-      "defaultValue": "TotalPassed",
+      "defaultValue": "totalPassed",
       "required": true,
       "helpMarkDown": "Type of test results to be evaluated for the threshold.",
       "options": {
-        "TotalPassed": "Total passed tests",
-        "TotalFailed": "Total failed tests",
-        "TotalExecuted": "Total executed tests",
-        "NewlyFailed": "Newly failed tests"
+        "totalPassed": "Total passed tests",
+        "totalFailed": "Total failed tests",
+        "totalExecuted": "Total executed tests",
+        "newlyFailed": "Newly failed tests"
       }
     },
     {
@@ -47,12 +47,12 @@
       "name": "buildStatus",
       "type": "picklist",
       "label": "Build status if quality gate fails",
-      "defaultValue": "Failed",
+      "defaultValue": "failed",
       "required": true,
       "helpMarkDown": "Mark the build as unstable or failed if the quality gate fails.",
       "options": {
-        "Failed": "Failed",
-        "Unstable": "Unstable"
+        "failed": "Failed",
+        "unstable": "Unstable"
       }
     }
   ],

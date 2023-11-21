@@ -21,12 +21,12 @@
       "name": "type",
       "type": "picklist",
       "label": "Type",
-      "defaultValue": "Overall",
+      "defaultValue": "overall",
       "required": true,
       "helpMarkDown": "Type of code coverage to be evaluated for the threshold.",
       "options": {
-        "Overall": "Overall project",
-        "Modified": "Modified code lines"
+        "overall": "Overall project",
+        "modified": "Modified code lines"
       }
     },
     {
@@ -45,12 +45,12 @@
       "name": "buildStatus",
       "type": "picklist",
       "label": "Build status if quality gate fails",
-      "defaultValue": "Failed",
+      "defaultValue": "failed",
       "required": true,
       "helpMarkDown": "Mark the build as unstable or failed if the quality gate fails.",
       "options": {
-        "Failed": "Failed",
-        "Unstable": "Unstable"
+        "failed": "Failed",
+        "unstable": "Unstable"
       }
     }
   ],
