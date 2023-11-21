@@ -49,7 +49,7 @@
       "label": "Threshold",
       "defaultValue": "0",
       "required": true,
-      "helpMarkDown": "If the actual number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively. Default value is 0.",
+      "helpMarkDown": "If the number of issues is greater than or equal to this threshold, then a build is considered unstable or failed, respectively. Default value is 0.",
       "validation": {
         "expression": "not(gt(0, value))",
         "message": "The value must be greater than or equal to 0"
