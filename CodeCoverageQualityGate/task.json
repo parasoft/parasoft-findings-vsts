@@ -35,7 +35,7 @@
       "label": "Threshold",
       "defaultValue": "0.0",
       "required": true,
-      "helpMarkDown": "If the actual value of code coverage is less than this threshold, then a build is considered unstable or failed, respectively. Default value is 0.0. The range must be between 0 and 100, any value outside this range will be set to 0 or 100.",
+      "helpMarkDown": "If the value of code coverage is less than this threshold, then a build is considered unstable or failed, respectively. Default value is 0.0. The range must be between 0 and 100, any value outside this range will be set to 0 or 100.",
       "validation": {
         "expression": "and(ge(value, 0), not(lt(100, value)))",
         "message": "The range must be between 0 and 100"

@@ -18,15 +18,45 @@
   "minimumAgentVersion": "2.209.0",
   "inputs": [
     {
-      "name": "placeholder",
-      "type": "string",
-      "label": "placeholder",
-      "defaultValue": "placeholder",
+      "name": "type",
+      "type": "picklist",
+      "label": "Type",
+      "defaultValue": "TotalPassed",
       "required": true,
-      "helpMarkDown": "Type of issues to be evaluated for the threshold."
+      "helpMarkDown": "Type of test results to be evaluated for the threshold.",
+      "options": {
+        "TotalPassed": "Total passed tests",
+        "TotalFailed": "Total failed tests",
+        "TotalExecuted": "Total executed tests",
+        "NewlyFailed": "Newly failed tests"
+      }
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "label": "Threshold",
+      "defaultValue": "0",
+      "required": true,
+      "helpMarkDown": "A build is considered unstable or failed when: \n- The number of total passed/executed tests is equal to or less than this threshold. \n- The number of total/newly failed tests is greater than or equal to this threshold.\nThe default threshold is 0.",
+      "validation": {
+        "expression": "not(gt(0, value))",
+        "message": "The value must be greater than or equal to 0"
+      }
+    },
+    {
+      "name": "buildStatus",
+      "type": "picklist",
+      "label": "Build status if quality gate fails",
+      "defaultValue": "Failed",
+      "required": true,
+      "helpMarkDown": "Mark the build as unstable or failed if the quality gate fails.",
+      "options": {
+        "Failed": "Failed",
+        "Unstable": "Unstable"
+      }
     }
   ],
-  "instanceNameFormat": "Parasoft Test Results Quality Gate",
+  "instanceNameFormat": "Parasoft Test Results Quality Gate - $(type) tests - $(threshold)",
   "execution": {
     "Node16": {
       "target": "TestResultsQualityGate.js"
