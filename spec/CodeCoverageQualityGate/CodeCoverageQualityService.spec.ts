@@ -283,7 +283,9 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             });
 
             it('When get Build Artifact error', async () => {
-                let codeCoverageQualityService = setUpQualityGate(fakeCoverageFileEntry, Promise.reject());
+                let codeCoverageQualityService = createQualityGate(settings, mockWebApi);
+                spyOn(codeCoverageQualityService.buildClient, 'getBuildArtifact').and.throwError('Expected error when get build artifact');
+
                 await codeCoverageQualityService.run();
 
                 expect(tl.warning).toHaveBeenCalledWith('Failed to process the quality gate \'Type: Overall, Threshold: 60\'. See logs for details.');
@@ -501,7 +503,9 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             });
 
             it('When get Build Artifact error', async () => {
-                let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, Promise.reject(), fakeCoverageFileEntry, Promise.reject());
+                let codeCoverageQualityService = createQualityGate(settings, mockWebApi);
+                spyOn(codeCoverageQualityService.buildClient, 'getBuildArtifact').and.throwError('Expected error when get build artifact');
+
                 await codeCoverageQualityService.run();
 
                 expect(tl.warning).toHaveBeenCalledWith('Failed to process the quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 9\'. See logs for details.');
