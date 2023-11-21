@@ -21,26 +21,26 @@
       "name": "type",
       "type": "picklist",
       "label": "Type",
-      "defaultValue": "Total",
+      "defaultValue": "total",
       "required": true,
       "helpMarkDown": "Type of issues to be evaluated for the threshold.",
       "options": {
-        "Total": "Total issues",
-        "New": "New issues"
+        "total": "Total issues",
+        "new": "New issues"
       }
     },
     {
       "name": "severity",
       "type": "picklist",
       "label": "Severity",
-      "defaultValue": "Issue",
+      "defaultValue": "issue",
       "required": true,
       "helpMarkDown": "Severity of issues to be evaluated for the threshold.",
       "options": {
-        "Issue": "All",
-        "Error": "Error",
-        "Warning": "Warning",
-        "Note": "Note"
+        "issue": "All",
+        "error": "Error",
+        "warning": "Warning",
+        "note": "Note"
       }
     },
     {
@@ -59,12 +59,12 @@
       "name": "buildStatus",
       "type": "picklist",
       "label": "Build status if quality gate fails",
-      "defaultValue": "Failed",
+      "defaultValue": "failed",
       "required": true,
       "helpMarkDown": "Mark the build as unstable or failed if the quality gate fails.",
       "options": {
-        "Failed": "Failed",
-        "Unstable": "Unstable"
+        "failed": "Failed",
+        "unstable": "Unstable"
       }
     }
   ],
