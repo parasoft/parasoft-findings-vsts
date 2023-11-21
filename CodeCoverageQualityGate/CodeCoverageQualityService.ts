@@ -28,8 +28,7 @@ interface ReferenceBuildResult {
 
 interface BuildInformation {
     fileEntry: FileEntry | undefined,
-    warningMessage: string | undefined,
-    isDebugMessage: boolean
+    warningMessage: string | undefined
 }
 
 export const enum TypeEnum {
@@ -164,12 +163,9 @@ export class CodeCoverageQualityService {
             // To get Cobertura report in current build
             const currentBuildInformation: BuildInformation = await this.getCurrentBuildInformation();
             if (currentBuildInformation.warningMessage) {
-                if (currentBuildInformation.isDebugMessage) {
-                    tl.debug(`${currentBuildInformation.warningMessage}`);
-                } else {
-                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${currentBuildInformation.warningMessage}`);
-                    return;
-                }
+                tl.debug(`${currentBuildInformation.warningMessage}`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${currentBuildInformation.warningMessage}`);
+                return;
             }
             const currentCoberturaReport = currentBuildInformation.fileEntry;
             let coverageInfo: CoverageInfo;
@@ -188,12 +184,9 @@ export class CodeCoverageQualityService {
                 // To get Cobertura report in reference build
                 const referenceBuildInformation: BuildInformation = await this.getReferenceBuildInformation();
                 if (referenceBuildInformation.warningMessage) {
-                    if (referenceBuildInformation.isDebugMessage) {
-                        tl.debug(`${referenceBuildInformation.warningMessage}`);
-                    } else {
-                        tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${referenceBuildInformation.warningMessage}`);
-                        return;
-                    }
+                    tl.debug(`${referenceBuildInformation.warningMessage}`);
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; ${referenceBuildInformation.warningMessage}`);
+                    return;
                 }
                 const referenceCoberturaReport = referenceBuildInformation.fileEntry;
 
@@ -219,8 +212,7 @@ export class CodeCoverageQualityService {
     private getCurrentBuildInformation = async (): Promise<BuildInformation> => {
         let currentBuildInfo: BuildInformation = {
             fileEntry: undefined,
-            warningMessage: undefined,
-            isDebugMessage: false
+            warningMessage: undefined
         };
         const currentBuildArtifact: BuildArtifact = await this.buildClient.getBuildArtifact(this.projectName, Number(this.buildId), this.COBERTURA_ARTIFACT_NAME);
         if (!currentBuildArtifact) {
@@ -239,8 +231,7 @@ export class CodeCoverageQualityService {
     private getReferenceBuildInformation = async (): Promise<BuildInformation> => {
         let referenceBuildInfo: BuildInformation = {
             fileEntry: undefined,
-            warningMessage: undefined,
-            isDebugMessage: false
+            warningMessage: undefined
         };
         if (this.originalReferencePipelineName == this.pipelineName && this.originalReferenceBuildNumber == this.buildNumber) {
             referenceBuildInfo.warningMessage = "the current build is not allowed to use as the reference";
@@ -269,8 +260,7 @@ export class CodeCoverageQualityService {
     private getBuildsForSpecificPipeline = async (specificReferencePipelineId: number, pipelineName: string): Promise<BuildInformation> => {
         const referenceBuildInfo: BuildInformation = {
             fileEntry: undefined,
-            warningMessage: undefined,
-            isDebugMessage: false
+            warningMessage: undefined
         };
         const allBuildsForSpecificPipeline = await this.buildClient.getBuildsForSpecificPipeline(this.projectName, specificReferencePipelineId);
         if (!this.originalReferenceBuildNumber) { // Reference build is not specified
@@ -288,8 +278,7 @@ export class CodeCoverageQualityService {
                     referenceBuildInfo.warningMessage = `no Parasoft coverage results were found in any of the previous successful builds in pipeline '${pipelineName}'`;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND:
-                    referenceBuildInfo.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
-                    referenceBuildInfo.isDebugMessage = true;
+                    referenceBuildInfo.warningMessage = `no previous build was found in pipeline '${pipelineName}'`;
                     return referenceBuildInfo;
                 case DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD:
                 default:
