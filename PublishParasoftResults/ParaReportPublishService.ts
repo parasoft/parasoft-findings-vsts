@@ -886,7 +886,7 @@ export class ParaReportPublishService {
             },
             isDebugMessage: false
         };
-        if (this.referencePipeline == this.pipelineName && this.referenceBuild == this.buildNumber) {
+        if ((!this.referencePipeline || this.referencePipeline == this.pipelineName) && this.referenceBuild == this.buildNumber) {
             referenceBuildInfo.staticAnalysis.warningMessage = 'Using the current build as the reference';
         } else {
             if (!this.referencePipeline) { // Reference pipeline is not specified
