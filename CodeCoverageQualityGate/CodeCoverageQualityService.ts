@@ -132,7 +132,7 @@ export class CodeCoverageQualityService {
                 this.type = TypeEnum.MODIFIED;
                 break;
             default:
-                tl.warning(`Invalid value for 'type': ${this.typeString}, using default value 'Overall'`);
+                tl.warning(`Invalid value for 'type': ${this.typeString}, using default value 'overall'`);
                 this.type = TypeEnum.OVERALL;
         }
 
@@ -144,7 +144,7 @@ export class CodeCoverageQualityService {
                 this.buildStatus = BuildStatusEnum.UNSTABLE;
                 break;
             default:
-                tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'Failed'`);
+                tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'failed'`);
                 this.buildStatus = BuildStatusEnum.FAILED;
         }
     }

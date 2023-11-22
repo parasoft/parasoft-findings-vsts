@@ -115,7 +115,7 @@ export class StaticAnalysisQualityService {
                 this.type = TypeEnum.TOTAl;
                 break;
             default:
-                tl.warning(`Invalid value for 'type': ${this.typeString}, using default value 'Total'`);
+                tl.warning(`Invalid value for 'type': ${this.typeString}, using default value 'total'`);
                 this.type = TypeEnum.TOTAl;
         }
 
@@ -127,7 +127,7 @@ export class StaticAnalysisQualityService {
                 this.buildStatus = BuildStatusEnum.UNSTABLE;
                 break;
             default:
-                tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'Failed'`);
+                tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'failed'`);
                 this.buildStatus = BuildStatusEnum.FAILED;
         }
 
@@ -145,7 +145,7 @@ export class StaticAnalysisQualityService {
                 this.severity = SeverityEnum.NOTE;
                 break;
             default:
-                tl.warning(`Invalid value for 'severity': ${this.severityString}, using default value 'Issue'`);
+                tl.warning(`Invalid value for 'severity': ${this.severityString}, using default value 'issue'`);
                 this.severity = SeverityEnum.ALL;
         }
     }
