@@ -6,7 +6,7 @@ import { BuildResult } from '../../PublishParasoftResults/node_modules/azure-dev
 
 let buildClient: any;
 
-describe('Test Builds API Client', () => {
+describe('Test Builds API Client for Publish Parasoft Results', () => {
     let mockWebApi: any;
     beforeEach(() => {
         spyOn(tl, 'getEndpointAuthorization');

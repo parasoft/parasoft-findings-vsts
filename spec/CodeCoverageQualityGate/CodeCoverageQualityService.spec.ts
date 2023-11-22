@@ -137,7 +137,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
     it('Set quality gate type', () => {
         settings.type = 'unknown';
         let typeUnknown = createQualityGate(settings, mockWebApi);
-        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'type\': unknown, using default value \'Overall\'');
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'type\': unknown, using default value \'overall\'');
         expect(typeUnknown.type).toEqual(TypeEnum.OVERALL);
 
         settings.type = 'overall';
@@ -184,7 +184,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
         settings.buildStatus = 'unknown';
         let unknown = createQualityGate(settings, mockWebApi);
         expect(unknown.buildStatus).toEqual(BuildStatusEnum.FAILED);
-        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'buildStatus\': unknown, using default value \'Failed\'');
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'buildStatus\': unknown, using default value \'failed\'');
 
         settings.buildStatus = 'unstable';
         let unstable = createQualityGate(settings, mockWebApi);
