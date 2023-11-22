@@ -6,7 +6,7 @@ import { BuildResult } from '../../CodeCoverageQualityGate/node_modules/azure-de
 
 let buildClient: any;
 
-describe('Test Builds API Client', () => {
+describe('Test Builds API Client for Code Coverage Quality Gate', () => {
     let mockWebApi: any;
     beforeEach(() => {
         spyOn(tl, 'getEndpointAuthorization');

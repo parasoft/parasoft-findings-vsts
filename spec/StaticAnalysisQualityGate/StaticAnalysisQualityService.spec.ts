@@ -132,7 +132,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
     it('Setting Quality Gate type', () => {
         settings.type = 'unknown';
         let typeUnknown = createQualityGate(settings, mockWebApi);
-        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'type\': unknown, using default value \'Total\'');
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'type\': unknown, using default value \'total\'');
         expect(typeUnknown.type).toEqual(TypeEnum.TOTAl);
 
         settings.type = 'total';
@@ -154,7 +154,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         settings.buildStatus = 'unknown';
         let unknown = createQualityGate(settings, mockWebApi);
         expect(unknown.buildStatus).toEqual(BuildStatusEnum.FAILED);
-        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'buildStatus\': unknown, using default value \'Failed\'');
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'buildStatus\': unknown, using default value \'failed\'');
 
         settings.buildStatus = 'unstable';
         let unstable = createQualityGate(settings, mockWebApi);
@@ -175,7 +175,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         settings.severity = 'UnKnown';
         let severityUnKnow = createQualityGate(settings, mockWebApi);
         expect(severityUnKnow.severity).toEqual(SeverityEnum.ALL);
-        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'severity\': UnKnown, using default value \'Issue\'');
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'severity\': UnKnown, using default value \'issue\'');
 
         settings.severity = 'issue';
         let severityIssue = createQualityGate(settings, mockWebApi);
