@@ -375,6 +375,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                     let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                     await codeCoverageQualityService.run();
 
+                    expect(tl.debug).toHaveBeenCalledWith('no Parasoft coverage results were found in any of the previous successful builds in pipeline \'TestPipelineName\'');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' skipped; no Parasoft coverage results were found in any of the previous successful builds in pipeline \'TestPipelineName\'');
                 });
 
@@ -384,8 +385,8 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                     let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                     await codeCoverageQualityService.run();
 
-                    expect(tl.debug).toHaveBeenCalledWith('No previous build was found in pipeline \'TestPipelineName\'');
-                    expect(tl.warning).toHaveBeenCalledWith('Failed to process the quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\'. See logs for details.');
+                    expect(tl.debug).toHaveBeenCalledWith('no previous build was found in pipeline \'TestPipelineName\'');
+                    expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' skipped; no previous build was found in pipeline \'TestPipelineName\'');
                 });
 
                 it('no successful builds', async () => {
@@ -394,6 +395,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                     let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                     await codeCoverageQualityService.run();
 
+                    expect(tl.debug).toHaveBeenCalledWith('no successful build was found in pipeline \'TestPipelineName\'');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' skipped; no successful build was found in pipeline \'TestPipelineName\'');
                 });
             });
