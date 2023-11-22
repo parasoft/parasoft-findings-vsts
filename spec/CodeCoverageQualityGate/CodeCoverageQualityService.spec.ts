@@ -23,6 +23,7 @@ type TestSettings = {
     buildStatus: string
     threshold: string
     referenceBuildResult?: string
+    taskInstanceId: string
 }
 
 describe('Parasoft Findings Code Coverage Quality Gate', () => {
@@ -52,6 +53,8 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                     return setting.referenceBuildResult;
                 case 'Build.DefinitionName':
                     return setting.definitionName;
+                case 'System.TaskInstanceId':
+                    return setting.taskInstanceId;
             }
         });
         getInputSpy.and.callFake((param: string) => {
@@ -89,7 +92,8 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             type: 'Overall',
             buildStatus: 'Failed',
             threshold: '60',
-            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"9"}'
+            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"9"}',
+            taskInstanceId: 'task-instance-id'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
@@ -213,7 +217,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
         }
 
         let compareMarkDown = (expectedReportPath: string) => {
-            let markDownDir = __dirname + '/ParasoftQualityGatesMD';
+            let markDownDir = __dirname + '/ParasoftQualityGatesMD/task-instance-id';
             let markDown = fs.readFileSync(markDownDir + '/Parasoft Code Coverage Quality Gate - Display name.md', {encoding: 'utf-8'});
             let expectedMarkDown = fs.readFileSync(expectedReportPath, {encoding: 'utf-8'});
 

@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
-import * as path from "path";
+import * as tl from 'azure-pipelines-task-lib/task';
 import { QualityGateStatusEnum, TypeEnum } from "./CodeCoverageQualityService";
 
 export class QualityGateResult {
@@ -24,7 +23,7 @@ export class QualityGateResult {
     private _referenceBuildId: string;
     private _type: TypeEnum;
     private _threshold: number;
-    private _workingDir: string;
+    private _storageDir: string;
 
     private _status: QualityGateStatusEnum = QualityGateStatusEnum.FAILED;
     private _coverableLines: number;
@@ -46,7 +45,7 @@ export class QualityGateResult {
         this._referenceBuildId = referenceBuildId;
         this._type = type;
         this._threshold = threshold;
-        this._workingDir = workingDir;
+        this._storageDir = workingDir;
 
         this._coverableLines = coverableLines;
         this._coveredLines = coveredLines;
@@ -106,19 +105,11 @@ export class QualityGateResult {
     }
 
     public uploadQualityGateSummary() : void {
-        const mdStoragePath = this._workingDir + '/ParasoftQualityGatesMD';
-        if (fs.existsSync(mdStoragePath)) {
-            fs.readdirSync(mdStoragePath).forEach((file) => {
-                const filePath = path.join(mdStoragePath, file);
-                fs.unlinkSync(filePath);
-            });
-            fs.rmdirSync(mdStoragePath);
-        }
-        fs.mkdirSync(mdStoragePath);
-        let markdownPath = `${mdStoragePath}/${this._displayName}.md`;
-        let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
-        fs.writeFileSync(markdownPath, summaryMarkdownContent);
-        console.log('##vso[task.uploadsummary]' + markdownPath);
+      tl.mkdirP(this._storageDir);
+      let markdownPath = tl.resolve(this._storageDir, `${this._displayName}.md`);
+      let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
+      tl.writeFile(markdownPath, summaryMarkdownContent);
+      console.log('##vso[task.uploadsummary]' + markdownPath);
     }
 
     private getQualityGateResultSummaryContent(): string {

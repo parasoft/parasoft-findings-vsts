@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
+import * as tl from 'azure-pipelines-task-lib/task';
 import { QualityGateStatusEnum, SeverityEnum, TypeEnum } from "./StaticAnalysisQualityService";
-import * as path from "path";
 
 export class QualityGateResult {
     private _displayName: string;
@@ -26,7 +25,7 @@ export class QualityGateResult {
     private _type: TypeEnum;
     private _severity: SeverityEnum;
     private _threshold: number;
-    private _workingDir: string;
+    private _storageDir: string;
 
     private _status: QualityGateStatusEnum = QualityGateStatusEnum.FAILED;
     private _actualNumberOfIssues: number = 0;
@@ -48,7 +47,7 @@ export class QualityGateResult {
       this._type = type;
       this._severity = severity;
       this._threshold = threshold;
-      this._workingDir = workingDir;
+      this._storageDir = workingDir;
     }
 
     public get status() : QualityGateStatusEnum {
@@ -103,18 +102,10 @@ export class QualityGateResult {
     }
 
     public uploadQualityGateSummary() : void {
-      const mdStoragePath = this._workingDir + '/ParasoftQualityGatesMD';
-      if (fs.existsSync(mdStoragePath)) {
-          fs.readdirSync(mdStoragePath).forEach((file) => {
-              const filePath = path.join(mdStoragePath, file);
-              fs.unlinkSync(filePath);
-          });
-          fs.rmdirSync(mdStoragePath);
-      }
-      fs.mkdirSync(mdStoragePath);
-      let markdownPath = `${mdStoragePath}/${this._displayName}.md`;
+      tl.mkdirP(this._storageDir);
+      let markdownPath = tl.resolve(this._storageDir, `${this._displayName}.md`);
       let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
-      fs.writeFileSync(markdownPath, summaryMarkdownContent);
+      tl.writeFile(markdownPath, summaryMarkdownContent);
       console.log('##vso[task.uploadsummary]' + markdownPath);
     }
 

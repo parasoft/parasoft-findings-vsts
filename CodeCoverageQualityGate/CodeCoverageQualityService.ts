@@ -72,7 +72,7 @@ export class CodeCoverageQualityService {
     readonly buildId: string;
     readonly definitionId: number;
     readonly displayName: string;
-    readonly defaultWorkingDirectory: string;
+    readonly customMarkdownSummaryDirectory: string;
 
     readonly fileSuffix: FileSuffixEnum;
     readonly buildClient: BuildAPIClient;
@@ -100,7 +100,7 @@ export class CodeCoverageQualityService {
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
         this.displayName = tl.getVariable('Task.DisplayName') || '';
-        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
+        this.customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
 
         this.fileSuffix = FileSuffixEnum.COBERTURA_SUFFIX;
         this.buildClient = new BuildAPIClient();
@@ -338,7 +338,7 @@ export class CodeCoverageQualityService {
             this.referenceBuildNumber || '',
             this.referenceBuildId || '',
             this.type, this.threshold,
-            this.defaultWorkingDirectory);
+            tl.resolve(this.customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId')));
 
         tl.debug("Evaluating quality gate");
         if (qualityGateResult.codeCoverage == 'N/A' || parseFloat(qualityGateResult.codeCoverage) >= this.threshold) {
