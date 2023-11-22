@@ -25,5 +25,8 @@
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "devDependencies": {
     "license-checker-rseidelsohn": "^4.2.10"
+  },
+  "dependencies": {
+    "azure-pipelines-task-lib": "^4.3.1"
   }
 }

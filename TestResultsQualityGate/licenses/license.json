@@ -1,0 +1,200 @@
+{
+    "adm-zip@0.5.10": {
+        "licenses": "MIT",
+        "publisher": "Nasca Iacob",
+        "repository": "https://github.com/cthackers/adm-zip"
+    },
+    "agent-base@6.0.2": {
+        "licenses": "MIT",
+        "publisher": "Nathan Rajlich",
+        "repository": "https://github.com/TooTallNate/node-agent-base"
+    },
+    "azure-pipelines-task-lib@4.7.0": {
+        "licenses": "MIT",
+        "publisher": "Microsoft",
+        "repository": "https://github.com/Microsoft/azure-pipelines-task-lib"
+    },
+    "balanced-match@1.0.2": {
+        "licenses": "MIT",
+        "publisher": "Julian Gruber",
+        "repository": "https://github.com/juliangruber/balanced-match"
+    },
+    "bindings@1.5.0": {
+        "licenses": "MIT",
+        "publisher": "Nathan Rajlich",
+        "repository": "https://github.com/TooTallNate/node-bindings"
+    },
+    "brace-expansion@1.1.11": {
+        "licenses": "MIT",
+        "publisher": "Julian Gruber",
+        "repository": "https://github.com/juliangruber/brace-expansion"
+    },
+    "concat-map@0.0.1": {
+        "licenses": "MIT",
+        "publisher": "James Halliday",
+        "repository": "https://github.com/substack/node-concat-map"
+    },
+    "deasync@0.1.29": {
+        "licenses": "MIT",
+        "publisher": "Vladimir Kurchatkin",
+        "repository": "https://github.com/abbr/deasync"
+    },
+    "debug@4.3.4": {
+        "licenses": "MIT",
+        "publisher": "Josh Junon",
+        "repository": "https://github.com/debug-js/debug"
+    },
+    "file-uri-to-path@1.0.0": {
+        "licenses": "MIT",
+        "publisher": "Nathan Rajlich",
+        "repository": "https://github.com/TooTallNate/file-uri-to-path"
+    },
+    "follow-redirects@1.15.3": {
+        "licenses": "MIT",
+        "publisher": "Ruben Verborgh",
+        "repository": "https://github.com/follow-redirects/follow-redirects"
+    },
+    "fs.realpath@1.0.0": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/isaacs/fs.realpath"
+    },
+    "function-bind@1.1.2": {
+        "licenses": "MIT",
+        "publisher": "Raynos",
+        "repository": "https://github.com/Raynos/function-bind"
+    },
+    "glob@7.2.3": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/isaacs/node-glob"
+    },
+    "hasown@2.0.0": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/hasOwn"
+    },
+    "https-proxy-agent@5.0.1": {
+        "licenses": "MIT",
+        "publisher": "Nathan Rajlich",
+        "repository": "https://github.com/TooTallNate/node-https-proxy-agent"
+    },
+    "inflight@1.0.6": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/npm/inflight"
+    },
+    "inherits@2.0.4": {
+        "licenses": "ISC",
+        "repository": "https://github.com/isaacs/inherits"
+    },
+    "interpret@1.4.0": {
+        "licenses": "MIT",
+        "publisher": "Gulp Team",
+        "repository": "https://github.com/gulpjs/interpret"
+    },
+    "is-core-module@2.13.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/is-core-module"
+    },
+    "mime-db@1.52.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jshttp/mime-db"
+    },
+    "mime-types@2.1.35": {
+        "licenses": "MIT",
+        "repository": "https://github.com/jshttp/mime-types"
+    },
+    "minimatch@3.0.5": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/isaacs/minimatch"
+    },
+    "minimatch@3.1.2": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/isaacs/minimatch"
+    },
+    "ms@2.1.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/zeit/ms"
+    },
+    "node-addon-api@1.7.2": {
+        "licenses": "MIT",
+        "repository": "https://github.com/nodejs/node-addon-api"
+    },
+    "nodejs-file-downloader@4.12.1": {
+        "licenses": "ISC",
+        "publisher": "ibrod83",
+        "repository": "https://github.com/ibrod83/nodejs-file-downloader"
+    },
+    "once@1.4.0": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/isaacs/once"
+    },
+    "path-is-absolute@1.0.1": {
+        "licenses": "MIT",
+        "publisher": "Sindre Sorhus",
+        "repository": "https://github.com/sindresorhus/path-is-absolute"
+    },
+    "path-parse@1.0.7": {
+        "licenses": "MIT",
+        "publisher": "Javier Blanco",
+        "repository": "https://github.com/jbgutierrez/path-parse"
+    },
+    "q@1.5.1": {
+        "licenses": "MIT",
+        "publisher": "Kris Kowal",
+        "repository": "https://github.com/kriskowal/q"
+    },
+    "rechoir@0.6.2": {
+        "licenses": "MIT",
+        "publisher": "Tyler Kellen",
+        "repository": "https://github.com/tkellen/node-rechoir"
+    },
+    "resolve@1.22.8": {
+        "licenses": "MIT",
+        "publisher": "James Halliday",
+        "repository": "https://github.com/browserify/resolve"
+    },
+    "sanitize-filename@1.6.3": {
+        "licenses": "WTFPL OR ISC",
+        "publisher": "Parsha Pourkhomami",
+        "repository": "https://github.com/parshap/node-sanitize-filename"
+    },
+    "semver@5.7.2": {
+        "licenses": "ISC",
+        "publisher": "GitHub Inc.",
+        "repository": "https://github.com/npm/node-semver"
+    },
+    "shelljs@0.8.5": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/shelljs/shelljs"
+    },
+    "supports-preserve-symlinks-flag@1.0.0": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/node-supports-preserve-symlinks-flag"
+    },
+    "truncate-utf8-bytes@1.0.2": {
+        "licenses": "WTFPL",
+        "publisher": "Carl Xiong",
+        "repository": "https://github.com/parshap/truncate-utf8-bytes"
+    },
+    "utf8-byte-length@1.0.4": {
+        "licenses": "WTFPL",
+        "publisher": "Carl Xiong",
+        "repository": "https://github.com/parshap/utf8-byte-length"
+    },
+    "uuid@3.4.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/uuidjs/uuid"
+    },
+    "wrappy@1.0.2": {
+        "licenses": "ISC",
+        "publisher": "Isaac Z. Schlueter",
+        "repository": "https://github.com/npm/wrappy"
+    }
+}
