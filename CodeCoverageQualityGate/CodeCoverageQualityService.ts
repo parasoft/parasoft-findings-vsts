@@ -233,7 +233,7 @@ export class CodeCoverageQualityService {
             fileEntry: undefined,
             warningMessage: undefined
         };
-        if (this.originalReferencePipelineName == this.pipelineName && this.originalReferenceBuildNumber == this.buildNumber) {
+        if ((!this.originalReferencePipelineName || this.originalReferencePipelineName == this.pipelineName) && this.originalReferenceBuildNumber == this.buildNumber) {
             referenceBuildInfo.warningMessage = "the current build is not allowed to use as the reference";
         } else {
             if (!this.originalReferencePipelineName) { // Reference pipeline is not specified
