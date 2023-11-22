@@ -13,4 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-console.log('foobar');
+import {TestResultsQualityGateService} from "./TestResultsQualityGateService";
+
+let testResultsQualityGateService = new TestResultsQualityGateService();
+testResultsQualityGateService.run();
