@@ -21,8 +21,8 @@ type TestSettings = {
     severity: string
     buildStatus: string
     threshold: string
-    referenceBuildResult?: string
     taskInstanceId: string
+    referenceBuildResult?: string
 }
 
 describe('Parasoft Findings Static Analysis Quality Gate', () => {
@@ -93,8 +93,8 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             severity: 'Issue',
             buildStatus: 'Failed',
             threshold: '10',
-            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260","warningMessage":"any warning messages when getting Parasoft static analysis reports from reference build"}}',
-            taskInstanceId: 'task-instance-id'
+            taskInstanceId: 'task-instance-id',
+            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260","warningMessage":"any warning messages when getting Parasoft static analysis reports from reference build"}}'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({

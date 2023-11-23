@@ -38,14 +38,14 @@ export class QualityGateResult {
                 referenceBuildId: string,
                 type: TypeEnum,
                 threshold: number,
-                workingDir: string) {
+                storageDir: string) {
         this._displayName = displayName;
         this._referencePipelineName = referencePipelineName;
         this._referenceBuildNumber = referenceBuildNumber;
         this._referenceBuildId = referenceBuildId;
         this._type = type;
         this._threshold = threshold;
-        this._storageDir = workingDir;
+        this._storageDir = storageDir;
 
         this._coverableLines = coverableLines;
         this._coveredLines = coveredLines;

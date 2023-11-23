@@ -38,7 +38,7 @@ export class QualityGateResult {
                 type: TypeEnum,
                 severity: SeverityEnum,
                 threshold: number,
-                workingDir: string) {
+                storageDir: string) {
       this._displayName = displayName;
       this._referencePipelineName = referencePipelineName;
       this._referenceBuildNumber = referenceBuildNumber;
@@ -47,7 +47,7 @@ export class QualityGateResult {
       this._type = type;
       this._severity = severity;
       this._threshold = threshold;
-      this._storageDir = workingDir;
+      this._storageDir = storageDir;
     }
 
     public get status() : QualityGateStatusEnum {

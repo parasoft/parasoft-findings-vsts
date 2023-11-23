@@ -22,8 +22,8 @@ type TestSettings = {
     type: string
     buildStatus: string
     threshold: string
-    referenceBuildResult?: string
     taskInstanceId: string
+    referenceBuildResult?: string
 }
 
 describe('Parasoft Findings Code Coverage Quality Gate', () => {
@@ -92,8 +92,8 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             type: 'Overall',
             buildStatus: 'Failed',
             threshold: '60',
-            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"9"}',
-            taskInstanceId: 'task-instance-id'
+            taskInstanceId: 'task-instance-id',
+            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"9"}'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
