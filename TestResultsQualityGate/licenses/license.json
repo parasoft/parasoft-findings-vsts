@@ -9,6 +9,11 @@
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/node-agent-base"
     },
+    "azure-devops-node-api@12.1.0": {
+        "licenses": "MIT",
+        "publisher": "Microsoft Corporation",
+        "repository": "https://github.com/Microsoft/azure-devops-node-api"
+    },
     "azure-pipelines-task-lib@4.7.0": {
         "licenses": "MIT",
         "publisher": "Microsoft",
@@ -29,6 +34,11 @@
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/brace-expansion"
     },
+    "call-bind@1.0.5": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/call-bind"
+    },
     "concat-map@0.0.1": {
         "licenses": "MIT",
         "publisher": "James Halliday",
@@ -43,6 +53,11 @@
         "licenses": "MIT",
         "publisher": "Josh Junon",
         "repository": "https://github.com/debug-js/debug"
+    },
+    "define-data-property@1.1.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/define-data-property"
     },
     "file-uri-to-path@1.0.0": {
         "licenses": "MIT",
@@ -64,10 +79,35 @@
         "publisher": "Raynos",
         "repository": "https://github.com/Raynos/function-bind"
     },
+    "get-intrinsic@1.2.2": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/get-intrinsic"
+    },
     "glob@7.2.3": {
         "licenses": "ISC",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/node-glob"
+    },
+    "gopd@1.0.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/gopd"
+    },
+    "has-property-descriptors@1.0.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/has-property-descriptors"
+    },
+    "has-proto@1.0.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/has-proto"
+    },
+    "has-symbols@1.0.3": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/inspect-js/has-symbols"
     },
     "hasown@2.0.0": {
         "licenses": "MIT",
@@ -129,6 +169,11 @@
         "publisher": "ibrod83",
         "repository": "https://github.com/ibrod83/nodejs-file-downloader"
     },
+    "object-inspect@1.13.1": {
+        "licenses": "MIT",
+        "publisher": "James Halliday",
+        "repository": "https://github.com/inspect-js/object-inspect"
+    },
     "once@1.4.0": {
         "licenses": "ISC",
         "publisher": "Isaac Z. Schlueter",
@@ -148,6 +193,10 @@
         "licenses": "MIT",
         "publisher": "Kris Kowal",
         "repository": "https://github.com/kriskowal/q"
+    },
+    "qs@6.11.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/ljharb/qs"
     },
     "rechoir@0.6.2": {
         "licenses": "MIT",
@@ -169,9 +218,19 @@
         "publisher": "GitHub Inc.",
         "repository": "https://github.com/npm/node-semver"
     },
+    "set-function-length@1.1.1": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/set-function-length"
+    },
     "shelljs@0.8.5": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/shelljs/shelljs"
+    },
+    "side-channel@1.0.4": {
+        "licenses": "MIT",
+        "publisher": "Jordan Harband",
+        "repository": "https://github.com/ljharb/side-channel"
     },
     "supports-preserve-symlinks-flag@1.0.0": {
         "licenses": "MIT",
@@ -182,6 +241,21 @@
         "licenses": "WTFPL",
         "publisher": "Carl Xiong",
         "repository": "https://github.com/parshap/truncate-utf8-bytes"
+    },
+    "tunnel@0.0.6": {
+        "licenses": "MIT",
+        "publisher": "Koichi Kobayashi",
+        "repository": "https://github.com/koichik/node-tunnel"
+    },
+    "typed-rest-client@1.8.11": {
+        "licenses": "MIT",
+        "publisher": "Microsoft Corporation",
+        "repository": "https://github.com/Microsoft/typed-rest-client"
+    },
+    "underscore@1.13.6": {
+        "licenses": "MIT",
+        "publisher": "Jeremy Ashkenas",
+        "repository": "https://github.com/jashkenas/underscore"
     },
     "utf8-byte-length@1.0.4": {
         "licenses": "WTFPL",
