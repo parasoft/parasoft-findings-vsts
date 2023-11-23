@@ -153,6 +153,9 @@ export class ParaReportPublishService {
         }
          // Pass the reference build to subsequent quality gate tasks
         tl.setVariable('PF.ReferenceBuildResult', JSON.stringify(this.referenceBuildResult));
+        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
+        // Clean up the custom markdown summary storage directory before subsequent quality gate tasks.
+        tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
 
         this.buildClient = new BuildAPIClient();
         this.projectName = tl.getVariable('System.TeamProject') || '';
@@ -161,7 +164,6 @@ export class ParaReportPublishService {
         this.pipelineName = tl.getVariable('Build.DefinitionName') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
 
-        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
         this.inputReportFiles = tl.getDelimitedInput('resultsFiles', '\n', true);
         this.mergeResults = tl.getInput('mergeTestResults');
         this.platform = tl.getInput('platform');

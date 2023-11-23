@@ -56,7 +56,7 @@ export class StaticAnalysisQualityService {
     readonly artifactName: string = 'CodeAnalysisLogs';
     readonly fileSuffix: FileSuffixEnum;
     readonly buildClient: BuildAPIClient;
-    readonly defaultWorkingDirectory: string;
+    readonly customMarkdownSummaryDirectory: string;
 
     // Predefined variables
     readonly projectName: string;
@@ -84,7 +84,7 @@ export class StaticAnalysisQualityService {
     constructor() {
         this.fileSuffix = FileSuffixEnum.SARIF_SUFFIX;
         this.buildClient = new BuildAPIClient();
-        this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
+        this.customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
 
         this.projectName = tl.getVariable('System.TeamProject') || '';
         this.buildId = Number(tl.getVariable('Build.BuildId'));
@@ -204,7 +204,7 @@ export class StaticAnalysisQualityService {
                                                                          this.referenceBuildId || '', 
                                                                          this.referenceBuildWarningMessage || '',
                                                                          this.type, this.severity, this.threshold, 
-                                                                         this.defaultWorkingDirectory);
+                                                                         tl.resolve(this.customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId')));
 
         tl.debug("Evaluating quality gate");
         qualityGateResult.actualNumberOfIssues = numberOfIssues;

@@ -21,6 +21,7 @@ type TestSettings = {
     severity: string
     buildStatus: string
     threshold: string
+    taskInstanceId: string
     referenceBuildResult?: string
 }
 
@@ -49,6 +50,8 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
                     return setting.displayName;
                 case 'PF.ReferenceBuildResult':
                     return setting.referenceBuildResult;
+                case 'System.TaskInstanceId':
+                    return setting.taskInstanceId;
             }
         });
         getInputSpy.and.callFake((param: string) => {
@@ -90,6 +93,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             severity: 'Issue',
             buildStatus: 'Failed',
             threshold: '10',
+            taskInstanceId: 'task-instance-id',
             referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260","warningMessage":"any warning messages when getting Parasoft static analysis reports from reference build"}}'
         };
 
@@ -254,7 +258,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
         }
 
         let compareMarkDown = (expectedReportPath: string) => {
-            let markDownDir = __dirname + '/ParasoftQualityGatesMD';
+            let markDownDir = __dirname + '/ParasoftQualityGatesMD/task-instance-id';
             let markDown = fs.readFileSync(markDownDir + '/Parasoft Static Analysis Quality Gate - Display name.md', {encoding: 'utf-8'});
             let expectedMarkDown = fs.readFileSync(expectedReportPath, {encoding: 'utf-8'});
 
@@ -322,7 +326,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         it('not pass the gate -- Total Errors, should set task failed', async () => {
             // Should clean storage before generating markdown
-            let mdDirPath = __dirname + '/ParasoftQualityGatesMD';
+            let mdDirPath = __dirname + '/ParasoftQualityGatesMD/task-instance-id';
             fs.mkdirSync(mdDirPath);
             fs.writeFileSync(mdDirPath + '/temp.md', 'test');
 
