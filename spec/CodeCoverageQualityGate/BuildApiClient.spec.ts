@@ -21,45 +21,51 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
     });
 
     it('getSpecificPipelines()', async () => {
-        const exceptedResult: any[] = [{
+        const pipelineResults: any[] = [{
             id: 1,
-            name: 'test-definition-name'
+            name: 'pipeline-definition-name'
         }];
-        mockWebApi().getBuildApi().getDefinitions.and.returnValue(Promise.resolve(exceptedResult));
+        mockWebApi().getBuildApi().getDefinitions.and.returnValue(Promise.resolve(pipelineResults));
         buildClient = new BuildAPIClient();
 
-        const result = await buildClient.getSpecificPipelines('test-project', 'test-pipeline');
-        expect(result).toEqual(exceptedResult);
+        const result = await buildClient.getSpecificPipelines('projectName', 'pipelineName');
+        expect(result).toEqual(pipelineResults);
     });
 
     it('getBuildsForSpecificPipeline()', async () => {
-        const exceptedResult: any[] = [{
-            id: 1,
+        const allBuildsInSpecificPipeline: any[] = [{
+            id: 20,
             buildNumber: '20'
         }];
-        mockWebApi().getBuildApi().getBuilds.and.returnValue(Promise.resolve(exceptedResult));
+        mockWebApi().getBuildApi().getBuilds.and.returnValue(Promise.resolve(allBuildsInSpecificPipeline));
         buildClient = new BuildAPIClient();
 
-        const result = await buildClient.getBuildsForSpecificPipeline('test-project', 1);
-        expect(result).toEqual(exceptedResult);
+        const pipelineId = 1;
+        const result = await buildClient.getBuildsForSpecificPipeline('projectName', pipelineId);
+        expect(result).toEqual(allBuildsInSpecificPipeline);
     });
 
     it('getBuildArtifact()', async () => {
-        const exceptedResult: any[] = [{
+        const buildArtifactResult: any[] = [{
             id: 1,
-            name: 'CodeAnalysisLogs'
+            name: 'CodeCoverageLogs',
+            resource: {
+                downloadUrl: 'http://example.com/downloads/CodeCoverageLogs.zip'
+            }
         }];
-        mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(exceptedResult));
+        mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(buildArtifactResult));
         buildClient = new BuildAPIClient();
 
-        const result = await buildClient.getBuildArtifact('test-project', 1, 'CodeAnalysisLogs');
-        expect(result).toEqual(exceptedResult);
+        const buildId = 1;
+        const result = await buildClient.getBuildArtifact('projectName', buildId, 'CodeCoverageLogs');
+        expect(result).toEqual(buildArtifactResult);
     });
 
     describe('getDefaultBuildReports()', () => {
         it('when no previous build is found', async () => {
-            let builds: any[] = [{
-                id: 1,
+            const currentBuildId = 1;
+            let allBuildsInPipeline: any[] = [{
+                id: currentBuildId,
                 buildNumber: '20',
                 result: undefined
             }];
@@ -72,19 +78,20 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
                 buildNumber: undefined,
                 reports: undefined
             }
-            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX, builds[0].id);
+            const result = await buildClient.getDefaultBuildReports(allBuildsInPipeline, 'projectName', 'CodeCoverageLogs', FileSuffixEnum.COBERTURA_SUFFIX, currentBuildId);
             expect(result).toEqual(expectedResult);
             expect(buildClient.buildApi.getArtifact).not.toHaveBeenCalled();
             expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
         });
 
         it('when there is no successful build', async () => {
-            let builds: any[] = [{
+            const currentBuildId = 2;
+            let allBuildsInPipeline: any[] = [{
                 id: 1,
                 buildNumber: '20',
                 result: BuildResult.Failed
             }, {
-                id: 2,
+                id: currentBuildId,
                 buildNumber: '21',
                 result: BuildResult.PartiallySucceeded
             }];
@@ -97,56 +104,59 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
                 buildNumber: undefined,
                 reports: undefined
             };
-            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
+            const result = await buildClient.getDefaultBuildReports(allBuildsInPipeline, 'projectName', 'CodeCoverageLogs', FileSuffixEnum.COBERTURA_SUFFIX, currentBuildId);
             expect(result).toEqual(expectedResult);
             expect(buildClient.buildApi.getArtifact).not.toHaveBeenCalled();
             expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
         });
 
         describe('when there is a successful build', () => {
-            let builds: any[];
+            let allBuildsInPipeline: any[];
+            const currentBuildId = 2;
+            const matchedReferenceBuildId = 1;
+            const matchedReferenceBuildNumber = '20';
             beforeEach(() => {
-                builds = [{
-                    id: 1,
-                    buildNumber: '20',
+                allBuildsInPipeline = [{
+                    id: matchedReferenceBuildId,
+                    buildNumber: matchedReferenceBuildNumber,
                     result: BuildResult.Succeeded
                 }, {
-                    id: 2,
+                    id: currentBuildId,
                     buildNumber: '21',
                     result: BuildResult.PartiallySucceeded
                 }];
             });
 
-            it('and has static analysis results', async () => {
+            it('and has code coverage results', async () => {
                 const artifact = {
                     id: 1,
-                    name: 'CodeAnalysisLogs'
+                    name: 'CodeCoverageLogs'
                 };
                 mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
                 buildClient = new BuildAPIClient();
-                const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
+                const coberturaContentString = '<?xml version="1.0" encoding="UTF-8"?><coverage line-rate="0.5" lines-covered="20" lines-valid="40" version="Jtest 2022.1.0"></coverage>';
                 const fileEntries = [{
-                    name: "SarifContainer/report-xml-sast.sarif",
+                    name: "CoberturaContainer/coverage-xml-cobertura.xml",
                     artifactName: artifact.name,
-                    filePath: "SarifContainer/report-xml-sast.sarif",
-                    buildId: 1,
-                    contentsPromise: Promise.resolve(sarifContentString)
+                    filePath: "CoberturaContainer/coverage-xml-cobertura.xml",
+                    buildId: matchedReferenceBuildId,
+                    contentsPromise: Promise.resolve(coberturaContentString)
                 }];
+                spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(fileEntries);
                 const expectedResult: DefaultBuildReportResults = {
                     status: DefaultBuildReportResultsStatus.OK,
-                    buildId: 1,
-                    buildNumber: '20',
+                    buildId: matchedReferenceBuildId,
+                    buildNumber: matchedReferenceBuildNumber,
                     reports: fileEntries
                 };
-                spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(fileEntries);
 
-                const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
+                const result = await buildClient.getDefaultBuildReports(allBuildsInPipeline, 'projectName', artifact.name, FileSuffixEnum.COBERTURA_SUFFIX, currentBuildId);
                 expect(result).toEqual(expectedResult);
                 expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                 expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
             });
 
-            describe('but does not have static analysis results', async () => {
+            describe('but does not have code coverage results', async () => {
                 it('- artifact is undefined', async () => {
                     const artifact = undefined;
                     mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
@@ -159,16 +169,16 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
                         buildNumber: undefined,
                         reports: undefined
                     }
-                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', 'CodeAnalysisLogs', FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
+                    const result = await buildClient.getDefaultBuildReports(allBuildsInPipeline, 'projectName', 'CodeCoverageLogs', FileSuffixEnum.COBERTURA_SUFFIX, currentBuildId);
                     expect(result).toEqual(expectedResult);
                     expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                     expect(buildClient.getBuildReportsWithId).not.toHaveBeenCalled();
                 });
 
-                it('- artifact is not undefined', async () => {
+                it('- artifact is not undefined but no files', async () => {
                     const artifact = {
                         id: 1,
-                        name: 'CodeAnalysisLogs'
+                        name: 'CodeCoverageLogs'
                     };
                     mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
                     buildClient = new BuildAPIClient();
@@ -177,105 +187,91 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
 
                     const expectedResult: DefaultBuildReportResults = {
                         status: DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS,
-                        buildId: 1,
-                        buildNumber: '20',
+                        buildId: matchedReferenceBuildId,
+                        buildNumber: matchedReferenceBuildNumber,
                         reports: mockFileEntries
                     }
-                    const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX, builds[1].id);
+                    const result = await buildClient.getDefaultBuildReports(allBuildsInPipeline, 'projectName', artifact.name, FileSuffixEnum.COBERTURA_SUFFIX, currentBuildId);
                     expect(result).toEqual(expectedResult);
                     expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
                     expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
                 });
             });
         });
-
-        it('when there is a successful build and the reference pipeline is not the current pipeline', async () => {
-            let currentBuildId = '2';
-            let builds: any[] = [{
-                id: 1,
-                buildNumber: '20',
-                result: BuildResult.Succeeded
-            }];
-            const artifact = {
-                id: 1,
-                name: 'CodeAnalysisLogs'
-            };
-            mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(artifact));
-            buildClient = new BuildAPIClient();
-            const sarifContentString = '{"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":95f6cbd1-cbe0-597a-8b6f-11f4da185fec}}]}]}';
-            const testBuildId = 1;
-            const fileEntries = [{
-                name: "SarifContainer/report-xml-sast.sarif",
-                artifactName: artifact.name,
-                filePath: "SarifContainer/report-xml-sast.sarif",
-                buildId: testBuildId,
-                contentsPromise: Promise.resolve(sarifContentString)
-            }];
-            const expectedResult: DefaultBuildReportResults = {
-                status: DefaultBuildReportResultsStatus.OK,
-                buildId: testBuildId,
-                buildNumber: '20',
-                reports: fileEntries
-            };
-            spyOn(buildClient, 'getBuildReportsWithId').and.returnValue(fileEntries);
-
-            const result = await buildClient.getDefaultBuildReports(builds, 'test-project', artifact.name, FileSuffixEnum.SARIF_SUFFIX, currentBuildId);
-            expect(result).toEqual(expectedResult);
-            expect(buildClient.buildApi.getArtifact).toHaveBeenCalled();
-            expect(buildClient.getBuildReportsWithId).toHaveBeenCalled();
-        });
     });
 
-    it('getBuildReportsWithId()', async () => {
-        buildClient = new BuildAPIClient();
+    describe('getBuildReportsWithId()', () => {
+        it('when there is artifact content', async () => {
+            buildClient = new BuildAPIClient();
+    
+            const mockArtifact = {
+                id: 1,
+                name: 'CodeCoverageLogs',
+                resource: { downloadUrl: 'http://example.com/downloads/CodeCoverageLogs.zip' },
+            };
+            const mockedZip: any = {
+                files: {
+                    'CodeCoverageLogs/report1-coverage-xml-cobertura.xml': {
+                        name: 'CodeCoverageLogs/report1-coverage-xml-cobertura.xml',
+                        dir: false,
+                        async: jasmine.createSpy('async').and.returnValue('report_1_content_promise_resolved')
+                    },
+                    'CodeCoverageLogs/report2-coverage-xml-cobertura.xml': {
+                        name: 'CodeCoverageLogs/report2-coverage-xml-cobertura.xml',
+                        dir: false, async: jasmine.createSpy('async').and.returnValue('report_2_content_promise_resolved')
+                    },
+                    'CodeCoverageLogs/report.pdf': {
+                        name: 'CodeCoverageLogs/report.pdf',
+                        dir: false, async: jasmine.createSpy('async').and.returnValue('report_other_content_promise_resolved')
+                    },
+                },
+                async loadAsync() {
+                    return this;
+                },
+                async file(name: keyof typeof mockedZip['files']) {
+                    return this.files[name];
+                },
+            };
+            const buildId = 1;
+            const expectedResult: any[] = [{
+                name: "report1-coverage-xml-cobertura.xml",
+                artifactName: "CodeCoverageLogs",
+                filePath: "report1-coverage-xml-cobertura.xml",
+                buildId: buildId,
+                contentsPromise: 'report_1_content_promise_resolved'
+            }, {
+                name: "report2-coverage-xml-cobertura.xml",
+                artifactName: "CodeCoverageLogs",
+                filePath: "report2-coverage-xml-cobertura.xml",
+                buildId: buildId,
+                contentsPromise: 'report_2_content_promise_resolved'
+            }];
+            spyOn(buildClient, 'getArtifactContentZip').and.returnValue(new ArrayBuffer(0));
+            spyOn(JSZip, 'loadAsync').and.returnValue(Promise.resolve(mockedZip));
 
-        const mockArtifact = {
-            resource: { downloadUrl: 'http://example.com/downloads/CodeAnalysisLogs.zip' },
-            name: 'CodeAnalysisLogs',
-        };
-        const mockZip: any = {
-            files: {
-                'CodeAnalysisLogs/report1-sarif-pf-sast.sarif': {
-                    name: 'CodeAnalysisLogs/report1-sarif-pf-sast.sarif',
-                    dir: false,
-                    async: jasmine.createSpy('async').and.returnValue('report_1_content_promise_resolved')
-                },
-                'CodeAnalysisLogs/report2-sarif-pf-sast.sarif': {
-                    name: 'CodeAnalysisLogs/report2-sarif-pf-sast.sarif',
-                    dir: false, async: jasmine.createSpy('async').and.returnValue('report_2_content_promise_resolved')
-                },
-                'CodeAnalysisLogs/report.pdf': {
-                    name: 'CodeAnalysisLogs/report.pdf',
-                    dir: false, async: jasmine.createSpy('async').and.returnValue('report_other_content_promise_resolved')
-                },
-            },
-            async loadAsync() {
-                return this;
-            },
-            async file(name: keyof typeof mockZip['files']) {
-                return this.files[name];
-            },
-        };
-        const expectedResult: any[] = [{
-            name: "report1-sarif-pf-sast.sarif",
-            artifactName: "CodeAnalysisLogs",
-            filePath: "report1-sarif-pf-sast.sarif",
-            buildId: 1,
-            contentsPromise: 'report_1_content_promise_resolved'
-        }, {
-            name: "report2-sarif-pf-sast.sarif",
-            artifactName: "CodeAnalysisLogs",
-            filePath: "report2-sarif-pf-sast.sarif",
-            buildId: 1,
-            contentsPromise: 'report_2_content_promise_resolved'
-        }];
-        spyOn(buildClient, 'getArtifactContentZip').and.returnValue(new ArrayBuffer(0));
-        spyOn(JSZip, 'loadAsync').and.returnValue(Promise.resolve(mockZip));
+            const result = await buildClient.getBuildReportsWithId(mockArtifact, buildId, FileSuffixEnum.COBERTURA_SUFFIX);
+            expect(result).toEqual(expectedResult);
+            expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
+            expect(JSZip.loadAsync).toHaveBeenCalled();
+        });
 
-        const result = await buildClient.getBuildReportsWithId(mockArtifact, 1, FileSuffixEnum.SARIF_SUFFIX);
-        expect(result).toEqual(expectedResult);
-        expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
-        expect(JSZip.loadAsync).toHaveBeenCalled();
+        it('when no artifact content', async () => {
+            buildClient = new BuildAPIClient();
+
+            const mockArtifact = {
+                id: 1,
+                name: 'CodeCoverageLogs',
+                resource: { downloadUrl: 'http://example.com/downloads/CodeCoverageLogs.zip/notFound' },
+            };
+            const buildId = 1;
+            spyOn(buildClient, 'getArtifactContentZip').and.returnValue(undefined);
+            spyOn(JSZip, 'loadAsync');
+
+            const result = await buildClient.getBuildReportsWithId(mockArtifact, buildId, FileSuffixEnum.COBERTURA_SUFFIX);
+            expect(result).toEqual([]);
+            expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
+            expect(JSZip.loadAsync).not.toHaveBeenCalled();
+        });
     });
 
     describe ('getArtifactContentZip()', async () => {
@@ -295,7 +291,7 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
         });
 
         it('should return empty when url is not available', async () => {
-            const downloadUrl = 'https://example.com/CodeAnalysisLogs.zip';
+            const downloadUrl = 'https://example.com/CodeCoverageLogs.zip';
             const resultArrayBuffer = await buildClient.getArtifactContentZip(downloadUrl);
             const result: string = String.fromCharCode.apply(null, resultArrayBuffer); // Transfer arrayBuffer to string
             expect(result).toEqual('');
