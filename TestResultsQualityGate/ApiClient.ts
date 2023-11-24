@@ -17,21 +17,8 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as azdev from "azure-devops-node-api";
 import * as BuildApi from "azure-devops-node-api/BuildApi";
 import * as TestApi from "azure-devops-node-api/TestApi";
-import { Build, BuildDefinitionReference, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import { Build, BuildDefinitionReference } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import { ShallowTestCaseResult } from 'azure-devops-node-api/interfaces/TestInterfaces';
-
-export interface DefaultTestResults {
-    status: DefaultTestResultsStatus,
-    buildId: number | undefined,
-    buildNumber: string | undefined,
-    testResults: ShallowTestCaseResult[]
-}
-
-export enum DefaultTestResultsStatus {
-    OK,
-    NO_COMPLETED_BUILD_WAS_FOUND,
-    NO_PREVIOUS_BUILD_WAS_FOUND
-}
 
 export class APIClient {
     private readonly accessToken: string;
@@ -48,7 +35,7 @@ export class APIClient {
         this.testApi = connection.getTestApi();
     }
 
-    async getSpecificPipelines(
+    async getPipelinesByName(
         projectName: string,
         definitionName: string
         ): Promise<BuildDefinitionReference[]> {
@@ -56,7 +43,7 @@ export class APIClient {
         return (await this.buildApi).getDefinitions(projectName, definitionName);
     }
 
-    async getBuildsInSpecificPipeline(
+    async getBuildsOfPipelineById(
         projectName: string,
         definitionId: number
         ): Promise<Build[]> {
@@ -64,7 +51,7 @@ export class APIClient {
         return (await this.buildApi).getBuilds(projectName, [definitionId]);
     }
 
-    async getTestResultsByBuild(
+    async getTestResultsByBuildId(
         projectName: string,
         buildId: number
         ): Promise<ShallowTestCaseResult[]> {
@@ -72,36 +59,4 @@ export class APIClient {
         return (await this.testApi).getTestResultsByBuild(projectName, buildId);
     }
 
-    async getDefaultTestResults(
-        projectName: string,
-        builds: Build[],
-        currentBuildId: string
-        ): Promise<DefaultTestResults> {
-        const defaultBuildReportResults: DefaultTestResults = {
-            status: DefaultTestResultsStatus.OK,
-            buildId: undefined,
-            buildNumber: undefined,
-            testResults: []
-        };
-
-        if (builds.length == 1 && builds[0].id?.toString() == currentBuildId) { // when only one build exists and it happens to be the current build
-            defaultBuildReportResults.status = DefaultTestResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND;
-            return defaultBuildReportResults;
-        }
-
-        const allCompletedBuilds = builds.filter(build => {
-            return build.result != undefined && build.result != BuildResult.Canceled && build.result != BuildResult.None;
-        });
-        if (allCompletedBuilds.length <= 0) {
-            defaultBuildReportResults.status = DefaultTestResultsStatus.NO_COMPLETED_BUILD_WAS_FOUND;
-            return defaultBuildReportResults;
-        }
-
-        let lastCompletedBuild: Build = allCompletedBuilds[0];
-        const testResults: ShallowTestCaseResult[] = await this.getTestResultsByBuild(projectName, <number> lastCompletedBuild.id);
-        defaultBuildReportResults.testResults = testResults;
-        defaultBuildReportResults.buildId = lastCompletedBuild.id;
-        defaultBuildReportResults.buildNumber = lastCompletedBuild.buildNumber;
-        return defaultBuildReportResults;
-    }
 }
