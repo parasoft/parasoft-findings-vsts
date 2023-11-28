@@ -50,15 +50,15 @@ interface BuildResultInputs {
 }
 
 interface BuildInfo {
-    pipelineName?: string | undefined;
-    buildNumber?: string | undefined;
-    buildId?: string | undefined;
+    pipelineName?: string | undefined,
+    buildNumber?: string | undefined,
+    buildId?: string | undefined,
     warningMsg?: string | undefined
 }
 
 export interface BuildResultInfo extends BuildInfo {
     testResults?: ShallowTestCaseResult[] | undefined,
-    isDebugMsg?: boolean;
+    isDebugMsg?: boolean
 }
 
 export class TestResultsQualityGateService {
@@ -92,16 +92,8 @@ export class TestResultsQualityGateService {
         const typeString = tl.getInput('type') || '';
 
         this.threshold = this.getThreshold(thresholdString);
-        tl.debug("Input threshold: " + thresholdString);
-        tl.debug("Test results quality threshold: " + this.threshold);
-
         this.buildStatus = this.getBuildStatus(buildStatusString);
-        tl.debug("Input buildStatus: " + buildStatusString);
-        tl.debug("Test results quality buildStatus: " + this.buildStatus);
-
         this.type = this.getType(typeString);
-        tl.debug("Input type: " + typeString);
-        tl.debug("Test results quality type: " + this.type);
     }
 
     run = async (): Promise<void> => {
@@ -112,7 +104,11 @@ export class TestResultsQualityGateService {
                 tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.generateQualityGateText()}' skipped; please run 'Publish Parasoft Results' task first`);
                 return;
             }
-            this.referenceBuildInputs = JSON.parse(<string> referenceBuildResult);
+            const originalReferenceBuildInputs = JSON.parse(<string> referenceBuildResult);
+            this.referenceBuildInputs = {
+                pipelineName: originalReferenceBuildInputs.originalPipelineName,
+                buildNumber: originalReferenceBuildInputs.originalBuildNumber
+            }
 
             // Get test results in current build
             const currentTestResults: ShallowTestCaseResult[] = await this.apiClient.getTestResultsByBuildId(this.projectName, Number(this.buildId));
@@ -276,7 +272,6 @@ export class TestResultsQualityGateService {
                 } else {
                     referenceResultInfo.warningMsg = `The specified reference pipeline '${this.referenceBuildInputs.pipelineName}' could not be found`;
                 }
-                return referenceResultInfo;
             }
         }
         if (referenceResultInfo.warningMsg) {
@@ -293,7 +288,7 @@ export class TestResultsQualityGateService {
         const buildsOfPipeline = await this.apiClient.getBuildsOfPipelineById(this.projectName, pipelineId);
         if (!this.referenceBuildInputs.buildNumber) { // Reference build is not specified
             tl.debug(`No reference build has been set; using the last completed build in pipeline '${pipelineName}' as reference.`);
-            return await this.getResultOfLastCompletedBuild(pipelineName, buildsOfPipeline);
+            return this.getResultOfLastCompletedBuild(pipelineName, buildsOfPipeline);
         } else { // Reference build is specified
             return this.getResultOfSpecifiedBuild(pipelineName, buildsOfPipeline);
         }
@@ -319,7 +314,7 @@ export class TestResultsQualityGateService {
             return build.result != undefined && build.result != BuildResult.Canceled && build.result != BuildResult.None;
         });
         if (allCompletedBuilds.length <= 0) {
-            referenceResultInfo.warningMsg = `No completed build was found in pipeline '${pipelineName}'`;
+            referenceResultInfo.warningMsg = `No completed reference build was found in pipeline '${pipelineName}'`;
             return referenceResultInfo;
         }
 
@@ -346,7 +341,7 @@ export class TestResultsQualityGateService {
         if (referenceBuilds.length > 1) {
             referenceResultInfo.warningMsg = `The specified reference build '${pipelineName}#${this.referenceBuildInputs.buildNumber}' is not unique`;
             return referenceResultInfo;
-        }6
+        }
         if (referenceBuilds.length == 0) {
             referenceResultInfo.warningMsg = `The specified reference build '${pipelineName}#${this.referenceBuildInputs.buildNumber}' could not be found`;
             return referenceResultInfo;
@@ -400,7 +395,7 @@ export class TestResultsQualityGateService {
             tl.warning(`Invalid threshold value '${thresholdString}', using default value 0`);
             return 0;
         }
-        if (this.threshold < 0) {
+        if (threshold < 0) {
             tl.warning(`The threshold value '${thresholdString}' is less than 0, the value is set to 0`);
             return 0;
         }
