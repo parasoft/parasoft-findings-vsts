@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
-import { BuildDefinitionReference } from 'azure-devops-node-api/interfaces/BuildInterfaces';
-import { ShallowTestCaseResult } from 'azure-devops-node-api/interfaces/TestInterfaces';
-import { APIClient, DefaultTestResults, DefaultTestResultsStatus } from './ApiClient';
+import { Build, BuildDefinitionReference, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import { ShallowTestCaseResult, TestOutcome } from 'azure-devops-node-api/interfaces/TestInterfaces';
+import { APIClient } from './ApiClient';
+import { QualityGateResult } from './QualityGateResult';
 
 export const enum TypeEnum {
     TOTAL_PASSED_TESTS = 'totalPassed',
@@ -25,20 +26,39 @@ export const enum TypeEnum {
     NEWLY_FAILED_TESTS = 'newlyFailed'
 }
 
+const TypeEnumText: Record<TypeEnum, string> = {
+    [TypeEnum.TOTAL_PASSED_TESTS]: 'Total passed tests',
+    [TypeEnum.TOTAL_FAILED_TESTS]: 'Total failed tests',
+    [TypeEnum.TOTAL_EXECUTED_TESTS]: 'Total executed tests',
+    [TypeEnum.NEWLY_FAILED_TESTS]: 'Newly failed tests'
+}
+
 export const enum BuildStatusEnum {
     FAILED = 'failed',
     UNSTABLE = 'unstable'
 }
 
-interface ReferenceBuildResult {
-    originalPipelineName: string,
-    originalBuildNumber: string
+export enum QualityGateStatusEnum {
+    PASSED = "PASSED",
+    UNSTABLE = "UNSTABLE",
+    FAILED = "FAILED"
 }
 
-interface TestResultsInformation {
-    testResults: ShallowTestCaseResult[],
-    warningMessage: string | undefined
-    isDebugMessage?: boolean;
+interface BuildResultInputs {
+    pipelineName?: string,
+    buildNumber?: string
+}
+
+interface BuildInfo {
+    pipelineName?: string | undefined,
+    buildNumber?: string | undefined,
+    buildId?: string | undefined,
+    warningMsg?: string | undefined
+}
+
+export interface BuildResultInfo extends BuildInfo {
+    testResults?: ShallowTestCaseResult[] | undefined,
+    isDebugMsg?: boolean
 }
 
 export class TestResultsQualityGateService {
@@ -49,17 +69,14 @@ export class TestResultsQualityGateService {
     readonly buildNumber: string;
     readonly buildId: string;
     readonly definitionId: number;
-
-    readonly typeString: string;
-    readonly thresholdString: string;
-    readonly buildStatusString: string;
+    readonly displayName: string;
 
     type: TypeEnum;
     threshold: number;
     buildStatus: BuildStatusEnum;
 
-    originalReferencePipelineName: string | undefined;
-    originalReferenceBuildNumber: string | undefined;
+    referenceBuildInputs: BuildResultInputs = {};
+    referenceBuildResultInfo: BuildResultInfo = {};
 
     constructor() {
         this.apiClient = new APIClient();
@@ -68,191 +85,320 @@ export class TestResultsQualityGateService {
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+        this.displayName = tl.getVariable('Task.DisplayName') || '';
 
-        this.typeString = tl.getInput('type') || '';
-        this.thresholdString = tl.getInput('threshold') || '';
-        this.buildStatusString = tl.getInput('buildStatus') || '';
+        const thresholdString = tl.getInput('threshold') || '';
+        const buildStatusString = tl.getInput('buildStatus') || '';
+        const typeString = tl.getInput('type') || '';
 
-        this.threshold = parseInt(this.thresholdString || '0');
-
-        if (isNaN(this.threshold)) {
-            tl.warning(`Invalid threshold value '${this.thresholdString}', using default value 0`);
-            this.threshold = 0;
-        } else if (this.threshold < 0) {
-            tl.warning(`The threshold value '${this.thresholdString}' is less than 0, the value is set to 0`);
-            this.threshold = 0;
-        }
-
-        switch (this.typeString.toLowerCase()) {
-            case TypeEnum.TOTAL_EXECUTED_TESTS.toLowerCase():
-                this.type = TypeEnum.TOTAL_EXECUTED_TESTS;
-                break;
-            case TypeEnum.TOTAL_PASSED_TESTS.toLowerCase():
-                this.type = TypeEnum.TOTAL_PASSED_TESTS;
-                break;
-            case TypeEnum.TOTAL_FAILED_TESTS.toLowerCase():
-                this.type = TypeEnum.TOTAL_FAILED_TESTS;
-                break;
-            case TypeEnum.NEWLY_FAILED_TESTS.toLowerCase():
-                this.type = TypeEnum.NEWLY_FAILED_TESTS;
-                break;
-            default:
-                tl.warning(`Invalid value for 'type': ${this.typeString}, using default value 'totalPassed'`);
-                this.type = TypeEnum.TOTAL_PASSED_TESTS;
-        }
-
-        switch (this.buildStatusString.toLowerCase()) {
-            case BuildStatusEnum.FAILED.toLowerCase():
-                this.buildStatus = BuildStatusEnum.FAILED;
-                break;
-            case BuildStatusEnum.UNSTABLE.toLowerCase():
-                this.buildStatus = BuildStatusEnum.UNSTABLE;
-                break;
-            default:
-                tl.warning(`Invalid value for 'buildStatus': ${this.buildStatusString}, using default value 'failed'`);
-                this.buildStatus = BuildStatusEnum.FAILED;
-        }
-
-        tl.debug("Input type: " + this.typeString);
-        tl.debug("Test results quality type: " + this.type);
-
-        tl.debug("Input threshold: " + this.thresholdString);
-        tl.debug("Test results quality threshold: " + this.threshold);
-
-        tl.debug("Input buildStatus: " + this.buildStatusString);
-        tl.debug("Test results quality buildStatus: " + this.buildStatus);
+        this.threshold = this.getThreshold(thresholdString);
+        this.buildStatus = this.getBuildStatus(buildStatusString);
+        this.type = this.getType(typeString);
     }
 
     run = async (): Promise<void> => {
         try {
-            let testResultsReferenceBuild = tl.getVariable('PF.ReferenceBuildResult');
-            if (!testResultsReferenceBuild) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; please run 'Publish Parasoft Results' task first`);
+            // Get reference build result from 'Publish Parasoft Results' task execution
+            const referenceBuildResult = tl.getVariable('PF.ReferenceBuildResult');
+            if (!referenceBuildResult) {
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.generateQualityGateText()}' skipped; please run 'Publish Parasoft Results' task first`);
                 return;
             }
-            let referenceBuild: ReferenceBuildResult = JSON.parse(<string> testResultsReferenceBuild);
-            this.originalReferencePipelineName = referenceBuild.originalPipelineName;
-            this.originalReferenceBuildNumber = referenceBuild.originalBuildNumber;
+            const originalReferenceBuildInputs = JSON.parse(<string> referenceBuildResult);
+            this.referenceBuildInputs = {
+                pipelineName: originalReferenceBuildInputs.originalPipelineName,
+                buildNumber: originalReferenceBuildInputs.originalBuildNumber
+            }
 
-            // To get test results in current build
-            const currentTestResults: ShallowTestCaseResult[] = await this.apiClient.getTestResultsByBuild(this.projectName, Number(this.buildId));
+            // Get test results in current build
+            const currentTestResults: ShallowTestCaseResult[] = await this.apiClient.getTestResultsByBuildId(this.projectName, Number(this.buildId));
             // Check for the test results exist in current build
             if (currentTestResults.length == 0) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.getQualityGateIdentification()}' skipped; no test results were found in this build`);
+                tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.generateQualityGateText()}' skipped; no test results were found in this build`);
                 return;
             }
 
-            if (this.type != TypeEnum.NEWLY_FAILED_TESTS) {
-                // TODO: CICD-592 Implement the function of quality gate - total
-            } else {
-                // To get test results in reference build
-                const referenceTestResultsInfo: TestResultsInformation = await this.getReferenceTestResults();
-                // TODO: CICD-607 Compare and calculate the newly failed tests number
-            }
-            // TODO: CICD-592/CICD-593 evaluate the quality gate based on number of xxx tests
+            const numOfEvaluatedTests = await this.getNumOfEvaluatedTestsByType(currentTestResults);
+            let qualityGateResult = this.evaluateQualityGate(numOfEvaluatedTests);
             // TODO: CICD-594 Display the result under extension tab
         } catch(error) {
-            tl.warning(`Failed to process the quality gate '${this.getQualityGateIdentification()}'. See logs for details.`);
+            tl.warning(`Failed to process the quality gate '${this.generateQualityGateText()}'. See logs for details.`);
             console.error(error);
             return;
         }
     }
 
-    private getReferenceTestResults = async (): Promise<TestResultsInformation> => {
-        let referenceTestResultsInfo: TestResultsInformation = {
-            testResults: [],
-            warningMessage: undefined
-        };
-        if ((!this.originalReferencePipelineName || this.originalReferencePipelineName == this.pipelineName) && this.originalReferenceBuildNumber == this.buildNumber) {
-            referenceTestResultsInfo.warningMessage = 'Using the current build as the reference';
+    private getNumOfEvaluatedTestsByType = async (testResults: ShallowTestCaseResult[]): Promise<number> => {
+        let numberOfTests: number = 0;
+        switch (this.type) {
+            case TypeEnum.TOTAL_PASSED_TESTS:
+                numberOfTests = testResults.filter((result) => {
+                    return result.outcome == TestOutcome[TestOutcome.Passed];
+                }).length;
+                break;
+            case TypeEnum.TOTAL_FAILED_TESTS:
+                numberOfTests = testResults.filter((result) => {
+                    return result.outcome == TestOutcome[TestOutcome.Failed];
+                }).length;
+                break;
+            case TypeEnum.TOTAL_EXECUTED_TESTS:
+                numberOfTests = testResults.length;
+                break;
+            case TypeEnum.NEWLY_FAILED_TESTS:
+                this.referenceBuildResultInfo = await this.getReferenceBuildResultInfo();
+                numberOfTests = await this.getNumOfNewlyFailedTests(testResults, this.referenceBuildResultInfo.testResults || []);
+                break;
+            default:
+                // User will never come here
+                tl.error(`The 'type' value should be 'totalPassed', 'totalFailed', 'totalExecuted' or 'newlyFailed' instead of '${this.type}'`);
+        }
+
+        return numberOfTests;
+    }
+
+    private getNumOfNewlyFailedTests = async (
+        currentTestResults: ShallowTestCaseResult[],
+        referenceTestResults: ShallowTestCaseResult[]
+    ): Promise<number> => {
+        const currentFailedTests: ShallowTestCaseResult[] = currentTestResults.filter((test) => {
+            return test.outcome == TestOutcome[TestOutcome.Failed];
+        });
+        const referenceFailedTests: ShallowTestCaseResult[] = referenceTestResults.filter((test) => {
+            return test.outcome == TestOutcome[TestOutcome.Failed];
+        });
+        if (referenceFailedTests.length > 0) {
+            const referenceFailedTestRefIds: number[] = [];
+            referenceFailedTests.forEach((referenceFailedTest) => { // Remove duplicate elements
+                let failedTestExists: boolean = referenceFailedTestRefIds.some(refId => refId === referenceFailedTest.refId);
+                if (!failedTestExists) {
+                    referenceFailedTestRefIds.push(<number>referenceFailedTest.refId);
+                }
+            });
+
+            let numberOfNewlyFailedTests: number = 0;
+            currentFailedTests.forEach((currentFailedTest) => { // Get number of newly failed tests
+                let failedTestExists: boolean = referenceFailedTestRefIds.some(refId => refId == currentFailedTest.refId);
+                if (!failedTestExists) {
+                    numberOfNewlyFailedTests++;
+                }
+            });
+            
+            return numberOfNewlyFailedTests;
         } else {
-            if (!this.originalReferencePipelineName) { // Reference pipeline is not specified
+            return currentFailedTests.length;
+        }
+    }
+
+    private evaluateQualityGate = (numOfEvaluatedTests: number): QualityGateResult => {
+        let qualityGateResult: QualityGateResult = new QualityGateResult(
+            this.displayName,
+            this.type,
+            this.threshold,
+            numOfEvaluatedTests,
+            this.referenceBuildResultInfo
+        );
+        tl.debug("Evaluating quality gate");
+        switch (this.type) {
+            case TypeEnum.NEWLY_FAILED_TESTS:
+            case TypeEnum.TOTAL_FAILED_TESTS:
+                if (numOfEvaluatedTests == 0 || numOfEvaluatedTests <= this.threshold) {
+                    qualityGateResult.status = this.getQualityGateStatus(true);
+                } else {
+                    qualityGateResult.status = this.getQualityGateStatus(false);
+                }
+                break;
+            case TypeEnum.TOTAL_PASSED_TESTS:
+            case TypeEnum.TOTAL_EXECUTED_TESTS:
+                if (numOfEvaluatedTests >= this.threshold) {
+                    qualityGateResult.status = this.getQualityGateStatus(true);
+                } else {
+                    qualityGateResult.status = this.getQualityGateStatus(false);
+                }
+                break;
+            default:
+                // User will never come here
+                tl.error(`The build status should be unstable or failed instead of ${this.buildStatus}`);
+        }
+
+        tl.debug(`Quality Gate ${qualityGateResult.status} - ${TypeEnumText[this.type]}: ${numOfEvaluatedTests} - Threshold: ${this.threshold}`);
+        return qualityGateResult;
+    }
+
+    private getQualityGateStatus = (isSucceeded: boolean): QualityGateStatusEnum => {
+        if (isSucceeded) {
+            tl.setResult(tl.TaskResult.Succeeded, `Quality gate '${this.generateQualityGateText()}' passed`);
+            return QualityGateStatusEnum.PASSED;
+        } else {
+            switch (this.buildStatus) {
+                case BuildStatusEnum.FAILED:
+                    tl.setResult(tl.TaskResult.Failed, `Quality gate '${this.generateQualityGateText()}' failed: build result is FAILED`);
+                    return QualityGateStatusEnum.FAILED;
+                case BuildStatusEnum.UNSTABLE:
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.generateQualityGateText()}' failed: build result is UNSTABLE`);
+                    return QualityGateStatusEnum.UNSTABLE;
+                default:
+                    // User will never come here
+                    tl.error(`The build status should be unstable or failed instead of ${this.buildStatus}`);
+                    return QualityGateStatusEnum.FAILED;
+            }
+        }
+    }
+
+    private getReferenceBuildResultInfo = async (): Promise<BuildResultInfo> => {
+        let referenceResultInfo: BuildResultInfo = {
+            testResults: [],
+            pipelineName: undefined,
+            buildNumber: undefined,
+            buildId: undefined,
+            warningMsg: undefined
+        };
+        if ((!this.referenceBuildInputs.pipelineName || this.referenceBuildInputs.pipelineName == this.pipelineName)
+             && this.referenceBuildInputs.buildNumber == this.buildNumber) {
+            referenceResultInfo.warningMsg = 'Using the current build as the reference';
+        } else {
+            if (!this.referenceBuildInputs.pipelineName) { // Reference pipeline is not specified
                 tl.debug("No reference pipeline has been set; using the current pipeline as reference.");
-                referenceTestResultsInfo = await this.getTestResultsInSpecificPipeline(this.definitionId, this.pipelineName);
+                referenceResultInfo = await this.getBuildResultByPipelineId(this.definitionId, this.pipelineName);
             } else { // Reference pipeline is specified
                 // Get the reference pipeline id based on the reference pipeline name specified in the configuration UI
-                const specificPipelines: BuildDefinitionReference[] = await this.apiClient.getSpecificPipelines(this.projectName, this.originalReferencePipelineName);
+                const referencePipelines: BuildDefinitionReference[] = await this.apiClient.getPipelinesByName(this.projectName, this.referenceBuildInputs.pipelineName);
                 // Check for the specific reference pipeline exists
-                if (specificPipelines.length == 1) {
-                    const specificReferencePipeline = specificPipelines[0];
-                    let specificReferencePipelineId : number = Number(specificReferencePipeline.id);
-                    referenceTestResultsInfo = await this.getTestResultsInSpecificPipeline(specificReferencePipelineId, specificReferencePipeline.name || '');
-                } else if (specificPipelines.length > 1) {
-                    referenceTestResultsInfo.warningMessage = `The specified reference pipeline '${this.originalReferencePipelineName}' is not unique`;
+                if (referencePipelines.length == 1) {
+                    const referencePipeline = referencePipelines[0];
+                    const referencePipelineId = Number(referencePipeline.id);
+                    referenceResultInfo = await this.getBuildResultByPipelineId(referencePipelineId, referencePipeline.name || '');
+                } else if (referencePipelines.length > 1) {
+                    referenceResultInfo.warningMsg = `The specified reference pipeline '${this.referenceBuildInputs.pipelineName}' is not unique`;
                 } else {
-                    referenceTestResultsInfo.warningMessage = `The specified reference pipeline '${this.originalReferencePipelineName}' could not be found`;
+                    referenceResultInfo.warningMsg = `The specified reference pipeline '${this.referenceBuildInputs.pipelineName}' could not be found`;
                 }
             }
         }
-        if (referenceTestResultsInfo.warningMessage) {
-            if (referenceTestResultsInfo.isDebugMessage) {
-                tl.debug(`${referenceTestResultsInfo.warningMessage} - all failed tests will be treated as new`);
+        if (referenceResultInfo.warningMsg) {
+            if (referenceResultInfo.isDebugMsg) {
+                tl.debug(`${referenceResultInfo.warningMsg} - all failed tests will be treated as new`);
             } else {
-                tl.warning(`${referenceTestResultsInfo.warningMessage} - all failed tests will be treated as new`);
+                tl.warning(`${referenceResultInfo.warningMsg} - all failed tests will be treated as new`);
             }
         }
-        return referenceTestResultsInfo;
+        return referenceResultInfo;
     }
 
-    private getTestResultsInSpecificPipeline = async (specificReferencePipelineId: number, pipelineName: string): Promise<TestResultsInformation> => {
-        const referenceTestResultsInfo: TestResultsInformation = {
-            testResults: [],
-            warningMessage: undefined
-        };
-        const allBuildsInSpecificPipeline = await this.apiClient.getBuildsInSpecificPipeline(this.projectName, specificReferencePipelineId);
-        if (!this.originalReferenceBuildNumber) { // Reference build is not specified
+    private getBuildResultByPipelineId = async (pipelineId: number, pipelineName: string): Promise<BuildResultInfo> => {
+        const buildsOfPipeline = await this.apiClient.getBuildsOfPipelineById(this.projectName, pipelineId);
+        if (!this.referenceBuildInputs.buildNumber) { // Reference build is not specified
             tl.debug(`No reference build has been set; using the last completed build in pipeline '${pipelineName}' as reference.`);
-            let defaultTestResults: DefaultTestResults = await this.apiClient.getDefaultTestResults(this.projectName, allBuildsInSpecificPipeline, this.buildId);
-            switch (defaultTestResults.status) {
-                case DefaultTestResultsStatus.OK:
-                    referenceTestResultsInfo.testResults = defaultTestResults.testResults;
-                    tl.debug(`Set build '${pipelineName}#${defaultTestResults.buildNumber}' as the default reference build`);
-                    return referenceTestResultsInfo;
-                case DefaultTestResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND:
-                    referenceTestResultsInfo.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
-                    referenceTestResultsInfo.isDebugMessage = true;
-                    return referenceTestResultsInfo;
-                case DefaultTestResultsStatus.NO_COMPLETED_BUILD_WAS_FOUND:
-                default:
-                    referenceTestResultsInfo.warningMessage = `No completed build was found in pipeline '${pipelineName}'`;
-                    return referenceTestResultsInfo;
-            }
+            return this.getResultOfLastCompletedBuild(pipelineName, buildsOfPipeline);
         } else { // Reference build is specified
-            const specificReferenceBuilds = allBuildsInSpecificPipeline.filter(build => {
-                return build.buildNumber == this.originalReferenceBuildNumber;
-            });
-            if (specificReferenceBuilds.length > 1) {
-                referenceTestResultsInfo.warningMessage = `The specified reference build '${pipelineName}#${this.originalReferenceBuildNumber}' is not unique`;
-                return referenceTestResultsInfo;
-            }
-            if (specificReferenceBuilds.length == 0) {
-                referenceTestResultsInfo.warningMessage = `The specified reference build '${pipelineName}#${this.originalReferenceBuildNumber}' could not be found`;
-                return referenceTestResultsInfo;
-            }
-            // When specificReferenceBuilds.length equals 1
-            const specificReferenceBuild = specificReferenceBuilds[0];
-            // Check for the test results exist in the specific reference build
-            const testResults = await this.apiClient.getTestResultsByBuild(this.projectName, <number> specificReferenceBuild.id);
-            referenceTestResultsInfo.testResults = testResults;
-            return referenceTestResultsInfo;
+            return this.getResultOfSpecifiedBuild(pipelineName, buildsOfPipeline);
         }
     }
 
-    private getQualityGateIdentification() {
-        let typeText: string;
-        switch (this.type) {
-            case TypeEnum.TOTAL_PASSED_TESTS:
-                typeText = 'Total passed tests';
-                break;
-            case TypeEnum.TOTAL_FAILED_TESTS:
-                typeText = 'Total failed tests';
-                break;
-            case TypeEnum.TOTAL_EXECUTED_TESTS:
-                typeText = 'Total executed tests';
-                break;
-            case TypeEnum.NEWLY_FAILED_TESTS:
-                typeText = 'Newly failed tests';
+    private async getResultOfLastCompletedBuild(pipelineName: string, buildsOfPipeline: Build[]): Promise<BuildResultInfo> {
+        const referenceResultInfo: BuildResultInfo = {
+            testResults: [],
+            pipelineName: undefined,
+            buildNumber: undefined,
+            buildId: undefined,
+            warningMsg: undefined,
+            isDebugMsg: false
+        };
+
+        if (buildsOfPipeline.length == 1 && buildsOfPipeline[0].id?.toString() == this.buildId) { // when only one build exists and it happens to be the current build
+            referenceResultInfo.warningMsg = `No previous build was found in pipeline '${pipelineName}'`;
+            referenceResultInfo.isDebugMsg = true;
+            return referenceResultInfo;
         }
-        return "Type: " + typeText + ", Threshold: " + this.threshold;
+
+        const allCompletedBuilds = buildsOfPipeline.filter(build => {
+            return build.result != undefined && build.result != BuildResult.Canceled && build.result != BuildResult.None;
+        });
+        if (allCompletedBuilds.length <= 0) {
+            referenceResultInfo.warningMsg = `No completed reference build was found in pipeline '${pipelineName}'`;
+            return referenceResultInfo;
+        }
+
+        let lastCompletedBuild: Build = allCompletedBuilds[0];
+        const testResults: ShallowTestCaseResult[] = await this.apiClient.getTestResultsByBuildId(this.projectName, <number> lastCompletedBuild.id);
+        referenceResultInfo.testResults = testResults;
+        referenceResultInfo.buildId = (<number> lastCompletedBuild.id).toString();
+        referenceResultInfo.buildNumber = lastCompletedBuild.buildNumber;
+        tl.debug(`Set build '${pipelineName}#${lastCompletedBuild.buildNumber}' as the default reference build`);
+        return referenceResultInfo;
+    }
+
+    private getResultOfSpecifiedBuild = async (pipelineName: string, buildsOfPipeline: Build[]) => {
+        let referenceResultInfo: BuildResultInfo = {
+            testResults: [],
+            pipelineName: undefined,
+            buildNumber: undefined,
+            buildId: undefined,
+            warningMsg: undefined
+        };
+        const referenceBuilds = buildsOfPipeline.filter(build => {
+            return build.buildNumber == this.referenceBuildInputs.buildNumber;
+        });
+        if (referenceBuilds.length > 1) {
+            referenceResultInfo.warningMsg = `The specified reference build '${pipelineName}#${this.referenceBuildInputs.buildNumber}' is not unique`;
+            return referenceResultInfo;
+        }
+        if (referenceBuilds.length == 0) {
+            referenceResultInfo.warningMsg = `The specified reference build '${pipelineName}#${this.referenceBuildInputs.buildNumber}' could not be found`;
+            return referenceResultInfo;
+        }
+        // When referenceBuilds.length equals 1
+        const referenceBuild = referenceBuilds[0];
+        // Check for the test results exist in the specific reference build
+        const testResults = await this.apiClient.getTestResultsByBuildId(this.projectName, <number> referenceBuild.id);
+        referenceResultInfo.testResults = testResults;
+        referenceResultInfo.pipelineName = pipelineName;
+        referenceResultInfo.buildId = (<number> referenceBuild.id).toString();
+        referenceResultInfo.buildNumber = <string> referenceBuild.buildNumber;
+        return referenceResultInfo;
+    }
+
+    private generateQualityGateText = () : string => {
+        return "Type: " + TypeEnumText[this.type] + ", Threshold: " + this.threshold;
+    }
+
+    private getType = (typeString: string): TypeEnum => {
+        switch (typeString.toLowerCase()) {
+            case TypeEnum.TOTAL_EXECUTED_TESTS.toLowerCase():
+                return TypeEnum.TOTAL_EXECUTED_TESTS;
+            case TypeEnum.TOTAL_PASSED_TESTS.toLowerCase():
+                return TypeEnum.TOTAL_PASSED_TESTS;
+            case TypeEnum.TOTAL_FAILED_TESTS.toLowerCase():
+                return TypeEnum.TOTAL_FAILED_TESTS;
+            case TypeEnum.NEWLY_FAILED_TESTS.toLowerCase():
+                return TypeEnum.NEWLY_FAILED_TESTS;
+            default:
+                tl.warning(`Invalid value for 'type': ${typeString}, using default value 'totalPassed'`);
+                return TypeEnum.TOTAL_PASSED_TESTS;
+        }
+    }
+
+    private getBuildStatus = (buildStatusString: string): BuildStatusEnum => {
+        switch (buildStatusString.toLowerCase()) {
+            case BuildStatusEnum.FAILED.toLowerCase():
+                return BuildStatusEnum.FAILED;
+            case BuildStatusEnum.UNSTABLE.toLowerCase():
+                return BuildStatusEnum.UNSTABLE;
+            default:
+                tl.warning(`Invalid value for 'buildStatus': ${buildStatusString}, using default value 'failed'`);
+                return BuildStatusEnum.FAILED;
+        }
+    }
+
+    private getThreshold = (thresholdString: string): number => {
+        let threshold = parseInt(thresholdString || '0');
+        if (isNaN(threshold)) {
+            tl.warning(`Invalid threshold value '${thresholdString}', using default value 0`);
+            return 0;
+        }
+        if (threshold < 0) {
+            tl.warning(`The threshold value '${thresholdString}' is less than 0, the value is set to 0`);
+            return 0;
+        }
+        return threshold;
     }
 }

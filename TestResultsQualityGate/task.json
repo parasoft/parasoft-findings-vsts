@@ -37,7 +37,7 @@
       "label": "Threshold",
       "defaultValue": "0",
       "required": true,
-      "helpMarkDown": "A build is considered unstable or failed when: \n- The number of total passed/executed tests is equal to or less than this threshold. \n- The number of total/newly failed tests is greater than or equal to this threshold.\nThe default threshold is 0.",
+      "helpMarkDown": "A build is considered unstable or failed when: \n- The number of total passed/executed tests is less than this threshold. \n- The number of total/newly failed tests is greater than this threshold.\nThe default threshold is 0.",
       "validation": {
         "expression": "not(gt(0, value))",
         "message": "The value must be greater than or equal to 0"
