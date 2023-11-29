@@ -120,7 +120,7 @@ export class TestResultsQualityGateService {
 
             const numOfEvaluatedTests = await this.getNumOfEvaluatedTestsByType(currentTestResults);
             let qualityGateResult = this.evaluateQualityGate(numOfEvaluatedTests);
-            // TODO: CICD-594 Display the result under extension tab
+            qualityGateResult.uploadQualityGateSummary();
         } catch(error) {
             tl.warning(`Failed to process the quality gate '${this.generateQualityGateText()}'. See logs for details.`);
             console.error(error);
@@ -280,6 +280,7 @@ export class TestResultsQualityGateService {
             } else {
                 tl.warning(`${referenceResultInfo.warningMsg} - all failed tests will be treated as new`);
             }
+            referenceResultInfo.warningMsg = referenceResultInfo.warningMsg + ' - all failed tests were treated as new';
         }
         return referenceResultInfo;
     }
@@ -321,6 +322,7 @@ export class TestResultsQualityGateService {
         let lastCompletedBuild: Build = allCompletedBuilds[0];
         const testResults: ShallowTestCaseResult[] = await this.apiClient.getTestResultsByBuildId(this.projectName, <number> lastCompletedBuild.id);
         referenceResultInfo.testResults = testResults;
+        referenceResultInfo.pipelineName = pipelineName;
         referenceResultInfo.buildId = (<number> lastCompletedBuild.id).toString();
         referenceResultInfo.buildNumber = lastCompletedBuild.buildNumber;
         tl.debug(`Set build '${pipelineName}#${lastCompletedBuild.buildNumber}' as the default reference build`);

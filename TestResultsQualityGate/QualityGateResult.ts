@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as tl from 'azure-pipelines-task-lib/task';
 import { BuildResultInfo as BuildInfo, QualityGateStatusEnum, TypeEnum } from "./TestResultsQualityGateService";
 
 export class QualityGateResult {
@@ -31,7 +32,7 @@ export class QualityGateResult {
                 numberOfEvaluatedTests: number,
                 referenceTestResultsInfo?: BuildInfo
                 ) {
-        this._displayName = displayName;
+        this._displayName = displayName;          
         this._type = type;
         this._threshold = threshold;
         this._numberOfEvaluatedTests = numberOfEvaluatedTests;
@@ -44,5 +45,59 @@ export class QualityGateResult {
 
     public set status(status : QualityGateStatusEnum) {
         this._status = status;
+    }
+
+    public uploadQualityGateSummary() : void {
+        let customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
+        let taskInstanceStorageDir = tl.resolve(customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId'));
+        tl.mkdirP(taskInstanceStorageDir);
+        let markdownPath = tl.resolve(taskInstanceStorageDir, `${this._displayName}.md`);
+        let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
+        tl.writeFile(markdownPath, summaryMarkdownContent);
+        console.log('##vso[task.uploadsummary]' + markdownPath);
+    }
+
+    private getQualityGateResultSummaryContent() : string {
+        let text = `<div>${this.getQualityGateTypeText()}: ${this._numberOfEvaluatedTests}</div>\n`;
+  
+        if (this._type == TypeEnum.NEWLY_FAILED_TESTS) {
+            let buildText = 'N/A';
+            if (this._referenceBuildInfo?.warningMsg) {
+                buildText = `<span style="font-size:13px;line-height:13px;color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildInfo?.warningMsg}`;
+            } else if (this._referenceBuildInfo?.pipelineName && this._referenceBuildInfo?.buildId) {
+                buildText = `<a href="./?buildId=${this._referenceBuildInfo?.buildId}">${this._referenceBuildInfo?.pipelineName}#${this._referenceBuildInfo?.buildNumber || this._referenceBuildInfo?.buildId}</a>`;
+            }
+            text += `<div>Reference build: ${buildText}</div>\n`;
+        }
+  
+        text += '<div>Quality gate: </div>\n' +
+                `<div style="margin-left:20px;">Status: ${this.getStatusText()}</div>\n` +
+                `<div style="margin-left:20px;">Type: ${this.getQualityGateTypeText()}</div>\n` +
+                `<div style="margin-left:20px;">Threshold: ${this._threshold.toString()}</div>`;
+        return `<div style="font-size:13px">${text}</div>`;
+    }
+  
+    private getQualityGateTypeText = () : string => {
+        switch (this._type) {
+            case TypeEnum.TOTAL_PASSED_TESTS:
+                return 'Total passed tests';
+            case TypeEnum.TOTAL_FAILED_TESTS:
+                return 'Total failed tests';
+            case TypeEnum.TOTAL_EXECUTED_TESTS:
+                return 'Total executed tests';
+            case TypeEnum.NEWLY_FAILED_TESTS:
+                return 'Newly failed tests';
+        }
+    }
+  
+    private getStatusText() : string {
+        switch (this._status) {
+            case QualityGateStatusEnum.FAILED:
+                return '<span style="color:red"><span style="font-size:13px;line-height:14px" class="icon bowtie-icon bowtie-edit-delete"></span>Failed</span>';
+            case QualityGateStatusEnum.PASSED:
+                return '<span style="color:green"><span style="font-size:13px;line-height:14px" class="icon bowtie-icon bowtie-check"></span>Passed</span>';
+            case QualityGateStatusEnum.UNSTABLE:
+                return '<span style="color:orange"><span style="font-size:13px;line-height:12px" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span>Unstable</span>';
+        }
     }
 }
