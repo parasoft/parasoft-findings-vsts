@@ -12,6 +12,7 @@ import {
     FileEntry
 } from '../../CodeCoverageQualityGate/BuildApiClient';
 import { Build, BuildResult, BuildDefinitionReference } from '../../CodeCoverageQualityGate/node_modules/azure-devops-node-api/interfaces/BuildInterfaces';
+import {QualityGateTestUtils} from "../QualityGateTestUtils";
 
 type TestSettings = {
     defaultWorkingDirectory: string
@@ -206,6 +207,10 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
     });
 
     describe('When evaluate quality gate and', () => {
+        afterAll(() => {
+            fs.rmSync(__dirname + '/ParasoftQualityGatesMD', {recursive: true});
+        });
+
         let setUpQualityGate = (currentFileEntry: any, currentBuildArtifact: any, referenceFileEntry?: any, referenceBuildArtifact?: any) => {
             let codeCoverageQualityService = createQualityGate(settings, mockWebApi);
             spyOn(codeCoverageQualityService.buildClient, 'getSpecificPipelines').and.returnValue(Promise.resolve(pipelines));
@@ -215,15 +220,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             spyOn(codeCoverageQualityService.buildClient, 'getDefaultBuildReports').and.returnValue(Promise.resolve(defaultBuildReportResults));
             return codeCoverageQualityService;
         }
-
-        let compareMarkDown = (expectedReportPath: string) => {
-            let markDownDir = __dirname + '/ParasoftQualityGatesMD/task-instance-id';
-            let markDown = fs.readFileSync(markDownDir + '/Parasoft Code Coverage Quality Gate - Display name.md', {encoding: 'utf-8'});
-            let expectedMarkDown = fs.readFileSync(expectedReportPath, {encoding: 'utf-8'});
-
-            expect(markDown).toEqual(expectedMarkDown);
-            fs.rmSync(markDownDir, {recursive: true});
-        }
+        let markDownPath = __dirname + '/ParasoftQualityGatesMD/task-instance-id/Parasoft Code Coverage Quality Gate - Display name.md';
 
         describe('set quality gate type to overall', () => {
             describe('When task process report and', () => {
@@ -233,7 +230,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate PASSED - Overall code coverage: 63.64% (28/44) - Threshold: 60%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded,  'Quality gate \'Type: Overall, Threshold: 60\' passed');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - Passed.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - Passed.md');
                 });
 
                 it('pass the quality gate without coverage, should set task successful', async () => {
@@ -245,7 +242,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate PASSED - Overall code coverage: N/A (0/0) - Threshold: 60%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded,  'Quality gate \'Type: Overall, Threshold: 60\' passed');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - No code.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - No code.md');
                 });
 
                 it('not pass the quality gate, should set task failed', async () => {
@@ -256,7 +253,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate FAILED - Overall code coverage: 63.64% (28/44) - Threshold: 90%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Failed,  'Quality gate \'Type: Overall, Threshold: 90\' failed: build result is FAILED');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - Failed.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - Failed.md');
                 });
 
                 it('not pass the quality gate, should set task unstable', async () => {
@@ -268,7 +265,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate UNSTABLE - Overall code coverage: 63.64% (28/44) - Threshold: 90%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Overall, Threshold: 90\' failed: build result is UNSTABLE');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - Unstable.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Overall project - Unstable.md');
                 });
             });
 
@@ -319,7 +316,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate PASSED - Modified code coverage: 71.43% (5/7) - Threshold: 60%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 9\' passed');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Passed.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Passed.md');
                 });
 
                 it('pass the quality gate without modified code coverage, should set task successful', async () => {
@@ -328,7 +325,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate PASSED - Modified code coverage: N/A (0/0) - Threshold: 60%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 9\' passed');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - No modified code.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - No modified code.md');
                 });
 
                 it('not pass the quality gate, should set task failed', async () => {
@@ -339,7 +336,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate FAILED - Modified code coverage: 71.43% (5/7) - Threshold: 90%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Failed,  'Quality gate \'Type: Modified, Threshold: 90, Reference pipeline: TestPipelineName, Reference build: 9\' failed: build result is FAILED');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Failed.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Failed.md');
                 });
 
                 it('not pass the quality gate, should set task unstable', async () => {
@@ -351,7 +348,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Quality Gate UNSTABLE - Modified code coverage: 71.43% (5/7) - Threshold: 90%');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 90, Reference pipeline: TestPipelineName, Reference build: 9\' failed: build result is UNSTABLE');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Unstable.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Unstable.md');
                 });
             });
 
@@ -370,7 +367,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
                     expect(tl.debug).toHaveBeenCalledWith('Set build \'TestPipelineName#9\' as the default reference build');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' passed');
-                    compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Passed.md');
+                    QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Passed.md');
                 });
 
                 it('use last successful build without Parasoft coverage results', async () => {
@@ -423,7 +420,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                 expect(tl.debug).toHaveBeenCalledWith('No reference pipeline has been set; using the current pipeline as reference.');
                 expect(tl.debug).toHaveBeenCalledWith('No reference build has been set; using the last successful build in pipeline \'TestPipelineName\' as reference.');
                 expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Modified, Threshold: 60\' passed');
-                compareMarkDown(__dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Passed.md');
+                QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Code Coverage Quality Gate - Modified code lines - Passed.md');
             });
 
             it('When specified reference pipeline is not unique', async () => {

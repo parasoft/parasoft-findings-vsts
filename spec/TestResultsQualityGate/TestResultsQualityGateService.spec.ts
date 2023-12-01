@@ -11,6 +11,7 @@ import {
     Build,
     BuildDefinitionReference
 } from "../../TestResultsQualityGate/node_modules/azure-devops-node-api/interfaces/BuildInterfaces";
+import {QualityGateTestUtils} from "../QualityGateTestUtils";
 
 type TestSettings = {
     projectName: string,
@@ -39,7 +40,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
     let getInputSpy: jasmine.Spy;
     let azDevSpy: jasmine.Spy;
 
-    let createQualityGate = (setting: TestSettings, apiSpy: any): TestResultsQualityGateService => {
+    let createQualityGateService = (setting: TestSettings, apiSpy: any): TestResultsQualityGateService => {
         getVariableSpy.and.callFake((param: string) => {
             switch (param) {
                 case 'System.TeamProject':
@@ -89,7 +90,6 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
         getInputSpy = spyOn(tl, 'getInput').and.stub();
         azDevSpy = spyOn(azdev, 'WebApi').and.stub();
 
-
         settings = {
             projectName: 'TestProject',
             pipelineName: 'PipelineName',
@@ -116,72 +116,72 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
 
     it('Setting Quality Gate thresholds', () => {
         settings.threshold = '-11';
-        let testResultsQualityService = createQualityGate(settings, mockWebApi);
+        let testResultsQualityService = createQualityGateService(settings, mockWebApi);
         expect(testResultsQualityService.threshold).toEqual(0);
         expect(tl.warning).toHaveBeenCalledWith('The threshold value \'-11\' is less than 0, the value is set to 0');
 
         settings.threshold = 'aa10';
-        testResultsQualityService = createQualityGate(settings, mockWebApi);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
         expect(testResultsQualityService.threshold).toEqual(0);
         expect(tl.warning).toHaveBeenCalledWith('Invalid threshold value \'aa10\', using default value 0');
 
         settings.threshold = '10';
-        testResultsQualityService = createQualityGate(settings, mockWebApi);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
         expect(testResultsQualityService.threshold).toEqual(10);
     });
 
     it('Setting Quality Gate type', () => {
         settings.type = 'unknown';
-        let type = createQualityGate(settings, mockWebApi);
+        let testResultsQualityService = createQualityGateService(settings, mockWebApi);
         expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'type\': unknown, using default value \'totalPassed\'');
-        expect(type.type).toEqual(TypeEnum.TOTAL_PASSED_TESTS);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_PASSED_TESTS);
 
         settings.type = 'totalPassed';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.TOTAL_PASSED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_PASSED_TESTS);
         settings.type = 'totalFailed';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.TOTAL_FAILED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_FAILED_TESTS);
         settings.type = 'totalExecuted';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.TOTAL_EXECUTED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_EXECUTED_TESTS);
         settings.type = 'newlyFailed';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.NEWLY_FAILED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.NEWLY_FAILED_TESTS);
 
         settings.type = 'TOTALPASSED';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.TOTAL_PASSED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_PASSED_TESTS);
         settings.type = 'TOTALFAILED';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.TOTAL_FAILED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_FAILED_TESTS);
         settings.type = 'TOTALEXECUTED';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.TOTAL_EXECUTED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.TOTAL_EXECUTED_TESTS);
         settings.type = 'NEWLYFAILED';
-        type = createQualityGate(settings, mockWebApi);
-        expect(type.type).toEqual(TypeEnum.NEWLY_FAILED_TESTS);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.type).toEqual(TypeEnum.NEWLY_FAILED_TESTS);
     });
 
     it('Setting Quality Gate buildStatus', () => {
         settings.buildStatus = 'unknown';
-        let unknown = createQualityGate(settings, mockWebApi);
-        expect(unknown.buildStatus).toEqual(BuildStatusEnum.FAILED);
+        let testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.buildStatus).toEqual(BuildStatusEnum.FAILED);
         expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'buildStatus\': unknown, using default value \'failed\'');
 
         settings.buildStatus = 'unstable';
-        let unstable = createQualityGate(settings, mockWebApi);
-        expect(unstable.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
         settings.buildStatus = 'failed';
-        let failed = createQualityGate(settings, mockWebApi);
-        expect(failed.buildStatus).toEqual(BuildStatusEnum.FAILED);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.buildStatus).toEqual(BuildStatusEnum.FAILED);
 
         settings.buildStatus = 'Unstable';
-        unstable = createQualityGate(settings, mockWebApi);
-        expect(unstable.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.buildStatus).toEqual(BuildStatusEnum.UNSTABLE);
         settings.buildStatus = 'Failed';
-        failed = createQualityGate(settings, mockWebApi);
-        expect(failed.buildStatus).toEqual(BuildStatusEnum.FAILED);
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.buildStatus).toEqual(BuildStatusEnum.FAILED);
     });
 
     describe('When evaluate quality gate and', () => {
@@ -191,34 +191,26 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
             currentTestResults: [],
             referenceTestResults: []
         }
-        let setUpQualityGate = (config: QualityGateTestConfig) => {
-            let qualityGateService = createQualityGate(settings, mockWebApi);
-            spyOn(qualityGateService.apiClient, 'getPipelinesByName').and.returnValue(Promise.resolve(config.pipelines));
-            spyOn(qualityGateService.apiClient, 'getBuildsOfPipelineById').and.returnValue(Promise.resolve(config.builds));
-            spyOn(qualityGateService.apiClient, 'getTestResultsByBuildId').and.returnValues(Promise.resolve(config.currentTestResults), Promise.resolve(config.referenceTestResults));
-            return qualityGateService;
-        }
-        let compareMarkDown = (expectedReportPath: string) => {
-            let markDownPath = __dirname + '/Parasoft Test Results Quality Gate - Display name.md';
-            let markDown = fs.readFileSync(markDownPath, {encoding: 'utf-8'});
-            let expectedMarkDown = fs.readFileSync(expectedReportPath, {encoding: 'utf-8'});
-
-            expect(markDown).toEqual(expectedMarkDown);
-            fs.rmSync(markDownPath, {recursive: true});
+        let setUpQualityGateService = (config: QualityGateTestConfig) => {
+            let testResultsQualityService = createQualityGateService(settings, mockWebApi);
+            spyOn(testResultsQualityService.apiClient, 'getPipelinesByName').and.returnValue(Promise.resolve(config.pipelines));
+            spyOn(testResultsQualityService.apiClient, 'getBuildsOfPipelineById').and.returnValue(Promise.resolve(config.builds));
+            spyOn(testResultsQualityService.apiClient, 'getTestResultsByBuildId').and.returnValues(Promise.resolve(config.currentTestResults), Promise.resolve(config.referenceTestResults));
+            return testResultsQualityService;
         }
 
         it("didn't run 'Publish Parasoft Results' task first, should set task unstable", async () => {
             settings.referenceBuild = undefined;
 
-            let qualityGates = setUpQualityGate(config);
-            await qualityGates.run();
+            let testResultsQualityService = setUpQualityGateService(config);
+            await testResultsQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total passed tests, Threshold: 10\' skipped; please run \'Publish Parasoft Results\' task first');
         });
 
         it('didn\'t found test results in current build, should set task unstable', async () => {
-            let qualityGates = setUpQualityGate(config);
-            await qualityGates.run();
+            let testResultsQualityGateService = setUpQualityGateService(config);
+            await testResultsQualityGateService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total passed tests, Threshold: 10\' skipped; no test results were found in this build');
         });
@@ -226,8 +218,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
         it('error happen during processing quality gate, should warning', async () => {
             settings.referenceBuild = "{"
 
-            let qualityGates = setUpQualityGate(config);
-            await qualityGates.run();
+            let testResultsQualityGateService = setUpQualityGateService(config);
+            await testResultsQualityGateService.run();
 
             expect(tl.warning).toHaveBeenCalledWith('Failed to process the quality gate \'Type: Total passed tests, Threshold: 10\'. See logs for details.');
         });
@@ -251,8 +243,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
             it('reference build is current build', async () => {
                 settings.referenceBuild = `{"originalPipelineName":"PipelineName","originalBuildNumber":"10"}`;
 
-                let qualityGates = setUpQualityGate(config);
-                await qualityGates.run();
+                let testResultsQualityGateService = setUpQualityGateService(config);
+                await testResultsQualityGateService.run();
 
                 expect(tl.warning).toHaveBeenCalledWith('Using the current build as the reference - all failed tests will be treated as new');
             });
@@ -279,8 +271,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                             buildNumber: '10'
                         }];
 
-                        let qualityGates = setUpQualityGate(config);
-                        await qualityGates.run();
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
 
                         expect(tl.debug).toHaveBeenCalledWith('No previous build was found in pipeline \'PipelineName\' - all failed tests will be treated as new');
                     });
@@ -289,11 +281,11 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         config.builds = [{
                             id: 12,
                             buildNumber: '12',
-                            result: 32
+                            result: 32 //Canceled
                         }];
 
-                        let qualityGates = setUpQualityGate(config);
-                        await qualityGates.run();
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
 
                         expect(tl.warning).toHaveBeenCalledWith('No completed reference build was found in pipeline \'PipelineName\' - all failed tests will be treated as new');
                     });
@@ -302,11 +294,11 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         config.builds = [{
                             id: 12,
                             buildNumber: '12',
-                            result: 2
+                            result: 2 //Succeeded
                         }];
 
-                        let qualityGates = setUpQualityGate(config);
-                        await qualityGates.run();
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
 
                         expect(tl.debug).toHaveBeenCalledWith("Set build 'PipelineName#12' as the default reference build");
                     });
@@ -319,18 +311,18 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
 
                     it('reference build is not unique', async () => {
                         config.builds = [{
-                            id: 12,
-                            buildNumber: '12',
-                            result: 2
-                        },
+                                id: 12,
+                                buildNumber: '12',
+                                result: 2 //Succeeded
+                            },
                             {
                                 id: 13,
                                 buildNumber: '12',
-                                result: 2
+                                result: 2 //Succeeded
                             }];
 
-                        let qualityGates = setUpQualityGate(config);
-                        await qualityGates.run();
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
 
                         expect(tl.warning).toHaveBeenCalledWith('The specified reference build \'PipelineName#12\' is not unique - all failed tests will be treated as new');
                     });
@@ -338,8 +330,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     it('reference build not exist', async () => {
                         config.builds = [];
 
-                        let qualityGates = setUpQualityGate(config);
-                        await qualityGates.run();
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
 
                         expect(tl.warning).toHaveBeenCalledWith('The specified reference build \'PipelineName#12\' could not be found - all failed tests will be treated as new');
                     });
@@ -348,13 +340,13 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         config.builds = [{
                             id: 12,
                             buildNumber: '12',
-                            result: 2
+                            result: 2 //Succeeded
                         }];
 
-                        let qualityGates = setUpQualityGate(config);
-                        await qualityGates.run();
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
 
-                        expect(qualityGates.apiClient.getTestResultsByBuildId).toHaveBeenCalledWith(settings.projectName, <number>config.builds[0].id);
+                        expect(testResultsQualityGateService.apiClient.getTestResultsByBuildId).toHaveBeenCalledWith(settings.projectName, <number>config.builds[0].id);
                     });
                 });
             });
@@ -369,8 +361,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         name: 'TestPipelineName'
                     }];
 
-                    let qualityGates = setUpQualityGate(config);
-                    await qualityGates.run();
+                    let testResultsQualityGateService = setUpQualityGateService(config);
+                    await testResultsQualityGateService.run();
 
                     expect(tl.warning).toHaveBeenCalledWith('The specified reference pipeline \'TestPipelineName\' is not unique - all failed tests will be treated as new');
                 });
@@ -378,8 +370,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                 it('reference pipeline is not exist', async () => {
                     config.pipelines = [];
 
-                    let qualityGates = setUpQualityGate(config);
-                    await qualityGates.run();
+                    let testResultsQualityGateService = setUpQualityGateService(config);
+                    await testResultsQualityGateService.run();
 
                     expect(tl.warning).toHaveBeenCalledWith('The specified reference pipeline \'TestPipelineName\' could not be found - all failed tests will be treated as new');
                 });
@@ -387,6 +379,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
         });
 
         describe('process quality gate success when', () => {
+            let markDownPath = __dirname + '/Parasoft Test Results Quality Gate - Display name.md';
+
             it('quality gate type is totalPassed and quality gate passed', async () => {
                 settings.type = 'totalPassed';
                 settings.threshold = '1';
@@ -397,11 +391,10 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     outcome: 'Passed'
                 }];
 
-                let qualityGates = setUpQualityGate(config);
-                await qualityGates.run();
+                let testResultsQualityGateService = setUpQualityGateService(config);
+                await testResultsQualityGateService.run();
 
-                compareMarkDown(__dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalPassed-passed.md');
-
+                QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalPassed-passed.md');
             });
 
             it('quality gate type is totalFailed and quality gate failed', async () => {
@@ -414,10 +407,10 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     outcome: 'Failed'
                 }];
 
-                let qualityGates = setUpQualityGate(config);
-                await qualityGates.run();
+                let testResultsQualityGateService = setUpQualityGateService(config);
+                await testResultsQualityGateService.run();
 
-                compareMarkDown(__dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalFailed-failed.md');
+                QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalFailed-failed.md');
             });
 
             it('quality gate type is totalExecuted and unstable', async () => {
@@ -431,10 +424,10 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     outcome: 'Failed'
                 }];
 
-                let qualityGates = setUpQualityGate(config);
-                await qualityGates.run();
+                let testResultsQualityGateService = setUpQualityGateService(config);
+                await testResultsQualityGateService.run();
 
-                compareMarkDown(__dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalExecuted-unstable.md');
+                QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalExecuted-unstable.md');
             });
 
             it('quality gate type is newly failed and passed', async () => {
@@ -446,7 +439,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                 config.builds = [{
                     id: 12,
                     buildNumber: '260',
-                    result: 2
+                    result: 2 // Succeeded
                 }];
                 config.currentTestResults = [{
                     id: 1,
@@ -473,10 +466,10 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     }];
                 settings.threshold = '2';
 
-                let qualityGates = setUpQualityGate(config);
-                await qualityGates.run();
+                let testResultsQualityGateService = setUpQualityGateService(config);
+                await testResultsQualityGateService.run();
 
-                compareMarkDown(__dirname + '/resources/expect/Parasoft Test Results Quality Gate - newlyFailed-passed.md');
+                QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Test Results Quality Gate - newlyFailed-passed.md');
             });
         });
     });

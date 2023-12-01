@@ -8,6 +8,7 @@ import {
 } from "../../StaticAnalysisQualityGate/StaticAnalysisQualityService";
 import {FileEntry} from "../../StaticAnalysisQualityGate/BuildApiClient";
 import * as fs from "fs";
+import {QualityGateTestUtils} from "../QualityGateTestUtils";
 
 
 type TestSettings = {
@@ -250,6 +251,10 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
     });
 
     describe('When task process report and', () => {
+        afterAll(() => {
+            fs.rmSync(__dirname + '/ParasoftQualityGatesMD', {recursive: true});
+        });
+
         let setUpQualityGate = () => {
             let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
             spyOn(staticAnalysisQualityService.buildClient, 'getBuildArtifact').and.returnValue(Promise.resolve({}));
@@ -257,14 +262,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             return staticAnalysisQualityService;
         }
 
-        let compareMarkDown = (expectedReportPath: string) => {
-            let markDownDir = __dirname + '/ParasoftQualityGatesMD/task-instance-id';
-            let markDown = fs.readFileSync(markDownDir + '/Parasoft Static Analysis Quality Gate - Display name.md', {encoding: 'utf-8'});
-            let expectedMarkDown = fs.readFileSync(expectedReportPath, {encoding: 'utf-8'});
-
-            expect(markDown).toEqual(expectedMarkDown);
-            fs.rmSync(markDownDir, {recursive: true});
-        }
+        let markDownPath = __dirname + '/ParasoftQualityGatesMD/task-instance-id/Parasoft Static Analysis Quality Gate - Display name.md'
 
         it('pass the gate -- Total Issues, should set task success', async () => {
             settings.threshold = '10000000';
@@ -273,7 +271,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             await staticAnalysisQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Total, Severity: All, Threshold: 10000000\' passed');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Issues - 10000000.md.md');
+            QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Issues - 10000000.md.md');
         });
 
         it('pass the gate -- Total Notes, should set task success', async () => {
@@ -284,7 +282,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             await staticAnalysisQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: Total, Severity: Note, Threshold: 0\' passed');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Notes - 0.md');
+            QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Notes - 0.md');
         });
 
         it('pass the gate -- New Errors, should set task success', async () => {
@@ -296,7 +294,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             await staticAnalysisQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: New, Severity: Error, Threshold: 10000000, Reference pipeline: TestPipelineName, Reference build: 260\' passed');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Errors - 10000000.md');
+            QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Errors - 10000000.md');
         });
 
         it('pass the gate -- New Errors and without warning message, should set task success', async () => {
@@ -309,7 +307,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             await staticAnalysisQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'Quality gate \'Type: New, Severity: Error, Threshold: 10000000, Reference pipeline: TestPipelineName, Reference build: 260\' passed');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Errors - 10000000 Without Warning message.md');
+            QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - New Errors - 10000000 Without Warning message.md');
         });
 
         it('not pass the gate -- Total Warnings, should set task unstable', async () => {
@@ -321,15 +319,10 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             await staticAnalysisQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Total, Severity: Warning, Threshold: 0\' failed: build result is UNSTABLE');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Warnings - 0.md');
+            QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Warnings - 0.md');
         });
 
         it('not pass the gate -- Total Errors, should set task failed', async () => {
-            // Should clean storage before generating markdown
-            let mdDirPath = __dirname + '/ParasoftQualityGatesMD/task-instance-id';
-            fs.mkdirSync(mdDirPath);
-            fs.writeFileSync(mdDirPath + '/temp.md', 'test');
-
             settings.threshold = '0';
             settings.severity = 'Error';
             settings.buildStatus = 'Failed';
@@ -338,7 +331,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             await staticAnalysisQualityService.run();
 
             expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.Failed, 'Quality gate \'Type: Total, Severity: Error, Threshold: 0\' failed: build result is FAILED');
-            compareMarkDown(__dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Errors - 0.md');
+            QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Static Analysis Quality Gate - Total Errors - 0.md');
         });
     });
 });
