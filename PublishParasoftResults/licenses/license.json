@@ -376,5 +376,25 @@
     "xslt3@2.6.0": {
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
+    },
+
+    "jline@2.14.6": {
+        "licenses": "The 2-Clause BSD License",
+        "publisher": "the original author or authors",
+        "repository": "https://github.com/jline/jline2"
+    },
+    "reportGenerator@5.1.21": {
+        "licenses": "Apache License, Version 2.0",
+        "repository": "https://github.com/danielpalme/ReportGenerator"
+    },
+    "saxon-he@12.2": {
+        "licenses": "Mozilla Public License Version 2.0",
+        "publisher": "Saxonica",
+        "repository": "https://github.com/Saxonica/Saxon-HE"
+    },
+    "xmlresolver@5.1.2": {
+        "licenses": "Apache License, Version 2.0",
+        "publisher": "Norman Walsh and contributors",
+        "repository": "https://github.com/xmlresolver/xmlresolver"
     }
 }
