@@ -288,14 +288,14 @@ export class TestResultsQualityGateService {
     private getBuildResultByPipelineId = async (pipelineId: number, pipelineName: string): Promise<BuildResultInfo> => {
         const buildsOfPipeline = await this.apiClient.getBuildsOfPipelineById(this.projectName, pipelineId);
         if (!this.referenceBuildInputs.buildNumber) { // Reference build is not specified
-            tl.debug(`No reference build has been set; using the last completed build in pipeline '${pipelineName}' as reference.`);
-            return this.getResultOfLastCompletedBuild(pipelineName, buildsOfPipeline);
+            tl.debug(`No reference build has been set; using the last successful build in pipeline '${pipelineName}' as reference.`);
+            return this.getResultOfLastSuccessfulBuild(pipelineName, buildsOfPipeline);
         } else { // Reference build is specified
             return this.getResultOfSpecifiedBuild(pipelineName, buildsOfPipeline);
         }
     }
 
-    private async getResultOfLastCompletedBuild(pipelineName: string, buildsOfPipeline: Build[]): Promise<BuildResultInfo> {
+    private async getResultOfLastSuccessfulBuild(pipelineName: string, buildsOfPipeline: Build[]): Promise<BuildResultInfo> {
         const referenceResultInfo: BuildResultInfo = {
             testResults: [],
             pipelineName: undefined,
@@ -311,21 +311,32 @@ export class TestResultsQualityGateService {
             return referenceResultInfo;
         }
 
-        const allCompletedBuilds = buildsOfPipeline.filter(build => {
-            return build.result != undefined && build.result != BuildResult.Canceled && build.result != BuildResult.None;
+        const allSuccessfulBuilds = buildsOfPipeline.filter(build => {
+            return build.result == BuildResult.Succeeded;
         });
-        if (allCompletedBuilds.length <= 0) {
-            referenceResultInfo.warningMsg = `No completed reference build was found in pipeline '${pipelineName}'`;
+        if (allSuccessfulBuilds.length <= 0) {
+            referenceResultInfo.warningMsg = `No successful reference build was found in pipeline '${pipelineName}'`;
             return referenceResultInfo;
         }
 
-        let lastCompletedBuild: Build = allCompletedBuilds[0];
-        const testResults: ShallowTestCaseResult[] = await this.apiClient.getTestResultsByBuildId(this.projectName, <number> lastCompletedBuild.id);
+        let lastSuccessfulBuild: Build = {};
+        let testResults: ShallowTestCaseResult[] = [];
+        for (const successfulBuild of allSuccessfulBuilds) {
+            testResults =  await this.apiClient.getTestResultsByBuildId(this.projectName, <number> successfulBuild.id);
+            if (testResults.length > 0) {
+                lastSuccessfulBuild = successfulBuild;
+                break;
+            }
+        }
+        if (testResults.length == 0) {
+            referenceResultInfo.warningMsg = `No test results were found in any of the previous successful builds in pipeline '${pipelineName}'`;
+            return referenceResultInfo;
+        }
         referenceResultInfo.testResults = testResults;
         referenceResultInfo.pipelineName = pipelineName;
-        referenceResultInfo.buildId = (<number> lastCompletedBuild.id).toString();
-        referenceResultInfo.buildNumber = lastCompletedBuild.buildNumber;
-        tl.debug(`Set build '${pipelineName}#${lastCompletedBuild.buildNumber}' as the default reference build`);
+        referenceResultInfo.buildId = (<number> lastSuccessfulBuild.id).toString();
+        referenceResultInfo.buildNumber = lastSuccessfulBuild.buildNumber;
+        tl.debug(`Set build '${pipelineName}#${lastSuccessfulBuild.buildNumber}' as the default reference build`);
         return referenceResultInfo;
     }
 
@@ -352,6 +363,10 @@ export class TestResultsQualityGateService {
         const referenceBuild = referenceBuilds[0];
         // Check for the test results exist in the specific reference build
         const testResults = await this.apiClient.getTestResultsByBuildId(this.projectName, <number> referenceBuild.id);
+        if (testResults.length == 0) {
+            referenceResultInfo.warningMsg = `No test results were found in the specified reference build: '${pipelineName}#${this.referenceBuildInputs.buildNumber}'`;
+            return referenceResultInfo;
+        }
         referenceResultInfo.testResults = testResults;
         referenceResultInfo.pipelineName = pipelineName;
         referenceResultInfo.buildId = (<number> referenceBuild.id).toString();

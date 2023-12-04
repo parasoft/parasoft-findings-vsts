@@ -261,8 +261,8 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     });
 
                     afterEach(() => {
-                        // When reference build is specified should using the last completed build
-                        expect(tl.debug).toHaveBeenCalledWith('No reference build has been set; using the last completed build in pipeline \'PipelineName\' as reference.');
+                        // When reference build is specified should using the last successful build
+                        expect(tl.debug).toHaveBeenCalledWith('No reference build has been set; using the last successful build in pipeline \'PipelineName\' as reference.');
                     });
 
                     it('only one build exists and it happens to be the current build', async () => {
@@ -277,7 +277,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         expect(tl.debug).toHaveBeenCalledWith('No previous build was found in pipeline \'PipelineName\' - all failed tests will be treated as new');
                     });
 
-                    it('found no completed builds', async () => {
+                    it('found no successful builds', async () => {
                         config.builds = [{
                             id: 12,
                             buildNumber: '12',
@@ -287,10 +287,10 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         let testResultsQualityGateService = setUpQualityGateService(config);
                         await testResultsQualityGateService.run();
 
-                        expect(tl.warning).toHaveBeenCalledWith('No completed reference build was found in pipeline \'PipelineName\' - all failed tests will be treated as new');
+                        expect(tl.warning).toHaveBeenCalledWith('No successful reference build was found in pipeline \'PipelineName\' - all failed tests will be treated as new');
                     });
 
-                    it('found completed builds', async () => {
+                    it('found successful builds without test results', async () => {
                         config.builds = [{
                             id: 12,
                             buildNumber: '12',
@@ -300,7 +300,27 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         let testResultsQualityGateService = setUpQualityGateService(config);
                         await testResultsQualityGateService.run();
 
-                        expect(tl.debug).toHaveBeenCalledWith("Set build 'PipelineName#12' as the default reference build");
+                        expect(tl.warning).toHaveBeenCalledWith('No test results were found in any of the previous successful builds in pipeline \'PipelineName\' - all failed tests will be treated as new');
+                    });
+
+                    it('found successful builds with test results', async () => {
+                        config.builds = [{
+                            id: 12,
+                            buildNumber: '12',
+                            result: 2 //Succeeded
+                        }];
+
+                        config.referenceTestResults = [{
+                            id: 1,
+                            runId: 1,
+                            refId: 1,
+                            outcome: 'Passed'
+                        }];
+
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
+
+                        expect(tl.debug).toHaveBeenCalledWith('Set build \'PipelineName#12\' as the default reference build');
                     });
                 });
 
@@ -336,7 +356,21 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         expect(tl.warning).toHaveBeenCalledWith('The specified reference build \'PipelineName#12\' could not be found - all failed tests will be treated as new');
                     });
 
-                    it('reference build exist', async () => {
+                    it('reference build with test results not exist', async () => {
+                        config.builds = [{
+                            id: 12,
+                            buildNumber: '12',
+                            result: 2 //Succeeded
+                        }];
+                        config.referenceTestResults = [];
+
+                        let testResultsQualityGateService = setUpQualityGateService(config);
+                        await testResultsQualityGateService.run();
+
+                        expect(tl.warning).toHaveBeenCalledWith('No test results were found in the specified reference build: \'PipelineName#12\' - all failed tests will be treated as new')
+                    });
+
+                    it('reference build with test results exist', async () => {
                         config.builds = [{
                             id: 12,
                             buildNumber: '12',
@@ -457,13 +491,12 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     runId: 1,
                     refId: 1,
                     outcome: 'Passed'
-                },
-                    {
-                        id: 2,
-                        runId: 1,
-                        refId: 2,
-                        outcome: 'Failed'
-                    }];
+                }, {
+                    id: 2,
+                    runId: 1,
+                    refId: 2,
+                    outcome: 'Failed'
+                }];
                 settings.threshold = '2';
 
                 let testResultsQualityGateService = setUpQualityGateService(config);
