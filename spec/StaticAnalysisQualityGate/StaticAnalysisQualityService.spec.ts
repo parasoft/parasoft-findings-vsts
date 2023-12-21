@@ -95,7 +95,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             buildStatus: 'Failed',
             threshold: '10',
             taskInstanceId: 'task-instance-id',
-            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260","warningMessage":"any warning messages when getting Parasoft static analysis reports from reference build"}}'
+            referenceBuildResult: '{"referencePipelineInput":"TestPipelineName","referenceBuildInput":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260","warningMessage":"any warning messages when getting Parasoft static analysis reports from reference build"}}'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
@@ -107,9 +107,6 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         fakeFileEntry = [{
             name: 'report-pf-sast.sarif',
-            artifactName: 'CodeAnalysisLogs',
-            filePath: 'report-pf-sast.sarif',
-            buildId: 260,
             contentsPromise: Promise.resolve(fs.readFileSync(__dirname + '/resources/report-pf-sast.sarif', {encoding: "utf-8"}))
         }];
     });
@@ -219,22 +216,22 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
     it('When reference build result is not empty, Quality Gate should parse result', async () => {
         let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
-        spyOn(staticAnalysisQualityService.buildClient, 'getBuildArtifact').and.returnValue(Promise.reject());
+        spyOn(staticAnalysisQualityService.buildClient, 'getSarifArtifactOfBuildById').and.returnValue(Promise.reject());
 
         await staticAnalysisQualityService.run();
 
-        expect(staticAnalysisQualityService.originalReferencePipelineName).toEqual('TestPipelineName');
-        expect(staticAnalysisQualityService.originalReferenceBuildNumber).toEqual('260');
-        expect(staticAnalysisQualityService.referenceBuildNumber).toEqual('260');
-        expect(staticAnalysisQualityService.referenceBuildId).toBe('260');
-        expect(staticAnalysisQualityService.referenceBuildWarningMessage).toEqual('any warning messages when getting Parasoft static analysis reports from reference build');
+        expect(staticAnalysisQualityService.referenceInputs.pipelineName).toEqual('TestPipelineName');
+        expect(staticAnalysisQualityService.referenceInputs.buildNumber).toEqual('260');
+        expect(staticAnalysisQualityService.referenceBuildInfo.buildNumber).toEqual('260');
+        expect(staticAnalysisQualityService.referenceBuildInfo.buildId).toBe('260');
+        expect(staticAnalysisQualityService.referenceBuildInfo.warningMsg).toEqual('any warning messages when getting Parasoft static analysis reports from reference build');
         expect(tl.debug).toHaveBeenCalledWith('any warning messages when getting Parasoft static analysis reports from reference build');
     });
 
     it('When No Build Artifact was found, should print warning message', async () => {
         let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
         // @ts-ignore
-        spyOn(staticAnalysisQualityService.buildClient, 'getBuildArtifact').and.returnValue(Promise.resolve(undefined));
+        spyOn(staticAnalysisQualityService.buildClient, 'getSarifArtifactOfBuildById').and.returnValue(Promise.resolve(undefined));
 
         await staticAnalysisQualityService.run();
 
@@ -243,7 +240,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
     it('When Quality Gate failed, should handle error', async () => {
         let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
-        spyOn(staticAnalysisQualityService.buildClient, 'getBuildArtifact').and.throwError(new Error('Error'));
+        spyOn(staticAnalysisQualityService.buildClient, 'getSarifArtifactOfBuildById').and.throwError(new Error('Error'));
 
         await staticAnalysisQualityService.run();
 
@@ -257,8 +254,8 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
 
         let setUpQualityGate = () => {
             let staticAnalysisQualityService = createQualityGate(settings, mockWebApi);
-            spyOn(staticAnalysisQualityService.buildClient, 'getBuildArtifact').and.returnValue(Promise.resolve({}));
-            spyOn(staticAnalysisQualityService.buildClient, 'getBuildReportsWithId').and.returnValue(Promise.resolve(fakeFileEntry));
+            spyOn(staticAnalysisQualityService.buildClient, 'getSarifArtifactOfBuildById').and.returnValue(Promise.resolve({}));
+            spyOn(staticAnalysisQualityService.buildClient, 'getSarifReportsOfArtifact').and.returnValue(Promise.resolve(fakeFileEntry));
             return staticAnalysisQualityService;
         }
 
@@ -301,7 +298,7 @@ describe('Parasoft Findings Static Analysis Quality Gate', () => {
             settings.threshold = '10000000';
             settings.type = 'New';
             settings.severity = 'Error';
-            settings.referenceBuildResult = '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260"}}';
+            settings.referenceBuildResult = '{"referencePipelineInput":"TestPipelineName","referenceBuildInput":"260","staticAnalysis":{"pipelineName":"TestPipelineName","buildId":"260","buildNumber":"260"}}';
             let staticAnalysisQualityService = setUpQualityGate();
 
             await staticAnalysisQualityService.run();

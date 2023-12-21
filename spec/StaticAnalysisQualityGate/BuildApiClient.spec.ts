@@ -1,5 +1,5 @@
 import * as azdev from '../../StaticAnalysisQualityGate/node_modules/azure-devops-node-api';
-import {BuildAPIClient, FileSuffixEnum} from "../../StaticAnalysisQualityGate/BuildApiClient";
+import { BuildAPIClient } from "../../StaticAnalysisQualityGate/BuildApiClient";
 import * as tl from '../../StaticAnalysisQualityGate/node_modules/azure-pipelines-task-lib';
 import * as JSZip from '../../StaticAnalysisQualityGate/node_modules/jszip';
 
@@ -18,7 +18,7 @@ describe('Test Builds API Client for Static Analysis Quality Gate', () => {
         spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
     });
 
-    it('getBuildArtifact()', async () => {
+    it('getSarifArtifactOfBuildById()', async () => {
         const exceptedResult: any[] = [{
             id: 1,
             name: 'CodeAnalysisLogs'
@@ -26,11 +26,11 @@ describe('Test Builds API Client for Static Analysis Quality Gate', () => {
         mockWebApi().getBuildApi().getArtifact.and.returnValue(Promise.resolve(exceptedResult));
         buildClient = new BuildAPIClient();
 
-        const result = await buildClient.getBuildArtifact('test-project', 1, 'CodeAnalysisLogs');
+        const result = await buildClient.getSarifArtifactOfBuildById('test-project', 1);
         expect(result).toEqual(exceptedResult);
     });
 
-    it('getBuildReportsWithId()', async () => {
+    it('getSarifReportsOfArtifact()', async () => {
         buildClient = new BuildAPIClient();
 
         const mockArtifact = {
@@ -62,21 +62,15 @@ describe('Test Builds API Client for Static Analysis Quality Gate', () => {
         };
         const expectedResult: any[] = [{
             name: "report1-sarif-pf-sast.sarif",
-            artifactName: "CodeAnalysisLogs",
-            filePath: "report1-sarif-pf-sast.sarif",
-            buildId: 1,
             contentsPromise: 'report_1_content_promise_resolved'
         }, {
             name: "report2-sarif-pf-sast.sarif",
-            artifactName: "CodeAnalysisLogs",
-            filePath: "report2-sarif-pf-sast.sarif",
-            buildId: 1,
             contentsPromise: 'report_2_content_promise_resolved'
         }];
         spyOn(buildClient, 'getArtifactContentZip').and.returnValue(new ArrayBuffer(0));
         spyOn(JSZip, 'loadAsync').and.returnValue(Promise.resolve(mockZip));
 
-        const result = await buildClient.getBuildReportsWithId(mockArtifact, 1, FileSuffixEnum.SARIF_SUFFIX);
+        const result = await buildClient.getSarifReportsOfArtifact(mockArtifact, 1);
         expect(result).toEqual(expectedResult);
         expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
         expect(JSZip.loadAsync).toHaveBeenCalled();

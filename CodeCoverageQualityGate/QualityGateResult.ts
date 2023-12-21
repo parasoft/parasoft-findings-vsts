@@ -14,43 +14,36 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
-import { QualityGateStatusEnum, TypeEnum } from "./CodeCoverageQualityService";
+import { TypeEnum, ReferenceBuildInfo, CoverageInfo } from "./CodeCoverageQualityService";
+
+export enum QualityGateStatusEnum {
+    PASSED = "PASSED",
+    UNSTABLE = "UNSTABLE",
+    FAILED = "FAILED"
+}
 
 export class QualityGateResult {
     private _displayName: string;
-    private _referencePipelineName: string;
-    private _referenceBuildNumber: string;
-    private _referenceBuildId: string;
+    private _referenceBuildInfo: ReferenceBuildInfo;
     private _type: TypeEnum;
     private _threshold: number;
-    private _storageDir: string;
 
     private _status: QualityGateStatusEnum = QualityGateStatusEnum.FAILED;
-    private _coverableLines: number;
-    private _coveredLines: number;
+    private _coverageInfo: CoverageInfo;
     private _codeCoverage: string = 'N/A';
 
     constructor(displayName: string,
-                coverableLines: number,
-                coveredLines: number,
-                referencePipelineName: string,
-                referenceBuildNumber: string,
-                referenceBuildId: string,
+                coverageInfo: CoverageInfo,
+                referenceBuildInfo: ReferenceBuildInfo,
                 type: TypeEnum,
-                threshold: number,
-                storageDir: string) {
+                threshold: number) {
         this._displayName = displayName;
-        this._referencePipelineName = referencePipelineName;
-        this._referenceBuildNumber = referenceBuildNumber;
-        this._referenceBuildId = referenceBuildId;
+        this._referenceBuildInfo = referenceBuildInfo;
         this._type = type;
         this._threshold = threshold;
-        this._storageDir = storageDir;
-
-        this._coverableLines = coverableLines;
-        this._coveredLines = coveredLines;
-        if (coverableLines != 0) {
-            this._codeCoverage = ((coveredLines/coverableLines) * 100).toFixed(2) + '%';
+        this._coverageInfo = coverageInfo;
+        if (coverageInfo.coverableLines != 0) {
+            this._codeCoverage = ((coverageInfo.coveredLines/coverageInfo.coverableLines) * 100).toFixed(2) + '%';
         }
     }
 
@@ -64,10 +57,6 @@ export class QualityGateResult {
 
     public get codeCoverage() {
         return this._codeCoverage;
-    }
-
-    public set codeCoverage(codeCoverage: string) {
-        this._codeCoverage = codeCoverage;
     }
 
     public getStatusText() : string {
@@ -84,7 +73,7 @@ export class QualityGateResult {
     public getCodeCoverageText() : string {
         let coverageText = `${this._type}  code coverage: `;
         if (this._codeCoverage != 'N/A') {
-            coverageText += `${this._codeCoverage} (${this._coveredLines}/${this._coverableLines})`;
+            coverageText += `${this._codeCoverage} (${this._coverageInfo.coveredLines}/${this._coverageInfo.coverableLines})`;
         } else {
             if (this._type == TypeEnum.MODIFIED) {
                 coverageText += `${this._codeCoverage} (no modified code)`;
@@ -100,16 +89,20 @@ export class QualityGateResult {
             case TypeEnum.OVERALL:
                 return 'Overall project';
             case TypeEnum.MODIFIED:
-                return 'Modified code lines'
+                return 'Modified code lines';
+            default:
+                return 'Unknown';
         }
     }
 
     public uploadQualityGateSummary() : void {
-      tl.mkdirP(this._storageDir);
-      let markdownPath = tl.resolve(this._storageDir, `${this._displayName}.md`);
-      let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
-      tl.writeFile(markdownPath, summaryMarkdownContent);
-      console.log('##vso[task.uploadsummary]' + markdownPath);
+        let customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
+        let taskInstanceStorageDir = tl.resolve(customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId'))
+        tl.mkdirP(taskInstanceStorageDir);
+        let markdownPath = tl.resolve(taskInstanceStorageDir, `${this._displayName}.md`);
+        let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
+        tl.writeFile(markdownPath, summaryMarkdownContent);
+        console.log('##vso[task.uploadsummary]' + markdownPath);
     }
 
     private getQualityGateResultSummaryContent(): string {
@@ -117,8 +110,8 @@ export class QualityGateResult {
 
         if (this._type == TypeEnum.MODIFIED) {
             let buildText = 'N/A';
-            if (this._referencePipelineName && this._referenceBuildId) {
-                buildText = `<a href="./?buildId=${this._referenceBuildId}">${this._referencePipelineName}#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
+            if (this._referenceBuildInfo.pipelineName && this._referenceBuildInfo.buildId) {
+                buildText = `<a href="./?buildId=${this._referenceBuildInfo.buildId}">${this._referenceBuildInfo.pipelineName}#${this._referenceBuildInfo.buildNumber || this._referenceBuildInfo.buildId}</a>`;
             }
             text += `<div>Reference build: ${buildText}</div>\n`;
         }
