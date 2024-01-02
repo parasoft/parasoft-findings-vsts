@@ -15,7 +15,13 @@
  */
 
 import * as tl from 'azure-pipelines-task-lib/task';
-import { BuildResultInfo as BuildInfo, QualityGateStatusEnum, TypeEnum } from "./TestResultsQualityGateService";
+import { BuildResultInfo as BuildInfo, TypeEnum } from "./TestResultsQualityService";
+
+export enum QualityGateStatusEnum {
+    PASSED = "PASSED",
+    UNSTABLE = "UNSTABLE",
+    FAILED = "FAILED"
+}
 
 export class QualityGateResult {
     private _displayName: string;

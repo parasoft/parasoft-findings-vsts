@@ -14,40 +14,34 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
-import { QualityGateStatusEnum, SeverityEnum, TypeEnum } from "./StaticAnalysisQualityService";
+import { SeverityEnum, TypeEnum, ReferenceBuildInfo } from "./StaticAnalysisQualityService";
+
+export enum QualityGateStatusEnum {
+  PASSED = "PASSED",
+  UNSTABLE = "UNSTABLE",
+  FAILED = "FAILED"
+}
 
 export class QualityGateResult {
     private _displayName: string;
-    private _referencePipelineName: string;
-    private _referenceBuildNumber: string;
-    private _referenceBuildId: string;
-    private _referenceBuildWarning: string;
+    private _referenceBuildInfo: ReferenceBuildInfo;
     private _type: TypeEnum;
     private _severity: SeverityEnum;
     private _threshold: number;
-    private _storageDir: string;
 
     private _status: QualityGateStatusEnum = QualityGateStatusEnum.FAILED;
     private _actualNumberOfIssues: number = 0;
 
     constructor(displayName: string,
-                referencePipelineName: string,
-                referenceBuildNumber: string,
-                referenceBuildId: string,
-                referenceBuildWarning: string,
+                referenceBuildInfo: ReferenceBuildInfo,
                 type: TypeEnum,
                 severity: SeverityEnum,
-                threshold: number,
-                storageDir: string) {
+                threshold: number) {
       this._displayName = displayName;
-      this._referencePipelineName = referencePipelineName;
-      this._referenceBuildNumber = referenceBuildNumber;
-      this._referenceBuildId = referenceBuildId;
-      this._referenceBuildWarning = referenceBuildWarning;
+      this._referenceBuildInfo = referenceBuildInfo;
       this._type = type;
       this._severity = severity;
       this._threshold = threshold;
-      this._storageDir = storageDir;
     }
 
     public get status() : QualityGateStatusEnum {
@@ -102,8 +96,10 @@ export class QualityGateResult {
     }
 
     public uploadQualityGateSummary() : void {
-      tl.mkdirP(this._storageDir);
-      let markdownPath = tl.resolve(this._storageDir, `${this._displayName}.md`);
+      let customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
+      let taskInstanceStorageDir = tl.resolve(customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId'));
+      tl.mkdirP(taskInstanceStorageDir);
+      let markdownPath = tl.resolve(taskInstanceStorageDir, `${this._displayName}.md`);
       let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
       tl.writeFile(markdownPath, summaryMarkdownContent);
       console.log('##vso[task.uploadsummary]' + markdownPath);
@@ -114,10 +110,10 @@ export class QualityGateResult {
 
       if (this._type == TypeEnum.NEW) {
           let buildText = 'N/A';
-          if (this._referenceBuildWarning == '' && this._referencePipelineName && this._referenceBuildId) {
-              buildText = `<a href="./?buildId=${this._referenceBuildId}">${this._referencePipelineName}#${this._referenceBuildNumber || this._referenceBuildId}</a>`;
-          } else if (this._referenceBuildWarning != '') {
-              buildText = `<span style="font-size:13px;line-height:13px;color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildWarning}`;
+          if (this._referenceBuildInfo.warningMsg) {
+            buildText = `<span style="font-size:13px;line-height:13px;color:orange" class="icon build-issue-icon bowtie-icon bowtie-status-warning"></span> ${this._referenceBuildInfo.warningMsg}`;
+          } else if (this._referenceBuildInfo.pipelineName && this._referenceBuildInfo.buildId) {
+            buildText = `<a href="./?buildId=${this._referenceBuildInfo.buildId}">${this._referenceBuildInfo.pipelineName}#${this._referenceBuildInfo.buildId || this._referenceBuildInfo.buildId}</a>`;
           }
           text += `<div>Reference build: ${buildText}</div>\n`;
       }

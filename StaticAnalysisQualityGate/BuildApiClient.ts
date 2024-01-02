@@ -20,24 +20,22 @@ import { BuildArtifact} from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import * as JSZip from 'jszip';
 import fetch, { Headers, RequestInit } from 'node-fetch';
 
+const SARIF_FILE_SUFFIX = "-pf-sast.sarif";
+const SARIF_ARTIFACT_NAME = "CodeAnalysisLogs";
+
 export interface FileEntry {
     name: string,
-    artifactName: string,
-    filePath: string,
-    buildId: number,
     contentsPromise: Promise<string>
-}
-
-export enum FileSuffixEnum {
-    SARIF_SUFFIX = "-pf-sast.sarif",
-    // COBERTURA_SUFFIX = "-cobertura.xml"
 }
 
 export class BuildAPIClient {
     private readonly accessToken: string;
     private readonly buildApi: Promise<BuildApi.IBuildApi>;
+    private readonly projectName: string;
 
     constructor() {
+        this.projectName = tl.getVariable('System.TeamProject') || '';
+
         let orgUrl = tl.getVariable('System.TeamFoundationCollectionUri') || '';
         let auth = tl.getEndpointAuthorization('SystemVssConnection', false);
         this.accessToken = auth?.parameters['AccessToken'] || '';
@@ -46,32 +44,20 @@ export class BuildAPIClient {
         this.buildApi = connection.getBuildApi();
     }
 
-    async getBuildArtifact(
-        projectName: string,
-        buildId: number,
-        artifactName: string
-        ): Promise<BuildArtifact> {
-
-        return (await this.buildApi).getArtifact(projectName, buildId, artifactName);
+    async getSarifArtifactOfBuildById(buildId: number): Promise<BuildArtifact> {
+        return (await this.buildApi).getArtifact(this.projectName, buildId, SARIF_ARTIFACT_NAME);
     }
 
-    async getBuildReportsWithId(
-        artifact: BuildArtifact,
-        buildId: number,
-        fileSuffix: FileSuffixEnum
-        ): Promise<FileEntry[]> {
+    async getSarifReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
         const requestUrl = artifact.resource?.downloadUrl || '';
         const arrayBuffer = await this.getArtifactContentZip(requestUrl);
         if (arrayBuffer) {
             const zip = JSZip.loadAsync(arrayBuffer);
             return Object
                 .values((await zip).files)
-                .filter(entry => !entry.dir && entry.name.endsWith(fileSuffix))
+                .filter(entry => !entry.dir && entry.name.endsWith(SARIF_FILE_SUFFIX))
                 .map(entry => ({
                     name:            entry.name.replace(`${artifact.name}/`, ''),
-                    artifactName:    artifact.name || '',
-                    filePath:        entry.name.replace(`${artifact.name}/`, ''),
-                    buildId:         buildId,
                     contentsPromise: entry.async('string')
                 }));
         }

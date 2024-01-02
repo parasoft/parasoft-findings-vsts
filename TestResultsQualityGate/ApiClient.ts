@@ -24,8 +24,10 @@ export class APIClient {
     private readonly accessToken: string;
     private readonly buildApi: Promise<BuildApi.IBuildApi>;
     private readonly testApi: Promise<TestApi.ITestApi>;
+    private readonly projectName: string;
 
     constructor() {
+        this.projectName = tl.getVariable('System.TeamProject') || '';
         let orgUrl = tl.getVariable('System.TeamFoundationCollectionUri') || '';
         let auth = tl.getEndpointAuthorization('SystemVssConnection', false);
         this.accessToken = auth?.parameters['AccessToken'] || '';
@@ -35,28 +37,16 @@ export class APIClient {
         this.testApi = connection.getTestApi();
     }
 
-    async getPipelinesByName(
-        projectName: string,
-        definitionName: string
-        ): Promise<BuildDefinitionReference[]> {
-
-        return (await this.buildApi).getDefinitions(projectName, definitionName);
+    async getPipelinesByName(definitionName: string): Promise<BuildDefinitionReference[]> {
+        return (await this.buildApi).getDefinitions(this.projectName, definitionName);
     }
 
-    async getBuildsOfPipelineById(
-        projectName: string,
-        definitionId: number
-        ): Promise<Build[]> {
-
-        return (await this.buildApi).getBuilds(projectName, [definitionId]);
+    async getBuildsOfPipelineById(definitionId: number): Promise<Build[]> {
+        return (await this.buildApi).getBuilds(this.projectName, [definitionId]);
     }
 
-    async getTestResultsByBuildId(
-        projectName: string,
-        buildId: number
-        ): Promise<ShallowTestCaseResult[]> {
-
-        return (await this.testApi).getTestResultsByBuild(projectName, buildId);
+    async getTestResultsByBuildId(buildId: number): Promise<ShallowTestCaseResult[]> {
+        return (await this.testApi).getTestResultsByBuild(this.projectName, buildId);
     }
 
 }

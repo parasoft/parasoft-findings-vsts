@@ -2,10 +2,10 @@ import * as tl from '../../TestResultsQualityGate/node_modules/azure-pipelines-t
 import * as azdev from '../../TestResultsQualityGate/node_modules/azure-devops-node-api';
 import * as fs from 'fs';
 import {
-    TestResultsQualityGateService,
+    TestResultsQualityService,
     BuildStatusEnum,
     TypeEnum
-} from "../../TestResultsQualityGate/TestResultsQualityGateService";
+} from "../../TestResultsQualityGate/TestResultsQualityService";
 import {ShallowTestCaseResult} from "../../TestResultsQualityGate/node_modules/azure-devops-node-api/interfaces/TestInterfaces";
 import {
     Build,
@@ -40,7 +40,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
     let getInputSpy: jasmine.Spy;
     let azDevSpy: jasmine.Spy;
 
-    let createQualityGateService = (setting: TestSettings, apiSpy: any): TestResultsQualityGateService => {
+    let createQualityGateService = (setting: TestSettings, apiSpy: any): TestResultsQualityService => {
         getVariableSpy.and.callFake((param: string) => {
             switch (param) {
                 case 'System.TeamProject':
@@ -71,7 +71,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
         });
         azDevSpy.and.callFake(apiSpy);
 
-        return new TestResultsQualityGateService();
+        return new TestResultsQualityService();
     }
 
     beforeEach(() => {
@@ -100,7 +100,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
             type: 'totalPassed',
             buildStatus: 'Failed',
             threshold: '10',
-            referenceBuild: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"260"}'
+            referenceBuild: '{"referencePipelineInput":"TestPipelineName","referenceBuildInput":"260"}'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
@@ -123,7 +123,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
         settings.threshold = 'aa10';
         testResultsQualityService = createQualityGateService(settings, mockWebApi);
         expect(testResultsQualityService.threshold).toEqual(0);
-        expect(tl.warning).toHaveBeenCalledWith('Invalid threshold value \'aa10\', using default value 0');
+        expect(tl.warning).toHaveBeenCalledWith('Invalid value for \'threshold\': \'aa10\', using default value 0');
 
         settings.threshold = '10';
         testResultsQualityService = createQualityGateService(settings, mockWebApi);
@@ -241,7 +241,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
             });
 
             it('reference build is current build', async () => {
-                settings.referenceBuild = `{"originalPipelineName":"PipelineName","originalBuildNumber":"10"}`;
+                settings.referenceBuild = `{"referencePipelineInput":"PipelineName","referenceBuildInput":"10"}`;
 
                 let testResultsQualityGateService = setUpQualityGateService(config);
                 await testResultsQualityGateService.run();
@@ -257,7 +257,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
 
                 describe('reference build is not specified and', () => {
                     beforeEach(() => {
-                        settings.referenceBuild = `{"originalPipelineName":"","originalBuildNumber":""}`;
+                        settings.referenceBuild = `{"referencePipelineInput":"","referenceBuildInput":""}`;
                     });
 
                     afterEach(() => {
@@ -326,7 +326,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
 
                 describe('reference build is specified and', () => {
                     beforeEach(() => {
-                        settings.referenceBuild = `{"originalPipelineName":"","originalBuildNumber":"12"}`;
+                        settings.referenceBuild = `{"referencePipelineInput":"","referenceBuildInput":"12"}`;
                     });
 
                     it('reference build is not unique', async () => {
@@ -380,7 +380,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                         let testResultsQualityGateService = setUpQualityGateService(config);
                         await testResultsQualityGateService.run();
 
-                        expect(testResultsQualityGateService.apiClient.getTestResultsByBuildId).toHaveBeenCalledWith(settings.projectName, <number>config.builds[0].id);
+                        expect(testResultsQualityGateService.apiClient.getTestResultsByBuildId).toHaveBeenCalledWith(<number>config.builds[0].id);
                     });
                 });
             });

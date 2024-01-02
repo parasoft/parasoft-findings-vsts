@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {TestResultsQualityGateService} from "./TestResultsQualityGateService";
+import {TestResultsQualityService} from "./TestResultsQualityService";
 
-let testResultsQualityGateService = new TestResultsQualityGateService();
+let testResultsQualityGateService = new TestResultsQualityService();
 testResultsQualityGateService.run();

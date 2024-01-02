@@ -1,17 +1,9 @@
 import * as fs from 'fs';
 import * as tl from '../../CodeCoverageQualityGate/node_modules/azure-pipelines-task-lib';
 import * as azdev from '../../CodeCoverageQualityGate/node_modules/azure-devops-node-api';
-import {
-    TypeEnum,
-    BuildStatusEnum,
-    CodeCoverageQualityService
-} from '../../CodeCoverageQualityGate/CodeCoverageQualityService';
-import {
-    DefaultBuildReportResults,
-    DefaultBuildReportResultsStatus,
-    FileEntry
-} from '../../CodeCoverageQualityGate/BuildApiClient';
-import { Build, BuildResult, BuildDefinitionReference } from '../../CodeCoverageQualityGate/node_modules/azure-devops-node-api/interfaces/BuildInterfaces';
+import { TypeEnum, BuildStatusEnum, CodeCoverageQualityService } from '../../CodeCoverageQualityGate/CodeCoverageQualityService';
+import { FileEntry } from '../../CodeCoverageQualityGate/BuildApiClient';
+import { Build, BuildResult, BuildArtifact, BuildDefinitionReference } from '../../CodeCoverageQualityGate/node_modules/azure-devops-node-api/interfaces/BuildInterfaces';
 import {QualityGateTestUtils} from "../QualityGateTestUtils";
 
 type TestSettings = {
@@ -36,7 +28,6 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
     let fakeCoverageFileEntry: FileEntry[];
     let fakeModifiedCoverageFileEntry: FileEntry[];
     let builds: Build[];
-    let defaultBuildReportResults: DefaultBuildReportResults;
     let pipelines: BuildDefinitionReference[];
 
     let createQualityGate = (setting: TestSettings, apiSpy: any): CodeCoverageQualityService => {
@@ -94,7 +85,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             buildStatus: 'Failed',
             threshold: '60',
             taskInstanceId: 'task-instance-id',
-            referenceBuildResult: '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"9"}'
+            referenceBuildResult: '{"referencePipelineInput":"TestPipelineName","referenceBuildInput":"9"}'
         };
 
         mockWebApi = jasmine.createSpy('WebApi').and.returnValue({
@@ -107,17 +98,11 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
         fakeCoverageFileEntry = [{
             name: 'TestPipelineName',
-            artifactName: 'CoberturaContainer',
-            filePath: 'coverage.xml',
-            buildId: 9,
             contentsPromise: Promise.resolve(fs.readFileSync(__dirname + '/resources/coverage.xml', {encoding: "utf-8"}))
         }];
 
         fakeModifiedCoverageFileEntry = [{
             name: 'TestPipelineName',
-            artifactName: 'CoberturaContainer',
-            filePath: 'modified_coverage.xml',
-            buildId: 10,
             contentsPromise: Promise.resolve(fs.readFileSync(__dirname + '/resources/modified_coverage.xml', {encoding: "utf-8"}))
         }];
 
@@ -126,13 +111,6 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             result: BuildResult.Succeeded,
             id: 9
         }];
-
-        defaultBuildReportResults = {
-            status: DefaultBuildReportResultsStatus.OK,
-            buildId: 9,
-            buildNumber: '9',
-            reports: fakeCoverageFileEntry
-        }
 
         pipelines = [{
             name:'TestPipelineName',
@@ -182,7 +160,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
         settings.threshold = "a10";
         codeCoverageQualityService = createQualityGate(settings, mockWebApi);
         expect(codeCoverageQualityService.threshold).toEqual(0.0);
-        expect(tl.warning).toHaveBeenCalledWith("Invalid threshold value \'a10\', using default value 0.0");
+        expect(tl.warning).toHaveBeenCalledWith("Invalid value for 'threshold': \'a10\', using default value 0.0");
     });
 
     it('Set quality gate status', () => {
@@ -211,13 +189,12 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             fs.rmSync(__dirname + '/ParasoftQualityGatesMD', {recursive: true});
         });
 
-        let setUpQualityGate = (currentFileEntry: any, currentBuildArtifact: any, referenceFileEntry?: any, referenceBuildArtifact?: any) => {
+        let setUpQualityGate = (currentFileEntry: any, currentBuildArtifact: any, referenceFileEntry?: any, referenceBuildArtifact?: any, pipelineOfName?: any, buildsOfPipeline?: any) => {
             let codeCoverageQualityService = createQualityGate(settings, mockWebApi);
-            spyOn(codeCoverageQualityService.buildClient, 'getSpecificPipelines').and.returnValue(Promise.resolve(pipelines));
-            spyOn(codeCoverageQualityService.buildClient, 'getBuildsForSpecificPipeline').and.returnValue(Promise.resolve(builds));
-            spyOn(codeCoverageQualityService.buildClient, 'getBuildArtifact').and.returnValues(Promise.resolve(currentBuildArtifact), Promise.resolve(referenceBuildArtifact));
-            spyOn(codeCoverageQualityService.buildClient, 'getBuildReportsWithId').and.returnValues(Promise.resolve(currentFileEntry), Promise.resolve(referenceFileEntry));
-            spyOn(codeCoverageQualityService.buildClient, 'getDefaultBuildReports').and.returnValue(Promise.resolve(defaultBuildReportResults));
+            spyOn(codeCoverageQualityService.buildClient, 'getPipelinesByName').and.returnValue(Promise.resolve(pipelineOfName ? pipelineOfName : pipelines));
+            spyOn(codeCoverageQualityService.buildClient, 'getBuildsOfPipelineById').and.returnValue(Promise.resolve(buildsOfPipeline ? buildsOfPipeline : builds));
+            spyOn(codeCoverageQualityService.buildClient, 'getCoberturaArtifactOfBuildById').and.returnValues(Promise.resolve(currentBuildArtifact), Promise.resolve(referenceBuildArtifact));
+            spyOn(codeCoverageQualityService.buildClient, 'getCoberturaReportsOfArtifact').and.returnValues(Promise.resolve(currentFileEntry), Promise.resolve(referenceFileEntry));
             return codeCoverageQualityService;
         }
         let markDownPath = __dirname + '/ParasoftQualityGatesMD/task-instance-id/Parasoft Code Coverage Quality Gate - Display name.md';
@@ -234,7 +211,6 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                 });
 
                 it('pass the quality gate without coverage, should set task successful', async () => {
-                    fakeCoverageFileEntry[0].filePath = 'coverage_empty.xml';
                     fakeCoverageFileEntry[0].contentsPromise = Promise.resolve(fs.readFileSync(__dirname + '/resources/coverage_empty.xml', {encoding: "utf-8"}));
 
                     let codeCoverageQualityService = setUpQualityGate(fakeCoverageFileEntry, {});
@@ -285,7 +261,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
             it('When get Build Artifact error', async () => {
                 let codeCoverageQualityService = createQualityGate(settings, mockWebApi);
-                spyOn(codeCoverageQualityService.buildClient, 'getBuildArtifact').and.throwError('Expected error when get build artifact');
+                spyOn(codeCoverageQualityService.buildClient, 'getCoberturaArtifactOfBuildById').and.throwError('Expected error when get build artifact');
 
                 await codeCoverageQualityService.run();
 
@@ -297,8 +273,8 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                 let codeCoverageQualityService = setUpQualityGate(fakeCoverageFileEntry, {});
                 await codeCoverageQualityService.run();
 
-                expect(codeCoverageQualityService.originalReferencePipelineName).toBeUndefined();
-                expect(codeCoverageQualityService.originalReferenceBuildNumber).toBeUndefined();
+                expect(codeCoverageQualityService.referenceInputs.pipelineName).toBeUndefined();
+                expect(codeCoverageQualityService.referenceInputs.buildNumber).toBeUndefined();
                 expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Overall, Threshold: 60\' skipped; please run \'Publish Parasoft Results\' task first');
             });
         });
@@ -354,7 +330,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
             describe('When reference build is not specified and', () => {
                 beforeEach(() => {
-                    settings.referenceBuildResult = '{"originalPipelineName":"TestPipelineName","originalBuildNumber":""}';
+                    settings.referenceBuildResult = '{"referencePipelineInput":"TestPipelineName","referenceBuildInput":""}';
                 });
 
                 afterEach(() => {
@@ -371,38 +347,35 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                 });
 
                 it('use last successful build without Parasoft coverage results', async () => {
-                    defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PARASOFT_RESULTS_IN_PREVIOUS_SUCCESSFUL_BUILDS;
-
-                    let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
+                    const currentBuildArtifact: BuildArtifact = { id: 9, name: 'TestArtifact' };
+                    const referenceBuildArtifact: BuildArtifact = { id: 10, name: 'TestArtifact' };
+                    let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, currentBuildArtifact, [], referenceBuildArtifact);
                     await codeCoverageQualityService.run();
-
-                    expect(tl.debug).toHaveBeenCalledWith('no Parasoft coverage results were found in any of the previous successful builds in pipeline \'TestPipelineName\'');
+                    
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' skipped; no Parasoft coverage results were found in any of the previous successful builds in pipeline \'TestPipelineName\'');
                 });
 
                 it('no previous builds', async () => {
-                    defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_PREVIOUS_BUILD_WAS_FOUND;
-
-                    let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
+                    const buildsOfPipeline = [{ buildNumber : '10', result: BuildResult.Failed, id: 10 }];
+                    const currentBuildArtifact: BuildArtifact = { id: 9, name: 'TestArtifact' };
+                    const codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, currentBuildArtifact, fakeCoverageFileEntry, {}, undefined, buildsOfPipeline);
                     await codeCoverageQualityService.run();
 
-                    expect(tl.debug).toHaveBeenCalledWith('no previous build was found in pipeline \'TestPipelineName\'');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' skipped; no previous build was found in pipeline \'TestPipelineName\'');
                 });
 
                 it('no successful builds', async () => {
-                    defaultBuildReportResults.status = DefaultBuildReportResultsStatus.NO_SUCCESSFUL_BUILD;
-
-                    let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
+                    const buildsOfPipeline = [{ buildNumber : '9', result: BuildResult.Failed, id: 9 }];
+                    const currentBuildArtifact: BuildArtifact = { id: 9, name: 'TestArtifact' };
+                    const codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, currentBuildArtifact, fakeCoverageFileEntry, {}, undefined, buildsOfPipeline);
                     await codeCoverageQualityService.run();
 
-                    expect(tl.debug).toHaveBeenCalledWith('no successful build was found in pipeline \'TestPipelineName\'');
                     expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName\' skipped; no successful build was found in pipeline \'TestPipelineName\'');
                 });
             });
 
             it('When reference pipeline is not specified, should use the current pipeline', async () => {
-                settings.referenceBuildResult = '{"originalPipelineName":"","originalBuildNumber":"9"}';
+                settings.referenceBuildResult = '{"referencePipelineInput":"","referenceBuildInput":"9"}';
 
                 let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                 await codeCoverageQualityService.run();
@@ -412,7 +385,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             });
 
             it('When reference pipeline and reference build are not specified, should use the current pipeline and last successful build', async () => {
-                settings.referenceBuildResult = '{"originalPipelineName":"","originalBuildNumber":""}';
+                settings.referenceBuildResult = '{"referencePipelineInput":"","referenceBuildInput":""}';
 
                 let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                 await codeCoverageQualityService.run();
@@ -442,12 +415,12 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
             });
 
             it('When specified reference build is current build', async () => {
-                settings.referenceBuildResult = '{"originalPipelineName":"TestPipelineName","originalBuildNumber":"10"}'
+                settings.referenceBuildResult = '{"referencePipelineInput":"TestPipelineName","referenceBuildInput":"10"}'
 
                 let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                 await codeCoverageQualityService.run();
 
-                expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 10\' skipped; the current build is not allowed to use as the reference');
+                expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 10\' skipped; the current build is not allowed to be used as the reference');
             });
 
             it('When specified reference build is not unique', async () => {
@@ -474,7 +447,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                 let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                 await codeCoverageQualityService.run();
 
-                expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 9\' skipped; the specified reference build \'TestPipelineName#9\' cannot be used. Only successful or unstable builds are valid references');
+                expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues,  'Quality gate \'Type: Modified, Threshold: 60, Reference pipeline: TestPipelineName, Reference build: 9\' skipped; the specified reference build \'TestPipelineName#9\' could not be used. Only successful or unstable builds are valid references');
             });
 
             it('When no build artifact found in current build', async () => {
@@ -507,7 +480,7 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
 
             it('When get Build Artifact error', async () => {
                 let codeCoverageQualityService = createQualityGate(settings, mockWebApi);
-                spyOn(codeCoverageQualityService.buildClient, 'getBuildArtifact').and.throwError('Expected error when get build artifact');
+                spyOn(codeCoverageQualityService.buildClient, 'getCoberturaArtifactOfBuildById').and.throwError('Expected error when get build artifact');
 
                 await codeCoverageQualityService.run();
 
@@ -519,8 +492,8 @@ describe('Parasoft Findings Code Coverage Quality Gate', () => {
                 let codeCoverageQualityService = setUpQualityGate(fakeModifiedCoverageFileEntry, {}, fakeCoverageFileEntry, {});
                 await codeCoverageQualityService.run();
 
-                expect(codeCoverageQualityService.originalReferencePipelineName).toBeUndefined();
-                expect(codeCoverageQualityService.originalReferenceBuildNumber).toBeUndefined();
+                expect(codeCoverageQualityService.referenceInputs.pipelineName).toBeUndefined();
+                expect(codeCoverageQualityService.referenceInputs.buildNumber).toBeUndefined();
                 expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Quality gate \'Type: Modified, Threshold: 60\' skipped; please run \'Publish Parasoft Results\' task first');
             });
         });
