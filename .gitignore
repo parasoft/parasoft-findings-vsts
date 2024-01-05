@@ -13,6 +13,9 @@ node_modules/
 ### IntelliJ IDEA ###
 .idea
 
+### Eslint report ###
+/eslint
+
 ### jasmine-reporters ###
 !/spec/support/jasmine.js
 /test-reports
