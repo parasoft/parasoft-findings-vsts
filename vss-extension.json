@@ -112,5 +112,5 @@
         "color": "#004877",
         "theme": "dark"
     },
-    "public": true
+    "public": false
 }
