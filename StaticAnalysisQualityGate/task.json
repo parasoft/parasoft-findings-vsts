@@ -12,8 +12,8 @@
   "author": "Parasoft Corporation",
   "version": {
     "Major": 1,
-    "Minor": 1,
-    "Patch": 4
+    "Minor": 2,
+    "Patch": 1
   },
   "minimumAgentVersion": "2.209.0",
   "inputs": [
