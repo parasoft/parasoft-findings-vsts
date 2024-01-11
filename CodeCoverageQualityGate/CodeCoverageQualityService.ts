@@ -115,7 +115,7 @@ export class CodeCoverageQualityService {
             console.error(error);
             return;
         }
-    }
+    };
 
     private readReferenceBuildInfo = (): boolean => {
         const referenceBuildResult = tl.getVariable('PF.ReferenceBuildResult');
@@ -129,7 +129,7 @@ export class CodeCoverageQualityService {
             buildNumber: referenceBuild.referenceBuildInput
         };
         return true;
-    }
+    };
 
     private getCoverageInfo = async (currentCoberturaReport: FileEntry): Promise<CoverageInfo | undefined> => {
         let coverageInfo : CoverageInfo | undefined;
@@ -143,11 +143,17 @@ export class CodeCoverageQualityService {
                 const referenceCoberturaReportContent = await referenceCoberturaReport.contentsPromise;
                 coverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
             }
-        } catch (error: any) {
-            this.skipQualityGateWithWarning(`${error.message}`);
+        } catch (error){
+            if (error instanceof Error) {
+                this.skipQualityGateWithWarning(`${error.message}`);
+            } else {
+                // Will not reach here
+                this.skipQualityGateWithWarning(`Failed to get coverage data: ${error} `);
+            }
+
         }
         return coverageInfo;
-    }
+    };
 
     private getCoberturaReportOfCurrentBuild = async (): Promise<FileEntry | undefined> => {
         const currentBuildArtifact = await this.buildClient.getCoberturaArtifactOfBuildById(Number(this.buildId));
@@ -160,7 +166,7 @@ export class CodeCoverageQualityService {
         }
         // Assuming there is only one Cobertura report in artifact
         return coberturaReports[0];
-    }
+    };
 
     private getCoberturaReportOfReferenceBuild = async (): Promise<FileEntry | undefined> => {
         if ((!this.referenceInputs.pipelineName || this.referenceInputs.pipelineName == this.pipelineName) && this.referenceInputs.buildNumber == this.buildNumber) { // Reference build is the current build
@@ -182,7 +188,7 @@ export class CodeCoverageQualityService {
             this.skipQualityGateWithWarning(`the specified reference pipeline '${this.referenceInputs.pipelineName}' could not be found`);
             return;
         }
-    }
+    };
 
     private getCoberturaReportOfPipeline = async (pipelineId: number, pipelineName: string): Promise<FileEntry | undefined> => {
         const buildsOfPipeline = await this.buildClient.getBuildsOfPipelineById(pipelineId);
@@ -217,7 +223,7 @@ export class CodeCoverageQualityService {
                         pipelineName: pipelineName,
                         buildNumber: (<number> buildId).toString(),
                         buildId: <string> buildNumber
-                    }
+                    };
                     tl.debug(`Set build '${pipelineName}#${buildNumber}' as the default reference build`);
                     return coberturaReports?.at(0);
                 } else {
@@ -267,10 +273,10 @@ export class CodeCoverageQualityService {
             // Assuming there is only one Cobertura report in artifact
             return coberturaReports[0];
         }
-    }
+    };
 
     private evaluateQualityGate = (coverageInfo: CoverageInfo): QualityGateResult => {
-        let qualityGateResult = new QualityGateResult(
+        const qualityGateResult = new QualityGateResult(
             this.displayName,
             coverageInfo,
             this.referenceBuildInfo,
@@ -298,7 +304,7 @@ export class CodeCoverageQualityService {
         }
         tl.debug(`Quality Gate ${qualityGateResult.status} - ${this.type} code coverage: ${qualityGateResult.codeCoverage} (${coverageInfo.coveredLines}/${coverageInfo.coverableLines}) - Threshold: ${this.threshold}%`);
         return qualityGateResult;
-    }
+    };
 
     private generateQualityGateString() {
         let text = "Type: " + this.type + ", Threshold: " + this.threshold;
@@ -312,10 +318,10 @@ export class CodeCoverageQualityService {
 
     private getOverallCodeCoverage = (coberturaContentString: string): CoverageInfo => {
         const saxParser = sax.parser(true);
-        let coverageInfo: CoverageInfo = {
+        const coverageInfo: CoverageInfo = {
             coveredLines: 0,
             coverableLines: 0
-        }
+        };
         saxParser.onopentag = (node) => {
             if (node.name == 'coverage') {
                 const coveredLines = <string>node.attributes['lines-covered'];
@@ -330,7 +336,7 @@ export class CodeCoverageQualityService {
                     coverageInfo.coverableLines = parseInt(coverableLines);
                 }
             }
-        }
+        };
 
         saxParser.onend = () => {
             // do nothing
@@ -348,7 +354,7 @@ export class CodeCoverageQualityService {
     private getModifiedCodeCoverage = (referenceBuildCoverageReport: string, currentBuildCoverageReport: string): CoverageInfo => {
         const currentBuildFilesInfo = this.getCoverageFileInfo(currentBuildCoverageReport);
         const referenceBuildFilesInfo = this.getCoverageFileInfo(referenceBuildCoverageReport);
-        let coverageInfo: CoverageInfo = {
+        const coverageInfo: CoverageInfo = {
             coveredLines: 0,
             coverableLines: 0
         }
@@ -369,7 +375,7 @@ export class CodeCoverageQualityService {
                     } else if (modified == 1) {// modified code line
                         const modifiedLines = text.split('\n').slice(0, -1);
                         modifiedLines.forEach(() => {
-                            let modifiedLineData = currentBuildFileInfo.codeLines[lineCursor];
+                            const modifiedLineData = currentBuildFileInfo.codeLines[lineCursor];
                             if (modifiedLineData && modifiedLineData.hits > 0) {
                                 coverageInfo.coveredLines++;
                             }
@@ -392,7 +398,7 @@ export class CodeCoverageQualityService {
 
     private getCoverageFileInfo = (reportContent: string): CoverageFileInfo[] => {
         const saxParser = sax.parser(true);
-        let filesInfo: CoverageFileInfo[] = [];
+        const filesInfo: CoverageFileInfo[] = [];
         let currentFileInfo : CoverageFileInfo = {
             fileId: '',
             codeLines: []
@@ -414,9 +420,9 @@ export class CodeCoverageQualityService {
                 }
             }
             if (node.name == 'line') {
-                let lineNumber = <string>node.attributes.number;
-                let lineHash = <string>node.attributes.hash;
-                let hits = <string>node.attributes.hits;
+                const lineNumber = <string>node.attributes.number;
+                const lineHash = <string>node.attributes.hash;
+                const hits = <string>node.attributes.hits;
                 if (!lineNumber || isNaN(parseInt(lineNumber))) {
                     throw new Error("error in Cobertura code coverage report: failed to parse 'number' attribute.");
                 } else if (!lineHash) {
@@ -424,7 +430,7 @@ export class CodeCoverageQualityService {
                 } else if (!hits || isNaN(parseInt(hits))) {
                     throw new Error("error in Cobertura code coverage report: failed to parse 'hits' attribute.");
                 } else {
-                    let line: LineInfo = {
+                    const line: LineInfo = {
                         lineNumber: parseInt(lineNumber),
                         lineHash: lineHash,
                         hits: parseInt(hits)

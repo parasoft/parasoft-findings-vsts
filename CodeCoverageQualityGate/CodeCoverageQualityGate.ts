@@ -15,5 +15,5 @@
  */
 import {CodeCoverageQualityService} from "./CodeCoverageQualityService";
 
-let codeCoverageQualityService = new CodeCoverageQualityService();
+const codeCoverageQualityService = new CodeCoverageQualityService();
 codeCoverageQualityService.run();
