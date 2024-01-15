@@ -47,10 +47,16 @@ interface ReferenceBuildInputs {
     buildNumber?: string
 }
 
+const enum PipelineTypeEnum {
+    BUILD = 'build',
+    RELEASE = 'release'
+}
+
 export class StaticAnalysisQualityService {
     // Predefined variables
     private readonly buildId: number;
     private readonly displayName: string;
+    private readonly pipelineType: PipelineTypeEnum;
     readonly type: TypeEnum;
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
@@ -69,10 +75,19 @@ export class StaticAnalysisQualityService {
         this.threshold = this.getThreshold(tl.getInput('threshold') || '');
 
         this.buildClient = new BuildAPIClient();
+        if (tl.getVariable('Release.ReleaseId')) {
+            this.pipelineType = PipelineTypeEnum.RELEASE;
+        } else {
+            this.pipelineType = PipelineTypeEnum.BUILD;
+        }
     }
 
     run = async (): Promise<void> => {
         try {
+            if (this.pipelineType == PipelineTypeEnum.RELEASE) {
+                tl.warning("Static analysis quality gates are not supported in the release pipeline");
+                return;
+            }
             // Get reference build result from 'Publish Parasoft Results' task execution
             if (!this.readReferenceBuildInfo()) {
                 return;
