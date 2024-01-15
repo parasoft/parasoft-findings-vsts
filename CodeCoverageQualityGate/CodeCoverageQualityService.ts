@@ -42,6 +42,11 @@ export interface CoverageInfo {
     coverableLines: number
 }
 
+const enum PipelineTypeEnum {
+    BUILD = 'build',
+    RELEASE = 'release'
+}
+
 interface CoverageFileInfo {
     fileId: string,
     codeLines: LineInfo[]
@@ -75,12 +80,18 @@ export class CodeCoverageQualityService {
     private referenceBuildInfo: ReferenceBuildInfo = {};
 
     private dmp: DiffMatchPatch;
+    private pipelineType: PipelineTypeEnum;
 
     constructor() {
         this.pipelineName = tl.getVariable('Build.DefinitionName') || '';
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
+        if(tl.getVariable('Release.ReleaseId')) {
+            this.pipelineType = PipelineTypeEnum.RELEASE;
+        } else {
+            this.pipelineType = PipelineTypeEnum.BUILD;
+        }
         this.displayName = tl.getVariable('Task.DisplayName') || '';
         this.threshold = this.getThreshold(tl.getInput('threshold') || '');
         this.type = this.getType(tl.getInput('type') || '');
@@ -93,6 +104,10 @@ export class CodeCoverageQualityService {
 
     run = async (): Promise<void> => {
         try {
+            if (this.pipelineType == PipelineTypeEnum.RELEASE) {
+                tl.warning("Code coverage quality gates are not supported in the release pipeline");
+                return;
+            }
             // Get reference build result from 'Publish Parasoft Results' task execution
             if (!this.readReferenceBuildInfo()) {
                 return;
