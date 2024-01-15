@@ -56,6 +56,11 @@ const enum BaselineStateEnum {
     UNCHANGED = 'unchanged'
 }
 
+const enum PipelineTypeEnum {
+    BUILD = 'build',
+    RELEASE = 'release'
+}
+
 interface ReferenceBuildResult {
     referencePipelineInput: string,
     referenceBuildInput: string,
@@ -137,6 +142,7 @@ export class ParaReportPublishService {
     javaPath: string | undefined;
 
     referenceBuildResult: ReferenceBuildResult;
+    pipelineType: PipelineTypeEnum;
 
     constructor() {
         // Get predefined variables in Azure DevOps pipeline
@@ -145,6 +151,11 @@ export class ParaReportPublishService {
         this.pipelineName = tl.getVariable('Build.DefinitionName') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
         this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
+        if(tl.getVariable('Release.ReleaseId')) {
+            this.pipelineType = PipelineTypeEnum.RELEASE;
+        } else {
+            this.pipelineType = PipelineTypeEnum.BUILD;
+        }
         // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
         tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
         
@@ -195,7 +206,7 @@ export class ParaReportPublishService {
     run = async (): Promise<void> => {
         // Check if there are multiple "Publish Parasoft Results" tasks in the pipeline to prevent confusion
         const publishTaskExists = tl.getVariable('PF.PublishParasoftResultsExists');
-        if (publishTaskExists == 'true') {
+        if (this.pipelineType == PipelineTypeEnum.BUILD && publishTaskExists == 'true') {
             tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
             return;
         }
