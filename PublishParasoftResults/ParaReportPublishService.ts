@@ -107,6 +107,8 @@ export class ParaReportPublishService {
         jsonText: fs.readFileSync(__dirname + "/xsl/cobertura.sef.json", 'utf8')
     }
 
+    private readonly pipelineType: PipelineTypeEnum = PipelineTypeEnum.BUILD;
+
     xUnitReports: string[] = [];
     sarifReports: string[] = [];
     staticAnalysisReportsMap: Map<string, string> = new Map<string, string>();
@@ -142,7 +144,6 @@ export class ParaReportPublishService {
     javaPath: string | undefined;
 
     referenceBuildResult: ReferenceBuildResult;
-    pipelineType: PipelineTypeEnum;
 
     constructor() {
         // Get predefined variables in Azure DevOps pipeline
@@ -153,8 +154,6 @@ export class ParaReportPublishService {
         this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
         if(tl.getVariable('Release.ReleaseId')) {
             this.pipelineType = PipelineTypeEnum.RELEASE;
-        } else {
-            this.pipelineType = PipelineTypeEnum.BUILD;
         }
         // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
         tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));

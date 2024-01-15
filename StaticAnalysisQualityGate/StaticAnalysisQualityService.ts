@@ -56,7 +56,8 @@ export class StaticAnalysisQualityService {
     // Predefined variables
     private readonly buildId: number;
     private readonly displayName: string;
-    private readonly pipelineType: PipelineTypeEnum;
+    private readonly pipelineType: PipelineTypeEnum = PipelineTypeEnum.BUILD;
+
     readonly type: TypeEnum;
     readonly severity: SeverityEnum;
     readonly buildStatus: BuildStatusEnum;
@@ -75,10 +76,9 @@ export class StaticAnalysisQualityService {
         this.threshold = this.getThreshold(tl.getInput('threshold') || '');
 
         this.buildClient = new BuildAPIClient();
+
         if (tl.getVariable('Release.ReleaseId')) {
             this.pipelineType = PipelineTypeEnum.RELEASE;
-        } else {
-            this.pipelineType = PipelineTypeEnum.BUILD;
         }
     }
 

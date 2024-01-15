@@ -70,6 +70,8 @@ export class CodeCoverageQualityService {
     private readonly buildId: string;
     private readonly definitionId: number;
     private readonly displayName: string;
+    private readonly pipelineType: PipelineTypeEnum = PipelineTypeEnum.BUILD;
+
     readonly type: TypeEnum;
     readonly threshold: number;
     readonly buildStatus: BuildStatusEnum;
@@ -80,18 +82,12 @@ export class CodeCoverageQualityService {
     private referenceBuildInfo: ReferenceBuildInfo = {};
 
     private dmp: DiffMatchPatch;
-    private pipelineType: PipelineTypeEnum;
 
     constructor() {
         this.pipelineName = tl.getVariable('Build.DefinitionName') || '';
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
-        if(tl.getVariable('Release.ReleaseId')) {
-            this.pipelineType = PipelineTypeEnum.RELEASE;
-        } else {
-            this.pipelineType = PipelineTypeEnum.BUILD;
-        }
         this.displayName = tl.getVariable('Task.DisplayName') || '';
         this.threshold = this.getThreshold(tl.getInput('threshold') || '');
         this.type = this.getType(tl.getInput('type') || '');
@@ -99,6 +95,10 @@ export class CodeCoverageQualityService {
 
         this.buildClient = new BuildAPIClient();
         this.dmp = new DiffMatchPatch();
+
+        if(tl.getVariable('Release.ReleaseId')) {
+            this.pipelineType = PipelineTypeEnum.RELEASE;
+        }
     }
 
 
