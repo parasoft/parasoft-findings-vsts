@@ -96,11 +96,11 @@ export class QualityGateResult {
     }
 
     public uploadQualityGateSummary() : void {
-      let customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
-      let taskInstanceStorageDir = tl.resolve(customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId'));
+      const customMarkdownSummaryDirectory = tl.resolve(tl.getVariable('System.DefaultWorkingDirectory'), 'ParasoftQualityGatesMD');
+      const taskInstanceStorageDir = tl.resolve(customMarkdownSummaryDirectory, tl.getVariable('System.TaskInstanceId'));
       tl.mkdirP(taskInstanceStorageDir);
-      let markdownPath = tl.resolve(taskInstanceStorageDir, `${this._displayName}.md`);
-      let summaryMarkdownContent = this.getQualityGateResultSummaryContent();
+      const markdownPath = tl.resolve(taskInstanceStorageDir, `${this._displayName}.md`);
+      const summaryMarkdownContent = this.getQualityGateResultSummaryContent();
       tl.writeFile(markdownPath, summaryMarkdownContent);
       console.log('##vso[task.uploadsummary]' + markdownPath);
     }

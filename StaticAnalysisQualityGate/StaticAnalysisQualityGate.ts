@@ -15,5 +15,5 @@
  */
 import {StaticAnalysisQualityService} from "./StaticAnalysisQualityService";
 
-let staticAnalysisQualityService = new StaticAnalysisQualityService();
+const staticAnalysisQualityService = new StaticAnalysisQualityService();
 staticAnalysisQualityService.run();
