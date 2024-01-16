@@ -15,5 +15,5 @@
  */
 import {TestResultsQualityService} from "./TestResultsQualityService";
 
-let testResultsQualityGateService = new TestResultsQualityService();
+const testResultsQualityGateService = new TestResultsQualityService();
 testResultsQualityGateService.run();
