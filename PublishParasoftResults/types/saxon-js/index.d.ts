@@ -9,7 +9,7 @@ declare module 'saxon-js' {
         principalResult: string;
         resultDocuments: object;
         stylesheetInternal: object;
-        masterDocument: any
+        masterDocument: unknown
     }
 
     function transform(options: options): transformResult;
