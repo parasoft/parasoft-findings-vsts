@@ -26,8 +26,9 @@ import * as https from 'https';
 import * as axios from 'axios';
 import * as uuid from 'uuid';
 import { BuildAPIClient, FileEntry } from './BuildApiClient';
-import { Build, BuildArtifact, BuildDefinitionReference, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import { BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
 
 export interface ReadOnlyProperties {
@@ -110,6 +111,7 @@ export class ParaReportPublishService {
     rulesInGlobalCategory: Set<string> = new Set();
     private ruleAnalyzerMap: Map<string, string> = new Map();
     ruleDocUrlMap: Map<string,string> = new Map();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private ruleDocUrlPromises: Promise<any>[] = [];
     httpsAgent = new https.Agent({
         rejectUnauthorized: false,
@@ -291,8 +293,8 @@ export class ParaReportPublishService {
                     bParsingStaticAnalysisResult = true;
 
                 } else if (node.name == 'Rule') {
-                    let ruleId = node.attributes.id as string;
-                    let analyzerId = node.attributes.analyzer as string;
+                    const ruleId = node.attributes.id as string;
+                    const analyzerId = node.attributes.analyzer as string;
                     if (!bLegacyReport) {
                         // A <Rule> has a rule ID and analyzer ID in a non-legacy report
                         if (this.isDtpRuleDocsServiceAvailable) {
@@ -304,9 +306,9 @@ export class ParaReportPublishService {
                     }
 
                 } else if (bParsingStaticAnalysisResult && bLegacyReport && node.name.endsWith('Viol')) {
-                    let ruleId = node.attributes.rule as string;
+                    const ruleId = node.attributes.rule as string;
                     if(!this.ruleAnalyzerMap.has(ruleId)) {
-                        let analyzerId = this.mapToAnalyzer(ruleId, node.name);
+                        const analyzerId = this.mapToAnalyzer(ruleId, node.name);
                         if (this.isDtpRuleDocsServiceAvailable) {
                             this.ruleDocUrlPromises.push(this.getRuleDoc(ruleId, analyzerId));
                         }
@@ -325,7 +327,8 @@ export class ParaReportPublishService {
             saxStream.on("end", () => {
                 // "ruleDocUrlPromises" will only be non-empty if this is a static analysis report
                 Promise.all(this.ruleDocUrlPromises).then(async (errors) =>{
-                    let firstError: any = errors.find(error => error !== null && error !== undefined);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const firstError: any = errors.find(error => error !== null && error !== undefined);
                     if (firstError) {
                         this.ruleDocUrlMap.clear();
                         const errorCode = firstError.status;
@@ -410,7 +413,7 @@ export class ParaReportPublishService {
             if (this.javaPath) {
                 // Transform with java
                 const jarPath = tl.resolve(__dirname, "lib/SaxonHE12-2J/saxon-he-12.2.jar");
-                let result = tl.execSync(this.javaPath, ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+xslInfo.xslPath, "-o:"+outPath, "-versionmsg:off", "pipelineBuildWorkingDirectory="+this.defaultWorkingDirectory]);
+                const result = tl.execSync(this.javaPath, ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+xslInfo.xslPath, "-o:"+outPath, "-versionmsg:off", "pipelineBuildWorkingDirectory="+this.defaultWorkingDirectory]);
                 if (result.code != 0) {
                     throw result.error;
                 }
@@ -448,6 +451,7 @@ export class ParaReportPublishService {
     private processParasoftSarifReport = (report: string): string => {
         const contentString = fs.readFileSync(report, 'utf8');
         const contentJson = JSON.parse(contentString);
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         contentJson.runs?.forEach((run: any) => {
             run.results?.forEach((result: any) => {
                 result.locations?.forEach((location: any) => {
@@ -459,18 +463,20 @@ export class ParaReportPublishService {
                 });
             });
         });
+        /* eslint-enable @typescript-eslint/no-explicit-any */
         const updatedContentString  = JSON.stringify(contentJson);
         const updatedReportPath = this.generateReportNameWithPFSuffix(report, this.SARIF_SUFFIX);
         fs.writeFileSync(updatedReportPath, updatedContentString , 'utf8');
         return updatedReportPath;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private getRelativeURI = (location: any): string | undefined => {
         if (!location.physicalLocation || !location.physicalLocation.artifactLocation
             || !location.physicalLocation.artifactLocation.uri || !this.defaultWorkingDirectory) {
             return undefined;
         }
-        let uri: string = location.physicalLocation.artifactLocation.uri;
+        const uri: string = location.physicalLocation.artifactLocation.uri;
         let processedDefaultWorkingDirectory = this.defaultWorkingDirectory.replaceAll('\\', '/');
         // Check if the URI contains the path of the working directory
         let start = uri.lastIndexOf(processedDefaultWorkingDirectory);
@@ -485,19 +491,23 @@ export class ParaReportPublishService {
         return undefined;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isCoverageReport = (node: any): boolean => {
         // The "ver" attribute is present in <Coverage> in coverage.xml but absent in <Coverage> within <Exec> in report.xml.
         return node.attributes.hasOwnProperty('ver');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isLegacyReport = (node:any): boolean => {
         return !((node.attributes.hasOwnProperty('ver10x')) && (node.attributes['ver10x'] == '1'));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isSOAtestReport = (node: any): boolean => {
         return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'SOAtest';
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isCPPProReport = (node: any): boolean => {
         return node.attributes.hasOwnProperty('toolName') && node.attributes['toolName'] == 'C++test' && !node.attributes.hasOwnProperty('prjModule');
     }
@@ -530,7 +540,7 @@ export class ParaReportPublishService {
                 let currentSarifContentJson = JSON.parse(currentSarifContentString);
                 currentSarifContentJson = this.checkAndAddUnbViolIdForSarifReport(currentSarifContentJson);
 
-                let referenceSarifReport = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'SarifContainer/' + path.basename(sarifReport));
+                const referenceSarifReport = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'SarifContainer/' + path.basename(sarifReport));
                 await this.appendBaselineState(currentSarifContentJson, referenceSarifReport);
 
                 currentSarifContentString = JSON.stringify(currentSarifContentJson);
@@ -554,7 +564,7 @@ export class ParaReportPublishService {
         }
     }
 
-    private isNullOrWhitespace = (input: any): boolean => {
+    private isNullOrWhitespace = (input: string | undefined | null): boolean => {
         if (typeof input === 'undefined' || input === null) {
             return true;
         }
@@ -626,7 +636,7 @@ export class ParaReportPublishService {
             return null;
         }
 
-        let localSettingsFile = tl.resolve(this.defaultWorkingDirectory, localSettingsPath);
+        const localSettingsFile = tl.resolve(this.defaultWorkingDirectory, localSettingsPath);
         tl.debug('Settings file found: ' + localSettingsFile);
 
         return this.loadProperties(localSettingsFile);
@@ -702,10 +712,11 @@ export class ParaReportPublishService {
             });
     }
 
-    private isValidPort = (port: any):boolean => {
+    private isValidPort = (port: number):boolean => {
         return Number.isSafeInteger(port) && (port >= 0 && port <= 65535);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getRuleDoc = (ruleId: string, analyzerId: string): Promise<any> => {
         return this.doGetRuleDoc(ruleId, analyzerId, 1.6)
             .catch((error) => {
@@ -728,6 +739,7 @@ export class ParaReportPublishService {
             });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     doGetRuleDoc = (ruleId: string, analyzerId: string, apiVersion: number): Promise<any> => {
         const url = this.dtpBaseUrl + "grs/api/v" + apiVersion +"/rules/doc?rule=" + ruleId + "&analyzerId=" + analyzerId;
         return axios.default.get(url, {
@@ -759,6 +771,7 @@ export class ParaReportPublishService {
 
     appendRuleDocUrls = (sarifReport: string):string => {
         const sarifJson = JSON.parse(sarifReport);
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         sarifJson.runs.forEach((run: any) => {
             run.tool.driver.rules.forEach((rule: any) => {
                 const helpUri = this.ruleDocUrlMap.get(rule.id);
@@ -767,6 +780,7 @@ export class ParaReportPublishService {
                 }
             })
         })
+        /* eslint-enable @typescript-eslint/no-explicit-any */
         return JSON.stringify(sarifJson);
     }
 
@@ -793,7 +807,7 @@ export class ParaReportPublishService {
             return undefined;
         }
         const javaFileName = os.platform() == 'win32' ? "java.exe" : "java";
-        let javaPaths = [
+        const javaPaths = [
             "bin", // Java installation
             "bin/dottest/Jre_x64/bin", // dotTEST installation
             "bin/jre/bin" // C/C++test or Jtest installation
@@ -809,9 +823,11 @@ export class ParaReportPublishService {
         return undefined;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private checkAndAddUnbViolIdForSarifReport = (sarifContentJson: any): string => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         sarifContentJson.runs?.forEach((run: any) => {
-            let unbViolIdMap: Map<string, number> = new Map();
+            const unbViolIdMap: Map<string, number> = new Map();
             if (run.results) {
                 for (let i = 0; i < run.results.length; i++) {
                     if (run.results[i].partialFingerprints && run.results[i].partialFingerprints.unbViolId) {
@@ -821,7 +837,7 @@ export class ParaReportPublishService {
                         run.results[i].partialFingerprints = {};
                     }
                     let order: number = 0;
-                    let unbViolId = this.generateUnbViolId(run.results[i], order);
+                    const unbViolId = this.generateUnbViolId(run.results[i], order);
                     if (unbViolIdMap.has(unbViolId)) {
                         order = <number> unbViolIdMap.get(unbViolId);
                         run.results[i].partialFingerprints.unbViolId = this.generateUnbViolId(run.results[i], order);
@@ -835,14 +851,15 @@ export class ParaReportPublishService {
         return sarifContentJson;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private generateUnbViolId = (result: any, order: number): string => {
         const namespace = '6af5b03d-5276-49ef-bfed-d445f2752b02';
-        let violType = result.partialFingerprints?.violType || '';
-        let ruleId = result.ruleId || '';
-        let msg = result.message?.text || '';
-        let severity = result.level || '';
-        let lineHash = result.partialFingerprints?.lineHash || '';
-        let uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || '';
+        const violType = result.partialFingerprints?.violType || '';
+        const ruleId = result.ruleId || '';
+        const msg = result.message?.text || '';
+        const severity = result.level || '';
+        const lineHash = result.partialFingerprints?.lineHash || '';
+        const uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || '';
 
         return uuid.v5(violType + ruleId + msg + severity + lineHash + uri + order, namespace);
     }
@@ -880,7 +897,7 @@ export class ParaReportPublishService {
                 // Check for the specific reference pipeline exists
                 if (pipelines.length == 1) {
                     const specificReferencePipeline = pipelines[0];
-                    let specificReferencePipelineId : number = Number(specificReferencePipeline.id);
+                    const specificReferencePipelineId: number = Number(specificReferencePipeline.id);
                     referenceBuildInfo = await this.getSarifReportOfPipeline(specificReferencePipelineId, specificReferencePipeline.name || '');
                 } else if (pipelines.length > 1) {
                     referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference pipeline '${this.referenceBuildResult.referencePipelineInput}' is not unique`;
@@ -971,7 +988,7 @@ export class ParaReportPublishService {
                 referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}' could not be used. Only successful or unstable builds are valid references`;
                 return referenceBuildInfo;
             }
-            let referenceBuildId: number = Number(referenceBuild.id);
+            const referenceBuildId: number = Number(referenceBuild.id);
             // Check for the existence of Parasoft Sarif artifact in reference build
             const artifact: BuildArtifact = await this.buildClient.getSarifArtifactOfBuildById(referenceBuildId);
             if (!artifact) {
@@ -992,11 +1009,12 @@ export class ParaReportPublishService {
         }
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     private appendBaselineState = async (currentSarifContentJson: any, referenceSarifReport: FileEntry | undefined): Promise<string> => {
         const referenceUnbViolIds: string[] = await this.getUnbViolIdsFromReferenceSarifReport(referenceSarifReport);
         currentSarifContentJson.runs?.forEach((run: any) => {
             run.results?.forEach((result: any) => {
-                let unbViolId: string = result.partialFingerprints?.unbViolId;
+                const unbViolId: string = result.partialFingerprints?.unbViolId;
                 if (unbViolId && referenceUnbViolIds.includes(unbViolId)) {
                     result.baselineState = BaselineStateEnum.UNCHANGED;
                 } else {
@@ -1006,22 +1024,25 @@ export class ParaReportPublishService {
         })
         return currentSarifContentJson;
     }
+    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     private getUnbViolIdsFromReferenceSarifReport = async (referenceSarifReport: FileEntry | undefined): Promise<string[]> => {
         if (!referenceSarifReport) {
             return [];
         }
         const referenceSarifContentString: string = await referenceSarifReport.contentsPromise;
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const referenceSarifContentJson: any = JSON.parse(referenceSarifContentString);
-        let referenceUnbViolIds: string[] = [];
+        const referenceUnbViolIds: string[] = [];
         referenceSarifContentJson.runs?.forEach((run: any) => {
             run.results?.forEach(async (result: any) => {
-                let unbViolId: string = result.partialFingerprints?.unbViolId;
+                const unbViolId: string = result.partialFingerprints?.unbViolId;
                 if (unbViolId) {
                     referenceUnbViolIds.push(unbViolId);
                 }
             })
         })
+        /* eslint-enable @typescript-eslint/no-explicit-any */
         return referenceUnbViolIds;
     }
 }
