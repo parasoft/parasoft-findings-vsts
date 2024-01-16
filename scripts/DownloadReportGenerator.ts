@@ -7,14 +7,14 @@ const tempFolder = './scripts/temp';
 const pathToStore = tempFolder + '/reportGenerator.zip';
 const pathToExtract = './PublishParasoftResults/lib';
 const libsToUse = ['netcoreapp2.0/', 'net47/'];
-let downloadOptions: AxiosRequestConfig<any> = {
+const downloadOptions: AxiosRequestConfig<unknown> = {
     url: 'https://github.com/danielpalme/ReportGenerator/releases/download/v4.6.1/ReportGenerator_4.6.1.zip',
     method: 'GET',
     responseType: 'stream'
 }
 
-let downloadService: DownloadReportGeneratorService = new DownloadReportGeneratorService();
-let dirToClean = [tempFolder];
+const downloadService: DownloadReportGeneratorService = new DownloadReportGeneratorService();
+const dirToClean = [tempFolder];
 libsToUse.forEach((lib) => {
     dirToClean.push(pathToExtract + '/' + lib);
 });

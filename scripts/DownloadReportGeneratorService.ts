@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import {AxiosInstance, AxiosRequestConfig} from '../PublishParasoftResults/node_modules/axios';
 import * as AdmZip from 'adm-zip'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Axios: AxiosInstance = require('../PublishParasoftResults/node_modules/axios/dist/node/axios.cjs');
 
 export class DownloadReportGeneratorService {
 
-    download = (option: AxiosRequestConfig<any>, pathToStore: string, callback: any): Promise<any> => {
+    download = (option: AxiosRequestConfig<unknown>, pathToStore: string, callback: () => void): Promise<unknown> => {
         return Axios(option).then(res => {
             if (res.status == 200) {
                 res.data.on("end", () => {
@@ -15,7 +16,7 @@ export class DownloadReportGeneratorService {
                 const writer = fs.createWriteStream(pathToStore);
                 return new Promise((resolve, reject) => {
                     res.data.pipe(writer);
-                    let error: any = null;
+                    let error: Error;
                     writer.on('error', err => {
                         error = err;
                         writer.close();
