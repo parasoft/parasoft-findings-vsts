@@ -50,22 +50,35 @@ interface BuildInfo {
     warningMsg?: string | undefined
 }
 
+const enum PipelineTypeEnum {
+    BUILD = 'build',
+    RELEASE = 'release'
+}
+
 export interface BuildResultInfo extends BuildInfo {
     testResults?: ShallowTestCaseResult[] | undefined,
     isDebugMsg?: boolean
 }
 
 export class TestResultsQualityService {
-    // Predefined variables
+    private readonly pipelineType: PipelineTypeEnum = PipelineTypeEnum.BUILD;
+
+    // Predefined variables for build pipeline
     private readonly pipelineName: string;
     private readonly buildNumber: string;
     private readonly buildId: string;
     private readonly definitionId: number;
+
+     // Predefined variables for release pipeline
+    private readonly releaseDefinitionId: number;
+    private readonly releaseId: number;
+    private readonly stageId: number;
+
     private readonly displayName: string;
     readonly type: TypeEnum;
     readonly threshold: number;
     readonly buildStatus: BuildStatusEnum;
-    
+
     readonly apiClient: APIClient;
 
     referenceInputs: ReferenceBuildInputs = {};
@@ -77,11 +90,18 @@ export class TestResultsQualityService {
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
         this.displayName = tl.getVariable('Task.DisplayName') || '';
+        this.releaseDefinitionId = Number(tl.getVariable('Release.DefinitionId'));
+        this.releaseId = Number(tl.getVariable('Release.ReleaseId'));
+        this.stageId = Number(tl.getVariable('Release.EnvironmentId'));
         this.threshold = this.getThreshold(tl.getInput('threshold') || '');
         this.buildStatus = this.getBuildStatus(tl.getInput('buildStatus') || '');
         this.type = this.getType(tl.getInput('type') || '');
-        
+
         this.apiClient = new APIClient();
+
+        if(this.releaseId) {
+            this.pipelineType = PipelineTypeEnum.RELEASE;
+        }
     }
 
     run = async (): Promise<void> => {
@@ -91,12 +111,20 @@ export class TestResultsQualityService {
                 return;
             }
             // Get test results in current build
-            const currentTestResults = await this.apiClient.getTestResultsByBuildId(Number(this.buildId));
+            let numOfEvaluatedTests = null;
+            let currentTestResults = [];
+            if (this.pipelineType == PipelineTypeEnum.BUILD) {
+                // Build pipeline
+                currentTestResults = await this.apiClient.getTestResultsByBuildId(Number(this.buildId));
+            } else {
+                // Release pipeline
+                currentTestResults = (await this.apiClient.getTestResultsByReleaseIdAndReleaseEnvId(this.releaseId, this.stageId));
+            }
             if (currentTestResults.length == 0) {
                 tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.generateQualityGateString()}' skipped; no test results were found in this build`);
                 return;
             }
-            const numOfEvaluatedTests = await this.getNumOfEvaluatedTests(currentTestResults);
+            numOfEvaluatedTests = await this.getNumOfEvaluatedTests(currentTestResults);
             const qualityGateResult = this.evaluateQualityGate(numOfEvaluatedTests);
             qualityGateResult.uploadQualityGateSummary();
         } catch(error) {
@@ -137,7 +165,10 @@ export class TestResultsQualityService {
                 numberOfTests = currentBuildTestResults.length;
                 break;
             case TypeEnum.NEWLY_FAILED_TESTS:
-                numberOfTests = await this.getNumOfNewlyFailedTests(currentBuildTestResults);
+                // TODO: Support release pipeline.
+                if(this.pipelineType == PipelineTypeEnum.BUILD) {
+                    numberOfTests = await this.getNumOfNewlyFailedTests(currentBuildTestResults);
+                }
                 break;
             default:
                 // User will never come here
