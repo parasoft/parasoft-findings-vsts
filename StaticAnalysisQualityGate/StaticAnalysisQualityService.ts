@@ -15,7 +15,7 @@
  */
 import * as tl from 'azure-pipelines-task-lib/task';
 import { BuildArtifact } from 'azure-devops-node-api/interfaces/BuildInterfaces';
-import { BuildAPIClient } from './BuildApiClient';
+import { BuildAPIClient, FileEntry } from './BuildApiClient';
 import { QualityGateStatusEnum, QualityGateResult } from './QualityGateResult';
 
 export const enum TypeEnum {
@@ -139,7 +139,7 @@ export class StaticAnalysisQualityService {
     }
 
     private evaluateQualityGate = (numberOfIssues: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName,
+        const qualityGateResult: QualityGateResult = new QualityGateResult(this.displayName,
                                                                          this.referenceBuildInfo,
                                                                          this.type, this.severity, this.threshold);
 
@@ -168,11 +168,12 @@ export class StaticAnalysisQualityService {
         return qualityGateResult;
     }
 
-    private async getNumOfEvaluatedIssues(sarifFiles: any): Promise<number> {
+    private async getNumOfEvaluatedIssues(sarifFiles: FileEntry[]): Promise<number> {
         let numberOfIssues: number = 0;
-        for (let sarifFile of sarifFiles) {
+        for (const sarifFile of sarifFiles) {
             const contentString = await sarifFile.contentsPromise;
             const contentJson = JSON.parse(contentString);
+            /* eslint-disable @typescript-eslint/no-explicit-any */
             contentJson.runs?.forEach((run: any) => {
                 if (run.results && run.results.length > 0) {
                     numberOfIssues += run.results.filter((result: any) => {
@@ -180,10 +181,12 @@ export class StaticAnalysisQualityService {
                     }).length;
                 }
             });
+            /* eslint-enable @typescript-eslint/no-explicit-any */
         }
         return numberOfIssues;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isMatchingQualityGateSeverity(result: any): boolean {
         switch (this.severity) {
             case SeverityEnum.ALL:
@@ -201,6 +204,7 @@ export class StaticAnalysisQualityService {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isMatchingQualityGateType(result: any): boolean {
         if (!result) {
             return false;
@@ -215,6 +219,7 @@ export class StaticAnalysisQualityService {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private isSuppressedIssue(result: any): boolean {
         return result?.suppressions?.[0]?.kind === 'external';
     }
@@ -231,7 +236,7 @@ export class StaticAnalysisQualityService {
     }
 
     private getThreshold = (thresholdString: string): number => {
-        let threshold = parseInt(thresholdString || '0');
+        const threshold = parseInt(thresholdString || '0');
         if (isNaN(threshold)) {
             tl.warning(`Invalid value for 'threshold': ${thresholdString}, using default value 0`);
             return 0;

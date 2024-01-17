@@ -15,5 +15,5 @@
  */
 import {ParaReportPublishService} from "./ParaReportPublishService";
 
-let publisher = new ParaReportPublishService();
+const publisher = new ParaReportPublishService();
 publisher.run();

@@ -35,11 +35,11 @@ export class BuildAPIClient {
 
     constructor() {
         this.projectName = tl.getVariable('System.TeamProject') || '';
-        let orgUrl = tl.getVariable('System.TeamFoundationCollectionUri') || '';
-        let auth = tl.getEndpointAuthorization('SystemVssConnection', false);
+        const orgUrl = tl.getVariable('System.TeamFoundationCollectionUri') || '';
+        const auth = tl.getEndpointAuthorization('SystemVssConnection', false);
         this.accessToken = auth?.parameters['AccessToken'] || '';
-        let authHandler = azdev.getPersonalAccessTokenHandler(this.accessToken);
-        let connection = new azdev.WebApi(orgUrl, authHandler);
+        const authHandler = azdev.getPersonalAccessTokenHandler(this.accessToken);
+        const connection = new azdev.WebApi(orgUrl, authHandler);
         this.buildApi = connection.getBuildApi();
     }
 

@@ -179,7 +179,7 @@ export class TestResultsQualityService {
     }
 
     private evaluateQualityGate = (numOfEvaluatedTests: number): QualityGateResult => {
-        let qualityGateResult: QualityGateResult = new QualityGateResult(
+        const qualityGateResult: QualityGateResult = new QualityGateResult(
             this.displayName,
             this.type,
             this.threshold,
@@ -319,7 +319,7 @@ export class TestResultsQualityService {
     }
 
     private getResultOfSpecifiedBuild = async (pipelineName: string, buildsOfPipeline: Build[]) => {
-        let referenceResultInfo: BuildResultInfo = {
+        const referenceResultInfo: BuildResultInfo = {
             testResults: [],
             pipelineName: undefined,
             buildNumber: undefined,
