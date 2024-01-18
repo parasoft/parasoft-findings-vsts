@@ -51,23 +51,18 @@ export class APIClient {
 
     async getTestResultsByReleaseIdAndReleaseEnvId(releaseId: number, releaseEnvId: number): Promise<ShallowTestCaseResult[]> {
         const testResultsDetails: TestResultsDetails = await (await this.testApi).getTestResultDetailsForRelease(this.projectName, releaseId, releaseEnvId);
-        return this.mappingTestResultsDetailsToShallowTestCaseResult(testResultsDetails);
+        return this.mappingTestResultsDetailsToShallowTestCaseResults(testResultsDetails);
     }
 
-    mappingTestResultsDetailsToShallowTestCaseResult(testResultsDetails: TestResultsDetails): ShallowTestCaseResult[] {
-        let shallowTestCaseResults: ShallowTestCaseResult[] = [];
+    private mappingTestResultsDetailsToShallowTestCaseResults(testResultsDetails: TestResultsDetails): ShallowTestCaseResult[] {
+        const shallowTestCaseResults: ShallowTestCaseResult[] = [];
         if (testResultsDetails.resultsForGroup) {
             testResultsDetails.resultsForGroup.forEach((testGroup) => {
                 testGroup?.results?.forEach((test) => {
                     const shallowTestCaseResult = {
-                        automatedTestName: test.automatedTestName,
-                        automatedTestStorage: test.automatedTestStorage,
-                        durationInMs: test.durationInMs,
                         id: test.id,
                         outcome: test.outcome,
-                        priority: test.priority,
-                        refId: test.testCaseReferenceId,
-                        testCaseTitle: test.testCaseTitle
+                        refId: test.testCaseReferenceId
                     }
                     shallowTestCaseResults.push(shallowTestCaseResult);
                 });

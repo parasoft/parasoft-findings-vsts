@@ -2,8 +2,8 @@ import * as tl from '../../TestResultsQualityGate/node_modules/azure-pipelines-t
 import * as azdev from '../../TestResultsQualityGate/node_modules/azure-devops-node-api';
 import * as fs from 'fs';
 import {
+    BuildStatusEnum, PipelineTypeEnum,
     TestResultsQualityService,
-    BuildStatusEnum,
     TypeEnum
 } from "../../TestResultsQualityGate/TestResultsQualityService";
 import {ShallowTestCaseResult} from "../../TestResultsQualityGate/node_modules/azure-devops-node-api/interfaces/TestInterfaces";
@@ -19,6 +19,9 @@ type TestSettings = {
     pipelineId: string,
     buildNumber: string,
     buildId: string,
+    releaseDefinitionId?: number,
+    releaseId?: number,
+    stageId?: number,
     displayName: string,
     type: string,
     threshold: string,
@@ -57,6 +60,12 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
                     return setting.displayName;
                 case 'PF.ReferenceBuildResult':
                     return setting.referenceBuild;
+                case 'Release.DefinitionId':
+                    return setting.releaseDefinitionId;
+                case 'Release.ReleaseId':
+                    return setting.releaseId;
+                case 'Release.EnvironmentId':
+                    return  setting.stageId;
             }
         });
         getInputSpy.and.callFake((param: string) => {
@@ -184,6 +193,17 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
         expect(testResultsQualityService.buildStatus).toEqual(BuildStatusEnum.FAILED);
     });
 
+    it('Setting Quality Gate pipeline type', () => {
+        let testResultsQualityService: any = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.pipelineType).toEqual(PipelineTypeEnum.BUILD);
+
+        settings.releaseDefinitionId = 1;
+        settings.releaseId = 1;
+        settings.stageId = 1;
+        testResultsQualityService = createQualityGateService(settings, mockWebApi);
+        expect(testResultsQualityService.pipelineType).toEqual(PipelineTypeEnum.RELEASE);
+    });
+
     describe('When evaluate quality gate and', () => {
         let config: QualityGateTestConfig = {
             pipelines: [],
@@ -196,6 +216,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
             spyOn(testResultsQualityService.apiClient, 'getPipelinesByName').and.returnValue(Promise.resolve(config.pipelines));
             spyOn(testResultsQualityService.apiClient, 'getBuildsOfPipelineById').and.returnValue(Promise.resolve(config.builds));
             spyOn(testResultsQualityService.apiClient, 'getTestResultsByBuildId').and.returnValues(Promise.resolve(config.currentTestResults), Promise.resolve(config.referenceTestResults));
+            spyOn(testResultsQualityService.apiClient, 'getTestResultsByReleaseIdAndReleaseEnvId').and.returnValue(Promise.resolve(config.currentTestResults));
             return testResultsQualityService;
         }
 
@@ -504,6 +525,35 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
 
                 QualityGateTestUtils.compareMarkDown(markDownPath, __dirname + '/resources/expect/Parasoft Test Results Quality Gate - newlyFailed-passed.md');
             });
+        });
+
+        it('Current pipeline is release pipeline and quality gate type is newly failed.', async () => {
+            settings.releaseDefinitionId = 1;
+            settings.releaseId = 1;
+            settings.stageId = 1;
+            settings.type = 'newlyFailed';
+            let testResultsQualityGateService = setUpQualityGateService(config);
+            await testResultsQualityGateService.run();
+
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Test results quality gate for \'Newly failed tests\' type is not currently supported in the release pipeline, if you require this feature, please contact Parasoft support.');
+        });
+
+        it('Current pipeline is release pipeline and quality gate type is not newly failed.', async () => {
+            settings.releaseDefinitionId = 1;
+            settings.releaseId = 1;
+            settings.stageId = 1;
+            settings.threshold = '1';
+            config.currentTestResults = [{
+                id: 1,
+                runId: 1,
+                refId: 1,
+                outcome: 'Passed'
+            }];
+            let testResultsQualityGateService = setUpQualityGateService(config);
+
+            await testResultsQualityGateService.run();
+
+            QualityGateTestUtils.compareMarkDown(__dirname + '/Parasoft Test Results Quality Gate - Display name.md', __dirname + '/resources/expect/Parasoft Test Results Quality Gate - totalPassed-passed.md');
         });
     });
 })

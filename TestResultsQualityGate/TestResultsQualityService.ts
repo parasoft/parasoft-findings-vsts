@@ -50,7 +50,7 @@ interface BuildInfo {
     warningMsg?: string | undefined
 }
 
-const enum PipelineTypeEnum {
+export const enum PipelineTypeEnum {
     BUILD = 'build',
     RELEASE = 'release'
 }
@@ -89,10 +89,12 @@ export class TestResultsQualityService {
         this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
         this.buildId = tl.getVariable('Build.BuildId') || '';
         this.definitionId = Number(tl.getVariable('System.DefinitionId'));
-        this.displayName = tl.getVariable('Task.DisplayName') || '';
+
         this.releaseDefinitionId = Number(tl.getVariable('Release.DefinitionId'));
         this.releaseId = Number(tl.getVariable('Release.ReleaseId'));
         this.stageId = Number(tl.getVariable('Release.EnvironmentId'));
+
+        this.displayName = tl.getVariable('Task.DisplayName') || '';
         this.threshold = this.getThreshold(tl.getInput('threshold') || '');
         this.buildStatus = this.getBuildStatus(tl.getInput('buildStatus') || '');
         this.type = this.getType(tl.getInput('type') || '');
@@ -111,20 +113,23 @@ export class TestResultsQualityService {
                 return;
             }
             // Get test results in current build
-            let numOfEvaluatedTests = null;
             let currentTestResults = [];
             if (this.pipelineType == PipelineTypeEnum.BUILD) {
                 // Build pipeline
                 currentTestResults = await this.apiClient.getTestResultsByBuildId(Number(this.buildId));
             } else {
                 // Release pipeline
-                currentTestResults = (await this.apiClient.getTestResultsByReleaseIdAndReleaseEnvId(this.releaseId, this.stageId));
+                if(this.type == TypeEnum.NEWLY_FAILED_TESTS) {
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Test results quality gate for 'Newly failed tests' type is not currently supported in the release pipeline, if you require this feature, please contact Parasoft support.`);
+                    return;
+                }
+                currentTestResults = await this.apiClient.getTestResultsByReleaseIdAndReleaseEnvId(this.releaseId, this.stageId);
             }
             if (currentTestResults.length == 0) {
                 tl.setResult(tl.TaskResult.SucceededWithIssues, `Quality gate '${this.generateQualityGateString()}' skipped; no test results were found in this build`);
                 return;
             }
-            numOfEvaluatedTests = await this.getNumOfEvaluatedTests(currentTestResults);
+            const numOfEvaluatedTests = await this.getNumOfEvaluatedTests(currentTestResults);
             const qualityGateResult = this.evaluateQualityGate(numOfEvaluatedTests);
             qualityGateResult.uploadQualityGateSummary();
         } catch(error) {
@@ -165,10 +170,7 @@ export class TestResultsQualityService {
                 numberOfTests = currentBuildTestResults.length;
                 break;
             case TypeEnum.NEWLY_FAILED_TESTS:
-                // TODO: Support release pipeline.
-                if(this.pipelineType == PipelineTypeEnum.BUILD) {
-                    numberOfTests = await this.getNumOfNewlyFailedTests(currentBuildTestResults);
-                }
+                numberOfTests = await this.getNumOfNewlyFailedTests(currentBuildTestResults);
                 break;
             default:
                 // User will never come here
