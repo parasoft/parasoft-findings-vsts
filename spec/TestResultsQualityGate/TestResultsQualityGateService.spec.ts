@@ -535,7 +535,7 @@ describe('Parasoft Findings Test Results Quality Gate', () => {
             let testResultsQualityGateService = setUpQualityGateService(config);
             await testResultsQualityGateService.run();
 
-            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'Test results quality gate for \'Newly failed tests\' type is not currently supported in the release pipeline, if you require this feature, please contact Parasoft support.');
+            expect(tl.setResult).toHaveBeenCalledWith(tl.TaskResult.SucceededWithIssues, 'The test results quality gate for \'Newly failed tests\' is not currently supported in a release pipeline.');
         });
 
         it('Current pipeline is release pipeline and quality gate type is not newly failed.', async () => {

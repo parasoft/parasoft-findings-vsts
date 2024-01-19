@@ -120,7 +120,7 @@ export class TestResultsQualityService {
             } else {
                 // Release pipeline
                 if(this.type == TypeEnum.NEWLY_FAILED_TESTS) {
-                    tl.setResult(tl.TaskResult.SucceededWithIssues, `Test results quality gate for 'Newly failed tests' type is not currently supported in the release pipeline, if you require this feature, please contact Parasoft support.`);
+                    tl.setResult(tl.TaskResult.SucceededWithIssues, `The test results quality gate for 'Newly failed tests' is not currently supported in a release pipeline.`);
                     return;
                 }
                 currentTestResults = await this.apiClient.getTestResultsByReleaseIdAndReleaseEnvId(this.releaseId, this.stageId);
