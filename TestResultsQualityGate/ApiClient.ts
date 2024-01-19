@@ -18,7 +18,7 @@ import * as azdev from "azure-devops-node-api";
 import * as BuildApi from "azure-devops-node-api/BuildApi";
 import * as TestApi from "azure-devops-node-api/TestApi";
 import { Build, BuildDefinitionReference } from 'azure-devops-node-api/interfaces/BuildInterfaces';
-import { ShallowTestCaseResult } from 'azure-devops-node-api/interfaces/TestInterfaces';
+import { ShallowTestCaseResult, TestResultsDetails } from 'azure-devops-node-api/interfaces/TestInterfaces';
 
 export class APIClient {
     private readonly accessToken: string;
@@ -49,4 +49,25 @@ export class APIClient {
         return (await this.testApi).getTestResultsByBuild(this.projectName, buildId);
     }
 
+    async getTestResultsByReleaseIdAndReleaseEnvId(releaseId: number, releaseEnvId: number): Promise<ShallowTestCaseResult[]> {
+        const testResultsDetails: TestResultsDetails = await (await this.testApi).getTestResultDetailsForRelease(this.projectName, releaseId, releaseEnvId);
+        return this.mappingTestResultsDetailsToShallowTestCaseResults(testResultsDetails);
+    }
+
+    private mappingTestResultsDetailsToShallowTestCaseResults(testResultsDetails: TestResultsDetails): ShallowTestCaseResult[] {
+        const shallowTestCaseResults: ShallowTestCaseResult[] = [];
+        if (testResultsDetails.resultsForGroup) {
+            testResultsDetails.resultsForGroup.forEach((testGroup) => {
+                testGroup?.results?.forEach((test) => {
+                    const shallowTestCaseResult = {
+                        id: test.id,
+                        outcome: test.outcome,
+                        refId: test.testCaseReferenceId
+                    }
+                    shallowTestCaseResults.push(shallowTestCaseResult);
+                });
+            });
+        }
+        return shallowTestCaseResults;
+    }
 }

@@ -66,7 +66,7 @@
           "label": "Reference pipeline",
           "defaultValue": "",
           "required": false,
-          "helpMarkDown": "Specify a reference pipeline to use if Parasoft Quality Gates task is configured. To use current pipeline, leave this field empty. Specify the reference pipeline name."
+          "helpMarkDown": "Specify the name of a reference pipeline. Leave this field empty to use the current pipeline. The specified pipeline may be used in a quality gate configured after this task. Note: this feature is not supported in a release pipeline."
         },
         {
           "name": "referenceBuild",
@@ -74,7 +74,7 @@
           "label": "Reference build",
           "defaultValue": "",
           "required": false,
-          "helpMarkDown": "Specify a reference build to use if Parasoft Quality Gates task is configured. To use the last successful build, leave this field empty. Specify the reference build number - this can be found in the pipeline run title after the '#' and before '•' symbol - e.g. the build number is 20 if the title contains \"#20 •\"."
+          "helpMarkDown": "Specify the build number of a reference build. Leave this field empty to use the last successful build. The build number can be found in the pipeline run title after the '#' and before '•' symbol - e.g. the build number is 20 if the title contains \"#20 •\". The specified build may be used in a quality gate configured after this task. Note: this feature is not supported in a release pipeline."
         },
         {
             "name": "testRunTitle",

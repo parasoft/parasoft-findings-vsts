@@ -157,9 +157,7 @@ export class ParaReportPublishService {
         if(tl.getVariable('Release.ReleaseId')) {
             this.pipelineType = PipelineTypeEnum.RELEASE;
         }
-        // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
-        tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
-        
+
         // Get inputs of task configuration
         this.inputReportFiles = tl.getDelimitedInput('resultsFiles', '\n', true);
         const searchFolder = this.isNullOrWhitespace(tl.getInput('searchFolder')) ? this.defaultWorkingDirectory : tl.getInput('searchFolder');
@@ -188,7 +186,7 @@ export class ParaReportPublishService {
         this.mergeResults = tl.getInput('mergeTestResults');
         this.platform = tl.getInput('platform');
         this.config = tl.getInput('configuration');
-        
+
         this.buildClient = new BuildAPIClient();
 
         tl.debug('referencePipeline: ' + referencePipelineInput);
@@ -207,10 +205,16 @@ export class ParaReportPublishService {
     run = async (): Promise<void> => {
         // Check if there are multiple "Publish Parasoft Results" tasks in the pipeline to prevent confusion
         const publishTaskExists = tl.getVariable('PF.PublishParasoftResultsExists');
-        if (this.pipelineType == PipelineTypeEnum.BUILD && publishTaskExists == 'true') {
-            tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
-            return;
+        if (publishTaskExists === 'true') {
+            if (this.pipelineType === PipelineTypeEnum.BUILD) {
+                tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
+                return;
+            }
+        } else {
+            // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
+            tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
         }
+
         tl.setVariable('PF.PublishParasoftResultsExists', 'true');
 
         // Get matching input report files and perform transformations
@@ -956,7 +960,7 @@ export class ParaReportPublishService {
             tl.debug(`No reference build has been set; using the last successful build in pipeline '${pipelineName}' as reference.`);
             if (buildsOfPipeline.length == 1 && buildsOfPipeline[0].id?.toString() == this.buildId) { // only include current build
                 referenceBuildInfo.staticAnalysis.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
-                    referenceBuildInfo.isDebugMessage = true;
+                referenceBuildInfo.isDebugMessage = true;
                 return referenceBuildInfo;
             } else {
                 const allSuccessfulBuilds = buildsOfPipeline.filter(build => {

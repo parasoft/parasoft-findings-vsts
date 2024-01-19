@@ -15,7 +15,8 @@ describe('Test API Client for Test Results Quality Gate', () => {
                 getBuilds: jasmine.createSpy('getBuilds')
             }),
             getTestApi: jasmine.createSpy('getTestApi').and.returnValue({
-                getTestResultsByBuild: jasmine.createSpy('getTestResultsByBuild')
+                getTestResultsByBuild: jasmine.createSpy('getTestResultsByBuild'),
+                getTestResultDetailsForRelease: jasmine.createSpy('getTestResultDetailsForRelease')
             })
         });
         spyOn(azdev, 'WebApi').and.callFake(mockWebApi);
@@ -56,6 +57,48 @@ describe('Test API Client for Test Results Quality Gate', () => {
         apiClient = new APIClient();
 
         let result = await apiClient.getTestResultsByBuildId('test-project', 1);
+        expect(result).toEqual(exceptedResult);
+    });
+
+    it('getTestResultsByReleaseIdAndReleaseEnvId()', async () => {
+        let exceptedResult: ShallowTestCaseResult[] = [{
+            id: 100000,
+            refId: 3612611,
+            outcome: 'Failed'
+        }];
+        let apiResponse = {
+            "groupByField": "",
+            "resultsForGroup": [
+                {
+                    "groupByValue": "",
+                    "resultsCountByOutcome": {
+                        "Failed": {
+                            "outcome": "Failed",
+                            "count": 1,
+                            "duration": "00:00:00.2560000"
+                        }
+                    },
+                    "results": [
+                        {
+                            "id": 100000,
+                            "project": {
+                                "id": "4f0918b1-4e1a-4eae-9b64-53f990d87987"
+                            },
+                            "outcome": "Failed",
+                            "testRun": {
+                                "id": "581"
+                            },
+                            "priority": 0,
+                            "testCaseReferenceId": 3612611
+                        }
+                    ]
+                }
+            ]
+        };
+        mockWebApi().getTestApi().getTestResultDetailsForRelease.and.returnValue(Promise.resolve(apiResponse));
+        apiClient = new APIClient();
+
+        let result = await apiClient.getTestResultsByReleaseIdAndReleaseEnvId(1, 1);
         expect(result).toEqual(exceptedResult);
     });
 });
