@@ -265,68 +265,50 @@ describe("Parasoft findings Azure", () => {
     });
 
     describe('run()', () => {
-        it('- not unique.', async () => {
-            spyOn(tl, 'getVariable').and.callFake((variable) => {
-                if (variable === 'PF.PublishParasoftResultsExists') return 'true';
-            });
+        it('when no input file is matched', async () => {
+            spyOn(tl, 'findMatch').and.returnValue([]);
             publisher = new ParaReportPublishService();
+            spyOn(publisher, 'verifyDtpRuleDocsService');
+            spyOn(publisher, 'transformReports');
             await publisher.run();
 
-            expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
+            expect(tl.warning).toHaveBeenCalledOnceWith('No test result files matching '+ publisher.inputReportFiles +' were found.');
+            expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.Succeeded, '');
+            expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
+            expect(publisher.transformReports).not.toHaveBeenCalled();
         });
 
-        describe('- unique.', () => {
+        describe('when matched to the input report file', () => {
             beforeEach(() => {
-                spyOn(tl, 'getVariable').and.callFake((variable) => {
-                    if (variable === 'PF.PublishParasoftResultsExists') return 'false';
-                });
+                spyOn(tl, 'findMatch').and.returnValue(['foobar']);
+                publisher = new ParaReportPublishService();
+                spyOn(publisher, 'transformReports');
             });
 
-            it('when no input file is matched', async () => {
-                spyOn(tl, 'findMatch').and.returnValue([]);
-                publisher = new ParaReportPublishService();
-                spyOn(publisher, 'verifyDtpRuleDocsService');
-                spyOn(publisher, 'transformReports');
-                await publisher.run();
-    
-                expect(tl.warning).toHaveBeenCalledOnceWith('No test result files matching '+ publisher.inputReportFiles +' were found.');
-                expect(tl.setResult).toHaveBeenCalledOnceWith(tl.TaskResult.Succeeded, '');
-                expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
-                expect(publisher.transformReports).not.toHaveBeenCalled();
-            });
-    
-            describe('when matched to the input report file', () => {
-                beforeEach(() => {
-                    spyOn(tl, 'findMatch').and.returnValue(['foobar']);
-                    publisher = new ParaReportPublishService();
-                    spyOn(publisher, 'transformReports');
-                });
-    
-                it('and the dtp url exists', (done) => {
-                    spyOn(publisher, 'isNullOrWhitespace').and.returnValue(false);
-                    spyOn(publisher, 'verifyDtpRuleDocsService').and.returnValue(Promise.resolve());
-                    publisher.run();
-                    publisher.verifyDtpRuleDocsService().then(() =>{
-                        expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
-                        done();
-                    });
-                    expect(publisher.verifyDtpRuleDocsService).toHaveBeenCalled();
-                });
-    
-                it('but the dtp url does not exist', async () => {
-                    spyOn(publisher, 'verifyDtpRuleDocsService');
-                    spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
-                    await publisher.run();
-                    expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
+            it('and the dtp url exists', (done) => {
+                spyOn(publisher, 'isNullOrWhitespace').and.returnValue(false);
+                spyOn(publisher, 'verifyDtpRuleDocsService').and.returnValue(Promise.resolve());
+                publisher.run();
+                publisher.verifyDtpRuleDocsService().then(() =>{
                     expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
+                    done();
                 });
-    
-                it('error will be catched if promise reject', async () => {
-                    spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
-                    publisher.transformReports.and.returnValue(Promise.reject());
-                    await publisher.run();
-                    expect(tl.error).toHaveBeenCalledOnceWith('Error. See log for details');
-                });
+                expect(publisher.verifyDtpRuleDocsService).toHaveBeenCalled();
+            });
+
+            it('but the dtp url does not exist', async () => {
+                spyOn(publisher, 'verifyDtpRuleDocsService');
+                spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
+                await publisher.run();
+                expect(publisher.verifyDtpRuleDocsService).not.toHaveBeenCalled();
+                expect(publisher.transformReports).toHaveBeenCalledOnceWith(publisher.matchingInputReportFiles, 0);
+            });
+
+            it('error will be catched if promise reject', async () => {
+                spyOn(publisher, 'isNullOrWhitespace').and.returnValue(true);
+                publisher.transformReports.and.returnValue(Promise.reject());
+                await publisher.run();
+                expect(tl.error).toHaveBeenCalledOnceWith('Error. See log for details');
             });
         });
     });
