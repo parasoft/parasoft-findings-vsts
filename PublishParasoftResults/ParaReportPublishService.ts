@@ -203,19 +203,8 @@ export class ParaReportPublishService {
     }
 
     run = async (): Promise<void> => {
-        // Check if there are multiple "Publish Parasoft Results" tasks in the pipeline to prevent confusion
-        const publishTaskExists = tl.getVariable('PF.PublishParasoftResultsExists');
-        if (publishTaskExists === 'true') {
-            if (this.pipelineType === PipelineTypeEnum.BUILD) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
-                return;
-            }
-        } else {
-            // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
-            tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
-        }
-
-        tl.setVariable('PF.PublishParasoftResultsExists', 'true');
+        // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
+        tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
 
         // Get matching input report files and perform transformations
         if (!this.matchingInputReportFiles || this.matchingInputReportFiles.length === 0) {
