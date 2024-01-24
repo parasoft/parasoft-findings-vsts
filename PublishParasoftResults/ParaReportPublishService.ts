@@ -203,9 +203,13 @@ export class ParaReportPublishService {
     }
 
     run = async (): Promise<void> => {
-        // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
-        tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
-
+        // Check if there are multiple "Publish Parasoft Results" tasks in the pipeline to prevent confusion
+        const publishTaskExists = tl.getVariable('PF.PublishParasoftResultsExists');
+        if (publishTaskExists === 'true') {
+            // Clean up the old custom markdown summary storage directory when running the first PublishParasoftResults task
+            tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
+        }
+        tl.setVariable('PF.PublishParasoftResultsExists', 'true');
         // Get matching input report files and perform transformations
         if (!this.matchingInputReportFiles || this.matchingInputReportFiles.length === 0) {
             tl.warning('No test result files matching ' + this.inputReportFiles + ' were found.');
