@@ -22,6 +22,8 @@ import fetch, { Headers, RequestInit } from 'node-fetch';
 
 const SARIF_FILE_SUFFIX = "-pf-sast.sarif";
 const SARIF_ARTIFACT_NAME: string = "CodeAnalysisLogs";
+const COBERTURA_FILE_SUFFIX = "-cobertura.xml";
+const COBERTURA_ARTIFACT_NAME: string = "ParasoftCoverageLogs";
 
 export interface FileEntry {
     name: string,
@@ -69,6 +71,29 @@ export class BuildAPIClient {
                 }));
         }
         return [];
+    }
+
+    async getCoberturaArtifactOfBuildById(buildId: number): Promise<BuildArtifact> {
+        return (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
+    }
+
+    async getCoberturaReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
+        if (!artifact) {
+            return [];
+        }
+        const requestUrl = artifact.resource?.downloadUrl || '';
+        const arrayBuffer = await this.getArtifactContentZip(requestUrl);
+        if (!arrayBuffer) {
+            return [];
+        }
+        const zip = JSZip.loadAsync(arrayBuffer);
+        return Object
+            .values((await zip).files)
+            .filter(entry => !entry.dir && entry.name.endsWith(COBERTURA_FILE_SUFFIX))
+            .map(entry => ({
+                name: entry.name.replace(`${artifact.name}/`, ''),
+                contentsPromise: entry.async('string')
+            }));
     }
 
     async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer | undefined> {
