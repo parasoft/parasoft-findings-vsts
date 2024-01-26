@@ -15,8 +15,10 @@
  */
 import * as fs from 'fs';
 import * as sax from 'sax';
+import * as lodash from 'lodash';
+import * as tl from 'azure-pipelines-task-lib';
 
-type CoberturaReport = {
+type CoberturaCoverage = {
     lineRate: number;
     linesCovered: number;
     linesValid: number;
@@ -31,10 +33,11 @@ type CoberturaPackage = {
 }
 
 type CoberturaClass = {
+    // Combined attribute: name + filename
+    classId: string;
     fileName: string;
     name: string;
     lineRate: number;
-    classId: string;
     lines: CoberturaLine[];
 }
 
@@ -45,43 +48,129 @@ type CoberturaLine = {
 }
 
 export class CoverageReportService {
-    private readonly destFolderPath: string;
+    private readonly MERGED_COBERTURA_REPORT_PATH: string = tl.getVariable('System.DefaultWorkingDirectory') + '/parasoft-merged-cobertura.xml';
 
-    constructor(defaultWorkingDirectory: string) {
-        this.destFolderPath = defaultWorkingDirectory;
-    }
+    mergeCoberturaReports = (reportPaths: string[]): string => {
+        if (!reportPaths || reportPaths.length == 0) {
+            tl.warning('No report path found.');
+            return '';
+        }
+        if(reportPaths.length == 1) {
+            fs.copyFileSync(reportPaths[0], this.MERGED_COBERTURA_REPORT_PATH);
+            return this.MERGED_COBERTURA_REPORT_PATH;
+        }
 
-    mergeCoberturaReports = (reportPath: string[]): string => {
-        if(reportPath.length == 1) {
-            return reportPath[0];
+        let baseCoverage = this.processXMLToObj(reportPaths[0]);
+        for(let i = 1; i < reportPaths.length; i++) {
+            const reportToMerge: CoberturaCoverage = this.processXMLToObj(reportPaths[i]);
+            try {
+                tl.debug(`Merging Cobertura report: ${reportPaths[i]}`);
+                baseCoverage = this.mergeCoberturaCoverage(lodash.cloneDeep(baseCoverage), reportToMerge);
+            } catch (error) {
+                if (error instanceof Error) {
+                    tl.warning(`Skip merging Cobertura report: ${reportPaths[i]} to ${this.MERGED_COBERTURA_REPORT_PATH}, due to ${error.message}`);
+                } else {
+                    tl.warning(`Skipped merging Cobertura report: ${reportPaths[i]}`);
+                }
+            }
         }
-        let path = reportPath[0];
-        const baseReport = this.processToJson(reportPath[0]);
-        for(let i = 1; i <reportPath.length; i++) {
-            const report: CoberturaReport = this.processToJson(reportPath[i]);
-            // Todo: Make sure these two reports have same files and file contents are same then do the merge
-            this.mergeCoberturaReport(baseReport, report);
-            path = `${this.destFolderPath}/parasoft-merged-cobertura.xml`;
-        }
-        fs.writeFileSync(path, this.processToXML(baseReport), 'utf-8');
-        return path;
+
+        this.updateAttributes(baseCoverage);
+        fs.writeFileSync(this.MERGED_COBERTURA_REPORT_PATH, this.processObjToXML(baseCoverage), 'utf-8');
+        return this.MERGED_COBERTURA_REPORT_PATH;
     };
 
-    private processToJson = (reportPath: string): CoberturaReport => {
+    private mergeCoberturaCoverage = (baseCoverage: CoberturaCoverage, coverageToMerge: CoberturaCoverage): CoberturaCoverage => {
+        coverageToMerge.packages.forEach((packageToMerge) => {
+            const basePackage = baseCoverage.packages.get(packageToMerge.name);
+            if (basePackage) {
+                this.mergeCoberturaPackage(basePackage, packageToMerge);
+            } else {
+                baseCoverage.packages.set(packageToMerge.name, packageToMerge);
+            }
+        })
+        return baseCoverage;
+    }
+
+    private mergeCoberturaPackage = (basePackage: CoberturaPackage, packageToMerge: CoberturaPackage) => {
+        packageToMerge.classes.forEach((classToMerge) => {
+            const baseClass = basePackage.classes.get(classToMerge.classId);
+            if (baseClass) {
+                this.mergeCoberturaClass(baseClass, classToMerge, packageToMerge.name);
+            } else {
+                basePackage.classes.set(classToMerge.classId, classToMerge);
+            }
+        });
+    }
+
+    private mergeCoberturaClass = (baseClass: CoberturaClass, classToMerge: CoberturaClass, packageName: string): void => {
+        if (this.areClassesTheSame(baseClass, classToMerge)) {
+            for (let i = 0; i < baseClass.lines.length; i++) {
+                baseClass.lines[i].hits += classToMerge.lines[i].hits;
+            }
+        } else {
+            throw new Error(`A conflict occurred while merging Class ‘${baseClass.fileName}’ in package ‘${packageName}’`);
+        }
+    }
+
+    private areClassesTheSame = (coberturaClass1: CoberturaClass, coberturaClass2: CoberturaClass): boolean => {
+        if (coberturaClass1.lines.length !== coberturaClass2.lines.length) {
+            return false
+        } else {
+            return this.getCoberturaClassContent(coberturaClass1) === this.getCoberturaClassContent(coberturaClass2);
+        }
+    }
+
+    private getCoberturaClassContent = (coberturaClass: CoberturaClass): string => {
+        let classContent = '';
+        coberturaClass.lines.sort((line1, line2) => {return line1.lineNumber - line2.lineNumber})
+        coberturaClass.lines.forEach((line) => {
+            classContent += `${line.lineNumber}*${line.lineHash}/`;
+        });
+        return classContent;
+    }
+
+    private updateAttributes = (coberturaCoverage: CoberturaCoverage) => {
+        // Update attributes value like 'lineRate','lines-valid','lines-covered' on <coverage>,<package> and <class>
+        let coverableLinesOnCoverage: number = 0;
+        let coveredLinesOnCoverage: number = 0;
+
+        coberturaCoverage.packages.forEach((coberturaPackage) => {
+            let coveredLinesOnPackage: number = 0;
+            let coverableLinesOnPackage: number = 0;
+            coberturaPackage.classes.forEach((coberturaClass) => {
+                const coveredLinesOnClass = coberturaClass.lines.filter((line) => line.hits > 0).length;
+                const coverableLinesOnClass = coberturaClass.lines.length;
+                coberturaClass.lineRate = coveredLinesOnClass / coverableLinesOnClass;
+                coveredLinesOnPackage += coveredLinesOnClass;
+                coverableLinesOnPackage += coverableLinesOnClass;
+            });
+
+            coberturaPackage.lineRate = coveredLinesOnPackage / coverableLinesOnPackage;
+            coveredLinesOnCoverage += coveredLinesOnPackage;
+            coverableLinesOnCoverage += coverableLinesOnPackage;
+        });
+
+        coberturaCoverage.linesCovered = coveredLinesOnCoverage;
+        coberturaCoverage.linesValid = coverableLinesOnCoverage;
+        coberturaCoverage.lineRate = coveredLinesOnCoverage / coverableLinesOnCoverage;
+    }
+
+    private processXMLToObj = (reportPath: string): CoberturaCoverage => {
         const xml = fs.readFileSync(reportPath, 'utf8');
-        const report: CoberturaReport = {
+        const coberturaCoverage: CoberturaCoverage = {
             lineRate: 0,
             linesValid: 0,
             linesCovered: 0,
             version: '',
             packages: new Map<string, CoberturaPackage>()
         };
-        let packageFolder: CoberturaPackage = {
+        let coberturaPackage: CoberturaPackage = {
             name: '',
             lineRate: 0,
             classes: new Map<string, CoberturaClass>()
         };
-        let classFile: CoberturaClass = {
+        let coberturaClass: CoberturaClass = {
             fileName: '',
             name: '',
             lineRate: 0,
@@ -95,79 +184,48 @@ export class CoverageReportService {
                 const lineRate = <string>node.attributes['line-rate'];
                 const linesCovered = <string>node.attributes['lines-covered'];
                 const linesValid = <string>node.attributes['lines-valid'];
-                if (!version) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'version' attribute.");
-                } if (!lineRate || isNaN(parseFloat(lineRate))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'line-rate' attribute.");
-                } if (!linesCovered || isNaN(parseInt(linesCovered))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'lines-covered' attribute.");
-                } if (!linesValid || isNaN(parseInt(linesValid))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'lines-valid' attribute.");
-                } else {
-                    report.version = version;
-                    report.lineRate = parseFloat(lineRate);
-                    report.linesCovered = parseInt(linesCovered);
-                    report.linesValid = parseInt(linesValid);
-                }
+                coberturaCoverage.version = version;
+                coberturaCoverage.lineRate = parseFloat(lineRate);
+                coberturaCoverage.linesCovered = parseInt(linesCovered);
+                coberturaCoverage.linesValid = parseInt(linesValid);
             }
             if (node.name == 'package') {
                 const name = (<string> node.attributes.name).replace(/</g, '&lt;').replace(/>/g, '&gt;');
                 const lineRate = <string>node.attributes['line-rate'];
-                if (!name) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'name' attribute.");
-                } if (!lineRate || isNaN(parseFloat(lineRate))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'line-rate' attribute.");
-                } else {
-                    packageFolder.name = name;
-                    packageFolder.lineRate = parseFloat(lineRate);
-                }
+                coberturaPackage.name = name;
+                coberturaPackage.lineRate = parseFloat(lineRate);
             }
             if (node.name == 'class') {
                 const fileName = <string>node.attributes.filename;
                 const name = <string>node.attributes.name;
                 const lineRate = <string>node.attributes['line-rate'];
 
-                if (!fileName || !name) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'filename/name' attribute.");
-                } if (!lineRate || isNaN(parseFloat(lineRate))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'line-rate' attribute.");
-                } else {
-                    classFile.name = name;
-                    classFile.fileName = fileName;
-                    classFile.classId = `${name}-${fileName}`;
-                    classFile.lineRate = parseFloat(lineRate);
-                }
+                coberturaClass.name = name;
+                coberturaClass.fileName = fileName;
+                coberturaClass.classId = `${name}-${fileName}`;
+                coberturaClass.lineRate = parseFloat(lineRate);
             }
             if (node.name == 'line') {
                 const lineNumber = <string>node.attributes.number;
                 const hits = <string>node.attributes.hits;
                 const lineHash = <string>node.attributes.hash;
-
-                if (!lineNumber || isNaN(parseInt(lineNumber))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'number' attribute.");
-                } else if (!lineHash) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'hash' attribute.");
-                } else if (!hits || isNaN(parseInt(hits))) {
-                    throw new Error("error in Cobertura code coverage report: failed to parse 'hits' attribute.");
-                } else {
-                    const line: CoberturaLine = {
-                        lineNumber: parseInt(lineNumber),
-                        lineHash: lineHash,
-                        hits: parseInt(hits)
-                    }
-                    classFile.lines.push(line);
+                const line: CoberturaLine = {
+                    lineNumber: parseInt(lineNumber),
+                    lineHash: lineHash,
+                    hits: parseInt(hits)
                 }
+                coberturaClass.lines.push(line);
             }
         };
 
         saxParser.onerror = (e) => {
-            console.error(e);
+            tl.warning('Failed to process Cobertura report: ' + reportPath + '. Error was: ' + e.message);
         };
 
         saxParser.onclosetag = (nodeName) => {
             if (nodeName == 'class') {
-                packageFolder.classes.set(classFile.classId, classFile);
-                classFile = {
+                coberturaPackage.classes.set(coberturaClass.classId, coberturaClass);
+                coberturaClass = {
                     fileName: '',
                     name: '',
                     lineRate: 0,
@@ -176,8 +234,8 @@ export class CoverageReportService {
                 };
             }
             if (nodeName == 'package') {
-                report.packages.set(packageFolder.name, packageFolder);
-                packageFolder = {
+                coberturaCoverage.packages.set(coberturaPackage.name, coberturaPackage);
+                coberturaPackage = {
                     name: '',
                     lineRate: 0,
                     classes: new Map<string, CoberturaClass>()
@@ -191,63 +249,33 @@ export class CoverageReportService {
         };
 
         saxParser.write(xml).close();
-        return report;
+        return coberturaCoverage;
     }
 
-    private mergeCoberturaReport = (baseReport: CoberturaReport, report: CoberturaReport): void => {
-        report.packages.forEach((packageFolder) => {
-            packageFolder.classes.forEach((classFile) => {
-                this.mergeSameClassCoverage(baseReport, classFile, packageFolder.name);
-            });
-        })
-    }
-
-    private mergeSameClassCoverage = (baseReport: CoberturaReport, classFile: CoberturaClass, packageName: string): void => {
-        const basePackageFolder = <CoberturaPackage> baseReport.packages.get(packageName);
-        const baseClass = <CoberturaClass> basePackageFolder.classes.get(classFile.classId);
-
-        const oldCoveredLines = baseClass.lines.filter((line) => line.hits > 0).length;
-        for (let i = 0; i < baseClass.lines.length; i++) {
-            baseClass.lines[i].hits += classFile.lines[i].hits;
-        }
-        const newlyCoveredLineNumber = baseClass.lines.filter((line) => line.hits > 0).length - oldCoveredLines;
-
-        baseClass.lineRate = baseClass.lines.filter(line => line.hits > 0).length / baseClass.lines.length;
-        basePackageFolder.classes.set(classFile.classId, baseClass);
-
-        const classFiles = Array.from(basePackageFolder.classes.values());
-        basePackageFolder.lineRate = classFiles.reduce((sum, packageFolder) => sum + packageFolder.lineRate, 0) / classFiles.length;
-        baseReport.packages.set(packageName, basePackageFolder);
-
-        const packageFolders = Array.from(baseReport.packages.values());
-        baseReport.lineRate = packageFolders.reduce((sum, packageFolder) => sum + packageFolder.lineRate, 0) / packageFolders.length;
-        baseReport.linesCovered += newlyCoveredLineNumber;
-    }
-
-    private processToXML = (coberturaReport: CoberturaReport): string => {
-        let packageText = '';
-        for(const packageFolder of Array.from(coberturaReport.packages.values())) {
-            packageText += this.generatePackageText(packageFolder);
+    private processObjToXML = (coberturaReport: CoberturaCoverage): string => {
+        let coberturaPackagesText = '';
+        for(const coberturaPackage of Array.from(coberturaReport.packages.values())) {
+            coberturaPackagesText += this.generateCoberturaPackageText(coberturaPackage);
         }
         return `<?xml version="1.0" encoding="UTF-8"?>` +
-                `<coverage line-rate="${coberturaReport.lineRate}" lines-covered="${coberturaReport.linesCovered}" lines-valid="${coberturaReport.linesValid}" version="${coberturaReport.version}">` +
-                `<packages>${packageText}</packages>` +
-                `</coverage>`;
+            `<coverage line-rate="${coberturaReport.lineRate}" lines-covered="${coberturaReport.linesCovered}" lines-valid="${coberturaReport.linesValid}" version="${coberturaReport.version}">` +
+            `<packages>${coberturaPackagesText}</packages>` +
+            `</coverage>`;
     }
 
-    private generatePackageText = (packageFolder: CoberturaPackage): string => {
-        let classesText = '';
-        for (const classEle of Array.from(packageFolder.classes.values())) {
-            classesText += this.generateClassText(classEle);
+    private generateCoberturaPackageText = (coberturaPackage: CoberturaPackage): string => {
+        let coberturaClassesText = '';
+        for (const coberturaClass of Array.from(coberturaPackage.classes.values())) {
+            coberturaClassesText += this.generateCoberturaClassText(coberturaClass);
         }
-        return `<package name="${packageFolder.name}" line-rate="${packageFolder.lineRate}"><classes>${classesText}</classes></package>`;
+        return `<package name="${coberturaPackage.name}" line-rate="${coberturaPackage.lineRate}"><classes>${coberturaClassesText}</classes></package>`;
     }
 
-    private generateClassText = (classFile: CoberturaClass): string => {
-        let linesText = '';
-        for (const line of classFile.lines) {
-            linesText += `<line number="${line.lineNumber}" hits="${line.hits}" hash="${line.lineHash}" />`
+    private generateCoberturaClassText = (coberturaClass: CoberturaClass): string => {
+        let coberturaLinesText = '';
+        for (const coberturaLine of coberturaClass.lines) {
+            coberturaLinesText += `<line number="${coberturaLine.lineNumber}" hits="${coberturaLine.hits}" hash="${coberturaLine.lineHash}" />`
         }
-        return `<class filename="${classFile.fileName}" name="${classFile.name}" line-rate="${classFile.lineRate}"><lines>${linesText}</lines></class>`;
+        return `<class filename="${coberturaClass.fileName}" name="${coberturaClass.name}" line-rate="${coberturaClass.lineRate}"><lines>${coberturaLinesText}</lines></class>`;
     }
 }

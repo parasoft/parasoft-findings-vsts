@@ -176,6 +176,11 @@
         "licenses": "MIT",
         "repository": "https://github.com/calvinmetcalf/lie"
     },
+    "lodash@4.17.21": {
+        "licenses": "MIT",
+        "publisher": "John-David Dalton",
+        "repository": "https://github.com/lodash/lodash"
+    },
     "mime-db@1.52.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jshttp/mime-db"

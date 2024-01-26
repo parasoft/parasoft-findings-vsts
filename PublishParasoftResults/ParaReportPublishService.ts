@@ -582,7 +582,7 @@ export class ParaReportPublishService {
     private async processCoberturaResults(): Promise<void> {
         if (this.coberturaReports.length > 0) {
             const tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
-            const coverageReportService = new CoverageReportService(this.defaultWorkingDirectory);
+            const coverageReportService = new CoverageReportService();
             const coverageReport: string = coverageReportService.mergeCoberturaReports(this.coberturaReports);
             this.generateHtmlReport(coverageReport, tempFolder);
 
