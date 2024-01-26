@@ -1,3 +1,18 @@
+/*
+ * Copyright 2024 Parasoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import * as fs from 'fs';
 import * as sax from 'sax';
 
@@ -6,34 +21,34 @@ type CoberturaReport = {
     linesCovered: number;
     linesValid: number;
     version: string;
-    packages: Map<string, PackageFolder>;
+    packages: Map<string, CoberturaPackage>;
 }
 
-type PackageFolder = {
+type CoberturaPackage = {
     name: string;
     lineRate: number;
-    classes: Map<string, ClassFile>;
+    classes: Map<string, CoberturaClass>;
 }
 
-type ClassFile = {
+type CoberturaClass = {
     fileName: string;
     name: string;
     lineRate: number;
     classId: string;
-    lines: codeLine[];
+    lines: CoberturaLine[];
 }
 
-type codeLine = {
+type CoberturaLine = {
     lineNumber: number;
     lineHash: string;
     hits: number;
 }
 
-export class CoverageReportMerger{
-    private readonly defaultWorkingDirectory: string;
+export class CoverageReportService {
+    private readonly destFolderPath: string;
 
     constructor(defaultWorkingDirectory: string) {
-        this.defaultWorkingDirectory = defaultWorkingDirectory;
+        this.destFolderPath = defaultWorkingDirectory;
     }
 
     mergeCoberturaReports = (reportPath: string[]): string => {
@@ -46,7 +61,7 @@ export class CoverageReportMerger{
             const report: CoberturaReport = this.processToJson(reportPath[i]);
             // Todo: Make sure these two reports have same files and file contents are same then do the merge
             this.mergeCoberturaReport(baseReport, report);
-            path = `${this.defaultWorkingDirectory}/parasoft-merged-cobertura.xml`;
+            path = `${this.destFolderPath}/parasoft-merged-cobertura.xml`;
         }
         fs.writeFileSync(path, this.processToXML(baseReport), 'utf-8');
         return path;
@@ -59,14 +74,14 @@ export class CoverageReportMerger{
             linesValid: 0,
             linesCovered: 0,
             version: '',
-            packages: new Map<string, PackageFolder>()
+            packages: new Map<string, CoberturaPackage>()
         };
-        let packageFolder: PackageFolder = {
+        let packageFolder: CoberturaPackage = {
             name: '',
             lineRate: 0,
-            classes: new Map<string, ClassFile>()
+            classes: new Map<string, CoberturaClass>()
         };
-        let classFile: ClassFile = {
+        let classFile: CoberturaClass = {
             fileName: '',
             name: '',
             lineRate: 0,
@@ -135,7 +150,7 @@ export class CoverageReportMerger{
                 } else if (!hits || isNaN(parseInt(hits))) {
                     throw new Error("error in Cobertura code coverage report: failed to parse 'hits' attribute.");
                 } else {
-                    const line: codeLine = {
+                    const line: CoberturaLine = {
                         lineNumber: parseInt(lineNumber),
                         lineHash: lineHash,
                         hits: parseInt(hits)
@@ -165,7 +180,7 @@ export class CoverageReportMerger{
                 packageFolder = {
                     name: '',
                     lineRate: 0,
-                    classes: new Map<string, ClassFile>()
+                    classes: new Map<string, CoberturaClass>()
                 };
 
             }
@@ -187,17 +202,15 @@ export class CoverageReportMerger{
         })
     }
 
-    private mergeSameClassCoverage = (baseReport: CoberturaReport, classFile: ClassFile, packageName: string): void => {
-        let newlyCoveredLineNumber: number;
-
-        const basePackageFolder = <PackageFolder> baseReport.packages.get(packageName);
-        const baseClass = <ClassFile> basePackageFolder.classes.get(classFile.classId);
+    private mergeSameClassCoverage = (baseReport: CoberturaReport, classFile: CoberturaClass, packageName: string): void => {
+        const basePackageFolder = <CoberturaPackage> baseReport.packages.get(packageName);
+        const baseClass = <CoberturaClass> basePackageFolder.classes.get(classFile.classId);
 
         const oldCoveredLines = baseClass.lines.filter((line) => line.hits > 0).length;
         for (let i = 0; i < baseClass.lines.length; i++) {
             baseClass.lines[i].hits += classFile.lines[i].hits;
         }
-        newlyCoveredLineNumber = baseClass.lines.filter((line) => line.hits > 0).length - oldCoveredLines;
+        const newlyCoveredLineNumber = baseClass.lines.filter((line) => line.hits > 0).length - oldCoveredLines;
 
         baseClass.lineRate = baseClass.lines.filter(line => line.hits > 0).length / baseClass.lines.length;
         basePackageFolder.classes.set(classFile.classId, baseClass);
@@ -222,7 +235,7 @@ export class CoverageReportMerger{
                 `</coverage>`;
     }
 
-    private generatePackageText = (packageFolder: PackageFolder): string => {
+    private generatePackageText = (packageFolder: CoberturaPackage): string => {
         let classesText = '';
         for (const classEle of Array.from(packageFolder.classes.values())) {
             classesText += this.generateClassText(classEle);
@@ -230,7 +243,7 @@ export class CoverageReportMerger{
         return `<package name="${packageFolder.name}" line-rate="${packageFolder.lineRate}"><classes>${classesText}</classes></package>`;
     }
 
-    private generateClassText = (classFile: ClassFile): string => {
+    private generateClassText = (classFile: CoberturaClass): string => {
         let linesText = '';
         for (const line of classFile.lines) {
             linesText += `<line number="${line.lineNumber}" hits="${line.hits}" hash="${line.lineHash}" />`
