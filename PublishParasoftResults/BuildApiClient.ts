@@ -58,42 +58,31 @@ export class BuildAPIClient {
     }
 
     async getSarifReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
+        return await this.getReportsOfArtifact(artifact, SARIF_FILE_SUFFIX);
+    }
+
+    async getCoberturaReportsByBuildId(buildId: number): Promise<FileEntry[]> {
+        const artifact = await (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
+        if(artifact) {
+            return await this.getReportsOfArtifact(artifact, COBERTURA_FILE_SUFFIX);
+        }
+        return [];
+    }
+
+    async getReportsOfArtifact(artifact: BuildArtifact, fileSuffix: string): Promise<FileEntry[]> {
         const requestUrl = artifact.resource?.downloadUrl || '';
         const arrayBuffer = await this.getArtifactContentZip(requestUrl);
         if (arrayBuffer) {
             const zip = JSZip.loadAsync(arrayBuffer);
             return Object
                 .values((await zip).files)
-                .filter(entry => !entry.dir && entry.name.endsWith(SARIF_FILE_SUFFIX))
+                .filter(entry => !entry.dir && entry.name.endsWith(fileSuffix))
                 .map(entry => ({
                     name:            entry.name.replace(`${artifact.name}/`, ''),
                     contentsPromise: entry.async('string')
                 }));
         }
         return [];
-    }
-
-    async getCoberturaArtifactOfBuildById(buildId: number): Promise<BuildArtifact> {
-        return (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
-    }
-
-    async getCoberturaReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
-        if (!artifact) {
-            return [];
-        }
-        const requestUrl = artifact.resource?.downloadUrl || '';
-        const arrayBuffer = await this.getArtifactContentZip(requestUrl);
-        if (!arrayBuffer) {
-            return [];
-        }
-        const zip = JSZip.loadAsync(arrayBuffer);
-        return Object
-            .values((await zip).files)
-            .filter(entry => !entry.dir && entry.name.endsWith(COBERTURA_FILE_SUFFIX))
-            .map(entry => ({
-                name: entry.name.replace(`${artifact.name}/`, ''),
-                contentsPromise: entry.async('string')
-            }));
     }
 
     async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer | undefined> {
