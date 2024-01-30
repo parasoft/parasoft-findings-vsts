@@ -17,6 +17,7 @@ import * as fs from 'fs';
 import * as sax from 'sax';
 import * as lodash from 'lodash';
 import * as tl from 'azure-pipelines-task-lib';
+import {BuildAPIClient, FileEntry} from "./BuildApiClient";
 
 type CoberturaCoverage = {
     lineRate: number;
@@ -49,6 +50,18 @@ type CoberturaLine = {
 
 export class CoverageReportService {
     private readonly MERGED_COBERTURA_REPORT_PATH: string = tl.getVariable('System.DefaultWorkingDirectory') + '/parasoft-merged-cobertura.xml';
+    buildClient: BuildAPIClient;
+
+    constructor() {
+        this.buildClient = new BuildAPIClient();
+    }
+
+    async getMergedCoberturaReportByBuildId(buildId: number): Promise<FileEntry | undefined> {
+        const coberturaReports = await this.buildClient.getCoberturaReportsByBuildId(buildId);
+        return coberturaReports.find(coberturaReport => {
+            return coberturaReport.name === "CoberturaContainer/parasoft-merged-cobertura.xml";
+        });
+    }
 
     mergeCoberturaReports = (reportPaths: string[]): string => {
         if (!reportPaths || reportPaths.length == 0) {
