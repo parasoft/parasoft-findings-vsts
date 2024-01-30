@@ -34,8 +34,7 @@ type CoberturaPackage = {
 }
 
 type CoberturaClass = {
-    // Combined attribute: name + filename
-    classId: string;
+    classId: string; // Use "name + filename" to identify the class
     fileName: string;
     name: string;
     lineRate: number;
@@ -50,7 +49,7 @@ type CoberturaLine = {
 
 export class CoverageReportService {
     private readonly MERGED_COBERTURA_REPORT_PATH: string = tl.getVariable('System.DefaultWorkingDirectory') + '/parasoft-merged-cobertura.xml';
-    buildClient: BuildAPIClient;
+    private buildClient: BuildAPIClient;
 
     constructor() {
         this.buildClient = new BuildAPIClient();
@@ -67,7 +66,7 @@ export class CoverageReportService {
         if (!reportPaths || reportPaths.length == 0) {
             return undefined;
         }
-        if(reportPaths.length == 1) {
+        if (reportPaths.length == 1) {
             fs.copyFileSync(reportPaths[0], this.MERGED_COBERTURA_REPORT_PATH);
             return this.MERGED_COBERTURA_REPORT_PATH;
         }
@@ -124,7 +123,7 @@ export class CoverageReportService {
                 baseClass.lines[i].hits += classToMerge.lines[i].hits;
             }
         } else {
-            throw new Error(`a conflict occurred while merging Class '${baseClass.fileName}' in package '${packageName}'`);
+            throw new Error(`a conflict occurred while merging Class '${baseClass.fileName}' in '${packageName}'`);
         }
     }
 
@@ -149,7 +148,7 @@ export class CoverageReportService {
     };
 
     /**
-     * Update attributes value like 'lineRate','lines-valid','lines-covered' on <coverage>,<package> and <class>
+     * Recalculation for attribute values like 'lineRate','lines-valid','lines-covered' on <coverage>, <package> and <class>
      */
     private updateAttributes = (coberturaCoverage: CoberturaCoverage) => {
         let coverableLinesOnCoverage: number = 0;

@@ -580,7 +580,7 @@ export class ParaReportPublishService {
             const coverageReportService = new CoverageReportService();
             const coverageReport = coverageReportService.mergeCoberturaReports(this.coberturaReports);
             if (!coverageReport) {
-                tl.warning('No merged coverage report generated.');
+                tl.warning('No merged coverage report generated.'); // Should never happen
                 return;
             }
             this.generateHtmlReport(coverageReport, tempFolder);
