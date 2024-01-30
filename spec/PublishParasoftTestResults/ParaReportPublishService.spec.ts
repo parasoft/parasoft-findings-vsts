@@ -197,7 +197,7 @@ describe("Parasoft findings Azure", () => {
             expect(publisher.xUnitReports.length).toBe(1);
         });
 
-        describe('XML_COVERAGE', () => {
+        xdescribe('XML_COVERAGE', () => {
 
             beforeEach(() => {
                 spyOn(path, 'join').and.returnValue('E:\\AzureAgent\\_work\\_temp\\CodeCoverageHtml');

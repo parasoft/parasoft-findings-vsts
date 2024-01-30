@@ -27,6 +27,7 @@ import * as axios from 'axios';
 import * as uuid from 'uuid';
 import { BuildAPIClient, FileEntry } from './BuildApiClient';
 import { BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import {CoverageReportService} from "./CoverageReportService";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
@@ -576,7 +577,12 @@ export class ParaReportPublishService {
     private async processCoberturaResults(): Promise<void> {
         if (this.coberturaReports.length > 0) {
             const tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
-            const coverageReport: string = <string> this.coberturaReports[this.coberturaReports.length - 1];
+            const coverageReportService = new CoverageReportService();
+            const coverageReport = coverageReportService.mergeCoberturaReports(this.coberturaReports);
+            if (!coverageReport) {
+                tl.warning('No merged coverage report generated.'); // Should never happen
+                return;
+            }
             this.generateHtmlReport(coverageReport, tempFolder);
 
             const coveragePublisher = new tl.CodeCoveragePublisher();
