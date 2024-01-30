@@ -63,16 +63,16 @@ export class CoverageReportService {
         });
     }
 
-    mergeCoberturaReports = (reportPaths: string[]): string => {
+    mergeCoberturaReports = (reportPaths: string[]): string | undefined => {
         if (!reportPaths || reportPaths.length == 0) {
-            tl.warning('No report path found.');
-            return '';
+            return undefined;
         }
         if(reportPaths.length == 1) {
             fs.copyFileSync(reportPaths[0], this.MERGED_COBERTURA_REPORT_PATH);
             return this.MERGED_COBERTURA_REPORT_PATH;
         }
 
+        tl.debug(`Using Cobertura report '${reportPaths[0]}' as base report.`);
         let baseCoverage = this.processXMLToObj(reportPaths[0]);
         for(let i = 1; i < reportPaths.length; i++) {
             const reportToMerge: CoberturaCoverage = this.processXMLToObj(reportPaths[i]);
@@ -81,7 +81,7 @@ export class CoverageReportService {
                 baseCoverage = this.mergeCoberturaCoverage(lodash.cloneDeep(baseCoverage), reportToMerge);
             } catch (error) {
                 if (error instanceof Error) {
-                    tl.warning(`Skip merging Cobertura report: ${reportPaths[i]} to ${this.MERGED_COBERTURA_REPORT_PATH}, due to ${error.message}`);
+                    tl.warning(`Skipped merging Cobertura report '${reportPaths[i]}': ${error.message}`);
                 } else {
                     tl.warning(`Skipped merging Cobertura report: ${reportPaths[i]}`);
                 }
@@ -117,12 +117,14 @@ export class CoverageReportService {
     }
 
     private mergeCoberturaClass = (baseClass: CoberturaClass, classToMerge: CoberturaClass, packageName: string): void => {
+        this.sortLines(baseClass);
+        this.sortLines(classToMerge);
         if (this.areClassesTheSame(baseClass, classToMerge)) {
             for (let i = 0; i < baseClass.lines.length; i++) {
                 baseClass.lines[i].hits += classToMerge.lines[i].hits;
             }
         } else {
-            throw new Error(`A conflict occurred while merging Class ‘${baseClass.fileName}’ in package ‘${packageName}’`);
+            throw new Error(`a conflict occurred while merging Class '${baseClass.fileName}' in package '${packageName}'`);
         }
     }
 
@@ -136,15 +138,20 @@ export class CoverageReportService {
 
     private getCoberturaClassContent = (coberturaClass: CoberturaClass): string => {
         let classContent = '';
-        coberturaClass.lines.sort((line1, line2) => {return line1.lineNumber - line2.lineNumber})
         coberturaClass.lines.forEach((line) => {
             classContent += `${line.lineNumber}*${line.lineHash}/`;
         });
         return classContent;
     }
 
+    private sortLines = (coberturaClass: CoberturaClass) => {
+        coberturaClass.lines.sort((line1, line2) => {return line1.lineNumber - line2.lineNumber});
+    };
+
+    /**
+     * Update attributes value like 'lineRate','lines-valid','lines-covered' on <coverage>,<package> and <class>
+     */
     private updateAttributes = (coberturaCoverage: CoberturaCoverage) => {
-        // Update attributes value like 'lineRate','lines-valid','lines-covered' on <coverage>,<package> and <class>
         let coverableLinesOnCoverage: number = 0;
         let coveredLinesOnCoverage: number = 0;
 

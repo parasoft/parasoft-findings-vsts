@@ -578,7 +578,11 @@ export class ParaReportPublishService {
         if (this.coberturaReports.length > 0) {
             const tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
             const coverageReportService = new CoverageReportService();
-            const coverageReport: string = coverageReportService.mergeCoberturaReports(this.coberturaReports);
+            const coverageReport = coverageReportService.mergeCoberturaReports(this.coberturaReports);
+            if (!coverageReport) {
+                tl.warning('No merged coverage report generated.');
+                return;
+            }
             this.generateHtmlReport(coverageReport, tempFolder);
 
             const coveragePublisher = new tl.CodeCoveragePublisher();
