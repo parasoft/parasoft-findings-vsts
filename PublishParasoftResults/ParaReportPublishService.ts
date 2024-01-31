@@ -579,20 +579,20 @@ export class ParaReportPublishService {
             const parasoftFindingsTempFolder = path.join(this.getTempFolder(), 'ParasoftFindings')
             const coverageReportService = new CoverageReportService();
 
-            // Check and merge Cobertura report from artifacts
+            // Get merged cobertura report from artifacts and save it to a temp file
             let mergedCoberturaReportFileFromArtifacts: string | undefined;
             const mergedCoberturaReportFromArtifacts = await coverageReportService.getMergedCoberturaReportByBuildId(Number(this.buildId));
             if (mergedCoberturaReportFromArtifacts) {
                 mergedCoberturaReportFileFromArtifacts =  path.join(parasoftFindingsTempFolder, "parasoft-merged-cobertura-from-artifact.xml");
                 fs.writeFileSync(mergedCoberturaReportFileFromArtifacts, await mergedCoberturaReportFromArtifacts.contentsPromise, 'utf-8');
             }
+            // Merge cobertura reports from artifacts and current task
             const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports, mergedCoberturaReportFileFromArtifacts);
-
             if (!finalMergedCoberturaReportFile) {
                 tl.warning('No merged coverage report generated.'); // Should never happen
                 return;
             }
-
+            // Generate and publish code coverage html report
             const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
             this.generateHtmlReport(finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder);
 

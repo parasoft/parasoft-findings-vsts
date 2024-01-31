@@ -66,11 +66,11 @@ export class CoverageReportService {
     /**
      * Merges multiple Cobertura coverage reports into a single report.
      * 
-     * @param reportPaths Array of paths to the Cobertura reports to be merged.
-     * @param baseReportPath Optional, Path to the base report that will be used to merge with the others. 
-     *                       If not specified or undefined, the first report in reportPaths is used as the base.
-     * @returns The path to the merged Cobertura report file(file name is parasoft-merged-cobertura.xml), 
-     *          or undefined if reportPaths is empty or null.
+     * @param reportPaths Array containing the file paths of Cobertura reports to be merged.
+     * @param baseReportPath (Optional) Path to the base report for merging.
+     *                       The first report in reportPaths is used as default if unspecified or undefined.
+     * @returns Path to the merged Cobertura report (named 'parasoft-merged-cobertura.xml').
+     *          Returns undefined if reportPaths is empty or null.
      */
     mergeCoberturaReports = (reportPaths: string[], baseReportPath?: string): string | undefined => {
         if (!reportPaths || reportPaths.length == 0) {
@@ -82,7 +82,7 @@ export class CoverageReportService {
 
         tl.debug(`Using Cobertura report '${baseReportPath}' as base report.`);
         let baseCoverage = this.processXMLToObj(baseReportPath);
-        for(let i = startIndex; i < reportPaths.length; i++) {
+        for (let i = startIndex; i < reportPaths.length; i++) {
             const reportToMerge: CoberturaCoverage = this.processXMLToObj(reportPaths[i]);
             try {
                 tl.debug(`Merging Cobertura report: ${reportPaths[i]}`);
