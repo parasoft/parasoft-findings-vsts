@@ -595,6 +595,8 @@ export class ParaReportPublishService {
                 const coveragePublisher = new tl.CodeCoveragePublisher();
                 coveragePublisher.publish('Cobertura', finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder, '');
                 tl.uploadArtifact('CoberturaContainer', finalMergedCoberturaReportFile, 'ParasoftCoverageLogs');
+            } else {
+                tl.warning('No merged coverage report generated.'); // Should never happen
             }
         }
     }

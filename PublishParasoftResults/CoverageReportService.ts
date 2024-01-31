@@ -35,8 +35,7 @@ type CoberturaPackage = {
 }
 
 type CoberturaClass = {
-    // Combined attribute: name + filename
-    classId: string;
+    classId: string; // Use "name + filename" to identify the class
     fileName: string;
     name: string;
     lineRate: number;
@@ -133,7 +132,7 @@ export class CoverageReportService {
                 baseClass.lines[i].hits += classToMerge.lines[i].hits;
             }
         } else {
-            throw new Error(`a conflict occurred while merging Class '${baseClass.fileName}' in package '${packageName}'`);
+            throw new Error(`a conflict occurred while merging Class '${baseClass.fileName}' in '${packageName}'`);
         }
     }
 
@@ -158,7 +157,7 @@ export class CoverageReportService {
     };
 
     /**
-     * Update attributes value like 'lineRate','lines-valid','lines-covered' on <coverage>,<package> and <class>
+     * Recalculation for attribute values like 'lineRate','lines-valid','lines-covered' on <coverage>, <package> and <class>
      */
     private updateAttributes = (coberturaCoverage: CoberturaCoverage) => {
         let coverableLinesOnCoverage: number = 0;
