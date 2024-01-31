@@ -580,14 +580,13 @@ export class ParaReportPublishService {
             const coverageReportService = new CoverageReportService();
 
             // Check and merge Cobertura report from artifacts
+            let mergedCoberturaReportFileFromArtifacts: string | undefined;
             const mergedCoberturaReportFromArtifacts = await coverageReportService.getMergedCoberturaReportByBuildId(Number(this.buildId));
             if (mergedCoberturaReportFromArtifacts) {
-                const mergedCoberturaReportFileFromArtifacts =  parasoftFindingsTempFolder + "/parasoft-merged-cobertura-from-artifact.xml";
+                mergedCoberturaReportFileFromArtifacts =  path.join(parasoftFindingsTempFolder, "parasoft-merged-cobertura-from-artifact.xml");
                 fs.writeFileSync(mergedCoberturaReportFileFromArtifacts, await mergedCoberturaReportFromArtifacts.contentsPromise, 'utf-8');
-                this.coberturaReports.unshift(mergedCoberturaReportFileFromArtifacts);
             }
-
-            const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports);
+            const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports, mergedCoberturaReportFileFromArtifacts);
 
             if (finalMergedCoberturaReportFile) {
                 const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
