@@ -20,7 +20,7 @@ import { Build, BuildArtifact, BuildDefinitionReference } from 'azure-devops-nod
 import * as JSZip from 'jszip';
 import fetch, { Headers, RequestInit } from 'node-fetch';
 
-const COBERTURA_FILE_SUFFIX = "-cobertura.xml";
+const COBERTURA_FILE_NAME = 'parasoft-merged-cobertura.xml';
 const COBERTURA_ARTIFACT_NAME: string = "ParasoftCoverageLogs";
 
 export interface FileEntry {
@@ -56,7 +56,7 @@ export class BuildAPIClient {
         return (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
     }
 
-    async getCoberturaReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
+    async getMergedCoberturaReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
         if (!artifact) {
             return [];
         }
@@ -68,7 +68,7 @@ export class BuildAPIClient {
         const zip = JSZip.loadAsync(arrayBuffer);
         return Object
             .values((await zip).files)
-            .filter(entry => !entry.dir && entry.name.endsWith(COBERTURA_FILE_SUFFIX))
+            .filter(entry => !entry.dir && entry.name.includes(COBERTURA_FILE_NAME))
             .map(entry => ({
                 name:            entry.name.replace(`${artifact.name}/`, ''),
                 contentsPromise: entry.async('string')

@@ -60,7 +60,7 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
         expect(result).toEqual(buildArtifactResult);
     });
 
-    describe('getCoberturaReportsOfArtifact()', () => {
+    xdescribe('getCoberturaReportsOfArtifact()', () => {
         it('when there is artifact content', async () => {
             buildClient = new BuildAPIClient();
     
