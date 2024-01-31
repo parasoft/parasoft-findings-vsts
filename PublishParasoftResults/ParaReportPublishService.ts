@@ -588,16 +588,17 @@ export class ParaReportPublishService {
             }
             const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports, mergedCoberturaReportFileFromArtifacts);
 
-            if (finalMergedCoberturaReportFile) {
-                const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
-                this.generateHtmlReport(finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder);
-    
-                const coveragePublisher = new tl.CodeCoveragePublisher();
-                coveragePublisher.publish('Cobertura', finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder, '');
-                tl.uploadArtifact('CoberturaContainer', finalMergedCoberturaReportFile, 'ParasoftCoverageLogs');
-            } else {
+            if (!finalMergedCoberturaReportFile) {
                 tl.warning('No merged coverage report generated.'); // Should never happen
+                return;
             }
+
+            const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
+            this.generateHtmlReport(finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder);
+
+            const coveragePublisher = new tl.CodeCoveragePublisher();
+            coveragePublisher.publish('Cobertura', finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder, '');
+            tl.uploadArtifact('CoberturaContainer', finalMergedCoberturaReportFile, 'ParasoftCoverageLogs');
         }
     }
 

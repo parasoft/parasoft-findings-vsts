@@ -50,7 +50,7 @@ type CoberturaLine = {
 
 export class CoverageReportService {
     private readonly MERGED_COBERTURA_REPORT_PATH: string = path.join(tl.getVariable('System.DefaultWorkingDirectory') || '', 'parasoft-merged-cobertura.xml');
-    buildClient: BuildAPIClient;
+    private buildClient: BuildAPIClient;
 
     constructor() {
         this.buildClient = new BuildAPIClient();
