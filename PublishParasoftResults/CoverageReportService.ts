@@ -80,9 +80,9 @@ export class CoverageReportService {
                 baseCoverage = this.mergeCoberturaCoverage(lodash.cloneDeep(baseCoverage), reportToMerge);
             } catch (error) {
                 if (error instanceof Error) {
-                    tl.warning(`Skipped merging Cobertura report '${reportPaths[i]}': ${error.message}`);
+                    tl.warning(`Coverage data in report '${reportPaths[i]}' was not merged due to ${error.message}`);
                 } else {
-                    tl.warning(`Skipped merging Cobertura report: ${reportPaths[i]}`);
+                    tl.warning(`Coverage data in report '${reportPaths[i]}' was not merged`);
                 }
             }
         }
@@ -108,14 +108,14 @@ export class CoverageReportService {
         packageToMerge.classes.forEach((classToMerge) => {
             const baseClass = basePackage.classes.get(classToMerge.classId);
             if (baseClass) {
-                this.mergeCoberturaClass(baseClass, classToMerge, packageToMerge.name);
+                this.mergeCoberturaClass(baseClass, classToMerge);
             } else {
                 basePackage.classes.set(classToMerge.classId, classToMerge);
             }
         });
     }
 
-    private mergeCoberturaClass = (baseClass: CoberturaClass, classToMerge: CoberturaClass, packageName: string): void => {
+    private mergeCoberturaClass = (baseClass: CoberturaClass, classToMerge: CoberturaClass): void => {
         this.sortLines(baseClass);
         this.sortLines(classToMerge);
         if (this.areClassesTheSame(baseClass, classToMerge)) {
@@ -123,7 +123,7 @@ export class CoverageReportService {
                 baseClass.lines[i].hits += classToMerge.lines[i].hits;
             }
         } else {
-            throw new Error(`a conflict occurred while merging Class '${baseClass.fileName}' in '${packageName}'`);
+            throw new Error(`an inconsistent set of lines reported for class '${baseClass.fileName}'`);
         }
     }
 
