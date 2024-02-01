@@ -70,15 +70,18 @@ export class CoverageReportService {
      * @param baseReportPath (Optional) Path to the base report for merging.
      *                       The first report in reportPaths is used as default if unspecified or undefined.
      * @returns Path to the merged Cobertura report (named 'parasoft-merged-cobertura.xml').
-     *          Returns undefined if reportPaths is empty or null.
+     *          Returns undefined if reportPaths is empty or null and baseReportPath is unspecified.
      */
     mergeCoberturaReports = (reportPaths: string[], baseReportPath?: string): string | undefined => {
-        if (!reportPaths || reportPaths.length == 0) {
-            return undefined;
+        reportPaths = reportPaths || [];
+        let startIndex: number = 0;
+        if (!baseReportPath) {
+            if (!reportPaths.length) {
+                return undefined;
+            }
+            baseReportPath = reportPaths[0];
+            startIndex = 1;
         }
-
-        const startIndex = baseReportPath ? 0 : 1;
-        baseReportPath = baseReportPath || reportPaths[0];
 
         tl.debug(`Using Cobertura report '${baseReportPath}' as base report.`);
         let baseCoverage = this.processXMLToObj(baseReportPath);

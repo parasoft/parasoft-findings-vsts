@@ -589,7 +589,7 @@ export class ParaReportPublishService {
             // Merge cobertura reports from artifacts and current task
             const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports, mergedCoberturaReportFileFromArtifacts);
             if (!finalMergedCoberturaReportFile) {
-                tl.warning('No merged coverage report generated.'); // Should never happen
+                tl.warning('No Parasoft coverage results were found in this build.'); // Should never happen
                 return;
             }
             // Generate and publish code coverage html report
