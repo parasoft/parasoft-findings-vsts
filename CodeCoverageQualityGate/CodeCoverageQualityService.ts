@@ -112,8 +112,8 @@ export class CodeCoverageQualityService {
             if (!this.readReferenceBuildInfo()) {
                 return;
             }
-            // Get Cobertura report in current build
-            const currentCoberturaReport = await this.getCoberturaReportOfCurrentBuild();
+            // Get merged Cobertura report in current build
+            const currentCoberturaReport = await this.getMergedCoberturaReportOfCurrentBuild();
             if (!currentCoberturaReport) {
                 this.skipQualityGateWithWarning(`no Parasoft coverage results were found in this build`);
             } else {
@@ -153,7 +153,7 @@ export class CodeCoverageQualityService {
             if (this.type == TypeEnum.OVERALL) {
                 coverageInfo = this.getOverallCodeCoverage(currentCoberturaReportContent);
             } else if (this.type == TypeEnum.MODIFIED) {
-                const referenceCoberturaReport = await this.getCoberturaReportOfReferenceBuild();
+                const referenceCoberturaReport = await this.getMergedCoberturaReportOfReferenceBuild();
                 if (!referenceCoberturaReport) return;
                 const referenceCoberturaReportContent = await referenceCoberturaReport.contentsPromise;
                 coverageInfo = this.getModifiedCodeCoverage(referenceCoberturaReportContent, currentCoberturaReportContent);
@@ -170,32 +170,31 @@ export class CodeCoverageQualityService {
         return coverageInfo;
     };
 
-    private getCoberturaReportOfCurrentBuild = async (): Promise<FileEntry | undefined> => {
+    private getMergedCoberturaReportOfCurrentBuild = async (): Promise<FileEntry | undefined> => {
         const currentBuildArtifact = await this.buildClient.getCoberturaArtifactOfBuildById(Number(this.buildId));
         if (!currentBuildArtifact) {
             return;
         }
-        const coberturaReports = await this.buildClient.getCoberturaReportsOfArtifact(currentBuildArtifact);
-        if (coberturaReports.length == 0) {
+        const coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(currentBuildArtifact);
+        if (coberturaReport == undefined) {
             return;
         }
-        // Assuming there is only one Cobertura report in artifact
-        return coberturaReports[0];
+        return coberturaReport;
     };
 
-    private getCoberturaReportOfReferenceBuild = async (): Promise<FileEntry | undefined> => {
+    private getMergedCoberturaReportOfReferenceBuild = async (): Promise<FileEntry | undefined> => {
         if ((!this.referenceInputs.pipelineName || this.referenceInputs.pipelineName == this.pipelineName) && this.referenceInputs.buildNumber == this.buildNumber) { // Reference build is the current build
             this.skipQualityGateWithWarning("the current build is not allowed to be used as the reference");
             return;
         }
         if (!this.referenceInputs.pipelineName) { // Reference pipeline is not specified
             tl.debug("No reference pipeline has been set; using the current pipeline as reference.");
-            return this.getCoberturaReportOfPipeline(this.definitionId, this.pipelineName);
+            return this.getMergedCoberturaReportOfPipeline(this.definitionId, this.pipelineName);
         }
         // Reference pipeline is specified; Get the reference pipeline id based on the reference pipeline name specified in the configuration UI
         const pipelines = await this.buildClient.getPipelinesByName(this.referenceInputs.pipelineName);
         if (pipelines.length == 1) {
-            return this.getCoberturaReportOfPipeline(Number(pipelines[0].id), pipelines[0].name || '');
+            return this.getMergedCoberturaReportOfPipeline(Number(pipelines[0].id), pipelines[0].name || '');
         } else if (pipelines.length > 1) {
             this.skipQualityGateWithWarning(`the specified reference pipeline '${this.referenceInputs.pipelineName}' is not unique`);
             return;
@@ -205,7 +204,7 @@ export class CodeCoverageQualityService {
         }
     };
 
-    private getCoberturaReportOfPipeline = async (pipelineId: number, pipelineName: string): Promise<FileEntry | undefined> => {
+    private getMergedCoberturaReportOfPipeline = async (pipelineId: number, pipelineName: string): Promise<FileEntry | undefined> => {
         const buildsOfPipeline = await this.buildClient.getBuildsOfPipelineById(pipelineId);
         if (!this.referenceInputs.buildNumber) { // Reference build is not specified
             tl.debug(`No reference build has been set; using the last successful build in pipeline '${pipelineName}' as reference.`);
@@ -217,20 +216,20 @@ export class CodeCoverageQualityService {
                     return build.result == BuildResult.Succeeded;
                 });
                 if (allSuccessfulBuilds.length > 0) {
-                    let coberturaReports: FileEntry[] = [];
+                    let coberturaReport: FileEntry | undefined;
                     let buildId: number | undefined, buildNumber: string | undefined;
                     // Use the last successful build with Parasoft Cobertura results as the default reference build
                     for (let index = 0; index < allSuccessfulBuilds.length; index++) {
                         const lastSuccessfulBuildId: number = Number(allSuccessfulBuilds[index].id);
                         const artifact: BuildArtifact = await this.buildClient.getCoberturaArtifactOfBuildById(lastSuccessfulBuildId);
                         if (artifact) {
-                            coberturaReports = await this.buildClient.getCoberturaReportsOfArtifact(artifact);
+                            coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(artifact);
                             buildId = lastSuccessfulBuildId;
                             buildNumber = allSuccessfulBuilds[index].buildNumber;
                             break;
                         }
                     }
-                    if (coberturaReports.length == 0) {
+                    if (coberturaReport == undefined) {
                         this.skipQualityGateWithWarning(`no Parasoft coverage results were found in any of the previous successful builds in pipeline '${pipelineName}'`);
 		                return;
                     }
@@ -240,7 +239,7 @@ export class CodeCoverageQualityService {
                         buildId: <string> buildNumber
                     };
                     tl.debug(`Set build '${pipelineName}#${buildNumber}' as the default reference build`);
-                    return coberturaReports?.at(0);
+                    return coberturaReport;
                 } else {
                     this.skipQualityGateWithWarning(`no successful build was found in pipeline '${pipelineName}'`);
 		            return;
@@ -273,8 +272,8 @@ export class CodeCoverageQualityService {
                 return;
             }
             // Check for the existence of Parasoft Cobertura report in reference build
-            const coberturaReports = await this.buildClient.getCoberturaReportsOfArtifact(artifact);
-            if (coberturaReports.length == 0) {
+            const coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(artifact);
+            if (!coberturaReport) {
                 this.skipQualityGateWithWarning(`no Parasoft coverage results were found in the specified reference build: '${pipelineName}#${this.referenceInputs.buildNumber}'`);
                 return;
             }
@@ -285,8 +284,7 @@ export class CodeCoverageQualityService {
                 buildNumber: (<number> referenceBuild.id).toString(),
                 buildId: <string> referenceBuild.buildNumber
             };
-            // Assuming there is only one Cobertura report in artifact
-            return coberturaReports[0];
+            return coberturaReport;
         }
     };
 
