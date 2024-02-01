@@ -16,6 +16,7 @@
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as lodash from 'lodash';
+import * as path from 'path';
 import * as tl from 'azure-pipelines-task-lib';
 import {BuildAPIClient, FileEntry} from "./BuildApiClient";
 
@@ -48,7 +49,7 @@ type CoberturaLine = {
 }
 
 export class CoverageReportService {
-    private readonly MERGED_COBERTURA_REPORT_PATH: string = tl.getVariable('System.DefaultWorkingDirectory') + '/parasoft-merged-cobertura.xml';
+    private readonly MERGED_COBERTURA_REPORT_PATH: string = path.join(tl.getVariable('System.DefaultWorkingDirectory') || '', 'parasoft-merged-cobertura.xml');
     private buildClient: BuildAPIClient;
 
     constructor() {
@@ -62,18 +63,29 @@ export class CoverageReportService {
         });
     }
 
-    mergeCoberturaReports = (reportPaths: string[]): string | undefined => {
-        if (!reportPaths || reportPaths.length == 0) {
-            return undefined;
-        }
-        if (reportPaths.length == 1) {
-            fs.copyFileSync(reportPaths[0], this.MERGED_COBERTURA_REPORT_PATH);
-            return this.MERGED_COBERTURA_REPORT_PATH;
+    /**
+     * Merges multiple Cobertura coverage reports into a single report.
+     * 
+     * @param reportPaths Array containing the file paths of Cobertura reports to be merged.
+     * @param baseReportPath (Optional) Path to the base report for merging.
+     *                       The first report in reportPaths is used as default if unspecified or undefined.
+     * @returns Path to the merged Cobertura report (named 'parasoft-merged-cobertura.xml').
+     *          Returns undefined if reportPaths is empty or null and baseReportPath is unspecified.
+     */
+    mergeCoberturaReports = (reportPaths: string[], baseReportPath?: string): string | undefined => {
+        reportPaths = reportPaths || [];
+        let startIndex: number = 0;
+        if (!baseReportPath) {
+            if (!reportPaths.length) {
+                return undefined;
+            }
+            baseReportPath = reportPaths[0];
+            startIndex = 1;
         }
 
-        tl.debug(`Using Cobertura report '${reportPaths[0]}' as base report.`);
-        let baseCoverage = this.processXMLToObj(reportPaths[0]);
-        for(let i = 1; i < reportPaths.length; i++) {
+        tl.debug(`Using Cobertura report '${baseReportPath}' as base report.`);
+        let baseCoverage = this.processXMLToObj(baseReportPath);
+        for (let i = startIndex; i < reportPaths.length; i++) {
             const reportToMerge: CoberturaCoverage = this.processXMLToObj(reportPaths[i]);
             try {
                 tl.debug(`Merging Cobertura report: ${reportPaths[i]}`);

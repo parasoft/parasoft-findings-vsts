@@ -576,18 +576,29 @@ export class ParaReportPublishService {
 
     private async processCoberturaResults(): Promise<void> {
         if (this.coberturaReports.length > 0) {
-            const tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
+            const parasoftFindingsTempFolder = path.join(this.getTempFolder(), 'ParasoftFindings')
             const coverageReportService = new CoverageReportService();
-            const coverageReport = coverageReportService.mergeCoberturaReports(this.coberturaReports);
-            if (!coverageReport) {
-                tl.warning('No merged coverage report generated.'); // Should never happen
+
+            // Get merged cobertura report from artifacts and save it to a temp file
+            let mergedCoberturaReportFileFromArtifacts: string | undefined;
+            const mergedCoberturaReportFromArtifacts = await coverageReportService.getMergedCoberturaReportByBuildId(Number(this.buildId));
+            if (mergedCoberturaReportFromArtifacts) {
+                mergedCoberturaReportFileFromArtifacts =  path.join(parasoftFindingsTempFolder, "parasoft-merged-cobertura-from-artifact.xml");
+                fs.writeFileSync(mergedCoberturaReportFileFromArtifacts, await mergedCoberturaReportFromArtifacts.contentsPromise, 'utf-8');
+            }
+            // Merge cobertura reports from artifacts and current task
+            const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports, mergedCoberturaReportFileFromArtifacts);
+            if (!finalMergedCoberturaReportFile) {
+                tl.warning('No Parasoft coverage results were found in this build.'); // Should never happen
                 return;
             }
-            this.generateHtmlReport(coverageReport, tempFolder);
+            // Generate and publish code coverage html report
+            const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
+            this.generateHtmlReport(finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder);
 
             const coveragePublisher = new tl.CodeCoveragePublisher();
-            coveragePublisher.publish('Cobertura', coverageReport, tempFolder, '');
-            tl.uploadArtifact('CoberturaContainer', coverageReport, 'ParasoftCoverageLogs');
+            coveragePublisher.publish('Cobertura', finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder, '');
+            tl.uploadArtifact('CoberturaContainer', finalMergedCoberturaReportFile, 'ParasoftCoverageLogs');
         }
     }
 
