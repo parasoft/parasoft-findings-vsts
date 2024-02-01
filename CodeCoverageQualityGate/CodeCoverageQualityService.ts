@@ -112,7 +112,7 @@ export class CodeCoverageQualityService {
             if (!this.readReferenceBuildInfo()) {
                 return;
             }
-            // Get Merged Cobertura report in current build
+            // Get merged Cobertura report in current build
             const currentCoberturaReport = await this.getMergedCoberturaReportOfCurrentBuild();
             if (!currentCoberturaReport) {
                 this.skipQualityGateWithWarning(`no Parasoft coverage results were found in this build`);
@@ -216,7 +216,7 @@ export class CodeCoverageQualityService {
                     return build.result == BuildResult.Succeeded;
                 });
                 if (allSuccessfulBuilds.length > 0) {
-                    let coberturaReport: FileEntry | undefined = undefined;
+                    let coberturaReport: FileEntry | undefined;
                     let buildId: number | undefined, buildNumber: string | undefined;
                     // Use the last successful build with Parasoft Cobertura results as the default reference build
                     for (let index = 0; index < allSuccessfulBuilds.length; index++) {
@@ -273,7 +273,7 @@ export class CodeCoverageQualityService {
             }
             // Check for the existence of Parasoft Cobertura report in reference build
             const coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(artifact);
-            if (coberturaReport == undefined) {
+            if (!coberturaReport) {
                 this.skipQualityGateWithWarning(`no Parasoft coverage results were found in the specified reference build: '${pipelineName}#${this.referenceInputs.buildNumber}'`);
                 return;
             }
