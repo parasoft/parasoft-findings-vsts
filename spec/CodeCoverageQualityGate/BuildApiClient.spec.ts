@@ -60,7 +60,7 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
         expect(result).toEqual(buildArtifactResult);
     });
 
-    xdescribe('getCoberturaReportsOfArtifact()', () => {
+    describe('getMergedCoberturaReportOfArtifact()', () => {
         it('when there is artifact content', async () => {
             buildClient = new BuildAPIClient();
     
@@ -71,17 +71,17 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
             };
             const mockedZip: any = {
                 files: {
-                    'CodeCoverageLogs/report1-coverage-xml-cobertura.xml': {
-                        name: 'CodeCoverageLogs/report1-coverage-xml-cobertura.xml',
+                    'CoberturaContainer/report-coverage-xml-cobertura.xml': {
+                        name: 'CoberturaContainer/report-coverage-xml-cobertura.xml',
                         dir: false,
-                        async: jasmine.createSpy('async').and.returnValue('report_1_content_promise_resolved')
+                        async: jasmine.createSpy('async').and.returnValue('report_content_promise_resolved')
                     },
-                    'CodeCoverageLogs/report2-coverage-xml-cobertura.xml': {
-                        name: 'CodeCoverageLogs/report2-coverage-xml-cobertura.xml',
-                        dir: false, async: jasmine.createSpy('async').and.returnValue('report_2_content_promise_resolved')
+                    'CoberturaContainer/parasoft-merged-cobertura.xml': {
+                        name: 'CoberturaContainer/parasoft-merged-cobertura.xml',
+                        dir: false, async: jasmine.createSpy('async').and.returnValue('parasoft-merged-cobertura_content_promise_resolved')
                     },
-                    'CodeCoverageLogs/report.pdf': {
-                        name: 'CodeCoverageLogs/report.pdf',
+                    'CoberturaContainer/report.pdf': {
+                        name: 'CoberturaContainer/report.pdf',
                         dir: false, async: jasmine.createSpy('async').and.returnValue('report_other_content_promise_resolved')
                     },
                 },
@@ -92,17 +92,14 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
                     return this.files[name];
                 },
             };
-            const expectedResult: any[] = [{
-                name: "report1-coverage-xml-cobertura.xml",
-                contentsPromise: 'report_1_content_promise_resolved'
-            }, {
-                name: "report2-coverage-xml-cobertura.xml",
-                contentsPromise: 'report_2_content_promise_resolved'
-            }];
+            const expectedResult: any = {
+                name: "CoberturaContainer/parasoft-merged-cobertura.xml",
+                contentsPromise: 'parasoft-merged-cobertura_content_promise_resolved'
+            };
             spyOn(buildClient, 'getArtifactContentZip').and.returnValue(new ArrayBuffer(0));
             spyOn(JSZip, 'loadAsync').and.returnValue(Promise.resolve(mockedZip));
 
-            const result = await buildClient.getCoberturaReportsOfArtifact(mockArtifact);
+            const result = await buildClient.getMergedCoberturaReportOfArtifact(mockArtifact);
             expect(result).toEqual(expectedResult);
             expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
             expect(JSZip.loadAsync).toHaveBeenCalled();
@@ -119,8 +116,8 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
             spyOn(buildClient, 'getArtifactContentZip').and.returnValue(undefined);
             spyOn(JSZip, 'loadAsync');
 
-            const result = await buildClient.getCoberturaReportsOfArtifact(mockArtifact);
-            expect(result).toEqual([]);
+            const result = await buildClient.getMergedCoberturaReportOfArtifact(mockArtifact);
+            expect(result).toEqual(undefined);
             expect(buildClient.getArtifactContentZip).toHaveBeenCalledWith(mockArtifact.resource.downloadUrl);
             expect(JSZip.loadAsync).not.toHaveBeenCalled();
         });

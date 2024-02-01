@@ -64,7 +64,6 @@ interface ReferenceBuildInputs {
 }
 
 export class CodeCoverageQualityService {
-    private readonly MERGED_COBERTURA_REPORT_NAME: string = 'parasoft-merged-cobertura.xml';
     // Predefined variables
     private readonly pipelineName: string;
     private readonly buildNumber: string;
@@ -116,7 +115,7 @@ export class CodeCoverageQualityService {
             // Get Merged Cobertura report in current build
             const currentCoberturaReport = await this.getMergedCoberturaReportOfCurrentBuild();
             if (!currentCoberturaReport) {
-                this.skipQualityGateWithWarning(`no merged Parasoft coverage report is found in this build`);
+                this.skipQualityGateWithWarning(`no Parasoft coverage results were found in this build`);
             } else {
                 // Get coverage data from Cobertura report
                 const coverageInfo = await this.getCoverageInfo(currentCoberturaReport);
@@ -176,12 +175,11 @@ export class CodeCoverageQualityService {
         if (!currentBuildArtifact) {
             return;
         }
-        const coberturaReports = (await this.buildClient.getMergedCoberturaReportsOfArtifact(currentBuildArtifact)).filter((file) => file.name.includes(this.MERGED_COBERTURA_REPORT_NAME));
-        if (coberturaReports.length == 0) {
+        const coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(currentBuildArtifact);
+        if (coberturaReport == undefined) {
             return;
         }
-        // Using first report When multiple merged Cobertura reports or only one merged Cobertura report exist
-        return coberturaReports[0];
+        return coberturaReport;
     };
 
     private getMergedCoberturaReportOfReferenceBuild = async (): Promise<FileEntry | undefined> => {
@@ -218,21 +216,21 @@ export class CodeCoverageQualityService {
                     return build.result == BuildResult.Succeeded;
                 });
                 if (allSuccessfulBuilds.length > 0) {
-                    let coberturaReports: FileEntry[] = [];
+                    let coberturaReport: FileEntry | undefined = undefined;
                     let buildId: number | undefined, buildNumber: string | undefined;
                     // Use the last successful build with Parasoft Cobertura results as the default reference build
                     for (let index = 0; index < allSuccessfulBuilds.length; index++) {
                         const lastSuccessfulBuildId: number = Number(allSuccessfulBuilds[index].id);
                         const artifact: BuildArtifact = await this.buildClient.getCoberturaArtifactOfBuildById(lastSuccessfulBuildId);
                         if (artifact) {
-                            coberturaReports = await this.buildClient.getMergedCoberturaReportsOfArtifact(artifact);
+                            coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(artifact);
                             buildId = lastSuccessfulBuildId;
                             buildNumber = allSuccessfulBuilds[index].buildNumber;
                             break;
                         }
                     }
-                    if (coberturaReports.length == 0) {
-                        this.skipQualityGateWithWarning(`no Merged Parasoft coverage report is found in any of the previous successful builds in pipeline '${pipelineName}'`);
+                    if (coberturaReport == undefined) {
+                        this.skipQualityGateWithWarning(`no Parasoft coverage results were found in any of the previous successful builds in pipeline '${pipelineName}'`);
 		                return;
                     }
                     this.referenceBuildInfo = {
@@ -241,7 +239,7 @@ export class CodeCoverageQualityService {
                         buildId: <string> buildNumber
                     };
                     tl.debug(`Set build '${pipelineName}#${buildNumber}' as the default reference build`);
-                    return coberturaReports?.at(0);
+                    return coberturaReport;
                 } else {
                     this.skipQualityGateWithWarning(`no successful build was found in pipeline '${pipelineName}'`);
 		            return;
@@ -270,13 +268,13 @@ export class CodeCoverageQualityService {
             // Check for the existence of Parasoft Cobertura artifact in reference build
             const artifact: BuildArtifact = await this.buildClient.getCoberturaArtifactOfBuildById(Number(referenceBuild.id));
             if (!artifact) {
-                this.skipQualityGateWithWarning(`no merged Parasoft coverage results is found in the specified reference build: '${pipelineName}#${this.referenceInputs.buildNumber}'`);
+                this.skipQualityGateWithWarning(`no Parasoft coverage results were found in the specified reference build: '${pipelineName}#${this.referenceInputs.buildNumber}'`);
                 return;
             }
             // Check for the existence of Parasoft Cobertura report in reference build
-            const coberturaReports = await this.buildClient.getMergedCoberturaReportsOfArtifact(artifact);
-            if (coberturaReports.length == 0) {
-                this.skipQualityGateWithWarning(`no merged Parasoft coverage results is found in the specified reference build: '${pipelineName}#${this.referenceInputs.buildNumber}'`);
+            const coberturaReport = await this.buildClient.getMergedCoberturaReportOfArtifact(artifact);
+            if (coberturaReport == undefined) {
+                this.skipQualityGateWithWarning(`no Parasoft coverage results were found in the specified reference build: '${pipelineName}#${this.referenceInputs.buildNumber}'`);
                 return;
             }
             // Set the reference build
@@ -286,8 +284,7 @@ export class CodeCoverageQualityService {
                 buildNumber: (<number> referenceBuild.id).toString(),
                 buildId: <string> referenceBuild.buildNumber
             };
-            // Using first report When multiple merged Cobertura reports or only one merged Cobertura report exist
-            return coberturaReports[0];
+            return coberturaReport;
         }
     };
 
