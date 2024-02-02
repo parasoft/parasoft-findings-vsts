@@ -28,6 +28,7 @@ import * as uuid from 'uuid';
 import { BuildAPIClient, FileEntry } from './BuildApiClient';
 import { BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import {CoverageReportService} from "./CoverageReportService";
+import {StaticAnalysisReportService} from "./StaticAnalysisReportService";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
@@ -113,7 +114,6 @@ export class ParaReportPublishService {
 
     xUnitReports: string[] = [];
     sarifReports: string[] = [];
-    staticAnalysisReportsMap: Map<string, string> = new Map<string, string>();
     coberturaReports: string[] = [];
     matchingInputReportFiles: string[];
     rulesInGlobalCategory: Set<string> = new Set();
@@ -147,6 +147,8 @@ export class ParaReportPublishService {
     javaPath: string | undefined;
 
     referenceBuildResult: ReferenceBuildResult;
+
+    staticAnalysisReportService: StaticAnalysisReportService;
 
     constructor() {
         // Get predefined variables in Azure DevOps pipeline
@@ -189,6 +191,7 @@ export class ParaReportPublishService {
         this.config = tl.getInput('configuration');
 
         this.buildClient = new BuildAPIClient();
+        this.staticAnalysisReportService = new StaticAnalysisReportService();
 
         tl.debug('referencePipeline: ' + referencePipelineInput);
         tl.debug('referenceBuild: ' + referenceBuildInput);
@@ -246,11 +249,9 @@ export class ParaReportPublishService {
                 tl.warning("Parsing static analysis reports is not supported in the release pipeline - skipping report: " + report);
             } else {
                 tl.debug("Recognized SARIF report: " + report);
-                if (!this.isStaticAnalysisReportNameDuplicate(report)) {
-                    // new SARIF report needs to be processed
-                    report = this.processParasoftSarifReport(report);
-                    this.sarifReports.push(report);
-                }
+                // new SARIF report needs to be processed
+                report = this.processParasoftSarifReport(report);
+                this.sarifReports.push(report);
             }
             await this.processResults(inputReportFiles, index);
         } else if (report.toLocaleLowerCase().endsWith(this.XML_EXTENSION)) {
@@ -396,10 +397,7 @@ export class ParaReportPublishService {
             tl.warning("Parsing static analysis reports is not supported in the release pipeline - skipping report: " + sourcePath);
             return;
         }
-        if (this.isStaticAnalysisReportNameDuplicate(sourcePath)){
-            return;
-        }
-        this.transform(sourcePath, this.SARIF_XSL, this.generateReportNameWithPFSuffix(sourcePath, this.SARIF_SUFFIX), this.sarifReports);
+        this.transform(sourcePath, this.SARIF_XSL, this.generateReportNameWithPFSuffix(this.staticAnalysisReportService.generateUniqueFileName(sourcePath), this.SARIF_SUFFIX), this.sarifReports);
     }
 
     transformToXUnit = (sourcePath: string): void => {
@@ -487,7 +485,7 @@ export class ParaReportPublishService {
         });
         /* eslint-enable @typescript-eslint/no-explicit-any */
         const updatedContentString  = JSON.stringify(contentJson);
-        const updatedReportPath = this.generateReportNameWithPFSuffix(report, this.SARIF_SUFFIX);
+        const updatedReportPath = this.generateReportNameWithPFSuffix(this.staticAnalysisReportService.generateUniqueFileName(report), this.SARIF_SUFFIX);
         fs.writeFileSync(updatedReportPath, updatedContentString , 'utf8');
         return updatedReportPath;
     }
@@ -900,16 +898,6 @@ export class ParaReportPublishService {
         const uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || '';
 
         return uuid.v5(violType + ruleId + msg + severity + lineHash + uri + order, namespace);
-    }
-
-    private isStaticAnalysisReportNameDuplicate = (sourcePath: string): boolean => {
-        const filename = path.basename(sourcePath);
-        if (this.staticAnalysisReportsMap.has(filename)) {
-            tl.warning(`Skipping report with duplicate names: ${sourcePath}`);
-            return true;
-        }
-        this.staticAnalysisReportsMap.set(filename, sourcePath);
-        return false;
     }
 
     private getSarifReportsOfReferenceBuild = async (): Promise<FileEntry[]> => {

@@ -10,6 +10,7 @@ const axios = require('../../PublishParasoftResults/node_modules/axios/dist/node
 
 let publisher: any;
 let mockWebApi: any;
+let mockGenerateUniqueFileNameFunction: any;
 
 describe("Parasoft findings Azure", () => {
     beforeEach(() => {
@@ -57,6 +58,7 @@ describe("Parasoft findings Azure", () => {
             publisher = new ParaReportPublishService();
             spyOn(publisher, 'transform').and.callThrough();
             spyOn(publisher, 'getSarifReportsOfReferenceBuild').and.returnValue([]);
+            mockGenerateUniqueFileNameFunction = spyOn(publisher.staticAnalysisReportService, 'generateUniqueFileName');
             jasmine.DEFAULT_TIMEOUT_INTERVAL = 200000;
             retryTimes = 20;
 
@@ -68,6 +70,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('SARIF', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/SARIF.sarif');
             publisher.defaultWorkingDirectory = 'D:/RWorkspaces/project-workspace/CICD/para % bank';
             await publisher.transformReports([__dirname + '/resources/reports/SARIF.sarif'], 0);
 
@@ -83,6 +86,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
 
@@ -97,6 +101,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_BD.PB.VOVR_RULE', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif');
 
@@ -111,6 +116,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_1 with multiple violations which have the same identify info, should generate unique unbViolId', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif');
 
@@ -139,6 +145,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_AND_TESTS', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif');
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml');
@@ -172,6 +179,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_AND_SOATEST', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif');
 
@@ -633,35 +641,6 @@ describe("Parasoft findings Azure", () => {
             const result = publisher.getJavaPath(javaRootPath);
 
             expect(result).toBeUndefined();
-        });
-    });
-
-    describe('isStaticAnalysisReportNameDuplicate()', () => {
-        beforeEach(() => {
-            publisher = new ParaReportPublishService();
-        });
-
-        it('when the original static analysis report has a duplicate name', () => {
-            const sourcePath: string = "E:/AzureAgent/_work/4/reports/test_report1.xml";
-            const testOriginalStaticAnalysisReportMap: Map<string, string> = new Map<string, string>();
-            testOriginalStaticAnalysisReportMap.set("test_report.xml", "E:/AzureAgent/_work/4/reports/test_report.xml");
-            testOriginalStaticAnalysisReportMap.set("test_report1.xml", sourcePath);
-            publisher.staticAnalysisReportsMap = testOriginalStaticAnalysisReportMap;
-
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(2);
-            expect(publisher.isStaticAnalysisReportNameDuplicate(sourcePath)).toBeTrue();
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(2);
-        });
-
-        it('when the original static analysis report does not have a duplicate name', () => {
-            const sourcePath: string = "E:/AzureAgent/_work/4/reports/test_report1.xml";
-            const testOriginalStaticAnalysisReportMap: Map<string, string> = new Map<string, string>();
-            testOriginalStaticAnalysisReportMap.set("test_report.xml", "E:/AzureAgent/_work/4/reports/test_report.xml");
-            publisher.staticAnalysisReportsMap = testOriginalStaticAnalysisReportMap;
-
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(1);
-            expect(publisher.isStaticAnalysisReportNameDuplicate(sourcePath)).toBeFalse();
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(2);
         });
     });
 
