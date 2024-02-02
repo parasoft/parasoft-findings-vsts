@@ -82,7 +82,7 @@ export class CoverageReportService {
                 if (error instanceof Error) {
                     tl.warning(`Coverage data in report '${reportPaths[i]}' was not merged due to ${error.message}`);
                 } else {
-                    tl.warning(`Coverage data in report '${reportPaths[i]}' was not merged`);
+                    tl.warning(`Coverage data in report '${reportPaths[i]}' was not merged`); // Should never happen
                 }
             }
         }
@@ -123,7 +123,7 @@ export class CoverageReportService {
                 baseClass.lines[i].hits += classToMerge.lines[i].hits;
             }
         } else {
-            throw new Error(`an inconsistent set of lines reported for class '${baseClass.fileName}'`);
+            throw new Error(`an inconsistent set of lines reported for file '${baseClass.fileName}'`);
         }
     }
 
