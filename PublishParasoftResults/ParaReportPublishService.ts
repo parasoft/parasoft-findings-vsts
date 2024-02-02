@@ -453,7 +453,7 @@ export class ParaReportPublishService {
                 let xmlReport = fs.readFileSync(sourcePath, 'utf8');
                 if (isCoberturaReport) {
                     xmlReport = xmlReport.replace("<Coverage ", "<Coverage pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
-                } else if (outPath.endsWith(this.SARIF_SUFFIX)) {
+                } else if (outPath.endsWith(this.SARIF_SUFFIX) || outPath.endsWith(this.XUNIT_SUFFIX)) {
                     xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
                 }
                 const options: SaxonJS.options = {
