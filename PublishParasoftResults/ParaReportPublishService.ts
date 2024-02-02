@@ -397,7 +397,7 @@ export class ParaReportPublishService {
             tl.warning("Parsing static analysis reports is not supported in the release pipeline - skipping report: " + sourcePath);
             return;
         }
-        this.transform(sourcePath, this.SARIF_XSL, this.generateReportNameWithPFSuffix(this.staticAnalysisReportService.makeFileNameUnique(sourcePath), this.SARIF_SUFFIX), this.sarifReports);
+        this.transform(sourcePath, this.SARIF_XSL, this.generateReportNameWithPFSuffix(this.staticAnalysisReportService.generateUniqueFileName(sourcePath), this.SARIF_SUFFIX), this.sarifReports);
     }
 
     transformToXUnit = (sourcePath: string): void => {
@@ -485,7 +485,7 @@ export class ParaReportPublishService {
         });
         /* eslint-enable @typescript-eslint/no-explicit-any */
         const updatedContentString  = JSON.stringify(contentJson);
-        const updatedReportPath = this.generateReportNameWithPFSuffix(this.staticAnalysisReportService.makeFileNameUnique(report), this.SARIF_SUFFIX);
+        const updatedReportPath = this.generateReportNameWithPFSuffix(this.staticAnalysisReportService.generateUniqueFileName(report), this.SARIF_SUFFIX);
         fs.writeFileSync(updatedReportPath, updatedContentString , 'utf8');
         return updatedReportPath;
     }

@@ -18,28 +18,23 @@ import * as path from "path";
 export class StaticAnalysisReportService {
 
     /**
-     * Make the file name unique by replacing certain characters in given source path.
+     * Generate unique file name according to the source path.
      *
-     * @param sourcePath The original source path with file name.
-     * @returns The source path with unique file name.
+     * @param sourcePath The source path for the file
+     * @returns A unique file name generated according to the source path
      *
      * For example:
-     * If the source path is: D:\build\reports\cpptest-std\static\report.xml
-     * The result would be: D:\build\reports\cpptest-std\static\D_build.reports.cpptest-std.static.report.xml
+     * sourcePath: D:\build\reports\cpptest-std\static_1\report.xml
+     * returns: D__build_reports_cpptest-std_static_0x5f_1_report.xml
      */
-    makeFileNameUnique = (sourcePath: string): string => {
-        if(!sourcePath) {
-            return sourcePath;
+    generateUniqueFileName = (sourcePath: string): string => {
+        if (!sourcePath) {
+            return "";
         }
-        // Remove the '/' from the beginning of Linux absolute path
-        if(sourcePath.startsWith('/')) {
-            sourcePath = sourcePath.replace('/', '');
-        }
-
         const fileName = path.basename(sourcePath);
-        const nFileName = sourcePath.replace(':\\', '_')
-                                    .replaceAll('/', '.')
-                                    .replaceAll('\\', '.');
+        const nFileName = sourcePath.replace(/^[/\\]+/, '') // Remove any leading slashes
+                                    .replace(/_/g, '_0x5f_') // Replace "_" with prefixed hexadecimal "_0x5f_"
+                                    .replace(/[:/\\]/g, '_'); // Replace ":" and any slashes with "_"
         return sourcePath.replace(fileName, nFileName);
     }
 }
