@@ -197,71 +197,159 @@ describe("Parasoft findings Azure", () => {
             expect(publisher.xUnitReports.length).toBe(1);
         });
 
-        xdescribe('XML_COVERAGE', () => {
+        describe('XML_COVERAGE', () => {
+            const mergeCoberturaReportPath = `${__dirname}/parasoft-merged-cobertura.xml`;
+            const agentTempDirectory = `${__dirname}/_temp`;
 
             beforeEach(() => {
-                spyOn(path, 'join').and.returnValue('E:\\AzureAgent\\_work\\_temp\\CodeCoverageHtml');
-                spyOn(publisher, 'generateHtmlReport').and.returnValue(false);
+                spyOn(tl, 'getVariable').and.callFake((param: string) => {
+                    switch (param) {
+                        case 'Agent.TempDirectory':
+                            return agentTempDirectory
+                    }
+                });
+                publisher.coverageReportService.MERGED_COBERTURA_REPORT_PATH = mergeCoberturaReportPath;
+                publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
+                spyOn(publisher.coverageReportService, 'generateHtmlReport').and.returnValue(false);
             });
 
-            let testTransformCoverageReport = async (expectedReport: string) => {
-                publisher.transformReports([__dirname + '/resources/reports/XML_COVERAGE.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml');
+            afterEach(() => {
+                if (fs.existsSync(mergeCoberturaReportPath)) {
+                    fs.unlinkSync(mergeCoberturaReportPath);
+                }
+                if (fs.existsSync(agentTempDirectory)) {
+                    fs.rmSync(agentTempDirectory, {recursive: true});
+                }
+            });
 
-                let result = fs.readFileSync(__dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'utf-8');
+            let testTransformCoverageReport = async (parasoftCoverageReportsPath: string[], mergedCoberturaReportString: string) => {
+                publisher.transformReports(parasoftCoverageReportsPath, 0);
+                await waitForTransform(`${__dirname}/resources/reports/parsoft-merged-cobertura.xml`);
 
-                expect(result).toEqual(expectedReport);
+                let result = fs.readFileSync(mergeCoberturaReportPath, 'utf-8');
+                expect(result).toEqual(mergedCoberturaReportString);
                 expect(publisher.transform).toHaveBeenCalled();
-                expect(publisher.coberturaReports.length).toBe(1);
-
-                fs.unlink(__dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', () => {});
+                expect(publisher.coverageReportService.generateHtmlReport).toHaveBeenCalledWith(mergeCoberturaReportPath, path.join(agentTempDirectory, 'ParasoftFindings', 'CodeCoverageHtml'));
+                expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', mergeCoberturaReportPath, 'ParasoftCoverageLogs');
             }
 
-            describe('- report is generated in pipeline', () => {
-                describe('- transform with java', () => {
-                    it('- error', async () => {
-                        spyOn(tl, 'execSync').and.returnValue({code: 1, stdout: 'error', stderr: 'error', error: new Error('error')});
-                        publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
-                        publisher.javaPath = tl.resolve(__dirname, 'resources/toolRootPaths/java/bin/java.exe');
-                        publisher.transformReports([__dirname + '/resources/reports/XML_COVERAGE.xml'], 0);
+            describe('only one parasoft coverage report', () => {
 
-                        retryTimes = 2;
-                        await waitForTransform();
-                        expect(publisher.transform).toHaveBeenCalled();
-                        expect(tl.execSync).toHaveBeenCalled();
-                        expect(tl.warning).toHaveBeenCalledTimes(1);
-                    });
-
-                    it('- no error', async () => {
-                        spyOn(tl, 'execSync').and.callThrough();
-                        publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
-                        // Need to set JAVA_HOME environment or comment this test if this test is failed.
-                        publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
-                        let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-java_version-cobertura.xml', 'utf8');
-                        await testTransformCoverageReport(expectedReport);
-                        expect(tl.execSync).toHaveBeenCalled();
-                        expect(tl.warning).not.toHaveBeenCalled();
-                        expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
-                    });
+                afterEach(() => {
+                    const filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE-xml-cobertura.xml`;
+                    if (fs.existsSync(filePathToDelete)) {
+                        fs.unlink(filePathToDelete, () => {});
+                    }
                 });
 
-                it('- transform with node by default', async () => {
-                    publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
-                    publisher.javaPath = undefined;
-                    let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-node_version-cobertura.xml', 'utf8');
-                    await testTransformCoverageReport(expectedReport);
-                    expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
+                describe('- report is generated in pipeline', () => {
+                    describe('- transform with java', () => {
+                        it('- error', async () => {
+                            spyOn(tl, 'execSync').and.returnValue({code: 1, stdout: 'error', stderr: 'error', error: new Error('error')});
+                            publisher.javaPath = `${__dirname}resources/toolRootPaths/java/bin/java.exe`;
+                            publisher.transformReports([`${__dirname}/resources/reports/XML_COVERAGE.xml`], 0);
+    
+                            retryTimes = 2;
+                            await waitForTransform();
+                            expect(publisher.transform).toHaveBeenCalled();
+                            expect(tl.execSync).toHaveBeenCalled();
+                            expect(tl.warning).toHaveBeenCalledTimes(1);
+                        });
+    
+                        it('- no error', async () => {
+                            spyOn(tl, 'execSync').and.callThrough();
+                            
+                            // Need to set JAVA_HOME environment or comment this test if this test is failed.
+                            publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
+                            const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
+                            let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-java_version-cobertura.xml`, 'utf8');
+                            await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+    
+                            expect(tl.execSync).toHaveBeenCalled();
+                            expect(tl.warning).not.toHaveBeenCalled();
+                            expect(publisher.coberturaReports.length).toBe(1);
+                        });
+                    });
+    
+                    it('- transform with node by default', async () => {
+                        publisher.javaPath = undefined;
+                        const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
+                        let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-node_version-cobertura.xml`, 'utf8');
+                        await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+    
+                        expect(publisher.coberturaReports.length).toBe(1);
+                    });
+                });
+    
+                it('- external report', async () => {
+                    publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
+                    const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
+                    let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml`, 'utf8');
+                    await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+    
+                    expect(publisher.coberturaReports.length).toBe(1);
                 });
             });
 
-            it('- external report', async () => {
-                publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
-                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml', 'utf8');
-                await testTransformCoverageReport(expectedReport);
-                expect(tl.uploadArtifact).toHaveBeenCalledWith('CoberturaContainer', __dirname + '/resources/reports/XML_COVERAGE-xml-cobertura.xml', 'ParasoftCoverageLogs');
+            describe('multiple parasoft coverage reports', () => {
+
+                afterEach(() => {
+                    let filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_part1-xml-cobertura.xml`;
+                    if (fs.existsSync(filePathToDelete)) {
+                        fs.unlink(filePathToDelete, () => {});
+                    }
+                    filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_part2-xml-cobertura.xml`;
+                    if (fs.existsSync(filePathToDelete)) {
+                        fs.unlink(filePathToDelete, () => {});
+                    }
+                    filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_part2_with_conflict-xml-cobertura.xml`;
+                    if (fs.existsSync(filePathToDelete)) {
+                        fs.unlink(filePathToDelete, () => {});
+                    }
+                });
+                
+                describe('- reports are only from current task', () => {
+                    it('and without class conflict', async () => {
+                        const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_part1.xml`, `${__dirname}/resources/reports/XML_COVERAGE_part2.xml`]
+                        let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_merged_part1&2.xml`, 'utf8');
+                        await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+        
+                        expect(publisher.coberturaReports.length).toBe(2);
+                    });
+
+                    it('but with class conflict', async () => {
+                        const conflictParasoftReportPath = `${__dirname}/resources/reports/XML_COVERAGE_part2_with_conflict.xml`;
+                        const conflictCoberturaReportPath = `${__dirname}/resources/reports/XML_COVERAGE_part2_with_conflict-xml-cobertura.xml`;
+                        const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_part1.xml`, conflictParasoftReportPath]
+                        let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_merged_part1_without_part2.xml`, 'utf8');
+                        await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+        
+                        expect(publisher.coberturaReports.length).toBe(2);
+                        expect(tl.warning).toHaveBeenCalledWith(`Coverage data in report '${conflictCoberturaReportPath}' was not merged due to an inconsistent set of lines reported for file 'src/main/java/com/parasoft/Demo.java'`);
+                    });
+                });
+                
+
+                it('- reports are from current task and previous task', async () => {
+                    const parasoftFindingsTempFolder = `${agentTempDirectory}/ParasoftFindings`;
+                    const mergedCoberturaReportFromArtifacts = `${parasoftFindingsTempFolder}/parasoft-merged-cobertura-from-artifact.xml`;
+                    fs.mkdirSync(parasoftFindingsTempFolder, {recursive: true});
+                    spyOn(publisher.coverageReportService.buildClient, 'getCoberturaReportsByBuildId').and.returnValue(
+                        [{
+                            name: "CoberturaContainer/parasoft-merged-cobertura.xml",
+                            contentsPromise: Promise.resolve(fs.readFileSync(`${__dirname}/resources/reports/XML_COVERAGE_part1-cobertura.xml`))
+                        }]);
+
+                    const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_part2.xml`]
+                    let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_merged_part1&2.xml`, 'utf8');
+                    await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+    
+                    expect(publisher.coberturaReports.length).toBe(1);
+                    expect(publisher.coverageReportService.buildClient.getCoberturaReportsByBuildId).toHaveBeenCalledTimes(1);
+                    expect(fs.existsSync(mergedCoberturaReportFromArtifacts)).toBeTrue();
+                });
             });
         });
-
     });
 
     describe('run()', () => {
