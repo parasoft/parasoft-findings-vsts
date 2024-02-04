@@ -100,7 +100,9 @@
 
                 <testcase name="{@name}" classname="{$className}">
                     <xsl:call-template name="addTimeAttr" />
-                    <xsl:call-template name="addFileAttr" />
+                    <xsl:call-template name="addFileAttr">
+                        <xsl:with-param name="tcId" select="$tcId" />
+                    </xsl:call-template>
                     <xsl:if test="$status!='pass'">
                         <xsl:call-template name="processExecViols">
                             <xsl:with-param name="execViols" select="/ResultsSession/Exec/ExecViols/ExecViol[@testId=$id]" />
@@ -113,7 +115,9 @@
             <xsl:otherwise>
                 <testcase name="{@name}" classname="{$className}">
                     <xsl:call-template name="addTimeAttr" />
-                    <xsl:call-template name="addFileAttr" />
+                    <xsl:call-template name="addFileAttr">
+                        <xsl:with-param name="tcId" select="$tcId" />
+                    </xsl:call-template>
                     <xsl:if test="$status!='pass'">
                         <xsl:call-template name="processExecViols">
                             <xsl:with-param name="execViols" select="/ResultsSession/Exec/ExecViols/ExecViol[@testId=$id and @tcId=$tcId]" />
@@ -297,7 +301,9 @@
             <xsl:when test="$tcId='null'">
                 <testcase name="{@name}" classname="{$className}">
                     <xsl:call-template name="addTimeAttr" />
-                    <xsl:call-template name="addFileAttr" />
+                    <xsl:call-template name="addFileAttr">
+                        <xsl:with-param name="tcId" select="$tcId" />
+                    </xsl:call-template>
                     <xsl:if test="$status!='pass'">
                         <xsl:call-template name="processExecViol_Legacy">
                             <xsl:with-param name="execViols" select="/ResultsSession/Exec/ExecViols/ExecViol[@testId=$id]" />
@@ -310,7 +316,9 @@
                 <xsl:variable name="testName" select="ancestor::Test[position()=1]/@name" />
                 <testcase name="{$testName}[{@params}]" classname="{$className}">
                     <xsl:call-template name="addTimeAttr" />
-                    <xsl:call-template name="addFileAttr" />
+                    <xsl:call-template name="addFileAttr">
+                        <xsl:with-param name="tcId" select="$tcId" />
+                    </xsl:call-template>
                     <xsl:if test="$status!='pass'">
                         <xsl:call-template name="processExecViol_Legacy">
                             <xsl:with-param name="execViols" select="/ResultsSession/Exec/ExecViols/ExecViol[@testId=$id and @testCaseId=$tcId]" />
@@ -421,6 +429,7 @@
     </xsl:template>
 
     <xsl:template name="addFileAttr">
+        <xsl:param name="tcId" select="'null'" />
         <xsl:attribute name="file">
             <xsl:choose>
                 <xsl:when test="$isCPPTestReport">
@@ -428,9 +437,20 @@
                 </xsl:when>
                 <xsl:otherwise>
                     <!-- For Jtest and dotTest reports, obtain "Loc" information based on "locRef". -->
-                    <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
-                        <xsl:with-param name="testLocRef" select="ancestor::TestSuite[position()=1]/@locRef"/>
-                    </xsl:apply-templates>
+                    <xsl:choose>
+                        <!-- When "TestCase" node does not exist, use "locRef" of the current "Test" node for the test. -->
+                        <xsl:when test="$tcId = 'null'">
+                            <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
+                                <xsl:with-param name="testLocRef" select="@locRef"/>
+                            </xsl:apply-templates>
+                        </xsl:when>
+                        <!-- When "TestCase" node exists, use "locRef" of the nearest "Test" ancestor of the current node for the test. -->
+                        <xsl:otherwise>
+                            <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
+                                <xsl:with-param name="testLocRef" select="ancestor::Test[position()=1]/@locRef"/>
+                            </xsl:apply-templates>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:attribute>

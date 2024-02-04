@@ -1,0 +1,597 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ResultsSession buildId="CICD_BankExample.NET-2024-02-01" climode="true" endTime="2024-02-01T17:37:23+08:00" execEnv="win32_x86_64" hasViols="true" id="1705068986072" lang="en_US" machine="DESKTOP-0Q6E4JP" prjModule="Parasoft.Dottest.Examples.Bank, ..." project="CICD_BankExample.NET" tag="cicd_BankExample.NET" time="2024-02-01T17:35:26+08:00" toolDispName="dotTEST" toolId="dottest" toolName="DTP Engine for .NET" toolVer="2023.1.1" user="devtest">
+   <TestConfig machine="DESKTOP-0Q6E4JP" name="Run VSTest Tests with Coverage" pseudoUrl="builtin://Run VSTest Tests with Coverage" user="devtest" />
+   <Authors>
+      <Author id="dev1" name="devtest" />
+   </Authors>
+   <Analyzers>
+      <Analyzer id="com.parasoft.dottest" name="Parasoft dotTEST" ver="10.6.2.1129" />
+   </Analyzers>
+   <VersionInfos>
+      <StorageInfo ownerId="" resultId="ISetupResult" ver="1" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IMetricsViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IExecutionViolation" ver="1" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IDupCodeViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IFlowAnalysisViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IFunctionalViolation" ver="1" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IChangeImpactViolation" ver="1" ver10x="1" />
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="ICodingStandardsViolation" ver="2" ver10x="1" />
+      <StorageInfo ownerId="" resultId="IUnitTestViolation" ver="1" ver10x="1" />
+   </VersionInfos>
+   <Goals tsks="11">
+
+   </Goals>
+   <Scope>
+      <Repositories />
+      <Locations>
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\AccountNumber.cs" hash="-1037776574" locRef="1" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="AccountNumber.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.AccountNumber:1483600742135913326" totLns="90" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/AccountNumber.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Bank.cs" hash="225911240" locRef="2" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Bank.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Bank:96010174200130062" totLns="156" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Bank.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\BankAccount.cs" hash="33954980" locRef="3" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="BankAccount.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.BankAccount:8715741287458181468" totLns="49" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/BankAccount.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\BankUser.cs" hash="190994750" locRef="4" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="BankUser.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.BankUser:-1411878663703444311" totLns="43" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/BankUser.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\CurrencyExchangeConverter.cs" hash="2123378625" locRef="5" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="CurrencyExchangeConverter.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.CurrencyExchangeConverter:-7752270923350177522" totLns="71" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/CurrencyExchangeConverter.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\ExampleBank.cs" hash="-1333971617" locRef="6" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="ExampleBank.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.ExampleBank:-6319979655619387141" totLns="82" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/ExampleBank.cs" />
+         <Loc hash="1562776998" locRef="7" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="IInterBankTransferSystem.cs" totLns="12" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/IInterBankTransferSystem.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\ReportGenerator.cs" hash="-1513177483" locRef="8" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="ReportGenerator.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Comment:31258656848;Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.ReportGenerator:2360122158392121482" totLns="53" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/ReportGenerator.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Money\Currency.cs" hash="-1644265069" locRef="9" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Money/Currency.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Money.Currency:4587448210104922201" totLns="65" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Money/Currency.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Money\CurrencyInfo.cs" hash="-854174013" locRef="10" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Money/CurrencyInfo.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo:-1798989024429035779" totLns="29" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Money/CurrencyInfo.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Money\CurrencyProvider.cs" hash="-1251910444" locRef="11" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Money/CurrencyProvider.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Money.CurrencyProvider:-61093076023477114" totLns="71" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Money/CurrencyProvider.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Money\CurrencyWithCents.cs" hash="-760614867" locRef="12" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Money/CurrencyWithCents.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Money.CurrencyWithCents:-7333621747495824117" totLns="69" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Money/CurrencyWithCents.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Money\CurrencyWithNoCents.cs" hash="1998113113" locRef="13" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Money/CurrencyWithNoCents.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Money.CurrencyWithNoCents:23991183701244" totLns="47" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Money/CurrencyWithNoCents.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Transactions\ExternalTransfer.cs" hash="2123519255" locRef="14" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Transactions/ExternalTransfer.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Transactions.ExternalTransfer:5525968111796031521" totLns="40" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Transactions/ExternalTransfer.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Transactions\IncommingTransfer.cs" hash="-1435513077" locRef="15" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Transactions/IncommingTransfer.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Transactions.IncommingTransfer:6003154558874" totLns="37" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Transactions/IncommingTransfer.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Transactions\OutgoingTransfer.cs" hash="-2022280772" locRef="16" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Transactions/OutgoingTransfer.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Transactions.OutgoingTransfer:31109936368" totLns="37" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Transactions/OutgoingTransfer.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Transactions\TransactionBase.cs" hash="-607436831" locRef="17" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Transactions/TransactionBase.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Transactions.TransactionBase:5815796950423083143" totLns="56" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Transactions/TransactionBase.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank\Transactions\TransferTransaction.cs" hash="-343300954" locRef="18" projId="Parasoft.Dottest.Examples.Bank" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank" project="Parasoft.Dottest.Examples.Bank" resProjPath="Transactions/TransferTransaction.cs" sym="Parasoft.Dottest.Examples.Bank.dll/Parasoft.Dottest.Examples.Bank.Transactions.TransferTransaction:5989807710130" totLns="23" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank/Transactions/TransferTransaction.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.MSTest\AccountNumberTests.cs" hash="1981189764" locRef="19" projId="Parasoft.Dottest.Examples.Bank.Tests.MSTest" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.MSTest" project="Parasoft.Dottest.Examples.Bank.Tests.MSTest" resProjPath="AccountNumberTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll/Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests:-1282548800761974709" totLns="53" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.MSTest/AccountNumberTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.MSTest\BankUserTests.cs" hash="-1568586398" locRef="20" projId="Parasoft.Dottest.Examples.Bank.Tests.MSTest" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.MSTest" project="Parasoft.Dottest.Examples.Bank.Tests.MSTest" resProjPath="BankUserTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll/Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests:-9120754792312554926" totLns="31" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.MSTest/BankUserTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.MSTest\CurrencyExchangeConverterTests.cs" hash="2122457593" locRef="21" projId="Parasoft.Dottest.Examples.Bank.Tests.MSTest" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.MSTest" project="Parasoft.Dottest.Examples.Bank.Tests.MSTest" resProjPath="CurrencyExchangeConverterTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll/Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests:-495508251098627864" totLns="26" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.MSTest/CurrencyExchangeConverterTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.MSTest\EmptyTests.cs" hash="592650176" locRef="22" projId="Parasoft.Dottest.Examples.Bank.Tests.MSTest" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.MSTest" project="Parasoft.Dottest.Examples.Bank.Tests.MSTest" resProjPath="EmptyTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.MSTest.dll/Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests:6473367" totLns="19" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.MSTest/EmptyTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.NUnit\AccountNumberTests.cs" hash="875134469" locRef="23" projId="Parasoft.Dottest.Examples.Bank.Tests.NUnit" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit" project="Parasoft.Dottest.Examples.Bank.Tests.NUnit" resProjPath="AccountNumberTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests+&lt;>c__DisplayClass1_0:6777;Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests:-3984900786243758335" totLns="76" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.NUnit\BankUserTests.cs" hash="564302898" locRef="24" projId="Parasoft.Dottest.Examples.Bank.Tests.NUnit" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit" project="Parasoft.Dottest.Examples.Bank.Tests.NUnit" resProjPath="BankUserTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests:2415337982017545825" totLns="33" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.NUnit\CurrencyExchangeConverterTests.cs" hash="1401111310" locRef="25" projId="Parasoft.Dottest.Examples.Bank.Tests.NUnit" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit" project="Parasoft.Dottest.Examples.Bank.Tests.NUnit" resProjPath="CurrencyExchangeConverterTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.NUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests:-495508251098627864" totLns="30" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.NUnit/CurrencyExchangeConverterTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.xUnit\AccountNumberTests.cs" hash="-1922211085" locRef="26" projId="Parasoft.Dottest.Examples.Bank.Tests.xUnit" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit" project="Parasoft.Dottest.Examples.Bank.Tests.xUnit" resProjPath="AccountNumberTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests+&lt;>c__DisplayClass1_0:6777;Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests:5745119375084164" totLns="41" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.xUnit/AccountNumberTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.xUnit\BankUserTests.cs" hash="1126938628" locRef="27" projId="Parasoft.Dottest.Examples.Bank.Tests.xUnit" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit" project="Parasoft.Dottest.Examples.Bank.Tests.xUnit" resProjPath="BankUserTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests:2415337982017545825" totLns="37" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs" />
+         <Loc assembly="Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll" codeBase="C:\Workspace\jenkins_refactoring_code_workspace\workspace\cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs\Parasoft.Dottest.Examples.Bank.Tests.xUnit\CurrencyExchangeConverterTests.cs" hash="940815142" locRef="28" projId="Parasoft.Dottest.Examples.Bank.Tests.xUnit" projPath="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit" project="Parasoft.Dottest.Examples.Bank.Tests.xUnit" resProjPath="CurrencyExchangeConverterTests.cs" sym="Parasoft.Dottest.Examples.Bank.Tests.xUnit.dll/Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests:-495508251098627864" totLns="29" uri="file:/C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs/Parasoft.Dottest.Examples.Bank.Tests.xUnit/CurrencyExchangeConverterTests.cs" />
+      </Locations>
+   </Scope>
+
+   <SetupProblems>
+      <Problem msg="Source Control problems:" sev="1" totErrs="1" type="SourceControl">
+         <ErrorList>
+            <Error val="None of supported source controls is enabled in settings. The report will not contain any source control references." />
+         </ErrorList>
+      </Problem>
+   </SetupProblems>
+
+   <Exec ownerId="com.parasoft.xtest.checkers.api.execution" time="0:01:25">
+
+      <AssocUrls>
+         <Tag disp="Requirement" name="req" />
+         <Tag disp="Feature request" name="fr" />
+         <Tag disp="Problem report" name="pr" />
+         <Tag disp="Task" name="task" />
+         <Tag disp="Asset" name="asset" />
+         <Tag disp="Test" name="test" />
+      </AssocUrls>
+
+
+      <Categories>
+         <CategoryGroup authTot="11;" authUrg="11;" desc="This represents the findings arising from tests that have already been reviewed. This includes exceptions that have been marked as expected, assertion failures from previously reviewed tests, and any other kind of unexpected behavior that needs to be looked at (such as timeouts)." id="GROUP.UTEST.PROBL" label="Fix Unit Test Problems" name="Unit Test Problems" total="11">
+            <Category authTot="0;" authUrg="0;" id="EXC" name="Runtime Exceptions" short="exception" total="0" />
+            <Category authTot="11;" authUrg="11;" id="FAIL" name="Assertion Failures" short="failure" total="11">
+               <Type authTot="11;" authUrg="11;" name="Failed" total="11" />
+            </Category>
+            <Category authTot="0;" authUrg="0;" id="CON.VIOL" name="Contract Violations" short="contract violation" total="0" />
+            <Category authTot="0;" authUrg="0;" id="PROF.PROBL" name="Profiling Problems" short="profiling problem" total="0" />
+            <Category authTot="0;" authUrg="0;" id="EXEC.PROBL" name="Execution Problems" short="execution problem" total="0" />
+            <Category authTot="0;" authUrg="0;" id="TEST.PROBL" name="Test Problems" short="test problem" total="0" />
+         </CategoryGroup>
+         <CategoryGroup authTot="0;" authUrg="0;" desc="These are the exceptions thrown by automatically generated test cases that need to be reviewed. After review they will be marked as &quot;expected&quot; or code fixed so that the exception does not occur any more." id="GROUP.UNVER.EXC" label="Review Exceptions" name="Exceptions" total="0">
+            <Category authTot="0;" authUrg="0;" id="UNVER.EXC" name="Unverified Runtime Exceptions" short="unverified exception" total="0" />
+         </CategoryGroup>
+         <CategoryGroup authTot="0;" authUrg="0;" desc="These are assertion failures from automatically generated tests that have not been reviewed. This is expected to be zero when the tests are executed as soon as they are generated, but can be non-zero in cases where tests that have not been reviewed, but the execution is repeated." id="GROUP.UNVER.FAIL" label="Review Assertion Failures" name="Assertion Failures" total="0">
+            <Category authTot="0;" authUrg="0;" id="UNVER.FAIL" name="Unverified Assertion Failures" short="unverified failure" total="0" />
+         </CategoryGroup>
+      </Categories>
+      <Projects>
+         <Project err="0" fail="0" id="Parasoft.Dottest.Examples.Bank" name="Parasoft.Dottest.Examples.Bank" pass="0" total="0">
+            <CategoryGroupStats id="GROUP.UTEST.PROBL" total="11" />
+            <CategoryGroupStats id="GROUP.UNVER.EXC" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.FAIL" total="0" />
+         </Project>
+         <Project err="0" fail="1" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest" pass="5" total="6">
+            <CategoryGroupStats id="GROUP.UTEST.PROBL" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.EXC" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.FAIL" total="0" />
+         </Project>
+         <Project err="0" fail="5" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit" pass="8" total="13">
+            <CategoryGroupStats id="GROUP.UTEST.PROBL" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.EXC" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.FAIL" total="0" />
+         </Project>
+         <Project err="0" fail="5" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit" pass="6" total="11">
+            <CategoryGroupStats id="GROUP.UTEST.PROBL" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.EXC" total="0" />
+            <CategoryGroupStats id="GROUP.UNVER.FAIL" total="0" />
+         </Project>
+      </Projects>
+
+      <APICoverage />
+
+
+      <TrafficData />
+
+      <EnvData />
+      <FuncAPISecurity pentest="false">
+
+         <Categories />
+
+         <Attacks />
+      </FuncAPISecurity>
+
+      <ExecViols>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="Test method Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test threw exception: &#xd;&#xa;System.Text.RegularExpressions.RegexParseException: Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.MSTest/BankUserTests.cs" ln="28" lnHash="-268807213" locRef="20" desc="Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test()" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;foo.bar&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs" ln="30" lnHash="-268807213" locRef="24" desc="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs" ln="30" lnHash="-268807213" locRef="24" desc="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(null)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs" ln="30" lnHash="-268807213" locRef="24" desc="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;@one.com&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs" ln="30" lnHash="-268807213" locRef="24" desc="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;foo.bar@foo.com.com&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs" ln="30" lnHash="-268807213" locRef="24" desc="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs" ln="34" lnHash="-138202147" locRef="27" desc="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;foo.bar&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs" ln="34" lnHash="-138202147" locRef="27" desc="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: null)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs" ln="34" lnHash="-138202147" locRef="27" desc="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;foo.bar@foo.com.com&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs" ln="34" lnHash="-138202147" locRef="27" desc="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+         <UnitViol loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" sev="1" auth="devtest" locRef="4" lnHash="-1644930014" startPos="0" endPos="0" analyzer="com.parasoft.dottest" cat="FAIL" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" tcId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;@one.com&quot;)" urgent="true" goals="1,">
+            <Thr>
+               <ThrPart type="Failed" msg="System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.">
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharEscape()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.CountCaptures()" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)" />
+                  <PathElem desc="System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)" />
+                  <PathElem desc="System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank/BankUser.cs" ln="28" lnHash="-1644930014" startPos="0" locRef="4" endPos="0" desc="Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()" />
+                  <PathElem loc="BankExample.NET.WithTests/Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs" ln="34" lnHash="-138202147" locRef="27" desc="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)" />
+               </ThrPart>
+            </Thr>
+         </UnitViol>
+      </ExecViols>
+
+
+      <ExecutedTestsDetails type="UT">
+         <Total fail="11" total="30" pass="19" name="Passed / Total" time="0:00:01.183" authErr="0;" authFail="11;">
+            <Project fail="1" total="6" pass="5" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest" time="0:00:00.684" authErr="0;" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest" authFail="1;">
+               <TestSuite ln="16" locRef="19" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests" total="3" pass="3" time="0:00:00.381" authErr="0;" authFail="0;">
+                  <Test ln="16" auth="devtest" locRef="19" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestInvalidAccountNumberCreation" status="pass" total="1" pass="1" time="0:00:00.372" authErr="0;" authFail="0;" />
+                  <Test ln="24" auth="devtest" locRef="19" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestAccountNumberCreation" status="pass" total="1" pass="1" time="0:00:00.004" authErr="0;" authFail="0;" />
+                  <Test ln="34" auth="devtest" locRef="19" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestAccountNumberHashing" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestAccountNumberHashing" status="pass" total="1" pass="1" time="0:00:00.005" authErr="0;" authFail="0;" />
+               </TestSuite>
+               <TestSuite ln="15" locRef="20" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests" fail="1" total="1" time="0:00:00.196" authErr="0;" authFail="1;">
+                  <Test ln="15" auth="devtest" locRef="20" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test" status="fail" fail="1" total="1" time="0:00:00.196" authErr="0;" authFail="1;" />
+               </TestSuite>
+               <TestSuite ln="12" locRef="21" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests" total="1" pass="1" time="0:00:00.106" authErr="0;" authFail="0;">
+                  <Test ln="12" auth="devtest" locRef="21" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests.TestUsdConversion" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests.TestUsdConversion" status="pass" total="1" pass="1" time="0:00:00.106" authErr="0;" authFail="0;" />
+               </TestSuite>
+               <TestSuite ln="15" locRef="22" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests" total="1" pass="1" time="0:00:00.001" authErr="0;" authFail="0;">
+                  <Test ln="15" auth="devtest" locRef="22" name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.MSTest_Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests.Test" status="pass" total="1" pass="1" time="0:00:00.001" authErr="0;" authFail="0;" />
+               </TestSuite>
+            </Project>
+            <Project fail="5" total="13" pass="8" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit" time="0:00:00.464" authErr="0;" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit" authFail="5;">
+               <TestSuite ln="36" locRef="23" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests" total="7" pass="7" time="0:00:00.359" authErr="0;" authFail="0;">
+                  <Test ln="36" auth="devtest" locRef="23" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation" status="pass" total="2" pass="2" time="0:00:00.344" authErr="0;" authFail="0;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation(&quot;12&quot;,[1, 2])" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation(&quot;12&quot;,[1, 2])" status="pass" total="1" pass="1" time="0:00:00.344" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation(&quot;123456789123456&quot;,[1, 2, 3, 4, 5, ...])" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation(&quot;123456789123456&quot;,[1, 2, 3, 4, 5, ...])" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                  </Test>
+                  <Test ln="64" auth="devtest" locRef="23" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing" status="pass" total="2" pass="2" time="0:00:00.004" authErr="0;" authFail="0;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1[System.Byte[]])" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1[System.Byte[]])" status="pass" total="1" pass="1" time="0:00:00.004" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1[System.Byte[]])" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1[System.Byte[]])_1" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                  </Test>
+                  <Test ln="23" auth="devtest" locRef="23" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation" status="pass" total="3" pass="3" time="0:00:00.011" authErr="0;" authFail="0;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&quot;091a151413&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&quot;091a151413&quot;)" status="pass" total="1" pass="1" time="0:00:00.011" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&quot;todo: create me&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&quot;todo: create me&quot;)" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&quot;invalid&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&quot;invalid&quot;)" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                  </Test>
+               </TestSuite>
+               <TestSuite ln="18" locRef="24" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests" fail="5" total="5" time="0:00:00.059" authErr="0;" authFail="5;">
+                  <Test ln="18" auth="devtest" locRef="24" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" status="fail" fail="5" total="5" time="0:00:00.059" authErr="0;" authFail="5;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;foo.bar&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;foo.bar&quot;)" status="fail" fail="1" total="1" time="0:00:00.055" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;&quot;)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(null)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(null)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;@one.com&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;@one.com&quot;)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;foo.bar@foo.com.com&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.NUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&quot;foo.bar@foo.com.com&quot;)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                  </Test>
+               </TestSuite>
+               <TestSuite ln="16" locRef="25" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests" total="1" pass="1" time="0:00:00.046" authErr="0;" authFail="0;">
+                  <Test ln="16" auth="devtest" locRef="25" name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests.TestUsdConversion" id="Parasoft.Dottest.Examples.Bank.Tests.NUnit_Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests.TestUsdConversion" status="pass" total="1" pass="1" time="0:00:00.046" authErr="0;" authFail="0;" />
+               </TestSuite>
+            </Project>
+            <Project fail="5" total="11" pass="6" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit" time="0:00:00.035" authErr="0;" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit" authFail="5;">
+               <TestSuite ln="22" locRef="27" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests" fail="5" total="5" time="0:00:00.017" authErr="0;" authFail="5;">
+                  <Test ln="22" auth="devtest" locRef="27" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" status="fail" fail="5" total="5" time="0:00:00.017" authErr="0;" authFail="5;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;&quot;)" status="fail" fail="1" total="1" time="0:00:00.013" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;foo.bar&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;foo.bar&quot;)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: null)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: null)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;foo.bar@foo.com.com&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;foo.bar@foo.com.com&quot;)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;@one.com&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &quot;@one.com&quot;)" status="fail" fail="1" total="1" time="0:00:00.001" authErr="0;" authFail="1;" />
+                  </Test>
+               </TestSuite>
+               <TestSuite ln="15" locRef="28" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests" total="1" pass="1" time="0:00:00.014" authErr="0;" authFail="0;">
+                  <Test ln="15" auth="devtest" locRef="28" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests.TestUsdConversion" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests.TestUsdConversion" status="pass" total="1" pass="1" time="0:00:00.014" authErr="0;" authFail="0;" />
+               </TestSuite>
+               <TestSuite ln="22" locRef="26" root="true" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests" total="5" pass="5" time="0:00:00.004" authErr="0;" authFail="0;">
+                  <Test ln="22" auth="devtest" locRef="26" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation" status="pass" total="3" pass="3" time="0:00:00.003" authErr="0;" authFail="0;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &quot;invalid&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &quot;invalid&quot;)" status="pass" total="1" pass="1" time="0:00:00.003" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &quot;091a151413&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &quot;091a151413&quot;)" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &quot;todo: create me&quot;)" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &quot;todo: create me&quot;)" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                  </Test>
+                  <Test ln="35" auth="devtest" locRef="26" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation" status="pass" total="2" pass="2" time="0:00:00.001" authErr="0;" authFail="0;">
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation(expectedNumber: &quot;123456789123456&quot;, bytes: [1, 2, 3, 4, 5, ...])" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation(expectedNumber: &quot;123456789123456&quot;, bytes: [1, 2, 3, 4, 5, ...])" status="pass" total="1" pass="1" time="0:00:00.001" authErr="0;" authFail="0;" />
+                     <TestCase auth="devtest" name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation(expectedNumber: &quot;12&quot;, bytes: [1, 2])" testId="Parasoft.Dottest.Examples.Bank.Tests.xUnit_[SUITE]Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation" id="Parasoft.Dottest.Examples.Bank.Tests.xUnit_Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation(expectedNumber: &quot;12&quot;, bytes: [1, 2])" status="pass" total="1" pass="1" time="0:00:00.000" authErr="0;" authFail="0;" />
+                  </Test>
+               </TestSuite>
+            </Project>
+         </Total>
+      </ExecutedTestsDetails>
+
+
+      <FuncTestDetails />
+      <Coverage>
+         <Types>
+            <CvgType cvgDecor="Marker" dispCvg="executable lines" dispId="Line" dispName="Line Coverage" dispNoCvg="no executable lines" id="LC" />
+         </Types>
+         <CvgStats>
+            <CvgInfo elem="Total" exp="1" num="229" total="641" val="36">
+               <CvgInfo elem="Parasoft.Dottest.Examples.Bank" exp="1" num="109" total="516" val="21">
+                  <CvgInfo elem="Money" exp="1" num="28" total="132" val="21">
+                     <CvgInfo elem="Currency.cs" num="5" total="29" val="17">
+                        <CvgInfo elem="Currency.Currency(Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="4" total="4" val="100" />
+                        <CvgInfo elem="Currency.Equals(System.Object)" num="0" total="3" val="0" />
+                        <CvgInfo elem="Currency.GetValueWithSign(System.Globalization.CultureInfo)" num="0" total="3" val="0" />
+                        <CvgInfo elem="Currency.IsZero()" num="0" total="4" val="0" />
+                        <CvgInfo elem="Currency.get_CurrencyInfo()" num="1" total="1" val="100" />
+                        <CvgInfo elem="Currency.op_Addition(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="7" val="0" />
+                        <CvgInfo elem="Currency.op_Subtraction(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="7" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="CurrencyInfo.cs" num="8" total="13" val="62">
+                        <CvgInfo elem="CurrencyInfo.CurrencyInfo(System.String, System.String, System.String)" num="7" total="10" val="70" />
+                        <CvgInfo elem="CurrencyInfo.get_Code()" num="1" total="1" val="100" />
+                        <CvgInfo elem="CurrencyInfo.get_Notation()" num="0" total="1" val="0" />
+                        <CvgInfo elem="CurrencyInfo.get_Sign()" num="0" total="1" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="CurrencyProvider.cs" num="4" total="31" val="13">
+                        <CvgInfo elem="CurrencyProvider.GetCurrency(System.Decimal, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="4" total="6" val="67" />
+                        <CvgInfo elem="CurrencyProvider.GetCurrency(System.String, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="3" val="0" />
+                        <CvgInfo elem="CurrencyProvider.GetCurrency(System.String, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo, System.Globalization.CultureInfo)" num="0" total="7" val="0" />
+                        <CvgInfo elem="CurrencyProvider.GetZero(Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="3" val="0" />
+                        <CvgInfo elem="CurrencyProvider.Parse(System.String, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="12" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="CurrencyWithCents.cs" num="11" total="34" val="32">
+                        <CvgInfo elem="CurrencyWithCents.Add(Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="4" val="0" />
+                        <CvgInfo elem="CurrencyWithCents.CurrencyWithCents(System.Int32, System.Int32, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="5" total="5" val="100" />
+                        <CvgInfo elem="CurrencyWithCents.FromDecimal(System.Decimal, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="3" total="3" val="100" />
+                        <CvgInfo elem="CurrencyWithCents.GetDecimalValue()" num="3" total="3" val="100" />
+                        <CvgInfo elem="CurrencyWithCents.GetValue(System.Globalization.CultureInfo)" num="0" total="3" val="0" />
+                        <CvgInfo elem="CurrencyWithCents.Parse(System.String, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo, System.Globalization.CultureInfo)" num="0" total="9" val="0" />
+                        <CvgInfo elem="CurrencyWithCents.Subtract(Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="4" val="0" />
+                        <CvgInfo elem="CurrencyWithCents.ToString()" num="0" total="3" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="CurrencyWithNoCents.cs" num="0" total="25" val="0">
+                        <CvgInfo elem="CurrencyWithNoCents.Add(Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="4" val="0" />
+                        <CvgInfo elem="CurrencyWithNoCents.CurrencyWithNoCents(System.Int32, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="4" val="0" />
+                        <CvgInfo elem="CurrencyWithNoCents.FromDecimal(System.Decimal, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="3" val="0" />
+                        <CvgInfo elem="CurrencyWithNoCents.GetDecimalValue()" num="0" total="3" val="0" />
+                        <CvgInfo elem="CurrencyWithNoCents.GetValue(System.Globalization.CultureInfo)" num="0" total="3" val="0" />
+                        <CvgInfo elem="CurrencyWithNoCents.Parse(System.String, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo, System.Globalization.CultureInfo)" num="0" total="4" val="0" />
+                        <CvgInfo elem="CurrencyWithNoCents.Subtract(Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="4" val="0" />
+                     </CvgInfo>
+                  </CvgInfo>
+                  <CvgInfo elem="Transactions" exp="1" num="0" total="77" val="0">
+                     <CvgInfo elem="ExternalTransfer.cs" num="0" total="17" val="0">
+                        <CvgInfo elem="ExternalTransfer.ApplyImpl()" num="0" total="2" val="0" />
+                        <CvgInfo elem="ExternalTransfer.CheckBalance(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="3" val="0" />
+                        <CvgInfo elem="ExternalTransfer.ExternalTransfer(Parasoft.Dottest.Examples.Bank.AccountNumber, Parasoft.Dottest.Examples.Bank.Money.Currency, System.DateTime)" num="0" total="6" val="0" />
+                        <CvgInfo elem="ExternalTransfer.GetConvertedAmount()" num="0" total="3" val="0" />
+                        <CvgInfo elem="ExternalTransfer.GetKind()" num="0" total="3" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="IncommingTransfer.cs" num="0" total="16" val="0">
+                        <CvgInfo elem="IncommingTransfer.ApplyImpl()" num="0" total="4" val="0" />
+                        <CvgInfo elem="IncommingTransfer.CheckBalance(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="3" val="0" />
+                        <CvgInfo elem="IncommingTransfer.GetConvertedAmount()" num="0" total="3" val="0" />
+                        <CvgInfo elem="IncommingTransfer.GetKind()" num="0" total="3" val="0" />
+                        <CvgInfo elem="IncommingTransfer.IncommingTransfer(Parasoft.Dottest.Examples.Bank.BankAccount, Parasoft.Dottest.Examples.Bank.Money.Currency, System.DateTime, Parasoft.Dottest.Examples.Bank.CurrencyExchangeConverter)" num="0" total="3" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="OutgoingTransfer.cs" num="0" total="15" val="0">
+                        <CvgInfo elem="OutgoingTransfer.ApplyImpl()" num="0" total="3" val="0" />
+                        <CvgInfo elem="OutgoingTransfer.CheckBalance(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="3" val="0" />
+                        <CvgInfo elem="OutgoingTransfer.GetConvertedAmount()" num="0" total="3" val="0" />
+                        <CvgInfo elem="OutgoingTransfer.GetKind()" num="0" total="3" val="0" />
+                        <CvgInfo elem="OutgoingTransfer.OutgoingTransfer(Parasoft.Dottest.Examples.Bank.BankAccount, Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency, System.DateTime, Parasoft.Dottest.Examples.Bank.CurrencyExchangeConverter)" num="0" total="3" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="TransactionBase.cs" num="0" total="22" val="0">
+                        <CvgInfo elem="TransactionBase.Apply()" num="0" total="11" val="0" />
+                        <CvgInfo elem="TransactionBase.TransactionBase(Parasoft.Dottest.Examples.Bank.BankAccount, Parasoft.Dottest.Examples.Bank.Money.Currency, System.DateTime, Parasoft.Dottest.Examples.Bank.CurrencyExchangeConverter)" num="0" total="8" val="0" />
+                        <CvgInfo elem="TransactionBase.get_Account()" num="0" total="1" val="0" />
+                        <CvgInfo elem="TransactionBase.get_Date()" num="0" total="1" val="0" />
+                        <CvgInfo elem="TransactionBase.get_Fee()" num="0" total="1" val="0" />
+                     </CvgInfo>
+                     <CvgInfo elem="TransferTransaction.cs" num="0" total="7" val="0">
+                        <CvgInfo elem="TransferTransaction.GetAmount()" num="0" total="3" val="0" />
+                        <CvgInfo elem="TransferTransaction.TransferTransaction(Parasoft.Dottest.Examples.Bank.BankAccount, Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.Currency, System.DateTime, Parasoft.Dottest.Examples.Bank.CurrencyExchangeConverter)" num="0" total="4" val="0" />
+                     </CvgInfo>
+                  </CvgInfo>
+                  <CvgInfo elem="AccountNumber.cs" num="42" total="60" val="70">
+                     <CvgInfo elem="AccountNumber.AccountNumber(System.Byte[])" num="4" total="4" val="100" />
+                     <CvgInfo elem="AccountNumber.Create(System.Char[])" num="0" total="14" val="0" />
+                     <CvgInfo elem="AccountNumber.Create(System.String)" num="11" total="13" val="85" />
+                     <CvgInfo elem="AccountNumber.Equals(System.Object)" num="11" total="13" val="85" />
+                     <CvgInfo elem="AccountNumber.GetHashCode()" num="8" total="8" val="100" />
+                     <CvgInfo elem="AccountNumber.ToString()" num="8" total="8" val="100" />
+                  </CvgInfo>
+                  <CvgInfo elem="Bank.cs" num="0" total="99" val="0">
+                     <CvgInfo elem="Bank.AddAccount(Parasoft.Dottest.Examples.Bank.BankAccount)" num="0" total="9" val="0" />
+                     <CvgInfo elem="Bank.AddAccount2(Parasoft.Dottest.Examples.Bank.BankAccount)" num="0" total="9" val="0" />
+                     <CvgInfo elem="Bank.AddCurrency(Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="3" val="0" />
+                     <CvgInfo elem="Bank.AddUser(Parasoft.Dottest.Examples.Bank.BankUser)" num="0" total="3" val="0" />
+                     <CvgInfo elem="Bank.AverageAccountsNumWithCurrency(Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="0" total="16" val="0" />
+                     <CvgInfo elem="Bank.Bank()" num="0" total="4" val="0" />
+                     <CvgInfo elem="Bank.ComputeTotalCash(Parasoft.Dottest.Examples.Bank.BankUser, Parasoft.Dottest.Examples.Bank.Money.Currency&amp;)" num="0" total="12" val="0" />
+                     <CvgInfo elem="Bank.CountUSDAccounts(Parasoft.Dottest.Examples.Bank.BankUser)" num="0" total="14" val="0" />
+                     <CvgInfo elem="Bank.GetAccounts(Parasoft.Dottest.Examples.Bank.BankUser)" num="0" total="3" val="0" />
+                     <CvgInfo elem="Bank.GetCurrency(System.String)" num="0" total="3" val="0" />
+                     <CvgInfo elem="Bank.GetUserByLogin(System.String)" num="0" total="4" val="0" />
+                     <CvgInfo elem="Bank.Transfer(Parasoft.Dottest.Examples.Bank.BankAccount, Parasoft.Dottest.Examples.Bank.AccountNumber, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="17" val="0" />
+                     <CvgInfo elem="Bank.get_Coverter()" num="0" total="1" val="0" />
+                     <CvgInfo elem="Bank.set_Coverter(Parasoft.Dottest.Examples.Bank.CurrencyExchangeConverter)" num="0" total="1" val="0" />
+                  </CvgInfo>
+                  <CvgInfo elem="BankAccount.cs" num="0" total="21" val="0">
+                     <CvgInfo elem="BankAccount.AddHistory(Parasoft.Dottest.Examples.Bank.Transactions.TransactionBase)" num="0" total="4" val="0" />
+                     <CvgInfo elem="BankAccount.BankAccount()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankAccount.BankAccount(Parasoft.Dottest.Examples.Bank.BankUser, Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.AccountNumber)" num="0" total="8" val="0" />
+                     <CvgInfo elem="BankAccount.Transfer(Parasoft.Dottest.Examples.Bank.AccountNumber, Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="2" val="0" />
+                     <CvgInfo elem="BankAccount.get_Balance()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankAccount.get_CurrencyInfo()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankAccount.get_History()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankAccount.get_Number()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankAccount.get_Owner()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankAccount.set_Balance(Parasoft.Dottest.Examples.Bank.Money.Currency)" num="0" total="1" val="0" />
+                  </CvgInfo>
+                  <CvgInfo elem="BankUser.cs" num="13" total="19" val="68">
+                     <CvgInfo elem="BankUser.BankUser(System.String, System.String, System.String, System.String)" num="7" total="7" val="100" />
+                     <CvgInfo elem="BankUser.CheckEmail()" num="2" total="6" val="33" />
+                     <CvgInfo elem="BankUser.get_Email()" num="0" total="1" val="0" />
+                     <CvgInfo elem="BankUser.get_Login()" num="1" total="1" val="100" />
+                     <CvgInfo elem="BankUser.get_Name()" num="1" total="1" val="100" />
+                     <CvgInfo elem="BankUser.get_Password()" num="1" total="1" val="100" />
+                     <CvgInfo elem="BankUser.get_SirName()" num="1" total="1" val="100" />
+                     <CvgInfo elem="BankUser.set_Email(System.String)" num="0" total="1" val="0" />
+                  </CvgInfo>
+                  <CvgInfo elem="CurrencyExchangeConverter.cs" num="26" total="36" val="72">
+                     <CvgInfo elem="CurrencyExchangeConverter.AddRatio(Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo, System.Single)" num="3" total="3" val="100" />
+                     <CvgInfo elem="CurrencyExchangeConverter.Convert(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="6" total="8" val="75" />
+                     <CvgInfo elem="CurrencyExchangeConverter.ConvertFromMainCurrency(Parasoft.Dottest.Examples.Bank.Money.Currency, Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="6" total="11" val="55" />
+                     <CvgInfo elem="CurrencyExchangeConverter.ConvertToMainCurrency(Parasoft.Dottest.Examples.Bank.Money.Currency)" num="6" total="8" val="75" />
+                     <CvgInfo elem="CurrencyExchangeConverter.CurrencyExchangeConverter(Parasoft.Dottest.Examples.Bank.Money.CurrencyInfo)" num="5" total="5" val="100" />
+                     <CvgInfo elem="CurrencyExchangeConverter.get_Ratios()" num="0" total="1" val="0" />
+                  </CvgInfo>
+                  <CvgInfo elem="ExampleBank.cs" num="0" total="44" val="0">
+                     <CvgInfo elem="ExampleBank.CreateExampleBank()" num="0" total="41" val="0" />
+                     <CvgInfo elem="ExampleBank.ExampleBank()" num="0" total="3" val="0" />
+                  </CvgInfo>
+                  <CvgInfo elem="ReportGenerator.cs" num="0" total="28" val="0">
+                     <CvgInfo elem="Comment.Comment()" num="0" total="3" val="0" />
+                     <CvgInfo elem="Comment.get_Number()" num="0" total="1" val="0" />
+                     <CvgInfo elem="Comment.get_Text()" num="0" total="1" val="0" />
+                     <CvgInfo elem="Comment.set_Number(Parasoft.Dottest.Examples.Bank.AccountNumber)" num="0" total="1" val="0" />
+                     <CvgInfo elem="Comment.set_Text(System.String)" num="0" total="1" val="0" />
+                     <CvgInfo elem="ReportGenerator.AddInfo(Parasoft.Dottest.Examples.Bank.Comment)" num="0" total="3" val="0" />
+                     <CvgInfo elem="ReportGenerator.AddUser(Parasoft.Dottest.Examples.Bank.BankUser)" num="0" total="12" val="0" />
+                     <CvgInfo elem="ReportGenerator.ReportGenerator(Parasoft.Dottest.Examples.Bank.Bank, System.String)" num="0" total="6" val="0" />
+                  </CvgInfo>
+               </CvgInfo>
+               <CvgInfo elem="Parasoft.Dottest.Examples.Bank.Tests.MSTest" exp="1" num="44" total="47" val="94">
+                  <CvgInfo elem="AccountNumberTests.cs" num="20" total="22" val="91">
+                     <CvgInfo elem="AccountNumberTests.TestAccountNumberCreation()" num="7" total="7" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestAccountNumberHashing()" num="10" total="10" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestInvalidAccountNumberCreation()" num="3" total="5" val="60" />
+                  </CvgInfo>
+                  <CvgInfo elem="BankUserTests.cs" num="12" total="13" val="92">
+                     <CvgInfo elem="BankUserTests.Test()" num="12" total="13" val="92" />
+                  </CvgInfo>
+                  <CvgInfo elem="CurrencyExchangeConverterTests.cs" num="10" total="10" val="100">
+                     <CvgInfo elem="CurrencyExchangeConverterTests.TestUsdConversion()" num="10" total="10" val="100" />
+                  </CvgInfo>
+                  <CvgInfo elem="EmptyTests.cs" num="2" total="2" val="100">
+                     <CvgInfo elem="EmptyTests.Test()" num="2" total="2" val="100" />
+                  </CvgInfo>
+               </CvgInfo>
+               <CvgInfo elem="Parasoft.Dottest.Examples.Bank.Tests.NUnit" exp="1" num="43" total="44" val="98">
+                  <CvgInfo elem="AccountNumberTests.cs" num="21" total="21" val="100">
+                     <CvgInfo elem="AccountNumberTests.&lt;>c__DisplayClass1_0.&lt;TestInvalidAccountNumberCreation>b__0()" num="1" total="1" val="100" />
+                     <CvgInfo elem="AccountNumberTests.AccountNumberTests()" num="3" total="3" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestAccountNumberCreation(System.String, System.Byte[])" num="5" total="5" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1)" num="9" total="9" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestInvalidAccountNumberCreation(System.String)" num="3" total="3" val="100" />
+                  </CvgInfo>
+                  <CvgInfo elem="BankUserTests.cs" num="12" total="13" val="92">
+                     <CvgInfo elem="BankUserTests.BankUserTests()" num="1" total="1" val="100" />
+                     <CvgInfo elem="BankUserTests.Test(System.String)" num="11" total="12" val="92" />
+                  </CvgInfo>
+                  <CvgInfo elem="CurrencyExchangeConverterTests.cs" num="10" total="10" val="100">
+                     <CvgInfo elem="CurrencyExchangeConverterTests.TestUsdConversion()" num="10" total="10" val="100" />
+                  </CvgInfo>
+               </CvgInfo>
+               <CvgInfo elem="Parasoft.Dottest.Examples.Bank.Tests.xUnit" exp="1" num="33" total="34" val="97">
+                  <CvgInfo elem="AccountNumberTests.cs" num="11" total="11" val="100">
+                     <CvgInfo elem="AccountNumberTests.&lt;>c__DisplayClass1_0.&lt;TestInvalidAccountNumberCreation>b__0()" num="1" total="1" val="100" />
+                     <CvgInfo elem="AccountNumberTests.AccountNumberTests()" num="2" total="2" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestAccountNumberCreation(System.String, System.Byte[])" num="5" total="5" val="100" />
+                     <CvgInfo elem="AccountNumberTests.TestInvalidAccountNumberCreation(System.String)" num="3" total="3" val="100" />
+                  </CvgInfo>
+                  <CvgInfo elem="BankUserTests.cs" num="12" total="13" val="92">
+                     <CvgInfo elem="BankUserTests.BankUserTests()" num="1" total="1" val="100" />
+                     <CvgInfo elem="BankUserTests.Test(System.String)" num="11" total="12" val="92" />
+                  </CvgInfo>
+                  <CvgInfo elem="CurrencyExchangeConverterTests.cs" num="10" total="10" val="100">
+                     <CvgInfo elem="CurrencyExchangeConverterTests.TestUsdConversion()" num="10" total="10" val="100" />
+                  </CvgInfo>
+               </CvgInfo>
+            </CvgInfo>
+         </CvgStats>
+
+      </Coverage>
+   </Exec>
+   <Statistics>
+
+   </Statistics>
+</ResultsSession>
