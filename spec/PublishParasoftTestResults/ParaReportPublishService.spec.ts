@@ -10,6 +10,7 @@ const axios = require('../../PublishParasoftResults/node_modules/axios/dist/node
 
 let publisher: any;
 let mockWebApi: any;
+let mockGenerateUniqueFileNameFunction: any;
 
 describe("Parasoft findings Azure", () => {
     beforeEach(() => {
@@ -57,6 +58,7 @@ describe("Parasoft findings Azure", () => {
             publisher = new ParaReportPublishService();
             spyOn(publisher, 'transform').and.callThrough();
             spyOn(publisher, 'getSarifReportsOfReferenceBuild').and.returnValue([]);
+            mockGenerateUniqueFileNameFunction = spyOn(publisher.staticAnalysisReportService, 'generateUniqueFileName');
             jasmine.DEFAULT_TIMEOUT_INTERVAL = 200000;
             retryTimes = 20;
 
@@ -68,6 +70,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('SARIF', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/SARIF.sarif');
             publisher.defaultWorkingDirectory = 'D:/RWorkspaces/project-workspace/CICD/para % bank';
             await publisher.transformReports([__dirname + '/resources/reports/SARIF.sarif'], 0);
 
@@ -83,6 +86,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
 
@@ -97,6 +101,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_BD.PB.VOVR_RULE', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif');
 
@@ -111,6 +116,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_1 with multiple violations which have the same identify info, should generate unique unbViolId', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif');
 
@@ -124,40 +130,76 @@ describe("Parasoft findings Azure", () => {
             fs.unlink(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif', () => {});
         });
 
-        it('XML_TESTS', async () => {
-            publisher.transformReports([__dirname + '/resources/reports/XML_TESTS.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_TESTS-xml-junit.xml');
+        describe('XML_TESTS', () => {
+            it('and the report is from CPP', async () => {
+                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_CPP.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml');
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS-xml-junit.xml', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS-xml-junit.xml', 'utf-8');
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_CPP-xml-junit.xml', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml', 'utf-8');
 
-            expect(result).toEqual(expectedReport);
-            expect(publisher.transform).toHaveBeenCalled();
-            expect(publisher.xUnitReports.length).toBe(1);
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_TESTS-xml-junit.xml', () => {});
-        });
+                fs.unlink(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml', () => {});
+            });
+
+            it('and the report is from JTEST', async() => {
+                publisher.defaultWorkingDirectory = 'E:/RLIU_DEVS/SonarQube/sonar_integration_test_example_projects/example_projects/multi-module-demo/demo-module-three';
+                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_JTEST.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml');
+
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_JTEST-xml-junit.xml', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml', 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml', () => {});
+            });
+
+            it('and the report is from DOTTEST', async() => {
+                publisher.defaultWorkingDirectory = 'C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs';
+                // Need to set JAVA_HOME environment or comment this test if this test is failed.
+                publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
+                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_DOTTEST.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml');
+
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_DOTTEST-xml-junit.xml', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml', 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml', () => {});
+            });
+        })
 
         it('XML_STATIC_AND_TESTS', async () => {
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif');
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml');
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml');
+            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml'], 0);
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif');
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml');
 
-            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS-xml-pf-sast.sarif', 'utf8');
-            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS-xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml', 'utf-8');
+            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', 'utf8');
+            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', 'utf-8');
+            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', 'utf8');
+            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif', () => {});
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', () => {});
         });
 
         it('XML_SOATEST', async () => {
+            publisher.defaultWorkingDirectory = 'C:/home/marzec/nightly/soavirt-server/virtualize_workspace_clean';
             publisher.transformReports([__dirname + '/resources/reports/XML_SOATEST.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_SOATEST-xml-junit.xml');
 
@@ -172,6 +214,8 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_AND_SOATEST', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml');
+            publisher.defaultWorkingDirectory = 'C:/Users/mgorecka/parasoft/soavirt-static-workspace';
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif');
 
@@ -721,35 +765,6 @@ describe("Parasoft findings Azure", () => {
             const result = publisher.getJavaPath(javaRootPath);
 
             expect(result).toBeUndefined();
-        });
-    });
-
-    describe('isStaticAnalysisReportNameDuplicate()', () => {
-        beforeEach(() => {
-            publisher = new ParaReportPublishService();
-        });
-
-        it('when the original static analysis report has a duplicate name', () => {
-            const sourcePath: string = "E:/AzureAgent/_work/4/reports/test_report1.xml";
-            const testOriginalStaticAnalysisReportMap: Map<string, string> = new Map<string, string>();
-            testOriginalStaticAnalysisReportMap.set("test_report.xml", "E:/AzureAgent/_work/4/reports/test_report.xml");
-            testOriginalStaticAnalysisReportMap.set("test_report1.xml", sourcePath);
-            publisher.staticAnalysisReportsMap = testOriginalStaticAnalysisReportMap;
-
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(2);
-            expect(publisher.isStaticAnalysisReportNameDuplicate(sourcePath)).toBeTrue();
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(2);
-        });
-
-        it('when the original static analysis report does not have a duplicate name', () => {
-            const sourcePath: string = "E:/AzureAgent/_work/4/reports/test_report1.xml";
-            const testOriginalStaticAnalysisReportMap: Map<string, string> = new Map<string, string>();
-            testOriginalStaticAnalysisReportMap.set("test_report.xml", "E:/AzureAgent/_work/4/reports/test_report.xml");
-            publisher.staticAnalysisReportsMap = testOriginalStaticAnalysisReportMap;
-
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(1);
-            expect(publisher.isStaticAnalysisReportNameDuplicate(sourcePath)).toBeFalse();
-            expect(testOriginalStaticAnalysisReportMap.size).toBe(2);
         });
     });
 

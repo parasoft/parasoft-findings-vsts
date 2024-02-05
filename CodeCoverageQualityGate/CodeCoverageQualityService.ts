@@ -281,8 +281,8 @@ export class CodeCoverageQualityService {
             tl.debug(`Retrieved Parasoft coverage results from the reference build '${pipelineName}#${this.referenceInputs.buildNumber}'`);
             this.referenceBuildInfo = {
                 pipelineName: pipelineName,
-                buildNumber: (<number> referenceBuild.id).toString(),
-                buildId: <string> referenceBuild.buildNumber
+                buildNumber: <string> referenceBuild.buildNumber,
+                buildId: (<number> referenceBuild.id).toString()
             };
             return coberturaReport;
         }
