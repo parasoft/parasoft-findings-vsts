@@ -179,7 +179,7 @@ describe("Parasoft findings Azure", () => {
         })
 
         it('XML_STATIC_AND_TESTS', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml');
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif');
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml');
