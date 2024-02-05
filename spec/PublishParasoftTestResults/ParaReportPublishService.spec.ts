@@ -130,41 +130,76 @@ describe("Parasoft findings Azure", () => {
             fs.unlink(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif', () => {});
         });
 
-        it('XML_TESTS', async () => {
-            publisher.transformReports([__dirname + '/resources/reports/XML_TESTS.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_TESTS-xml-junit.xml');
+        describe('XML_TESTS', () => {
+            it('and the report is from CPP', async () => {
+                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_CPP.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml');
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS-xml-junit.xml', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS-xml-junit.xml', 'utf-8');
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_CPP-xml-junit.xml', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml', 'utf-8');
 
-            expect(result).toEqual(expectedReport);
-            expect(publisher.transform).toHaveBeenCalled();
-            expect(publisher.xUnitReports.length).toBe(1);
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_TESTS-xml-junit.xml', () => {});
-        });
+                fs.unlink(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml', () => {});
+            });
+
+            it('and the report is from JTEST', async() => {
+                publisher.defaultWorkingDirectory = 'E:/RLIU_DEVS/SonarQube/sonar_integration_test_example_projects/example_projects/multi-module-demo/demo-module-three';
+                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_JTEST.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml');
+
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_JTEST-xml-junit.xml', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml', 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml', () => {});
+            });
+
+            it('and the report is from DOTTEST', async() => {
+                publisher.defaultWorkingDirectory = 'C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs';
+                // Need to set JAVA_HOME environment or comment this test if this test is failed.
+                publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
+                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_DOTTEST.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml');
+
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_DOTTEST-xml-junit.xml', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml', 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml', () => {});
+            });
+        })
 
         it('XML_STATIC_AND_TESTS', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml');
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif');
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml');
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml');
+            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml'], 0);
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif');
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml');
 
-            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS-xml-pf-sast.sarif', 'utf8');
-            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS-xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml', 'utf-8');
+            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', 'utf8');
+            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', 'utf-8');
+            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', 'utf8');
+            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-pf-sast.sarif', () => {});
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS-xml-junit.xml', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', () => {});
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', () => {});
         });
 
         it('XML_SOATEST', async () => {
+            publisher.defaultWorkingDirectory = 'C:/home/marzec/nightly/soavirt-server/virtualize_workspace_clean';
             publisher.transformReports([__dirname + '/resources/reports/XML_SOATEST.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_SOATEST-xml-junit.xml');
 
@@ -180,6 +215,7 @@ describe("Parasoft findings Azure", () => {
 
         it('XML_STATIC_AND_SOATEST', async () => {
             mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml');
+            publisher.defaultWorkingDirectory = 'C:/Users/mgorecka/parasoft/soavirt-static-workspace';
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml'], 0);
             await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif');
 
