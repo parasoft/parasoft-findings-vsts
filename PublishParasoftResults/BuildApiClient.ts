@@ -61,6 +61,14 @@ export class BuildAPIClient {
         return await this.getReportsOfArtifact(artifact, SARIF_FILE_SUFFIX);
     }
 
+    async getSarifReportsByBuildId(buildId: number): Promise<FileEntry[]> {
+        const artifact = await this.getSarifArtifactOfBuildById(buildId);
+        if(artifact) {
+            return await this.getSarifReportsOfArtifact(artifact);
+        }
+        return [];
+    }
+
     async getCoberturaReportsByBuildId(buildId: number): Promise<FileEntry[]> {
         const artifact = await (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
         if(artifact) {

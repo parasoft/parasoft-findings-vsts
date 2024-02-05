@@ -28,6 +28,7 @@ import { BuildAPIClient, FileEntry } from './BuildApiClient';
 import { BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import {CoverageReportService} from "./CoverageReportService";
 import {StaticAnalysisReportService} from "./StaticAnalysisReportService";
+import {ParaReportPublishUtils} from "./ParaReportPublishUtils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
@@ -148,6 +149,7 @@ export class ParaReportPublishService {
     javaPath: string | undefined;
 
     referenceBuildResult: ReferenceBuildResult;
+    previousReferenceBuildResult: string | undefined;
 
     staticAnalysisReportService: StaticAnalysisReportService;
 
@@ -175,6 +177,9 @@ export class ParaReportPublishService {
             this.dtpBaseUrl = this.getDtpBaseUrl(localSettings);
             tl.debug(this.isNullOrWhitespace(this.dtpBaseUrl) ? 'Failed to load DTP settings.' : 'DTP settings have been successfully loaded.');
         }
+
+        // Get previous reference build result to compare with that in current build
+        this.previousReferenceBuildResult = tl.getVariable('PF.ReferenceBuildResult');
         // Get and save the reference build information as a variable for subsequent quality gate tasks to use
         const referencePipelineInput = tl.getInput('referencePipeline') || '';
         const referenceBuildInput = tl.getInput('referenceBuild') || '';
@@ -554,16 +559,19 @@ export class ParaReportPublishService {
     }
 
     private async processSarifResults(): Promise<void> {
+        const referenceSarifReports = await this.getSarifReportsOfReferenceBuild();
+        // If the previous reference build result is different from the current reference build result
+        if (this.previousReferenceBuildResult != JSON.stringify(this.referenceBuildResult)) {
+            await this.updateSarifReportsInArtifact(referenceSarifReports);
+        }
         if (this.sarifReports.length > 0) {
-            const referenceSarifReports = await this.getSarifReportsOfReferenceBuild();
-
             for (const sarifReport of this.sarifReports) {
                 let currentSarifContentString = fs.readFileSync(sarifReport, 'utf8');
                 let currentSarifContentJson = JSON.parse(currentSarifContentString);
                 currentSarifContentJson = this.checkAndAddUnbViolIdForSarifReport(currentSarifContentJson);
 
                 const referenceSarifReport = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'SarifContainer/' + path.basename(sarifReport));
-                await this.appendBaselineState(currentSarifContentJson, referenceSarifReport);
+                await this.updateBaselineState(currentSarifContentJson, referenceSarifReport);
 
                 currentSarifContentString = JSON.stringify(currentSarifContentJson);
                 fs.writeFileSync(sarifReport, currentSarifContentString, 'utf8');
@@ -951,7 +959,7 @@ export class ParaReportPublishService {
     }
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    private appendBaselineState = async (currentSarifContentJson: any, referenceSarifReport: FileEntry | undefined): Promise<string> => {
+    private updateBaselineState = async (currentSarifContentJson: any, referenceSarifReport: FileEntry | undefined): Promise<string> => {
         const referenceUnbViolIds: string[] = await this.getUnbViolIdsFromReferenceSarifReport(referenceSarifReport);
         currentSarifContentJson.runs?.forEach((run: any) => {
             run.results?.forEach((result: any) => {
@@ -985,5 +993,33 @@ export class ParaReportPublishService {
         })
         /* eslint-enable @typescript-eslint/no-explicit-any */
         return referenceUnbViolIds;
+    }
+
+    private updateSarifReportsInArtifact = async (referenceSarifReports: FileEntry[]): Promise<void> => {
+        // Get all sarif reports from artifact in current build
+        const sarifReportsInArtifact = await this.buildClient.getSarifReportsByBuildId(Number(this.buildId));
+
+        if (sarifReportsInArtifact.length == 0) {
+            return;
+        }
+
+        // Create temp folder to store the sarif reports
+        const parasoftFindingsTempFolder = path.join(ParaReportPublishUtils.getTempFolder(), 'ParasoftFindings/SarifContainer');
+        fs.mkdirSync(parasoftFindingsTempFolder, {recursive: true});
+
+        for (const sarifReport of sarifReportsInArtifact) {
+            let currentSarifContentString = await sarifReport.contentsPromise;
+            const currentSarifContentJson = JSON.parse(currentSarifContentString);
+
+            const referenceSarifReport = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == sarifReport.name);
+            await this.updateBaselineState(currentSarifContentJson, referenceSarifReport);
+
+            currentSarifContentString = JSON.stringify(currentSarifContentJson);
+            const baseName = path.basename(sarifReport.name);
+            const outputPath = path.join(parasoftFindingsTempFolder, baseName);
+            fs.writeFileSync(outputPath, currentSarifContentString, 'utf8');
+            tl.uploadArtifact("SarifContainer", outputPath, "CodeAnalysisLogs");
+            tl.debug(`Updated existing sarif report '${baseName}' in artifacts due to the reference build was changed.`);
+        }
     }
 }
