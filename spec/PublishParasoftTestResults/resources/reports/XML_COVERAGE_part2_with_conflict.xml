@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Coverage ver="2" toolVer="2022.2.0" execEnv="win32_x86_64" hasViols="false" project="CICD_DemoProject" buildId="CICD_DemoProject-2024-02-02" climode="true" toolDispName="Jtest" prjModule="com.parasoft:project-with-default-package" toolId="jtest" machine="CD-RWANG" tag="Unit Tests-com.parasoft:project-with-default-package-${scontrol_branch}-win32_x86_64" time="2024-02-02T16:54:01+08:00" id="1708275540082" lang="en_US" user="Mrwan" toolName="DTP Engine for Java">
+	<TestConfig machine="CD-RWANG" pseudoUrl="builtin://Unit Tests" name="Unit Tests" user="Mrwan" />
+	<VersionInfos>
+		<VersionInfo id="LC" ver="1" />
+	</VersionInfos>
+	<Repositories />
+	<Locations>
+		<Loc locRef="1" projId="com.parasoft:project-with-default-package" covId="-524998481,-263405795" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/Demo.java" uri="file://user/E:/AzureAgent/_work/4/s/src/main/java/com/parasoft/Demo.java" projPath="/com.parasoft:project-with-default-package" hash="1297222551" />
+		<Loc locRef="2" projId="com.parasoft:project-with-default-package" covId="764651146" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/Demo1.java" uri="file://user/E:/AzureAgent/_work/4/s/src/main/java/com/parasoft/Demo1.java" projPath="/com.parasoft:project-with-default-package" hash="-961785939" />
+	</Locations>
+	<Tests>
+		<Test testRef="1" id="NO_TEST" />
+		<Test testRef="2" id="com.parasoft.DemoTest|+|com.parasoft:project-with-default-package#DemoTest.java#com.parasoft.DemoTest#doSomething()" />
+	</Tests>
+	<CoverageData type="LC">
+		<CvgData locRef="1">
+			<Stats>
+				<Item itemRef="1" id="Demo.java#Demo" name="Demo">
+					<Item itemRef="2" id="Demo.java#Demo#&lt;init>#()V" name="Demo()" />
+					<Item itemRef="3" id="Demo.java#Demo#doSomething#()I" name="doSomething()" />
+					<Item itemRef="4" id="Demo.java#Demo#Demo$1" name="Demo$1">
+						<Item itemRef="5" id="Demo.java#Demo#Demo$1#compareTo#(Ljava/lang/Integer;)I" name="compareTo( java.lang.Integer )" />
+						<Item itemRef="6" id="Demo.java#Demo#Demo$1#&lt;init>#(Lcom/parasoft/Demo;)V" name="Demo$1( com.parasoft.Demo )" />
+					</Item>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="5" elems="10" hashes="1606603515" />
+				<StatCvg itemRef="2" elems="3" hashes="-1788429923" />
+				<StatCvg itemRef="3" elems="6 13" hashes="380126011 -895699689" />
+				<StatCvg itemRef="6" elems="6" hashes="380126011" />
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="3">
+					<CtxCvg testRefs="2" elemRefs="6 13" />
+				</DynCvg>
+				<DynCvg itemRef="2">
+					<CtxCvg testRefs="1" elemRefs="3" />
+				</DynCvg>
+				<DynCvg itemRef="6">
+					<CtxCvg testRefs="2" elemRefs="6" />
+				</DynCvg>
+				<DynCvg itemRef="5">
+					<CtxCvg testRefs="2" elemRefs="10" />
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="2">
+			<Stats>
+				<Item itemRef="1" id="Demo1.java#Demo1" name="Demo1">
+					<Item itemRef="2" id="Demo1.java#Demo1#doSomething#()V" name="doSomething()" />
+					<Item itemRef="3" id="Demo1.java#Demo1#&lt;init>#()V" name="Demo1()" />
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="6 7" hashes="-12565777 30537853" />
+				<StatCvg itemRef="3" elems="3" hashes="393260874" />
+			</Static>
+		</CvgData>
+	</CoverageData>
+</Coverage>

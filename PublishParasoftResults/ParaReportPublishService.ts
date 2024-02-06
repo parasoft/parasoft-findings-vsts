@@ -16,7 +16,6 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as path from 'path';
 import * as os from 'os';
-import * as tr from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
@@ -127,6 +126,8 @@ export class ParaReportPublishService {
     })
 
     buildClient: BuildAPIClient;
+    coverageReportService: CoverageReportService;
+
     pipelineName: string;
     buildNumber: string;
     buildId: string;
@@ -191,6 +192,7 @@ export class ParaReportPublishService {
         this.config = tl.getInput('configuration');
 
         this.buildClient = new BuildAPIClient();
+        this.coverageReportService = new CoverageReportService();
         this.staticAnalysisReportService = new StaticAnalysisReportService();
 
         tl.debug('referencePipeline: ' + referencePipelineInput);
@@ -539,7 +541,7 @@ export class ParaReportPublishService {
         }
         await this.processXUnitResults();
         await this.processSarifResults();
-        await this.processCoberturaResults();
+        await this.coverageReportService.processCoberturaResults(this.coberturaReports);
 
         tl.setResult(tl.TaskResult.Succeeded, '');
     }
@@ -572,98 +574,11 @@ export class ParaReportPublishService {
         }
     }
 
-    private async processCoberturaResults(): Promise<void> {
-        if (this.coberturaReports.length > 0) {
-            const parasoftFindingsTempFolder = path.join(this.getTempFolder(), 'ParasoftFindings')
-            const coverageReportService = new CoverageReportService();
-
-            // Get merged cobertura report from artifacts and save it to a temp file
-            let mergedCoberturaReportFileFromArtifacts: string | undefined;
-            const mergedCoberturaReportFromArtifacts = await coverageReportService.getMergedCoberturaReportByBuildId(Number(this.buildId));
-            if (mergedCoberturaReportFromArtifacts) {
-                mergedCoberturaReportFileFromArtifacts =  path.join(parasoftFindingsTempFolder, "parasoft-merged-cobertura-from-artifact.xml");
-                fs.writeFileSync(mergedCoberturaReportFileFromArtifacts, await mergedCoberturaReportFromArtifacts.contentsPromise, 'utf-8');
-            }
-            // Merge cobertura reports from artifacts and current task
-            const finalMergedCoberturaReportFile = coverageReportService.mergeCoberturaReports(this.coberturaReports, mergedCoberturaReportFileFromArtifacts);
-            if (!finalMergedCoberturaReportFile) {
-                tl.warning('No Parasoft coverage results were found in this build.'); // Should never happen
-                return;
-            }
-            // Generate and publish code coverage html report
-            const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
-            this.generateHtmlReport(finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder);
-
-            const coveragePublisher = new tl.CodeCoveragePublisher();
-            coveragePublisher.publish('Cobertura', finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder, '');
-            tl.uploadArtifact('CoberturaContainer', finalMergedCoberturaReportFile, 'ParasoftCoverageLogs');
-        }
-    }
-
     private isNullOrWhitespace = (input: string | undefined | null): boolean => {
         if (typeof input === 'undefined' || input === null) {
             return true;
         }
         return input.replace(/\s/g, '').length < 1;
-    }
-    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
-    private getTempFolder = (): string => {
-        try {
-            tl.assertAgent('2.115.0');
-            const tmpDir = tl.getVariable('Agent.TempDirectory');
-            return <string>tmpDir;
-        } catch (err) {
-            tl.warning('Please upgrade your agent version. https://github.com/Microsoft/vsts-agent/releases')
-            return os.tmpdir();
-        }
-    }
-    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
-    private generateHtmlReport = (summaryFile: string, targetDir: string): boolean => {
-        const platform = os.platform();
-        let dotnet: tr.ToolRunner;
-
-        const dotnetPath = tl.which('dotnet', false);
-        if (!dotnetPath && platform !== 'win32') {
-            tl.warning("Please install dotnet core to enable automatic generation of coverage Html report.");
-            return false;
-        }
-
-        if (!dotnetPath && platform === 'win32') {
-            // use full .NET to execute
-            dotnet = tl.tool(path.join(__dirname, 'lib', 'net47', 'ReportGenerator.exe'));
-        } else {
-            dotnet = tl.tool(dotnetPath);
-            dotnet.arg(path.join(__dirname, 'lib', 'netcoreapp2.0', 'ReportGenerator.dll'));
-        }
-
-        dotnet.arg('-reports:' + summaryFile);
-        dotnet.arg('-targetdir:' + targetDir);
-        dotnet.arg('-reporttypes:HtmlInline_AzurePipelines');
-
-        try {
-            const result = dotnet.execSync(<tr.IExecOptions>{
-                ignoreReturnCode: true,
-                failOnStdErr: false,
-                errStream: process.stdout,
-                outStream: process.stdout
-            });
-
-            let isError = false;
-            dotnet.on('stderr', (data: Buffer) => {
-                console.error(data.toString());
-                isError = true;
-            });
-
-            if (result.code === 0 && !isError) {
-                console.log("Generated code coverage html report: " + targetDir);
-                return true;
-            } else {
-                tl.warning("Failed to generate Html report. Error: " + result);
-            }
-        } catch (err) {
-            tl.warning("Failed to generate Html report. Error: " + err);
-        }
-        return false;
     }
 
     loadSettings = (localSettingsPath: string | undefined): ReadOnlyProperties | null => {

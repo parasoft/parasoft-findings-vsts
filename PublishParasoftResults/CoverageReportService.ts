@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as os from 'os';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as lodash from 'lodash';
 import * as path from 'path';
 import * as tl from 'azure-pipelines-task-lib';
-import {BuildAPIClient, FileEntry} from "./BuildApiClient";
+import { BuildAPIClient, FileEntry } from "./BuildApiClient";
+import * as tr from 'azure-pipelines-task-lib/toolrunner';
+import { ParaReportPublishUtils } from "./ParaReportPublishUtils";
 
 type CoberturaCoverage = {
     lineRate: number;
@@ -50,10 +53,41 @@ type CoberturaLine = {
 
 export class CoverageReportService {
     private readonly MERGED_COBERTURA_REPORT_PATH: string = path.join(tl.getVariable('System.DefaultWorkingDirectory') || '', 'parasoft-merged-cobertura.xml');
-    private buildClient: BuildAPIClient;
+    
+    private readonly buildClient: BuildAPIClient;
+    private readonly buildId: string;
 
     constructor() {
+        this.buildId = tl.getVariable('Build.BuildId') || '';
+
         this.buildClient = new BuildAPIClient();
+    }
+
+    async processCoberturaResults(coberturaReports: string[]): Promise<void> {
+        if (coberturaReports.length > 0) {
+            const parasoftFindingsTempFolder = path.join(ParaReportPublishUtils.getTempFolder(), 'ParasoftFindings')
+            
+            // Get merged cobertura report from artifacts and save it to a temp file
+            let mergedCoberturaReportFileFromArtifacts: string | undefined;
+            const mergedCoberturaReportFromArtifacts = await this.getMergedCoberturaReportByBuildId(Number(this.buildId));
+            if (mergedCoberturaReportFromArtifacts) {
+                mergedCoberturaReportFileFromArtifacts = path.join(parasoftFindingsTempFolder, "parasoft-merged-cobertura-from-artifact.xml");
+                fs.writeFileSync(mergedCoberturaReportFileFromArtifacts, await mergedCoberturaReportFromArtifacts.contentsPromise, 'utf-8');
+            }
+            // Merge cobertura reports from artifacts and current task
+            const finalMergedCoberturaReportFile = this.mergeCoberturaReports(coberturaReports, mergedCoberturaReportFileFromArtifacts);
+            if (!finalMergedCoberturaReportFile) {
+                tl.warning('No Parasoft coverage results were found in this build.'); // Should never happen
+                return;
+            }
+            // Generate and publish code coverage html report
+            const codeCoverageHtmlTempFolder = path.join(parasoftFindingsTempFolder, 'CodeCoverageHtml');
+            this.generateHtmlReport(finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder);
+
+            const coveragePublisher = new tl.CodeCoveragePublisher();
+            coveragePublisher.publish('Cobertura', finalMergedCoberturaReportFile, codeCoverageHtmlTempFolder, '');
+            tl.uploadArtifact('CoberturaContainer', finalMergedCoberturaReportFile, 'ParasoftCoverageLogs');
+        }
     }
 
     async getMergedCoberturaReportByBuildId(buildId: number): Promise<FileEntry | undefined> {
@@ -72,7 +106,7 @@ export class CoverageReportService {
      * @returns Path to the merged Cobertura report (named 'parasoft-merged-cobertura.xml').
      *          Returns undefined if reportPaths is empty or null and baseReportPath is unspecified.
      */
-    mergeCoberturaReports = (reportPaths: string[], baseReportPath?: string): string | undefined => {
+    private mergeCoberturaReports = (reportPaths: string[], baseReportPath?: string): string | undefined => {
         reportPaths = reportPaths || [];
         let startIndex: number = 0;
         if (!baseReportPath) {
@@ -308,5 +342,54 @@ export class CoverageReportService {
             coberturaLinesText += `<line number="${coberturaLine.lineNumber}" hits="${coberturaLine.hits}" hash="${coberturaLine.lineHash}" />`
         }
         return `<class filename="${coberturaClass.fileName}" name="${coberturaClass.name}" line-rate="${coberturaClass.lineRate}"><lines>${coberturaLinesText}</lines></class>`;
+    }
+
+    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
+    private generateHtmlReport = (summaryFile: string, targetDir: string): boolean => {
+        const platform = os.platform();
+        let dotnet: tr.ToolRunner;
+
+        const dotnetPath = tl.which('dotnet', false);
+        if (!dotnetPath && platform !== 'win32') {
+            tl.warning("Please install dotnet core to enable automatic generation of coverage Html report.");
+            return false;
+        }
+
+        if (!dotnetPath && platform === 'win32') {
+            // use full .NET to execute
+            dotnet = tl.tool(path.join(__dirname, 'lib', 'net47', 'ReportGenerator.exe'));
+        } else {
+            dotnet = tl.tool(dotnetPath);
+            dotnet.arg(path.join(__dirname, 'lib', 'netcoreapp2.0', 'ReportGenerator.dll'));
+        }
+
+        dotnet.arg('-reports:' + summaryFile);
+        dotnet.arg('-targetdir:' + targetDir);
+        dotnet.arg('-reporttypes:HtmlInline_AzurePipelines');
+
+        try {
+            const result = dotnet.execSync(<tr.IExecOptions>{
+                ignoreReturnCode: true,
+                failOnStdErr: false,
+                errStream: process.stdout,
+                outStream: process.stdout
+            });
+
+            let isError = false;
+            dotnet.on('stderr', (data: Buffer) => {
+                console.error(data.toString());
+                isError = true;
+            });
+
+            if (result.code === 0 && !isError) {
+                console.log("Generated code coverage html report: " + targetDir);
+                return true;
+            } else {
+                tl.warning("Failed to generate Html report. Error: " + result);
+            }
+        } catch (err) {
+            tl.warning("Failed to generate Html report. Error: " + err);
+        }
+        return false;
     }
 }
