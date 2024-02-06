@@ -559,12 +559,20 @@ export class ParaReportPublishService {
     }
 
     private async processSarifResults(): Promise<void> {
-        const referenceSarifReports = await this.getSarifReportsOfReferenceBuild();
+        let referenceSarifReports;
         // If the previous reference build result is different from the current reference build result
         if (this.previousReferenceBuildResult != JSON.stringify(this.referenceBuildResult)) {
-            await this.updateSarifReportsInArtifact(referenceSarifReports);
+            // Get all sarif reports from artifact in current build
+            const sarifReportsInArtifact = await this.buildClient.getSarifReportsByBuildId(Number(this.buildId));
+            if (sarifReportsInArtifact.length > 0) {
+                referenceSarifReports = await this.getSarifReportsOfReferenceBuild();
+                await this.updateSarifReportsInArtifact(sarifReportsInArtifact, referenceSarifReports);
+            }
         }
         if (this.sarifReports.length > 0) {
+            if(!referenceSarifReports) {
+                referenceSarifReports = await this.getSarifReportsOfReferenceBuild();
+            }
             for (const sarifReport of this.sarifReports) {
                 let currentSarifContentString = fs.readFileSync(sarifReport, 'utf8');
                 let currentSarifContentJson = JSON.parse(currentSarifContentString);
@@ -995,14 +1003,7 @@ export class ParaReportPublishService {
         return referenceUnbViolIds;
     }
 
-    private updateSarifReportsInArtifact = async (referenceSarifReports: FileEntry[]): Promise<void> => {
-        // Get all sarif reports from artifact in current build
-        const sarifReportsInArtifact = await this.buildClient.getSarifReportsByBuildId(Number(this.buildId));
-
-        if (sarifReportsInArtifact.length == 0) {
-            return;
-        }
-
+    private updateSarifReportsInArtifact = async (sarifReportsInArtifact: FileEntry[], referenceSarifReports: FileEntry[]): Promise<void> => {
         // Create temp folder to store the sarif reports
         const parasoftFindingsTempFolder = path.join(ParaReportPublishUtils.getTempFolder(), 'ParasoftFindings/SarifContainer');
         fs.mkdirSync(parasoftFindingsTempFolder, {recursive: true});
