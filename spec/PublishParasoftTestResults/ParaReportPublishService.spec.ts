@@ -1062,30 +1062,30 @@ describe("Parasoft findings Azure", () => {
         });
     });
 
-    describe('appendBaselineState()', () => {
-        let testAppendBaselineState: any;
+    describe('updateBaselineState()', () => {
+        let testUpdateBaselineState: any;
         let testUnbViolId: string;
 
         beforeEach(() => {
             publisher = new ParaReportPublishService();
             testUnbViolId = "95f6cbd1-cbe0-597a-8b6f-11f4da185fec";
 
-            testAppendBaselineState = async (baselineState: string) => {
+            testUpdateBaselineState = async (baselineState: string) => {
                 const currentSarifContentJson: any = {"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":testUnbViolId}}]}]};
                 const expectedResult = {"runs":[{"results":[{"ruleId":"1","level":"warning","partialFingerprints":{"unbViolId":testUnbViolId},"baselineState":baselineState}]}]};
 
-                expect(await publisher.appendBaselineState(currentSarifContentJson, undefined)).toEqual(expectedResult);
+                expect(await publisher.updateBaselineState(currentSarifContentJson, undefined)).toEqual(expectedResult);
             }
         });
 
         it('when unbViolId exists in the reference SARIF report, the baseline state is set as unchanged', async () => {
             spyOn(publisher, 'getUnbViolIdsFromReferenceSarifReport').and.returnValue([testUnbViolId]);
-            await testAppendBaselineState("unchanged"); 
+            await testUpdateBaselineState("unchanged"); 
         });
 
-        it('when unbViolId does not exist in the reference SARIF report，the baseline state is set as new', async () => {
+        it('when unbViolId does not exist in the reference SARIF report, the baseline state is set as new', async () => {
             spyOn(publisher, 'getUnbViolIdsFromReferenceSarifReport').and.returnValue([]);
-            await testAppendBaselineState("new"); 
+            await testUpdateBaselineState("new"); 
         });
     });
 
