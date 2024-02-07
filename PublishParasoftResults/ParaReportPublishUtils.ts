@@ -15,8 +15,14 @@
  */
 import * as os from 'os';
 import * as tl from 'azure-pipelines-task-lib';
+import * as path from 'path';
 
 export class ParaReportPublishUtils {
+    static readonly XUNIT_SUFFIX: string = "-junit.xml";
+    static readonly SARIF_SUFFIX: string = "-pf-sast.sarif";
+    static readonly COBERTURA_SUFFIX: string = "-cobertura.xml";
+    static readonly XML_EXTENSION: string = ".xml";
+    static readonly SARIF_EXTENSION: string = ".sarif";
 
     // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
     static getTempFolder = (): string => {
@@ -28,5 +34,13 @@ export class ParaReportPublishUtils {
             tl.warning('Please upgrade your agent version. https://github.com/Microsoft/vsts-agent/releases')
             return os.tmpdir();
         }
+    }
+
+    static generateReportNameWithPFSuffix  = (sourcePath: string, reportSuffix: string) : string => {
+        let extension = path.extname(sourcePath); // extension with dot
+        const fileName = path.basename(sourcePath);
+        const fileNameWithoutExt = path.basename(sourcePath, extension);
+        extension = extension.substring(1); // extension without dot
+        return sourcePath.replace(fileName, fileNameWithoutExt) + (extension ? ('-' + extension) : '') + reportSuffix;
     }
 }
