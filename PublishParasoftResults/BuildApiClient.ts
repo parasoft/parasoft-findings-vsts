@@ -22,6 +22,8 @@ import fetch, { Headers, RequestInit } from 'node-fetch';
 
 const SARIF_FILE_SUFFIX = "-pf-sast.sarif";
 const SARIF_ARTIFACT_NAME: string = "CodeAnalysisLogs";
+const COBERTURA_FILE_SUFFIX = "-cobertura.xml";
+const COBERTURA_ARTIFACT_NAME: string = "ParasoftCoverageLogs";
 
 export interface FileEntry {
     name: string,
@@ -56,13 +58,33 @@ export class BuildAPIClient {
     }
 
     async getSarifReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
+        return await this.getReportsOfArtifact(artifact, SARIF_FILE_SUFFIX);
+    }
+
+    async getSarifReportsByBuildId(buildId: number): Promise<FileEntry[]> {
+        const artifact = await this.getSarifArtifactOfBuildById(buildId);
+        if(artifact) {
+            return await this.getSarifReportsOfArtifact(artifact);
+        }
+        return [];
+    }
+
+    async getCoberturaReportsByBuildId(buildId: number): Promise<FileEntry[]> {
+        const artifact = await (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
+        if(artifact) {
+            return await this.getReportsOfArtifact(artifact, COBERTURA_FILE_SUFFIX);
+        }
+        return [];
+    }
+
+    async getReportsOfArtifact(artifact: BuildArtifact, fileSuffix: string): Promise<FileEntry[]> {
         const requestUrl = artifact.resource?.downloadUrl || '';
         const arrayBuffer = await this.getArtifactContentZip(requestUrl);
         if (arrayBuffer) {
             const zip = JSZip.loadAsync(arrayBuffer);
             return Object
                 .values((await zip).files)
-                .filter(entry => !entry.dir && entry.name.endsWith(SARIF_FILE_SUFFIX))
+                .filter(entry => !entry.dir && entry.name.endsWith(fileSuffix))
                 .map(entry => ({
                     name:            entry.name.replace(`${artifact.name}/`, ''),
                     contentsPromise: entry.async('string')

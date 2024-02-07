@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 import * as tl from 'azure-pipelines-task-lib/task';
-import * as path from 'path';
 import * as os from 'os';
-import * as tr from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
 import * as sax from 'sax';
 import * as dp from 'dot-properties';
@@ -24,9 +22,9 @@ import * as SaxonJS from 'saxon-js';
 import { URL } from 'url';
 import * as https from 'https';
 import * as axios from 'axios';
-import * as uuid from 'uuid';
-import { BuildAPIClient, FileEntry } from './BuildApiClient';
-import { BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
+import {CoverageReportService} from "./CoverageReportService";
+import {StaticAnalysisReportService} from "./StaticAnalysisReportService";
+import {ParaReportPublishUtils} from "./ParaReportPublishUtils";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
@@ -52,45 +50,12 @@ export const enum ReportType {
     XML_COVERAGE = 8
 }
 
-const enum BaselineStateEnum {
-    NEW = 'new',
-    UNCHANGED = 'unchanged'
-}
-
 const enum PipelineTypeEnum {
     BUILD = 'build',
     RELEASE = 'release'
 }
 
-interface ReferenceBuildResult {
-    referencePipelineInput: string,
-    referenceBuildInput: string,
-    staticAnalysis?: {
-        pipelineName: string | undefined,
-        buildId: number | undefined,
-        buildNumber:  string | undefined,
-        warningMessage: string | undefined
-    }
-}
-
-interface ReferenceBuildInformation {
-    fileEntries: FileEntry[],
-    staticAnalysis: {
-        pipelineName: string | undefined,
-        buildId: number | undefined,
-        buildNumber:  string | undefined,
-        warningMessage: string | undefined
-    },
-    isDebugMessage: boolean
-}
-
 export class ParaReportPublishService {
-    private readonly XUNIT_SUFFIX: string = "-junit.xml";
-    private readonly SARIF_SUFFIX: string = "-pf-sast.sarif";
-    private readonly COBERTURA_SUFFIX: string = "-cobertura.xml";
-    private readonly XML_EXTENSION: string = ".xml";
-    private readonly SARIF_EXTENSION: string = ".sarif";
-
     private readonly SARIF_XSL: XslInfo = {
         xslPath: __dirname + "/xsl/sarif.xsl",
         jsonText: fs.readFileSync(__dirname + "/xsl/sarif.sef.json", 'utf8')
@@ -112,7 +77,6 @@ export class ParaReportPublishService {
 
     xUnitReports: string[] = [];
     sarifReports: string[] = [];
-    staticAnalysisReportsMap: Map<string, string> = new Map<string, string>();
     coberturaReports: string[] = [];
     matchingInputReportFiles: string[];
     rulesInGlobalCategory: Set<string> = new Set();
@@ -125,11 +89,9 @@ export class ParaReportPublishService {
         maxSockets: 50
     })
 
-    buildClient: BuildAPIClient;
-    pipelineName: string;
-    buildNumber: string;
-    buildId: string;
-    definitionId: number;
+    coverageReportService: CoverageReportService;
+    staticAnalysisReportService: StaticAnalysisReportService;
+
     defaultWorkingDirectory: string;
     inputReportFiles: string[];
     private mergeResults: string | undefined;
@@ -145,14 +107,7 @@ export class ParaReportPublishService {
 
     javaPath: string | undefined;
 
-    referenceBuildResult: ReferenceBuildResult;
-
     constructor() {
-        // Get predefined variables in Azure DevOps pipeline
-        this.buildNumber = tl.getVariable('Build.BuildNumber') || '';
-        this.buildId = tl.getVariable('Build.BuildId') || '';
-        this.pipelineName = tl.getVariable('Build.DefinitionName') || '';
-        this.definitionId = Number(tl.getVariable('System.DefinitionId'));
         this.defaultWorkingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || '';
         if(tl.getVariable('Release.ReleaseId')) {
             this.pipelineType = PipelineTypeEnum.RELEASE;
@@ -171,14 +126,6 @@ export class ParaReportPublishService {
             this.dtpBaseUrl = this.getDtpBaseUrl(localSettings);
             tl.debug(this.isNullOrWhitespace(this.dtpBaseUrl) ? 'Failed to load DTP settings.' : 'DTP settings have been successfully loaded.');
         }
-        // Get and save the reference build information as a variable for subsequent quality gate tasks to use
-        const referencePipelineInput = tl.getInput('referencePipeline') || '';
-        const referenceBuildInput = tl.getInput('referenceBuild') || '';
-        this.referenceBuildResult = {
-            referencePipelineInput: referencePipelineInput,
-            referenceBuildInput: referenceBuildInput
-        }
-        tl.setVariable('PF.ReferenceBuildResult', JSON.stringify(this.referenceBuildResult));
 
         // Get inputs of Test results options
         this.testRunTitle = tl.getInput('testRunTitle');
@@ -187,10 +134,9 @@ export class ParaReportPublishService {
         this.platform = tl.getInput('platform');
         this.config = tl.getInput('configuration');
 
-        this.buildClient = new BuildAPIClient();
+        this.coverageReportService = new CoverageReportService();
+        this.staticAnalysisReportService = new StaticAnalysisReportService();
 
-        tl.debug('referencePipeline: ' + referencePipelineInput);
-        tl.debug('referenceBuild: ' + referenceBuildInput);
         tl.debug('searchFolder: ' + searchFolder);
         tl.debug('inputReportFiles: ' + this.inputReportFiles);
         tl.debug('parasoftToolOrJavaRootPath: ' + parasoftToolOrJavaRootPath);
@@ -204,18 +150,13 @@ export class ParaReportPublishService {
 
     run = async (): Promise<void> => {
         // Check if there are multiple "Publish Parasoft Results" tasks in the pipeline to prevent confusion
-        const publishTaskExists = tl.getVariable('PF.PublishParasoftResultsExists');
-        if (publishTaskExists === 'true') {
-            if (this.pipelineType === PipelineTypeEnum.BUILD) {
-                tl.setResult(tl.TaskResult.SucceededWithIssues, 'Multiple "Publish Parasoft Results" tasks detected. Only the first task will be processed; all subsequent ones will be ignored. For publishing multiple reports, use a minimatch pattern in the "Results files" field.');
-                return;
-            }
-        } else {
-            // Clean up the old custom markdown summary storage directory before executing subsequent quality gate tasks
+        const publishTaskExists = tl.getVariable('PF.PublishTaskExists');
+        if (publishTaskExists !== 'true') {
+            // Clean up the old custom markdown summary storage directory when running the first PublishParasoftResults task
             tl.rmRF(tl.resolve(this.defaultWorkingDirectory, 'ParasoftQualityGatesMD'));
         }
 
-        tl.setVariable('PF.PublishParasoftResultsExists', 'true');
+        tl.setVariable('PF.PublishTaskExists', 'true');
 
         // Get matching input report files and perform transformations
         if (!this.matchingInputReportFiles || this.matchingInputReportFiles.length === 0) {
@@ -244,20 +185,18 @@ export class ParaReportPublishService {
         let bCPPProReport: boolean = false;
         let bParsingStaticAnalysisResult: boolean = false;
 
-        if (report.toLocaleLowerCase().endsWith(this.SARIF_EXTENSION)) {
+        if (report.toLocaleLowerCase().endsWith(ParaReportPublishUtils.SARIF_EXTENSION)) {
             // SARIF report generated by Parasoft tools
             if (this.pipelineType == PipelineTypeEnum.RELEASE) {
                 tl.warning("Parsing static analysis reports is not supported in the release pipeline - skipping report: " + report);
             } else {
                 tl.debug("Recognized SARIF report: " + report);
-                if (!this.isStaticAnalysisReportNameDuplicate(report)) {
-                    // new SARIF report needs to be processed
-                    report = this.processParasoftSarifReport(report);
-                    this.sarifReports.push(report);
-                }
+                // new SARIF report needs to be processed
+                report = this.staticAnalysisReportService.processParasoftSarifReport(report);
+                this.sarifReports.push(report);
             }
             await this.processResults(inputReportFiles, index);
-        } else if (report.toLocaleLowerCase().endsWith(this.XML_EXTENSION)) {
+        } else if (report.toLocaleLowerCase().endsWith(ParaReportPublishUtils.XML_EXTENSION)) {
             this.rulesInGlobalCategory.clear();
             this.ruleAnalyzerMap.clear();
             this.ruleDocUrlMap.clear();
@@ -400,18 +339,15 @@ export class ParaReportPublishService {
             tl.warning("Parsing static analysis reports is not supported in the release pipeline - skipping report: " + sourcePath);
             return;
         }
-        if (this.isStaticAnalysisReportNameDuplicate(sourcePath)){
-            return;
-        }
-        this.transform(sourcePath, this.SARIF_XSL, this.generateReportNameWithPFSuffix(sourcePath, this.SARIF_SUFFIX), this.sarifReports);
+        this.transform(sourcePath, this.SARIF_XSL, ParaReportPublishUtils.generateReportNameWithPFSuffix(this.staticAnalysisReportService.generateUniqueFileName(sourcePath), ParaReportPublishUtils.SARIF_SUFFIX), this.sarifReports);
     }
 
     transformToXUnit = (sourcePath: string): void => {
-        this.transform(sourcePath, this.XUNIT_XSL, this.generateReportNameWithPFSuffix(sourcePath, this.XUNIT_SUFFIX), this.xUnitReports);
+        this.transform(sourcePath, this.XUNIT_XSL, ParaReportPublishUtils.generateReportNameWithPFSuffix(sourcePath, ParaReportPublishUtils.XUNIT_SUFFIX), this.xUnitReports);
     }
 
     transformToSOATestXUnit = (sourcePath: string): void => {
-        this.transform(sourcePath, this.SOATEST_XUNIT_XSL, this.generateReportNameWithPFSuffix(sourcePath, this.XUNIT_SUFFIX), this.xUnitReports);
+        this.transform(sourcePath, this.SOATEST_XUNIT_XSL, ParaReportPublishUtils.generateReportNameWithPFSuffix(sourcePath, ParaReportPublishUtils.XUNIT_SUFFIX), this.xUnitReports);
     }
 
     transformToCobertura = (sourcePath: string): void => {
@@ -419,21 +355,13 @@ export class ParaReportPublishService {
             tl.warning("Parsing code coverage reports is not supported in the release pipeline - skipping report: " + sourcePath);
             return;
         }
-        this.transform(sourcePath, this.COBERTURA_XSL, this.generateReportNameWithPFSuffix(sourcePath, this.COBERTURA_SUFFIX), this.coberturaReports, true)
-    }
-
-    private generateReportNameWithPFSuffix  = (sourcePath: string, reportSuffix: string) : string => {
-        let extension = path.extname(sourcePath); // extension with dot
-        const fileName = path.basename(sourcePath);
-        const fileNameWithoutExt = path.basename(sourcePath, extension);
-        extension = extension.substring(1); // extension without dot
-        return sourcePath.replace(fileName, fileNameWithoutExt) + (extension ? ('-' + extension) : '') + reportSuffix;
+        this.transform(sourcePath, this.COBERTURA_XSL, ParaReportPublishUtils.generateReportNameWithPFSuffix(sourcePath, ParaReportPublishUtils.COBERTURA_SUFFIX), this.coberturaReports, true)
     }
 
     transform = (sourcePath: string, xslInfo: XslInfo, outPath: string, transformedReports: string[], isCoberturaReport?: boolean): void => {
         try {
             let needRuleDocs = false;
-            if (this.ruleDocUrlMap.size != 0 && outPath.endsWith(this.SARIF_SUFFIX)) {
+            if (this.ruleDocUrlMap.size != 0 && outPath.endsWith(ParaReportPublishUtils.SARIF_SUFFIX)) {
                 needRuleDocs = true;
             }
             if (this.javaPath) {
@@ -453,7 +381,7 @@ export class ParaReportPublishService {
                 let xmlReport = fs.readFileSync(sourcePath, 'utf8');
                 if (isCoberturaReport) {
                     xmlReport = xmlReport.replace("<Coverage ", "<Coverage pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
-                } else if (outPath.endsWith(this.SARIF_SUFFIX)) {
+                } else if (outPath.endsWith(ParaReportPublishUtils.SARIF_SUFFIX) || outPath.endsWith(ParaReportPublishUtils.XUNIT_SUFFIX)) {
                     xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
                 }
                 const options: SaxonJS.options = {
@@ -472,49 +400,6 @@ export class ParaReportPublishService {
             tl.warning("Failed to transform report: " + sourcePath + ". See log for details.");
             console.error(error);
         }
-    }
-
-    private processParasoftSarifReport = (report: string): string => {
-        const contentString = fs.readFileSync(report, 'utf8');
-        const contentJson = JSON.parse(contentString);
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        contentJson.runs?.forEach((run: any) => {
-            run.results?.forEach((result: any) => {
-                result.locations?.forEach((location: any) => {
-                    const relativeUri = this.getRelativeURI(location);
-                    if (relativeUri) {
-                        // Overwrite uri to be relative path
-                        location.physicalLocation.artifactLocation.uri = relativeUri;
-                    }
-                });
-            });
-        });
-        /* eslint-enable @typescript-eslint/no-explicit-any */
-        const updatedContentString  = JSON.stringify(contentJson);
-        const updatedReportPath = this.generateReportNameWithPFSuffix(report, this.SARIF_SUFFIX);
-        fs.writeFileSync(updatedReportPath, updatedContentString , 'utf8');
-        return updatedReportPath;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private getRelativeURI = (location: any): string | undefined => {
-        if (!location.physicalLocation || !location.physicalLocation.artifactLocation
-            || !location.physicalLocation.artifactLocation.uri || !this.defaultWorkingDirectory) {
-            return undefined;
-        }
-        const uri: string = location.physicalLocation.artifactLocation.uri;
-        let processedDefaultWorkingDirectory = this.defaultWorkingDirectory.replaceAll('\\', '/');
-        // Check if the URI contains the path of the working directory
-        let start = uri.lastIndexOf(processedDefaultWorkingDirectory);
-        if (start == -1) {
-            // Encode the working directory string and check again since URI may be encoded
-            processedDefaultWorkingDirectory = processedDefaultWorkingDirectory.replaceAll('%', '%25').replaceAll(' ', '%20');
-            start = uri.lastIndexOf(processedDefaultWorkingDirectory);
-        }
-        if (start != -1) {
-            return uri.substring(start + processedDefaultWorkingDirectory.length);
-        }
-        return undefined;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -544,8 +429,8 @@ export class ParaReportPublishService {
             return;
         }
         await this.processXUnitResults();
-        await this.processSarifResults();
-        await this.processCoberturaResults();
+        await this.staticAnalysisReportService.processSarifResults(this.sarifReports);
+        await this.coverageReportService.processCoberturaResults(this.coberturaReports);
 
         tl.setResult(tl.TaskResult.Succeeded, '');
     }
@@ -557,103 +442,11 @@ export class ParaReportPublishService {
         }
     }
 
-    private async processSarifResults(): Promise<void> {
-        if (this.sarifReports.length > 0) {
-            const referenceSarifReports = await this.getSarifReportsOfReferenceBuild();
-
-            for (const sarifReport of this.sarifReports) {
-                let currentSarifContentString = fs.readFileSync(sarifReport, 'utf8');
-                let currentSarifContentJson = JSON.parse(currentSarifContentString);
-                currentSarifContentJson = this.checkAndAddUnbViolIdForSarifReport(currentSarifContentJson);
-
-                const referenceSarifReport = referenceSarifReports.find((referenceSarifReport) => referenceSarifReport.name == 'SarifContainer/' + path.basename(sarifReport));
-                await this.appendBaselineState(currentSarifContentJson, referenceSarifReport);
-
-                currentSarifContentString = JSON.stringify(currentSarifContentJson);
-                fs.writeFileSync(sarifReport, currentSarifContentString, 'utf8');
-                tl.uploadArtifact("SarifContainer", sarifReport, "CodeAnalysisLogs");
-            }
-            // Pass the reference build and static analysis info to subsequent static analysis quality gate tasks
-            tl.setVariable('PF.ReferenceBuildResult', JSON.stringify(this.referenceBuildResult));
-        }
-    }
-
-    private async processCoberturaResults(): Promise<void> {
-        if (this.coberturaReports.length > 0) {
-            const tempFolder = path.join(this.getTempFolder(), 'CodeCoverageHtml');
-            const coverageReport: string = <string> this.coberturaReports[this.coberturaReports.length - 1];
-            this.generateHtmlReport(coverageReport, tempFolder);
-
-            const coveragePublisher = new tl.CodeCoveragePublisher();
-            coveragePublisher.publish('Cobertura', coverageReport, tempFolder, '');
-            tl.uploadArtifact('CoberturaContainer', coverageReport, 'ParasoftCoverageLogs');
-        }
-    }
-
     private isNullOrWhitespace = (input: string | undefined | null): boolean => {
         if (typeof input === 'undefined' || input === null) {
             return true;
         }
         return input.replace(/\s/g, '').length < 1;
-    }
-    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
-    private getTempFolder = (): string => {
-        try {
-            tl.assertAgent('2.115.0');
-            const tmpDir = tl.getVariable('Agent.TempDirectory');
-            return <string>tmpDir;
-        } catch (err) {
-            tl.warning('Please upgrade your agent version. https://github.com/Microsoft/vsts-agent/releases')
-            return os.tmpdir();
-        }
-    }
-    // code from azure-pipelines-tasks/Tasks/PublishCodeCoverageResultsV1
-    private generateHtmlReport = (summaryFile: string, targetDir: string): boolean => {
-        const platform = os.platform();
-        let dotnet: tr.ToolRunner;
-
-        const dotnetPath = tl.which('dotnet', false);
-        if (!dotnetPath && platform !== 'win32') {
-            tl.warning("Please install dotnet core to enable automatic generation of coverage Html report.");
-            return false;
-        }
-
-        if (!dotnetPath && platform === 'win32') {
-            // use full .NET to execute
-            dotnet = tl.tool(path.join(__dirname, 'lib', 'net47', 'ReportGenerator.exe'));
-        } else {
-            dotnet = tl.tool(dotnetPath);
-            dotnet.arg(path.join(__dirname, 'lib', 'netcoreapp2.0', 'ReportGenerator.dll'));
-        }
-
-        dotnet.arg('-reports:' + summaryFile);
-        dotnet.arg('-targetdir:' + targetDir);
-        dotnet.arg('-reporttypes:HtmlInline_AzurePipelines');
-
-        try {
-            const result = dotnet.execSync(<tr.IExecOptions>{
-                ignoreReturnCode: true,
-                failOnStdErr: false,
-                errStream: process.stdout,
-                outStream: process.stdout
-            });
-
-            let isError = false;
-            dotnet.on('stderr', (data: Buffer) => {
-                console.error(data.toString());
-                isError = true;
-            });
-
-            if (result.code === 0 && !isError) {
-                console.log("Generated code coverage html report: " + targetDir);
-                return true;
-            } else {
-                tl.warning("Failed to generate Html report. Error: " + result);
-            }
-        } catch (err) {
-            tl.warning("Failed to generate Html report. Error: " + err);
-        }
-        return false;
     }
 
     loadSettings = (localSettingsPath: string | undefined): ReadOnlyProperties | null => {
@@ -847,228 +640,5 @@ export class ParaReportPublishService {
         }
         tl.debug("Using built-in Node.js to process report(s).");
         return undefined;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private checkAndAddUnbViolIdForSarifReport = (sarifContentJson: any): string => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        sarifContentJson.runs?.forEach((run: any) => {
-            const unbViolIdMap: Map<string, number> = new Map();
-            if (run.results) {
-                for (let i = 0; i < run.results.length; i++) {
-                    if (run.results[i].partialFingerprints && run.results[i].partialFingerprints.unbViolId) {
-                        break;
-                    }
-                    if (!run.results[i].partialFingerprints) {
-                        run.results[i].partialFingerprints = {};
-                    }
-                    let order: number = 0;
-                    const unbViolId = this.generateUnbViolId(run.results[i], order);
-                    if (unbViolIdMap.has(unbViolId)) {
-                        order = <number> unbViolIdMap.get(unbViolId);
-                        run.results[i].partialFingerprints.unbViolId = this.generateUnbViolId(run.results[i], order);
-                    } else {
-                        run.results[i].partialFingerprints.unbViolId = unbViolId;
-                    }
-                    unbViolIdMap.set(unbViolId, order + 1);
-                }
-            }
-        });
-        return sarifContentJson;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private generateUnbViolId = (result: any, order: number): string => {
-        const namespace = '6af5b03d-5276-49ef-bfed-d445f2752b02';
-        const violType = result.partialFingerprints?.violType || '';
-        const ruleId = result.ruleId || '';
-        const msg = result.message?.text || '';
-        const severity = result.level || '';
-        const lineHash = result.partialFingerprints?.lineHash || '';
-        const uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || '';
-
-        return uuid.v5(violType + ruleId + msg + severity + lineHash + uri + order, namespace);
-    }
-
-    private isStaticAnalysisReportNameDuplicate = (sourcePath: string): boolean => {
-        const filename = path.basename(sourcePath);
-        if (this.staticAnalysisReportsMap.has(filename)) {
-            tl.warning(`Skipping report with duplicate names: ${sourcePath}`);
-            return true;
-        }
-        this.staticAnalysisReportsMap.set(filename, sourcePath);
-        return false;
-    }
-
-    private getSarifReportsOfReferenceBuild = async (): Promise<FileEntry[]> => {
-        let referenceBuildInfo: ReferenceBuildInformation = {
-            fileEntries: [],
-            staticAnalysis: {
-                pipelineName: undefined,
-                buildId: undefined,
-                buildNumber: undefined,
-                warningMessage: undefined
-            },
-            isDebugMessage: false
-        };
-        if ((!this.referenceBuildResult.referencePipelineInput || this.referenceBuildResult.referencePipelineInput == this.pipelineName) && this.referenceBuildResult.referenceBuildInput == this.buildNumber) {
-            referenceBuildInfo.staticAnalysis.warningMessage = 'Using the current build as the reference';
-        } else {
-            if (!this.referenceBuildResult.referencePipelineInput) { // Reference pipeline is not specified
-                tl.debug("No reference pipeline has been set; using the current pipeline as reference.");
-                referenceBuildInfo = await this.getSarifReportOfPipeline(this.definitionId, this.pipelineName);
-            } else { // Reference pipeline is specified
-                // Get the reference pipeline id based on the reference pipeline name specified in the configuration UI
-                const pipelines = await this.buildClient.getPipelinesByName(this.referenceBuildResult.referencePipelineInput);
-                // Check for the specific reference pipeline exists
-                if (pipelines.length == 1) {
-                    const specificReferencePipeline = pipelines[0];
-                    const specificReferencePipelineId: number = Number(specificReferencePipeline.id);
-                    referenceBuildInfo = await this.getSarifReportOfPipeline(specificReferencePipelineId, specificReferencePipeline.name || '');
-                } else if (pipelines.length > 1) {
-                    referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference pipeline '${this.referenceBuildResult.referencePipelineInput}' is not unique`;
-                } else {
-                    referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference pipeline '${this.referenceBuildResult.referencePipelineInput}' could not be found`;
-                }
-            }
-        }
-        if (referenceBuildInfo.staticAnalysis.warningMessage) {
-            if (referenceBuildInfo.isDebugMessage) {
-                tl.debug(`${referenceBuildInfo.staticAnalysis.warningMessage} - all issues will be treated as new`);
-            } else {
-                tl.warning(`${referenceBuildInfo.staticAnalysis.warningMessage} - all issues will be treated as new`);
-            }
-            referenceBuildInfo.staticAnalysis.warningMessage += ' - all issues were treated as new';
-        }
-        this.referenceBuildResult.staticAnalysis = referenceBuildInfo.staticAnalysis;
-        return Promise.resolve(referenceBuildInfo.fileEntries);
-    }
-
-    private async getSarifReportOfPipeline(pipelineId: number, pipelineName: string): Promise<ReferenceBuildInformation> {
-        const referenceBuildInfo: ReferenceBuildInformation = {
-            fileEntries: [],
-            staticAnalysis: {
-                pipelineName: pipelineName,
-                buildId: undefined,
-                buildNumber: undefined,
-                warningMessage: undefined
-            },
-            isDebugMessage: false
-        };
-        const buildsOfPipeline = await this.buildClient.getBuildsOfPipelineById(pipelineId);
-        if (!this.referenceBuildResult.referenceBuildInput) { // Reference build is not specified
-            tl.debug(`No reference build has been set; using the last successful build in pipeline '${pipelineName}' as reference.`);
-            if (buildsOfPipeline.length == 1 && buildsOfPipeline[0].id?.toString() == this.buildId) { // only include current build
-                referenceBuildInfo.staticAnalysis.warningMessage = `No previous build was found in pipeline '${pipelineName}'`;
-                referenceBuildInfo.isDebugMessage = true;
-                return referenceBuildInfo;
-            } else {
-                const allSuccessfulBuilds = buildsOfPipeline.filter(build => {
-                    return build.result == BuildResult.Succeeded;
-                });
-                if (allSuccessfulBuilds.length > 0) {
-                    let buildId: number | undefined, buildNumber: string | undefined;
-                    let sarifReports: FileEntry[] = [];
-                    // Use the last successful build with Parasoft Sarif results as the default reference build
-                    for (let index = 0; index < allSuccessfulBuilds.length; index++) {
-                        const lastSuccessfulBuildId: number = Number(allSuccessfulBuilds[index].id);
-                        const artifact: BuildArtifact = await this.buildClient.getSarifArtifactOfBuildById(lastSuccessfulBuildId);
-                        if (artifact) {
-                            sarifReports = await this.buildClient.getSarifReportsOfArtifact(artifact);
-                            buildId = lastSuccessfulBuildId;
-                            buildNumber = allSuccessfulBuilds[index].buildNumber;
-                            break;
-                        }
-                    }
-                    if (sarifReports.length == 0) {
-                        referenceBuildInfo.staticAnalysis.warningMessage = `No Parasoft static analysis results were found in any of the previous successful builds in pipeline '${pipelineName}'`;
-                        return referenceBuildInfo;
-                    }
-                    referenceBuildInfo.fileEntries = sarifReports;
-                    referenceBuildInfo.staticAnalysis.buildId = buildId;
-                    referenceBuildInfo.staticAnalysis.buildNumber = buildNumber;
-                    tl.debug(`Set build '${pipelineName}#${buildNumber}' as the default reference build`);
-                    return referenceBuildInfo;
-                } else {
-                    referenceBuildInfo.staticAnalysis.warningMessage = `No successful build was found in pipeline '${pipelineName}'`;
-                    return referenceBuildInfo;
-                }
-            }
-        } else { // Reference build is specified
-            const referenceBuilds = buildsOfPipeline.filter(build => {
-                return build.buildNumber == this.referenceBuildResult.referenceBuildInput;
-            });
-            // Check for uniqueness of the reference build
-            if (referenceBuilds.length > 1) {
-                referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}' is not unique`;
-                return referenceBuildInfo;
-            }
-            // Check for the existence of the reference build
-            if (referenceBuilds.length == 0) {
-                referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}' could not be found`;
-                return referenceBuildInfo;
-            }
-            const referenceBuild = referenceBuilds[0];
-            // Check for the successful or partially-successful results exist in the specific reference build
-            if (referenceBuild.result != BuildResult.Succeeded && referenceBuild.result != BuildResult.PartiallySucceeded) {
-                referenceBuildInfo.staticAnalysis.warningMessage = `The specified reference build '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}' could not be used. Only successful or unstable builds are valid references`;
-                return referenceBuildInfo;
-            }
-            const referenceBuildId: number = Number(referenceBuild.id);
-            // Check for the existence of Parasoft Sarif artifact in reference build
-            const artifact: BuildArtifact = await this.buildClient.getSarifArtifactOfBuildById(referenceBuildId);
-            if (!artifact) {
-                referenceBuildInfo.staticAnalysis.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}'`;
-                return referenceBuildInfo;
-            }
-            // Check for the existence of Parasoft Sarif report in reference build
-            referenceBuildInfo.fileEntries = await this.buildClient.getSarifReportsOfArtifact(artifact);
-            if (referenceBuildInfo.fileEntries.length == 0) {
-                referenceBuildInfo.staticAnalysis.warningMessage = `No Parasoft static analysis results were found in the specified reference build: '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}'`;
-                return referenceBuildInfo;
-            }
-            // Set the reference build
-            tl.debug(`Retrieved Parasoft static analysis results from the reference build '${pipelineName}#${this.referenceBuildResult.referenceBuildInput}'`);
-            referenceBuildInfo.staticAnalysis.buildId = referenceBuildId;
-            referenceBuildInfo.staticAnalysis.buildNumber = this.referenceBuildResult.referenceBuildInput;
-            return referenceBuildInfo;
-        }
-    }
-
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    private appendBaselineState = async (currentSarifContentJson: any, referenceSarifReport: FileEntry | undefined): Promise<string> => {
-        const referenceUnbViolIds: string[] = await this.getUnbViolIdsFromReferenceSarifReport(referenceSarifReport);
-        currentSarifContentJson.runs?.forEach((run: any) => {
-            run.results?.forEach((result: any) => {
-                const unbViolId: string = result.partialFingerprints?.unbViolId;
-                if (unbViolId && referenceUnbViolIds.includes(unbViolId)) {
-                    result.baselineState = BaselineStateEnum.UNCHANGED;
-                } else {
-                    result.baselineState = BaselineStateEnum.NEW;
-                }
-            })
-        })
-        return currentSarifContentJson;
-    }
-    /* eslint-enable @typescript-eslint/no-explicit-any */
-
-    private getUnbViolIdsFromReferenceSarifReport = async (referenceSarifReport: FileEntry | undefined): Promise<string[]> => {
-        if (!referenceSarifReport) {
-            return [];
-        }
-        const referenceSarifContentString: string = await referenceSarifReport.contentsPromise;
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        const referenceSarifContentJson: any = JSON.parse(referenceSarifContentString);
-        const referenceUnbViolIds: string[] = [];
-        referenceSarifContentJson.runs?.forEach((run: any) => {
-            run.results?.forEach(async (result: any) => {
-                const unbViolId: string = result.partialFingerprints?.unbViolId;
-                if (unbViolId) {
-                    referenceUnbViolIds.push(unbViolId);
-                }
-            })
-        })
-        /* eslint-enable @typescript-eslint/no-explicit-any */
-        return referenceUnbViolIds;
     }
 }

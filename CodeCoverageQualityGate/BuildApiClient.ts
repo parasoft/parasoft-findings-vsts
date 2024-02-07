@@ -20,7 +20,7 @@ import { Build, BuildArtifact, BuildDefinitionReference } from 'azure-devops-nod
 import * as JSZip from 'jszip';
 import fetch, { Headers, RequestInit } from 'node-fetch';
 
-const COBERTURA_FILE_SUFFIX = "-cobertura.xml";
+const COBERTURA_FILE_NAME = 'parasoft-merged-cobertura.xml';
 const COBERTURA_ARTIFACT_NAME: string = "ParasoftCoverageLogs";
 
 export interface FileEntry {
@@ -56,23 +56,24 @@ export class BuildAPIClient {
         return (await this.buildApi).getArtifact(this.projectName, buildId, COBERTURA_ARTIFACT_NAME);
     }
 
-    async getCoberturaReportsOfArtifact(artifact: BuildArtifact): Promise<FileEntry[]> {
+    async getMergedCoberturaReportOfArtifact(artifact: BuildArtifact): Promise<FileEntry | undefined> {
         if (!artifact) {
-            return [];
+            return undefined;
         }
         const requestUrl = artifact.resource?.downloadUrl || '';
         const arrayBuffer = await this.getArtifactContentZip(requestUrl);
         if (!arrayBuffer) {
-            return [];
+            return undefined;
         }
         const zip = JSZip.loadAsync(arrayBuffer);
-        return Object
+        const fileEntries: FileEntry[] = Object
             .values((await zip).files)
-            .filter(entry => !entry.dir && entry.name.endsWith(COBERTURA_FILE_SUFFIX))
+            .filter(entry => !entry.dir && entry.name === 'CoberturaContainer/' + COBERTURA_FILE_NAME)
             .map(entry => ({
                 name:            entry.name.replace(`${artifact.name}/`, ''),
                 contentsPromise: entry.async('string')
             }));
+        return fileEntries.length === 0 ? undefined : fileEntries[0];
     }
 
     async getArtifactContentZip(downloadUrl: string): Promise<ArrayBuffer | undefined> {

@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests"
+               tests="3"
+               id="1"
+               package=""
+               time="0.381"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestInvalidAccountNumberCreation"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests"
+                 time="0.372"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.MSTest/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestAccountNumberCreation"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests"
+                 time="0.004"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.MSTest/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests.TestAccountNumberHashing"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.MSTest.AccountNumberTests"
+                 time="0.005"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.MSTest/AccountNumberTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests"
+               tests="1"
+               id="2"
+               package=""
+               time="0.196"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="1"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests"
+                 time="0.196"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.MSTest/BankUserTests.cs">
+         <failure type="Failure">Failed: Test method Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test threw exception: &#xD;
+System.Text.RegularExpressions.RegexParseException: Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.MSTest.BankUserTests.Test()</failure>
+      </testcase>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests"
+               tests="1"
+               id="3"
+               package=""
+               time="0.106"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests.TestUsdConversion"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.MSTest.CurrencyExchangeConverterTests"
+                 time="0.106"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.MSTest/CurrencyExchangeConverterTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests"
+               tests="1"
+               id="4"
+               package=""
+               time="0.001"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests.Test"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.MSTest.EmptyTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.MSTest/EmptyTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+               tests="7"
+               id="5"
+               package=""
+               time="0.359"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation(&#34;12&#34;,[1, 2])"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.344"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberCreation(&#34;123456789123456&#34;,[1, 2, 3, 4, 5, ...])"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1[System.Byte[]])"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.004"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestAccountNumberHashing(System.Collections.Generic.List`1[System.Byte[]])"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&#34;091a151413&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.011"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&#34;todo: create me&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests.TestInvalidAccountNumberCreation(&#34;invalid&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/AccountNumberTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests"
+               tests="5"
+               id="6"
+               package=""
+               time="0.059"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="5"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&#34;foo.bar&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests"
+                 time="0.055"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&#34;&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(null)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&#34;@one.com&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(&#34;foo.bar@foo.com.com&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.NUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests"
+               tests="1"
+               id="7"
+               package=""
+               time="0.046"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests.TestUsdConversion"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.NUnit.CurrencyExchangeConverterTests"
+                 time="0.046"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.NUnit/CurrencyExchangeConverterTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests"
+               tests="5"
+               id="8"
+               package=""
+               time="0.017"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="5"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &#34;&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests"
+                 time="0.013"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &#34;foo.bar&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: null)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &#34;foo.bar@foo.com.com&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(sourceMail: &#34;@one.com&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/BankUserTests.cs">
+         <failure type="Failure">Failed: System.Text.RegularExpressions.RegexParseException : Invalid pattern '^[\w\-\+\&amp;\*]+(?:\.[\w\-\_\+\&amp;\*]+)*@(?:[\w-]+\.)+[a-zA-Z]2,7}$' at offset 26. Unrecognized escape sequence \\_.
+	at System.Text.RegularExpressions.RegexParser.ScanCharEscape()
+	at System.Text.RegularExpressions.RegexParser.ScanCharClass(Boolean caseInsensitive, Boolean scanOnly)
+	at System.Text.RegularExpressions.RegexParser.CountCaptures()
+	at System.Text.RegularExpressions.RegexParser.Parse(String pattern, RegexOptions options, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex.Init(String pattern, RegexOptions options, TimeSpan matchTimeout, CultureInfo culture)
+	at System.Text.RegularExpressions.Regex..ctor(String pattern, CultureInfo culture)
+	at System.Text.RegularExpressions.RegexCache.GetOrAdd(String pattern)
+	at System.Text.RegularExpressions.Regex.IsMatch(String input, String pattern)
+	at Parasoft.Dottest.Examples.Bank.BankUser.CheckEmail()
+	at Parasoft.Dottest.Examples.Bank.Tests.xUnit.BankUserTests.Test(String sourceMail)</failure>
+      </testcase>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests"
+               tests="1"
+               id="9"
+               package=""
+               time="0.014"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests.TestUsdConversion"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.CurrencyExchangeConverterTests"
+                 time="0.014"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/CurrencyExchangeConverterTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+   <testsuite name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests"
+               tests="5"
+               id="10"
+               package=""
+               time="0.004"
+               hostname="DESKTOP-0Q6E4JP"
+               timestamp="2024-02-01T17:35:26"
+               failures="0"
+               errors="0">
+      <properties/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &#34;invalid&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests"
+                 time="0.003"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &#34;091a151413&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestInvalidAccountNumberCreation(accountNumber: &#34;todo: create me&#34;)"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation(expectedNumber: &#34;123456789123456&#34;, bytes: [1, 2, 3, 4, 5, ...])"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests"
+                 time="0.001"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/AccountNumberTests.cs"/>
+      <testcase name="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests.TestAccountNumberCreation(expectedNumber: &#34;12&#34;, bytes: [1, 2])"
+                 classname="Parasoft.Dottest.Examples.Bank.Tests.xUnit.AccountNumberTests"
+                 time="0.000"
+                 file="./Parasoft.Dottest.Examples.Bank.Tests.xUnit/AccountNumberTests.cs"/>
+      <system-out/>
+      <system-err/>
+   </testsuite>
+</testsuites>
