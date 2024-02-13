@@ -1,0 +1,74 @@
+[
+    {
+        "purl" : "pkg:npm/%40babel/helper-validator-identifier@7.22.20",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/%40babel/helper-validator-identifier"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/%40babel/highlight@7.22.20",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/%40babel/highlight"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/%40nodelib/fs.scandir@2.1.5",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/%40nodelib/fs.scandir"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/%40nodelib/fs.stat@2.0.5",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/%40nodelib/fs.stat"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/%40nodelib/fs.walk@1.2.8",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/%40nodelib/fs.walk"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/%40pkgjs/parseargs@0.11.0",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/%40pkgjs/parseargs"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/saxon-js@2.6.0",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/saxon-js"
+            }
+        ]
+    },
+    {
+        "purl" : "pkg:npm/xslt3@2.6.0",
+        "externalReferences": [
+            {
+                "type": "other",
+                "url": "https://www.npmjs.com/package/xslt3"
+            }
+        ]
+    }
+]
