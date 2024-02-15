@@ -17,23 +17,6 @@
         ]
     },
     {
-        "purl": "pkg:npm/type-fest@1.4.0",
-        "licenses": [
-            {
-                "license": {
-                    "id": "CC0-1.0",
-                    "url": "https://spdx.org/licenses/CC0-1.0.html"
-                }
-            },
-            {
-                "license": {
-                    "id": "MIT",
-                    "url": "http://www.opensource.org/licenses/mit-license.php"
-                }
-            }
-        ]
-    },
-    {
         "purl": "pkg:npm/jszip@3.10.1",
         "licenses": [
             {
@@ -55,7 +38,7 @@
         "licenses": [
             {
                 "license": {
-                    "id": "SaxonJS2 license",
+                    "id": "Saxonica Public License",
                     "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
                 }
             }
@@ -66,7 +49,7 @@
         "licenses": [
             {
                 "license": {
-                    "id": "SaxonJS2 license",
+                    "id": "Saxonica Public License",
                     "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
                 }
             }
@@ -85,50 +68,6 @@
                 "license": {
                     "id": "ISC",
                     "url": "https://opensource.org/license/isc-license-txt/"
-                }
-            }
-        ]
-    },
-    {
-        "purl": "pkg:npm/spdx-exceptions@2.3.0",
-        "licenses": [
-            {
-                "license": {
-                    "id": "CC-BY-3.0",
-                    "url": "https://spdx.org/licenses/CC-BY-3.0"
-                }
-            }
-        ]
-    },
-    {
-        "purl": "pkg:npm/spdx-license-ids@3.0.16",
-        "licenses": [
-            {
-                "license": {
-                    "id": "CC0-1.0",
-                    "url": "https://spdx.org/licenses/CC0-1.0"
-                }
-            }
-        ]
-    },
-    {
-        "purl": "pkg:npm/jackspeak@2.3.6",
-        "licenses": [
-            {
-                "license": {
-                    "id": "BlueOak-1.0.0",
-                    "url": "https://blueoakcouncil.org/license/1.0.0"
-                }
-            }
-        ]
-    },
-    {
-        "purl": "pkg:npm/path-scurry@1.10.1",
-        "licenses": [
-            {
-                "license": {
-                    "id": "BlueOak-1.0.0",
-                    "url": "https://blueoakcouncil.org/license/1.0.0"
                 }
             }
         ]

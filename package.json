@@ -51,17 +51,15 @@
   },
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "icon": "images/icon.png",
-  "dependencies": {
+  "devDependencies": {
     "@types/adm-zip": "^0.5.0",
     "@types/jasmine": "^4.3.1",
-    "adm-zip": "^0.5.10",
-    "del-cli": "^5.0.0",
-    "jasmine": "^5.0.0"
-  },
-  "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
+    "adm-zip": "^0.5.10",
+    "del-cli": "^5.0.0",
     "eslint": "^8.56.0",
+    "jasmine": "^5.0.0",
     "jasmine-reporters": "^2.5.2",
     "nyc": "^15.1.0"
   }
