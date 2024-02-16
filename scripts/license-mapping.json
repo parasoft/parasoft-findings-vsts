@@ -38,7 +38,7 @@
         "licenses": [
             {
                 "license": {
-                    "id": "Saxonica Public License",
+                    "name": "Saxonica Public License",
                     "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
                 }
             }
@@ -49,7 +49,7 @@
         "licenses": [
             {
                 "license": {
-                    "id": "Saxonica Public License",
+                    "name": "Saxonica Public License",
                     "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
                 }
             }
