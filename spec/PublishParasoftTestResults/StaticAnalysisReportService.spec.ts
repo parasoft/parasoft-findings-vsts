@@ -2,6 +2,7 @@ import * as tl from '../../PublishParasoftResults/node_modules/azure-pipelines-t
 import * as azdev from '../../PublishParasoftResults/node_modules/azure-devops-node-api';
 import { BuildResult } from '../../PublishParasoftResults/node_modules/azure-devops-node-api/interfaces/BuildInterfaces';
 import {StaticAnalysisReportService} from "../../PublishParasoftResults/StaticAnalysisReportService";
+import * as path from "path";
 
 let publisher: any;
 let mockWebApi: any;
@@ -367,4 +368,27 @@ describe("Test functions in StaticAnalysisReportService", () => {
             expect(await publisher.getUnbViolIdsFromReferenceSarifReport(referenceSarifReport)).toEqual(["95f6cbd1-cbe0-597a-8b6f-11f4da185fec"]);
         });
     });
+
+    describe('generateUniqueFileName()', () => {
+        beforeEach(() => {
+            publisher = new StaticAnalysisReportService();
+        });
+
+        it('when on Windows platform', () => {
+            const reportDir: string = 'D:/build/reports/cpptest-std/static_1'
+            const result = publisher.generateUniqueFileName(path.join(reportDir, 'report.xml'));
+            expect(result).toEqual(path.join(reportDir, 'D__build_reports_cpptest-std_static_0x5f_1_report.xml'));
+        });
+
+        it('when on Linux platform', () => {
+            const reportDir: string = '/home/user/Documents/build/reports/cpptest-std/static_1'
+            const result = publisher.generateUniqueFileName(path.join(reportDir, 'report.xml'));
+            expect(result).toEqual(path.join(reportDir, 'home_user_Documents_build_reports_cpptest-std_static_0x5f_1_report.xml'));
+        });
+
+       it('when report path is undefined', () => {
+           const result = publisher.generateUniqueFileName(undefined);
+           expect(result).toEqual('');
+       });
+    })
 });
