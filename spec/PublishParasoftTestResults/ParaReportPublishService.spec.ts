@@ -10,6 +10,7 @@ const axios = require('../../PublishParasoftResults/node_modules/axios/dist/node
 let publisher: any;
 let mockWebApi: any;
 let mockGenerateUniqueFileNameFunction: any;
+let mockGetSarifReportsOfReferenceBuildFunction: any;
 
 describe("Parasoft findings Azure", () => {
     beforeEach(() => {
@@ -56,7 +57,8 @@ describe("Parasoft findings Azure", () => {
         beforeEach(() => {
             publisher = new ParaReportPublishService();
             spyOn(publisher, 'transform').and.callThrough();
-            spyOn(publisher.staticAnalysisReportService, 'getSarifReportsOfReferenceBuild').and.returnValue([]);
+            mockGetSarifReportsOfReferenceBuildFunction = spyOn(publisher.staticAnalysisReportService, 'getSarifReportsOfReferenceBuild');
+            mockGetSarifReportsOfReferenceBuildFunction.and.returnValue([]);
             mockGenerateUniqueFileNameFunction = spyOn(publisher.staticAnalysisReportService, 'generateUniqueFileName');
             jasmine.DEFAULT_TIMEOUT_INTERVAL = 200000;
             retryTimes = 20;
@@ -84,19 +86,61 @@ describe("Parasoft findings Azure", () => {
             fs.unlink(__dirname + '/resources/reports/SARIF-sarif-pf-sast.sarif', () => {});
         });
 
-        it('XML_STATIC', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC.xml');
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
+        describe('XML_STATIC', () => {
+            let reportTempFolder: string;
+            const agentTempDirectory = `${__dirname}/_temp`;
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC-xml-pf-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif', 'utf-8');
+            beforeEach(() => {
+                reportTempFolder = path.join(agentTempDirectory, 'ParasoftFindings/SarifContainer');
+                mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC.xml');
+                spyOn(tl, 'getVariable').and.callFake((param: string) => {
+                    switch (param) {
+                        case 'Agent.TempDirectory':
+                            return agentTempDirectory
+                    }
+                });
+            });
 
-            expect(result).toEqual(expectedReport);
-            expect(publisher.transform).toHaveBeenCalled();
-            expect(publisher.sarifReports.length).toBe(1);
+            afterEach(() => {
+                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC-xml-pf-sast.sarif', 'utf8');
+                let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif', 'utf-8');
 
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif', () => {});
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.sarifReports.length).toBe(1);
+
+                fs.unlink(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif', () => {});
+                if (fs.existsSync(agentTempDirectory)) {
+                    fs.rmSync(agentTempDirectory, {recursive: true});
+                }
+            });
+
+            it('when no need to update baseline state of report in artifact', async () => {
+                const buildResultForTest = {referencePipelineInput: 'testPipelineName', referenceBuildInput: '10'};
+                publisher.staticAnalysisReportService.previousReferenceBuildResult = JSON.stringify(buildResultForTest);
+                publisher.staticAnalysisReportService.referenceBuildResult = buildResultForTest;
+
+                await publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
+
+                expect(tl.uploadArtifact).toHaveBeenCalledTimes(1);
+                expect(tl.uploadArtifact).not.toHaveBeenCalledWith('SarifContainer', path.join(reportTempFolder, 'XML_STATIC-xml-pf-sast.sarif'), 'CodeAnalysisLogs');
+            });
+
+            it('when need to update baseline state of report in artifact', async () => {
+                const sarifReportFile = {name: 'XML_STATIC-xml-pf-sast.sarif', contentsPromise: Promise.resolve(fs.readFileSync(__dirname + '/resources/reports/expect/SARIF-sarif-pf-sast.sarif', 'utf-8'))};
+                spyOn(publisher.staticAnalysisReportService.buildClient, 'getSarifReportsByBuildId').and.returnValue([sarifReportFile]);
+                mockGetSarifReportsOfReferenceBuildFunction.and.returnValue([sarifReportFile]);
+                publisher.staticAnalysisReportService.previousReferenceBuildResult = '{"referencePipelineInput":"testPipelineName","referenceBuildInput":"9"}';
+                publisher.staticAnalysisReportService.referenceBuildResult = {referencePipelineInput: 'testPipelineName2', referenceBuildInput: '10'};
+
+                await publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
+                await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
+
+                expect(tl.uploadArtifact).toHaveBeenCalledTimes(2);
+                expect(tl.uploadArtifact).toHaveBeenCalledWith('SarifContainer', path.join(reportTempFolder, 'XML_STATIC-xml-pf-sast.sarif'), 'CodeAnalysisLogs');
+                expect(tl.debug).toHaveBeenCalledWith(`Updated existing sarif report '${sarifReportFile.name}' in artifacts due to the reference build was changed.`);
+            });
         });
 
         it('XML_STATIC_BD.PB.VOVR_RULE', async () => {
@@ -253,7 +297,7 @@ describe("Parasoft findings Azure", () => {
                 });
                 publisher.coverageReportService.MERGED_COBERTURA_REPORT_PATH = mergeCoberturaReportPath;
                 publisher.defaultWorkingDirectory = 'E:/AzureAgent/_work/4/s';
-                spyOn(publisher.coverageReportService, 'generateHtmlReport').and.returnValue(false);
+                spyOn(publisher.coverageReportService, 'generateHtmlReport').and.callThrough();
             });
 
             afterEach(() => {
