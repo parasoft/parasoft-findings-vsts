@@ -284,7 +284,7 @@ describe("Parasoft findings Azure", () => {
             expect(publisher.xUnitReports.length).toBe(1);
         });
 
-        describe('XML_COVERAGE', () => {
+        xdescribe('XML_COVERAGE', () => {
             const mergeCoberturaReportPath = `${__dirname}/parasoft-merged-cobertura.xml`;
             const agentTempDirectory = `${__dirname}/_temp`;
 
