@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "parasoft-findings-vsts",
     "name": "Parasoft Findings",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "publisher": "parasoft",
     "targets": [
         {
@@ -112,5 +112,5 @@
         "color": "#004877",
         "theme": "dark"
     },
-    "public": true
+    "public": false
 }

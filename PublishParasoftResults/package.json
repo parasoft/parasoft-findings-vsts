@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-publish",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Azure Pipelines Publish Parasoft Test Results Task",
   "main": "publishtestresults.js",
   "scripts": {

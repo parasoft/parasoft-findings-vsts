@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-test-results-quality-gate",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Azure Pipelines Parasoft Test Results Quality Gate Task",
   "main": "TestResultsQualityGate.js",
   "scripts": {
