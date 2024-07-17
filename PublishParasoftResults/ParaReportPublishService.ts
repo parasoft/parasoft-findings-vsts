@@ -364,10 +364,14 @@ export class ParaReportPublishService {
             if (this.ruleDocUrlMap.size != 0 && outPath.endsWith(ParaReportPublishUtils.SARIF_SUFFIX)) {
                 needRuleDocs = true;
             }
+            let xsltParameterName = "pipelineBuildWorkingDirectory";
+            if (outPath.endsWith(ParaReportPublishUtils.SARIF_SUFFIX)) {
+                xsltParameterName = "projectRootPaths";
+            }
             if (this.javaPath) {
                 // Transform with java
                 const jarPath = tl.resolve(__dirname, "lib/SaxonHE12-2J/saxon-he-12.2.jar");
-                const result = tl.execSync(this.javaPath, ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+xslInfo.xslPath, "-o:"+outPath, "-versionmsg:off", "pipelineBuildWorkingDirectory="+this.defaultWorkingDirectory]);
+                const result = tl.execSync(this.javaPath, ["-jar", jarPath, "-s:"+sourcePath, "-xsl:"+xslInfo.xslPath, "-o:"+outPath, "-versionmsg:off", xsltParameterName+"="+this.defaultWorkingDirectory]);
                 if (result.code != 0) {
                     throw result.error;
                 }
@@ -380,9 +384,9 @@ export class ParaReportPublishService {
                 // Transform with built-in nodejs in agent
                 let xmlReport = fs.readFileSync(sourcePath, 'utf8');
                 if (isCoberturaReport) {
-                    xmlReport = xmlReport.replace("<Coverage ", "<Coverage pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
+                    xmlReport = xmlReport.replace("<Coverage ", "<Coverage " + xsltParameterName + "=\"" + this.defaultWorkingDirectory + "\" ");
                 } else if (outPath.endsWith(ParaReportPublishUtils.SARIF_SUFFIX) || outPath.endsWith(ParaReportPublishUtils.XUNIT_SUFFIX)) {
-                    xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession pipelineBuildWorkingDirectory=\"" + this.defaultWorkingDirectory + "\" ");
+                    xmlReport = xmlReport.replace("<ResultsSession ", "<ResultsSession " + xsltParameterName + "=\"" + this.defaultWorkingDirectory + "\" ");
                 }
                 const options: SaxonJS.options = {
                     stylesheetText: xslInfo.jsonText,
