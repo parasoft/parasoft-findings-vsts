@@ -35,7 +35,7 @@
     </xsl:variable>
 
     <xsl:variable name="tempProjectRootPathElements">
-        <xsl:variable name="projectRootPathArray" select="tokenize($projectRootPaths, ',')"/>
+        <xsl:variable name="projectRootPathArray" select="tokenize($projectRootPaths, ';')"/>
         <xsl:for-each select="$projectRootPathArray">
             <xsl:variable name="contactedUri">
                 <xsl:value-of select="$uriPrefix"/>
