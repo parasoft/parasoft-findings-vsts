@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-static-analysis-quality-gate",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Azure Pipelines Parasoft Static Analysis Quality Gate Task",
   "main": "StaticAnalysisQualityGate.js",
   "scripts": {
