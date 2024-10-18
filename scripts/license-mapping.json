@@ -4,14 +4,14 @@
         "licenses" : [
             {
                 "license" : {
-                    "id" : "Zlib",
-                    "url" : "https://opensource.org/license/zlib/"
+                    "id" : "MIT",
+                    "url" : "http://www.opensource.org/licenses/mit-license.php"
                 }
             },
             {
                 "license" : {
-                    "id" : "MIT",
-                    "url" : "http://www.opensource.org/licenses/mit-license.php"
+                    "id" : "Zlib",
+                    "url" : "https://opensource.org/license/zlib/"
                 }
             }
         ]
@@ -21,14 +21,14 @@
         "licenses": [
             {
                 "license": {
-                    "id": "GPL-3.0",
-                    "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
+                    "id": "MIT",
+                    "url": "http://www.opensource.org/licenses/mit-license.php"
                 }
             },
             {
                 "license": {
-                    "id": "MIT",
-                    "url": "http://www.opensource.org/licenses/mit-license.php"
+                    "id": "GPL-3.0",
+                    "url": "https://www.gnu.org/licenses/gpl-3.0.en.html"
                 }
             }
         ]
@@ -60,14 +60,14 @@
         "licenses": [
             {
                 "license": {
-                    "id": "WTFPL",
-                    "url": "https://spdx.org/licenses/WTFPL.html"
+                    "id": "ISC",
+                    "url": "https://opensource.org/license/isc-license-txt/"
                 }
             },
             {
                 "license": {
-                    "id": "ISC",
-                    "url": "https://opensource.org/license/isc-license-txt/"
+                    "id": "WTFPL",
+                    "url": "https://spdx.org/licenses/WTFPL.html"
                 }
             }
         ]
