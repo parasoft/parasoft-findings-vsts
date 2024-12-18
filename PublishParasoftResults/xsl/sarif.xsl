@@ -233,10 +233,21 @@
         
         <xsl:text>" }</xsl:text>
         
-        <xsl:text>, "properties": { "tags": [ </xsl:text><xsl:value-of select="$tags" /><xsl:text> ] }</xsl:text>
+        <xsl:text>, "properties": { "tags": [ </xsl:text><xsl:value-of select="$tags" /><xsl:text> ]</xsl:text>
+            <xsl:variable name="category" select="lower-case(@cat)"/>
+            <xsl:if test="contains($category, 'security')
+                    or starts-with($category, 'owasp')
+                    or starts-with($category, 'cwe')
+                    or starts-with($category, 'pcidss')
+                    or starts-with($category, 'apsc')">
+                <xsl:call-template name="security_severity_level">
+                    <xsl:with-param name="parasoft_severity" select="@sev"/>
+                </xsl:call-template>
+            </xsl:if>
+            <xsl:text> }</xsl:text>
         <xsl:text> }</xsl:text>
     </xsl:template>
-    
+
     <xsl:key name="distinctRepositoryIdx1" match="/ResultsSession/Scope/Locations/Loc[@repRef and not(@branch)]" use="@repRef" />
     <xsl:key name="distinctRepositoryIdx2" match="/ResultsSession/Scope/Locations/Loc[@repRef and @branch]" use="concat(@repRef,'_',@branch)" />
 
@@ -247,7 +258,7 @@
             <xsl:for-each select="$reps">
                 <xsl:variable name="url" select="@url"/>
                 <xsl:variable name="repRef" select="@repRef"/>
-                
+
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx1',$repRef)[1])]">
                     <xsl:if test="$firstLocHash != @hash">
                         <xsl:text>, </xsl:text>
@@ -256,7 +267,7 @@
                     <xsl:text>, "mappedTo": { "uriBaseId": "ROOT_</xsl:text><xsl:value-of select="@repRef" /><xsl:text>" }</xsl:text>
                     <xsl:text> }</xsl:text>
                 </xsl:for-each>
-                
+
                 <xsl:for-each select="/ResultsSession/Scope/Locations/Loc[generate-id()=generate-id(key('distinctRepositoryIdx2',concat($repRef,'_',@branch))[1])]">
                     <xsl:if test="$firstLocHash != @hash">
                         <xsl:text>, </xsl:text>
@@ -290,7 +301,7 @@
             <xsl:call-template name="result"/>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="result">
         <xsl:text>{ </xsl:text>
         <xsl:text>"ruleId": "</xsl:text><xsl:value-of select="@rule" /><xsl:text>"</xsl:text>
@@ -315,7 +326,7 @@
         </xsl:choose>
         <xsl:call-template name="escape_markdown_chars"><xsl:with-param name="text" select="@msg" /></xsl:call-template>
         <xsl:text>**</xsl:text>
-        
+
         <xsl:if test="local-name()='FlowViol'">
             <xsl:value-of select="$markdownNewLine" />
             <xsl:call-template name="flow_viol_markdown" />
@@ -324,7 +335,7 @@
             <xsl:value-of select="$markdownNewLine" />
             <xsl:call-template name="dup_viol_markdown"/>
         </xsl:if>
-        
+
         <xsl:text>" }</xsl:text>
         <xsl:text>, "partialFingerprints": { </xsl:text>
             <xsl:text>"violType": "</xsl:text><xsl:value-of select="name()" /><xsl:text>"</xsl:text>
@@ -347,7 +358,7 @@
             </xsl:otherwise>
         </xsl:choose>
         <xsl:text> ]</xsl:text>
-        
+
         <xsl:if test="local-name()='FlowViol' or (local-name()='DupViol' and $duplicates_as_code_flow='true')">
         <xsl:text>, "codeFlows": [ { </xsl:text>
         <xsl:text>"threadFlows": [ { "locations": [ </xsl:text>
@@ -359,7 +370,7 @@
         <xsl:text> ]</xsl:text>
         <xsl:text> } ] } ]</xsl:text>
         </xsl:if>
-        
+
         <xsl:if test="@supp='true'">
             <xsl:text>, "suppressions": [ { "kind": "external" } ]</xsl:text>
         </xsl:if>
@@ -456,7 +467,7 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <xsl:template name="result_physical_location">
         <xsl:text>"physicalLocation": { </xsl:text>
         <xsl:call-template name="artifact_location"/>
@@ -469,10 +480,10 @@
         </xsl:call-template>
         <xsl:text> }</xsl:text>
     </xsl:template>
-    
+
     <xsl:template name="duplicated_code_locations">
         <xsl:param name="descriptors"/>
-        
+
         <xsl:for-each select="$descriptors">
             <xsl:if test="position() != 1">
                 <xsl:text>, </xsl:text>
@@ -480,7 +491,7 @@
             <xsl:text>{ </xsl:text><xsl:call-template name="thread_flow_physical_loc"/><xsl:text> }</xsl:text>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="thread_flow_locations">
         <xsl:param name="descriptors"/>
         <xsl:param name="type"/>
@@ -493,7 +504,7 @@
                     <xsl:if test="$pos != 1">
                         <xsl:text>, </xsl:text>
                     </xsl:if>
-                    
+
                     <xsl:call-template name="thread_flow_loc">
                         <xsl:with-param name="type" select="$type"/>
                         <xsl:with-param name="nestingLevel" select="$nestingLevel"/>
@@ -514,11 +525,11 @@
             </xsl:choose>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="thread_flow_loc">
         <xsl:param name="type"/>
         <xsl:param name="nestingLevel"/>
-        
+
         <xsl:text>{ "location": { </xsl:text>
         <xsl:call-template name="thread_flow_physical_loc"/>
         <xsl:call-template name="thread_flow_loc_msg">
@@ -527,7 +538,7 @@
         <xsl:text> }, "nestingLevel": </xsl:text><xsl:value-of select="$nestingLevel" />
         <xsl:text> }</xsl:text>
     </xsl:template>
-    
+
     <xsl:template name="thread_flow_physical_loc">
         <xsl:text>"physicalLocation": { </xsl:text>
         <xsl:call-template name="artifact_location"/>
@@ -540,10 +551,10 @@
         </xsl:call-template>
         <xsl:text> }</xsl:text>
     </xsl:template>
-    
+
     <xsl:template name="thread_flow_loc_msg">
         <xsl:param name="type"/>
-        
+
         <xsl:choose>
             <xsl:when test="$type='DupViol'">
                 <xsl:text>, "message": { "text": "Review duplicate in" }</xsl:text>
@@ -673,19 +684,19 @@
         <xsl:param name="path"/>
         <xsl:value-of select="replace(replace($path, '%', '%25'), ' ', '%20')"/>
     </xsl:template>
-    
+
     <!-- TODO optimize -->
     <xsl:template name="location_uri">
         <xsl:param name="isMainLocation"/>
-        
+
         <xsl:variable name="locRef" select="@locRef"/>
         <xsl:variable name="locNode" select="/ResultsSession/Scope/Locations/Loc[@locRef=$locRef]"/>
-        
+
         <xsl:if test="$locNode/@scPath and $locNode/@repRef">
             <xsl:variable name="repNode" select="/ResultsSession/Scope/Repositories/Rep[@repRef=$locNode/@repRef]"/>
             <xsl:value-of select="$repNode/@url" />
             <xsl:text>?path=</xsl:text><xsl:value-of select="$locNode/@scPath" />
-            
+
             <xsl:choose>
                 <xsl:when test="$isMainLocation = 'true'">
                     <xsl:call-template name="region_params">
@@ -709,20 +720,20 @@
             </xsl:if>
             <xsl:text>&amp;lineStyle=plain&amp;_a=contents</xsl:text>
         </xsl:if>
-        
+
     </xsl:template>
-    
+
     <xsl:template name="region">
         <xsl:param name="startLine"/>
         <xsl:param name="startColumn"/>
         <xsl:param name="endLine"/>
         <xsl:param name="endColumn"/>
-        
+
         <xsl:if test="$startLine > 0">
-            
+
             <xsl:text>"region": { "startLine": </xsl:text>
             <xsl:value-of select="$startLine" />
-            
+
             <xsl:text>, "startColumn": </xsl:text>
             <xsl:choose>
                 <xsl:when test="number($startColumn) > 0">
@@ -732,7 +743,7 @@
                     <xsl:text>1</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
-            
+
             <xsl:choose>
                 <xsl:when test="number($endColumn) > 0">
                     <!-- change the condition here: In some condition, saxonJS can't compare the two variable correctly-->
@@ -748,27 +759,27 @@
                     </xsl:if>
                 </xsl:otherwise>
             </xsl:choose>
-            
+
             <xsl:if test="number($endColumn) > 0">
                 <xsl:text>, "endColumn": </xsl:text>
                 <xsl:value-of select="$endColumn + 1" />
             </xsl:if>
             <xsl:text> }</xsl:text>
-            
+
         </xsl:if>
     </xsl:template>
-    
+
     <xsl:template name="region_params">
         <xsl:param name="startLine"/>
         <xsl:param name="startColumn"/>
         <xsl:param name="endLine"/>
         <xsl:param name="endColumn"/>
-        
+
         <xsl:if test="$startLine > 0">
-            
+
             <xsl:text>&amp;line=</xsl:text>
             <xsl:value-of select="$startLine" />
-            
+
             <xsl:text>&amp;lineStartColumn=</xsl:text>
             <xsl:choose>
                 <xsl:when test="$startColumn > 0">
@@ -778,7 +789,7 @@
                     <xsl:text>1</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
-            
+
             <xsl:choose>
                 <xsl:when test="$endColumn > 0">
                     <xsl:if test="$endLine > $startLine">
@@ -793,18 +804,18 @@
                     </xsl:if>
                 </xsl:otherwise>
             </xsl:choose>
-            
+
             <xsl:if test="$endColumn > 0">
                 <xsl:text>&amp;lineEndColumn=</xsl:text>
                 <xsl:value-of select="$endColumn + 1" />
             </xsl:if>
-            
+
         </xsl:if>
     </xsl:template>
-    
+
     <xsl:template name="get_last_path_segment">
         <xsl:param name="path" />
-        
+
         <xsl:variable name="lastSegment1">
 	        <xsl:call-template name="substring_after_last">
 	            <xsl:with-param name="haystack" select="$path"/>
@@ -819,11 +830,11 @@
         </xsl:variable>
         <xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="$lastSegment"/></xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="substring_after_last">
         <xsl:param name="haystack" />
         <xsl:param name="needle" />
-        
+
         <xsl:variable name="substring" select="substring-after($haystack,$needle)"/>
         <xsl:choose>
             <xsl:when test="string-length($substring)=0">
@@ -837,10 +848,10 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <xsl:template name="escape_illegal_chars">
         <xsl:param name="text" />
-        
+
         <xsl:call-template name="escape_chars">
             <xsl:with-param name="text" select="$text"/>
             <xsl:with-param name="escapePrefix">\</xsl:with-param>
@@ -849,14 +860,14 @@
             <xsl:with-param name="illegalChar" select="substring($illegalChars,1,1)"/>
         </xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="escape_markdown_chars">
         <xsl:param name="text" />
-        
+
         <xsl:variable name="text_without_illegal_chars">
             <xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="$text"/></xsl:call-template>
         </xsl:variable>
-        
+
         <xsl:call-template name="escape_chars">
             <xsl:with-param name="text" select="$text_without_illegal_chars"/>
             <xsl:with-param name="escapePrefix">\\</xsl:with-param>
@@ -865,7 +876,7 @@
             <xsl:with-param name="illegalChar" select="substring($markdownChars,1,1)"/>
         </xsl:call-template>
     </xsl:template>
-    
+
     <xsl:template name="escape_chars">
         <xsl:param name="text" />
         <xsl:param name="escapePrefix" />
@@ -906,10 +917,10 @@
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-    
+
     <xsl:template name="severity_level">
         <xsl:param name="parsoft_severity"/>
-        
+
         <xsl:text>"level": "</xsl:text>
         <xsl:choose>
             <xsl:when test="(($parsoft_severity='1') or ($parsoft_severity='2'))">
@@ -923,6 +934,33 @@
             </xsl:when>
             <xsl:otherwise>
                <xsl:text>none</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>"</xsl:text>
+    </xsl:template>
+
+    <xsl:template name="security_severity_level">
+        <xsl:param name="parasoft_severity"/>
+
+        <xsl:text>, "security-severity": "</xsl:text>
+        <xsl:choose>
+            <xsl:when test="$parasoft_severity='1'">
+                <xsl:text>9.5</xsl:text>
+            </xsl:when>
+            <xsl:when test="$parasoft_severity='2'">
+                <xsl:text>8</xsl:text>
+            </xsl:when>
+            <xsl:when test="$parasoft_severity='3'">
+                <xsl:text>6</xsl:text>
+            </xsl:when>
+            <xsl:when test="$parasoft_severity='4'">
+                <xsl:text>4</xsl:text>
+            </xsl:when>
+            <xsl:when test="$parasoft_severity='5'">
+                <xsl:text>2</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>0</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
         <xsl:text>"</xsl:text>
