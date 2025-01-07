@@ -323,7 +323,11 @@ describe("Parasoft findings Azure", () => {
             describe('only one parasoft coverage report', () => {
 
                 afterEach(() => {
-                    const filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE-xml-cobertura.xml`;
+                    let filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE-xml-cobertura.xml`;
+                    if (fs.existsSync(filePathToDelete)) {
+                        fs.unlink(filePathToDelete, () => {});
+                    }
+                    filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_MULTIPLE_MODULES-xml-cobertura.xml`;
                     if (fs.existsSync(filePathToDelete)) {
                         fs.unlink(filePathToDelete, () => {});
                     }
@@ -372,6 +376,15 @@ describe("Parasoft findings Azure", () => {
                     publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
                     const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
                     let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml`, 'utf8');
+                    await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
+    
+                    expect(publisher.coberturaReports.length).toBe(1);
+                });
+
+                it('- multiple modules', async () => {
+                    publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
+                    const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_MULTIPLE_MODULES.xml`]
+                    let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_MULTIPLE_MODULES-cobertura.xml`, 'utf8');
                     await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
     
                     expect(publisher.coberturaReports.length).toBe(1);
