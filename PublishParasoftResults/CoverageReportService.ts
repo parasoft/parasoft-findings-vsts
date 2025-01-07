@@ -299,7 +299,14 @@ export class CoverageReportService {
                 };
             }
             if (nodeName == 'package') {
-                coberturaCoverage.packages.set(coberturaPackage.name, coberturaPackage);
+                let existingCoberturaPackage: CoberturaPackage | undefined = coberturaCoverage.packages.get(coberturaPackage.name);
+
+                if (existingCoberturaPackage) {
+                    this.mergeCoberturaPackage(existingCoberturaPackage, coberturaPackage);
+                } else {
+                    existingCoberturaPackage = coberturaPackage;
+                }
+                coberturaCoverage.packages.set(coberturaPackage.name, existingCoberturaPackage);
                 coberturaPackage = {
                     name: '',
                     lineRate: 0,
