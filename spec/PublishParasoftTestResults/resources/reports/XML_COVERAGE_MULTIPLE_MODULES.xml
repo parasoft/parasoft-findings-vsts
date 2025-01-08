@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Coverage ver="2" toolVer="2024.2.0" execEnv="win32_x86_64" hasViols="false" project="" buildId="2025-01-08" climode="true" toolDispName="Jtest" prjModule="com.example:module-a, ..." toolId="jtest" machine="machine-name" tag="${scontrol_branch}-win32_x86_64" time="2025-01-08T11:37:22+08:00" id="1738435506972" lang="en_US" user="rliu" toolName="DTP Engine for Java">
+	<TestConfig machine="machine-name" pseudoUrl="builtin://Unit Tests" name="Unit Tests" user="usr"/>
+	<VersionInfos>
+		<VersionInfo id="LC" ver="1"/>
+	</VersionInfos>
+	<Repositories/>
+	<Locations>
+		<Loc locRef="1" projId="com.example:module-a" covId="-1442968309" sym="com.example.App1:-1442968309" project="com.example:module-a" binHash="839237854" resProjPath="src/main/java/com/example/App1.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-a/src/main/java/com/example/App1.java" projPath="/com.example:module-a" hash="-1403487296"/>
+		<Loc locRef="2" projId="com.example:module-b" covId="44259840" sym="com.example.App2:44259840" project="com.example:module-b" binHash="2397146145" resProjPath="src/main/java/com/example/App2.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-b/src/main/java/com/example/App2.java" projPath="/com.example:module-b" hash="-1922779583"/>
+		<Loc locRef="3" projId="com.example:module-a" covId="877845591" sym="com.example.AppA:877845591" project="com.example:module-a" binHash="2241705324" resProjPath="src/main/java/com/example/AppA.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-a/src/main/java/com/example/AppA.java" projPath="/com.example:module-a" hash="-1689539981"/>
+		<Loc locRef="4" projId="com.example:module-a" covId="355859125" sym="com.example.ClassA:355859125" project="com.example:module-a" binHash="26385897" resProjPath="src/main/java/com/example/ClassA.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-a/src/main/java/com/example/ClassA.java" projPath="/com.example:module-a" hash="-1515583975"/>
+		<Loc locRef="5" projId="com.example:module-a" covId="1299109353" sym=".Demo1:1299109353" project="com.example:module-a" binHash="818277633" resProjPath="src/main/java/Demo1.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-a/src/main/java/Demo1.java" projPath="/com.example:module-a" hash="-1799773811"/>
+		<Loc locRef="6" projId="com.example:module-b" covId="-1508629794" sym=".Demo2:-1508629794" project="com.example:module-b" binHash="3311885426" resProjPath="src/main/java/Demo2.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-b/src/main/java/Demo2.java" projPath="/com.example:module-b" hash="-690958612"/>
+		<Loc locRef="7" projId="com.example:module-a" covId="-675044039" sym=".DemoA:-675044039" project="com.example:module-a" binHash="3006248228" resProjPath="src/main/java/DemoA.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-a/src/main/java/DemoA.java" projPath="/com.example:module-a" hash="-1238599811"/>
+		<Loc locRef="8" projId="com.example:module-b" covId="812184110" sym=".DemoB:812184110" project="com.example:module-b" binHash="1183646807" resProjPath="src/main/java/DemoB.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-b/src/main/java/DemoB.java" projPath="/com.example:module-b" hash="-129784612"/>
+		<Loc locRef="9" projId="com.example:module-b" covId="-1929893556" sym="com.example.AppB:-1929893556" project="com.example:module-b" binHash="964295059" resProjPath="src/main/java/com/example/AppB.java" uri="file:/E:/AzureDevOps/agent/_work/2/s/module-b/src/main/java/com/example/AppB.java" projPath="/com.example:module-b" hash="2086135028"/>
+	</Locations>
+	<Tests>
+		<Test testRef="1" id="Demo1Test|+|com.example:module-a#Demo1Test.java#Demo1Test#testAdd"/>
+		<Test testRef="2" id="Demo2Test|+|com.example:module-b#Demo2Test.java#Demo2Test#testAdd"/>
+		<Test testRef="3" id="DemoATest|+|com.example:module-a#DemoATest.java#DemoATest#testAdd"/>
+		<Test testRef="4" id="DemoBTest|+|com.example:module-b#DemoBTest.java#DemoBTest#testAdd"/>
+		<Test testRef="5" id="com.example.App1Test|+|com.example:module-a#App1Test.java#com.example.App1Test#testApp1"/>
+		<Test testRef="6" id="com.example.App2Test|+|com.example:module-b#App2Test.java#com.example.App2Test#testApp1"/>
+		<Test testRef="7" id="com.example.AppATest|+|com.example:module-a#AppATest.java#com.example.AppATest#testAppA"/>
+		<Test testRef="8" id="com.example.AppBTest|+|com.example:module-b#AppBTest.java#com.example.AppBTest#testAppB"/>
+		<Test testRef="9" id="com.example.ClassATest|+|com.example:module-a#ClassATest.java#com.example.ClassATest#testMinus"/>
+	</Tests>
+	<CoverageData type="LC">
+		<CvgData locRef="1">
+			<Stats>
+				<Item itemRef="1" id="App1.java#App1" name="App1">
+					<Item itemRef="2" id="App1.java#App1#&lt;init>#()V" name="App1()" hash="-1825338733"/>
+					<Item itemRef="3" id="App1.java#App1#main#([Ljava/lang/String;)V" name="main( java.lang.String[] )" hash="1994712785"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="7" hashes="1723197967"/>
+				<StatCvg itemRef="3" elems="11 12" hashes="-1390516089 30537853"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="3">
+					<CtxCvg testRefs="5" elemRefs="11 12"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="2">
+			<Stats>
+				<Item itemRef="1" id="App2.java#App2" name="App2">
+					<Item itemRef="2" id="App2.java#App2#main#([Ljava/lang/String;)V" name="main( java.lang.String[] )" hash="1994742576"/>
+					<Item itemRef="3" id="App2.java#App2#&lt;init>#()V" name="App2()" hash="-1825337772"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="11 12" hashes="-1390516089 30537853"/>
+				<StatCvg itemRef="3" elems="7" hashes="1723197968"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="2">
+					<CtxCvg testRefs="6" elemRefs="11 12"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="3">
+			<Stats>
+				<Item itemRef="1" id="AppA.java#AppA" name="AppA">
+					<Item itemRef="2" id="AppA.java#AppA#&lt;init>#()V" name="AppA()" hash="-1825323357"/>
+					<Item itemRef="3" id="AppA.java#AppA#main#([Ljava/lang/String;)V" name="main( java.lang.String[] )" hash="1995189441"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="3" hashes="1723197983"/>
+				<StatCvg itemRef="3" elems="7 8" hashes="-1390516089 30537853"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="3">
+					<CtxCvg testRefs="7" elemRefs="7 8"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="4">
+			<Stats>
+				<Item itemRef="1" id="ClassA.java#ClassA" name="ClassA">
+					<Item itemRef="2" id="ClassA.java#ClassA#&lt;init>#()V" name="ClassA()" hash="2058066988"/>
+					<Item itemRef="3" id="ClassA.java#ClassA#multiply#(II)I" name="multiply( int, int )" hash="-2107720672"/>
+					<Item itemRef="4" id="ClassA.java#ClassA#minus#(II)I" name="minus( int, int )" hash="2139772977"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="3" hashes="-856927165"/>
+				<StatCvg itemRef="3" elems="9" hashes="-679508706"/>
+				<StatCvg itemRef="4" elems="5" hashes="-679419333"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="4">
+					<CtxCvg testRefs="9" elemRefs="5"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="5">
+			<Stats>
+				<Item itemRef="1" id="Demo1.java#Demo1" name="Demo1">
+					<Item itemRef="2" id="Demo1.java#Demo1#add#(II)I" name="add( int, int )" hash="-1285555269"/>
+					<Item itemRef="3" id="Demo1.java#Demo1#&lt;init>#()V" name="Demo1()" hash="1595674195"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="3" hashes="-679478915"/>
+				<StatCvg itemRef="3" elems="1" hashes="393260874"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="2">
+					<CtxCvg testRefs="1" elemRefs="3"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="6">
+			<Stats>
+				<Item itemRef="1" id="Demo2.java#Demo2" name="Demo2">
+					<Item itemRef="2" id="Demo2.java#Demo2#add#(II)I" name="add( int, int )" hash="-1285525478"/>
+					<Item itemRef="3" id="Demo2.java#Demo2#&lt;init>#()V" name="Demo2()" hash="1595675156"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="3" hashes="-679478915"/>
+				<StatCvg itemRef="3" elems="1" hashes="393261835"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="2">
+					<CtxCvg testRefs="2" elemRefs="3"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="7">
+			<Stats>
+				<Item itemRef="1" id="DemoA.java#DemoA" name="DemoA">
+					<Item itemRef="2" id="DemoA.java#DemoA#add#(II)I" name="add( int, int )" hash="-1285078613"/>
+					<Item itemRef="3" id="DemoA.java#DemoA#&lt;init>#()V" name="DemoA()" hash="1595689571"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="3" hashes="-679478915"/>
+				<StatCvg itemRef="3" elems="1" hashes="393276250"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="2">
+					<CtxCvg testRefs="3" elemRefs="3"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="8">
+			<Stats>
+				<Item itemRef="1" id="DemoB.java#DemoB" name="DemoB">
+					<Item itemRef="2" id="DemoB.java#DemoB#&lt;init>#()V" name="DemoB()" hash="1595690532"/>
+					<Item itemRef="3" id="DemoB.java#DemoB#add#(II)I" name="add( int, int )" hash="-1285048822"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="1" hashes="393277211"/>
+				<StatCvg itemRef="3" elems="3" hashes="-679478915"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="3">
+					<CtxCvg testRefs="4" elemRefs="3"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+		<CvgData locRef="9">
+			<Stats>
+				<Item itemRef="1" id="AppB.java#AppB" name="AppB">
+					<Item itemRef="2" id="AppB.java#AppB#main#([Ljava/lang/String;)V" name="main( java.lang.String[] )" hash="1995219232"/>
+					<Item itemRef="3" id="AppB.java#AppB#&lt;init>#()V" name="AppB()" hash="-1825322396"/>
+				</Item>
+			</Stats>
+			<Static>
+				<StatCvg itemRef="2" elems="7 8" hashes="-1390516089 30537853"/>
+				<StatCvg itemRef="3" elems="3" hashes="1723197984"/>
+			</Static>
+			<Dynamic>
+				<DynCvg itemRef="2">
+					<CtxCvg testRefs="8" elemRefs="7 8"/>
+				</DynCvg>
+			</Dynamic>
+		</CvgData>
+	</CoverageData>
+</Coverage>
