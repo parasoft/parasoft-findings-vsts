@@ -372,7 +372,10 @@
         </xsl:if>
 
         <xsl:if test="@supp='true'">
-            <xsl:text>, "suppressions": [ { "kind": "external" } ]</xsl:text>
+            <xsl:text>, "suppressions": [ { "kind": "external"</xsl:text>
+            <xsl:text>, "justification": "</xsl:text>
+            <xsl:value-of select="/ResultsSession/CodingStandards/Supps/Supp[@refId=current()/@suppRef]/@suppRsn"/>
+            <xsl:text>"} ]</xsl:text>
         </xsl:if>
         <xsl:text> }</xsl:text>
     </xsl:template>

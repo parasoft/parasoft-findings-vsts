@@ -143,6 +143,21 @@ describe("Parasoft findings Azure", () => {
             });
         });
 
+        it('XML_STATIC_WITH_SUPPRESSION', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION.xml');
+            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION.xml'], 0);
+            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif');
+
+            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif', 'utf8');
+            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif', 'utf-8');
+
+            expect(result).toEqual(expectedReport);
+            expect(publisher.transform).toHaveBeenCalled();
+            expect(publisher.sarifReports.length).toBe(1);
+
+            fs.unlink(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif', () => {});
+        });
+
         it('XML_STATIC_BD.PB.VOVR_RULE', async () => {
             mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml');
             publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml'], 0);
