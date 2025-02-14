@@ -30,14 +30,14 @@
   "dependencies": {
     "azure-devops-node-api": "^12.1.0",
     "azure-pipelines-task-lib": "^4.3.1",
-    "dot-properties": "^1.0.1",
+    "dot-properties": "^1.1.0",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "node-fetch": "^2.7.0",
     "sax": "^1.2.4",
-    "saxon-js": "^2.6.0",
+    "saxon-js": "^2.7.0",
     "uuid": "^9.0.1",
-    "xslt3": "^2.6.0"
+    "xslt3": "^2.7.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.202",

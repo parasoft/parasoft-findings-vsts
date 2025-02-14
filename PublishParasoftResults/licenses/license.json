@@ -79,7 +79,7 @@
         "publisher": "Felix Geisendörfer",
         "repository": "https://github.com/felixge/node-delayed-stream"
     },
-    "dot-properties@1.0.1": {
+    "dot-properties@1.1.0": {
         "licenses": "MIT",
         "publisher": "Eemeli Aro",
         "repository": "https://github.com/eemeli/dot-properties"
@@ -288,7 +288,7 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/sax-js"
     },
-    "saxon-js@2.6.0": {
+    "saxon-js@2.7.0": {
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
     },
@@ -378,7 +378,7 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/npm/wrappy"
     },
-    "xslt3@2.6.0": {
+    "xslt3@2.7.0": {
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
     },
