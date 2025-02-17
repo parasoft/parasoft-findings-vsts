@@ -34,7 +34,7 @@
         ]
     },
     {
-        "purl": "pkg:npm/saxon-js@2.6.0",
+        "purl": "pkg:npm/saxon-js@2.7.0",
         "licenses": [
             {
                 "license": {
@@ -45,7 +45,7 @@
         ]
     },
     {
-        "purl": "pkg:npm/xslt3@2.6.0",
+        "purl": "pkg:npm/xslt3@2.7.0",
         "licenses": [
             {
                 "license": {
