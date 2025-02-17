@@ -1,6 +1,6 @@
 [
     {
-        "purl" : "pkg:npm/saxon-js@2.6.0",
+        "purl" : "pkg:npm/saxon-js@2.7.0",
         "externalReferences": [
             {
                 "type": "other",
@@ -9,7 +9,7 @@
         ]
     },
     {
-        "purl" : "pkg:npm/xslt3@2.6.0",
+        "purl" : "pkg:npm/xslt3@2.7.0",
         "externalReferences": [
             {
                 "type": "other",
