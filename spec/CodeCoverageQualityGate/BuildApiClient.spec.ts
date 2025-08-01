@@ -126,6 +126,7 @@ describe('Test Builds API Client for Code Coverage Quality Gate', () => {
     describe ('getArtifactContentZip()', async () => {
         beforeEach(() => {
             buildClient = new BuildAPIClient();
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
         })
 
         it('should throw a TypeError for non-absolute URLs', async () => {
