@@ -4,7 +4,7 @@
         "externalReferences": [
             {
                 "type": "other",
-                "url": "https://www.npmjs.com/package/saxon-js"
+                "url": "https://www.npmjs.com/package/saxon-js/v/2.7.0"
             }
         ]
     },
@@ -13,7 +13,7 @@
         "externalReferences": [
             {
                 "type": "other",
-                "url": "https://www.npmjs.com/package/xslt3"
+                "url": "https://www.npmjs.com/package/xslt3/v/2.7.0"
             }
         ]
     }
