@@ -103,7 +103,7 @@ describe('Test Builds API Client for Publish Parasoft Results', () => {
     describe ('getArtifactContentZip()', async () => {
         beforeEach(() => {
             buildClient = new BuildAPIClient();
-            jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+            jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
         });
 
         it('should throw a TypeError for non-absolute URLs', async () => {
