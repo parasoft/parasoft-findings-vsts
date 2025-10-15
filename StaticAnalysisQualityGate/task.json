@@ -70,10 +70,10 @@
   ],
   "instanceNameFormat": "Parasoft Static Analysis Quality Gate - $(type) $(severity)s - $(threshold)",
   "execution": {
-    "Node16": {
+    "Node20_1": {
       "target": "StaticAnalysisQualityGate.js"
     },
-    "Node10": {
+    "Node16": {
       "target": "StaticAnalysisQualityGate.js"
     }
   }

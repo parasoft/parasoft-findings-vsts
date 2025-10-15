@@ -58,10 +58,10 @@
   ],
   "instanceNameFormat": "Parasoft Test Results Quality Gate - $(type) tests - $(threshold)",
   "execution": {
-    "Node16": {
+    "Node20_1": {
       "target": "TestResultsQualityGate.js"
     },
-    "Node10": {
+    "Node16": {
       "target": "TestResultsQualityGate.js"
     }
   }
