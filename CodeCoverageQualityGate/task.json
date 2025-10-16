@@ -56,10 +56,10 @@
   ],
   "instanceNameFormat": "Parasoft Code Coverage Quality Gate - $(type) code lines - $(threshold)",
   "execution": {
-    "Node16": {
+    "Node20_1": {
       "target": "CodeCoverageQualityGate.js"
     },
-    "Node10": {
+    "Node16": {
       "target": "CodeCoverageQualityGate.js"
     }
   }
