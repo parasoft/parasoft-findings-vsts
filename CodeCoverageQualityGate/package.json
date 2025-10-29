@@ -1,6 +1,6 @@
 {
   "name": "parasoft-findings-vsts-code-coverage-quality-gate",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Azure Pipelines Parasoft Code Coverage Quality Gate Task",
   "main": "CodeCoverageQualityGate.js",
   "scripts": {
