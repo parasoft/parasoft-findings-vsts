@@ -71,19 +71,19 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('SARIF', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/SARIF.sarif');
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/SARIF.sarif'));
             publisher.staticAnalysisReportService.defaultWorkingDirectory = 'D:/RWorkspaces/project-workspace/CICD/para % bank';
-            await publisher.transformReports([__dirname + '/resources/reports/SARIF.sarif'], 0);
+            await publisher.transformReports([path.join(__dirname, 'resources/reports/SARIF.sarif')], 0);
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/SARIF-sarif-pf-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/SARIF-sarif-pf-sast.sarif', 'utf-8');
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/SARIF-sarif-pf-sast.sarif'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/SARIF-sarif-pf-sast.sarif'), 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).not.toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(tl.setVariable).toHaveBeenCalledTimes(2);
 
-            fs.unlink(__dirname + '/resources/reports/SARIF-sarif-pf-sast.sarif', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/SARIF-sarif-pf-sast.sarif'), () => {});
         });
 
         describe('XML_STATIC', () => {
@@ -92,7 +92,7 @@ describe("Parasoft findings Azure", () => {
 
             beforeEach(() => {
                 reportTempFolder = path.join(agentTempDirectory, 'ParasoftFindings/SarifContainer');
-                mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC.xml');
+                mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC.xml'));
                 spyOn(tl, 'getVariable').and.callFake((param: string) => {
                     switch (param) {
                         case 'Agent.TempDirectory':
@@ -102,14 +102,14 @@ describe("Parasoft findings Azure", () => {
             });
 
             afterEach(() => {
-                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC-xml-pf-sast.sarif', 'utf8');
-                let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif', 'utf-8');
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC-xml-pf-sast.sarif'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC-xml-pf-sast.sarif'), 'utf-8');
 
                 expect(result).toEqual(expectedReport);
                 expect(publisher.transform).toHaveBeenCalled();
                 expect(publisher.sarifReports.length).toBe(1);
 
-                fs.unlink(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif', () => {});
+                fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC-xml-pf-sast.sarif'), () => {});
                 if (fs.existsSync(agentTempDirectory)) {
                     fs.rmSync(agentTempDirectory, {recursive: true});
                 }
@@ -120,22 +120,22 @@ describe("Parasoft findings Azure", () => {
                 publisher.staticAnalysisReportService.previousReferenceBuildResult = JSON.stringify(buildResultForTest);
                 publisher.staticAnalysisReportService.referenceBuildResult = buildResultForTest;
 
-                await publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
+                await publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC-xml-pf-sast.sarif'));
 
                 expect(tl.uploadArtifact).toHaveBeenCalledTimes(1);
                 expect(tl.uploadArtifact).not.toHaveBeenCalledWith('SarifContainer', path.join(reportTempFolder, 'XML_STATIC-xml-pf-sast.sarif'), 'CodeAnalysisLogs');
             });
 
             it('when need to update baseline state of report in artifact', async () => {
-                const sarifReportFile = {name: 'XML_STATIC-xml-pf-sast.sarif', contentsPromise: Promise.resolve(fs.readFileSync(__dirname + '/resources/reports/expect/SARIF-sarif-pf-sast.sarif', 'utf-8'))};
+                const sarifReportFile = {name: 'XML_STATIC-xml-pf-sast.sarif', contentsPromise: Promise.resolve(fs.readFileSync(path.join(__dirname, 'resources/reports/expect/SARIF-sarif-pf-sast.sarif'), 'utf-8'))};
                 spyOn(publisher.staticAnalysisReportService.buildClient, 'getSarifReportsByBuildId').and.returnValue([sarifReportFile]);
                 mockGetSarifReportsOfReferenceBuildFunction.and.returnValue([sarifReportFile]);
                 publisher.staticAnalysisReportService.previousReferenceBuildResult = '{"referencePipelineInput":"testPipelineName","referenceBuildInput":"9"}';
                 publisher.staticAnalysisReportService.referenceBuildResult = {referencePipelineInput: 'testPipelineName2', referenceBuildInput: '10'};
 
-                await publisher.transformReports([__dirname + '/resources/reports/XML_STATIC.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_STATIC-xml-pf-sast.sarif');
+                await publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC-xml-pf-sast.sarif'));
 
                 expect(tl.uploadArtifact).toHaveBeenCalledTimes(2);
                 expect(tl.uploadArtifact).toHaveBeenCalledWith('SarifContainer', path.join(reportTempFolder, 'XML_STATIC-xml-pf-sast.sarif'), 'CodeAnalysisLogs');
@@ -144,155 +144,155 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('XML_STATIC_WITH_SUPPRESSION', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION.xml');
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif');
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_WITH_SUPPRESSION.xml'));
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_WITH_SUPPRESSION.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif'));
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif', 'utf-8');
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif'), 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_WITH_SUPPRESSION-xml-pf-sast.sarif'), () => {});
         });
 
         it('XML_STATIC_BD.PB.VOVR_RULE', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml');
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif');
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml'));
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif'));
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif', 'utf-8');
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif'), 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif'), () => {});
         });
 
         it('XML_STATIC_1 with multiple violations which have the same identify info, should generate unique unbViolId', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml');
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif');
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml'));
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif'));
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif', 'utf-8');
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif'), 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId-xml-pf-sast.sarif'), () => {});
         });
 
         describe('XML_TESTS', () => {
             it('and the report is from CPP', async () => {
-                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_CPP.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml');
+                publisher.transformReports([path.join(__dirname, 'resources/reports/XML_TESTS_CPP.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/XML_TESTS_CPP-xml-junit.xml'));
 
-                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_CPP-xml-junit.xml', 'utf8');
-                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml', 'utf-8');
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_TESTS_CPP-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_TESTS_CPP-xml-junit.xml'), 'utf-8');
 
                 expect(result).toEqual(expectedReport);
                 expect(publisher.transform).toHaveBeenCalled();
                 expect(publisher.xUnitReports.length).toBe(1);
 
-                fs.unlink(__dirname + '/resources/reports/XML_TESTS_CPP-xml-junit.xml', () => {});
+                fs.unlink(path.join(__dirname, 'resources/reports/XML_TESTS_CPP-xml-junit.xml'), () => {});
             });
 
             it('and the report is from JTEST', async() => {
                 publisher.defaultWorkingDirectory = 'E:/RLIU_DEVS/SonarQube/sonar_integration_test_example_projects/example_projects/multi-module-demo/demo-module-three';
-                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_JTEST.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml');
+                publisher.transformReports([path.join(__dirname, 'resources/reports/XML_TESTS_JTEST.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/XML_TESTS_JTEST-xml-junit.xml'));
 
-                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_JTEST-xml-junit.xml', 'utf8');
-                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml', 'utf-8');
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_TESTS_JTEST-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_TESTS_JTEST-xml-junit.xml'), 'utf-8');
 
                 expect(result).toEqual(expectedReport);
                 expect(publisher.transform).toHaveBeenCalled();
                 expect(publisher.xUnitReports.length).toBe(1);
 
-                fs.unlink(__dirname + '/resources/reports/XML_TESTS_JTEST-xml-junit.xml', () => {});
+                fs.unlink(path.join(__dirname, 'resources/reports/XML_TESTS_JTEST-xml-junit.xml'), () => {});
             });
 
             it('and the report is from DOTTEST', async() => {
                 publisher.defaultWorkingDirectory = 'C:/Workspace/jenkins_refactoring_code_workspace/workspace/cicd.findings.dottest.2023.1.BankExample.pipeline.local_docs';
                 // Need to set JAVA_HOME environment or comment this test if this test is failed.
                 publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
-                publisher.transformReports([__dirname + '/resources/reports/XML_TESTS_DOTTEST.xml'], 0);
-                await waitForTransform(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml');
+                publisher.transformReports([path.join(__dirname, 'resources/reports/XML_TESTS_DOTTEST.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/XML_TESTS_DOTTEST-xml-junit.xml'));
 
-                let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_TESTS_DOTTEST-xml-junit.xml', 'utf8');
-                let result = fs.readFileSync(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml', 'utf-8');
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_TESTS_DOTTEST-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_TESTS_DOTTEST-xml-junit.xml'), 'utf-8');
 
                 expect(result).toEqual(expectedReport);
                 expect(publisher.transform).toHaveBeenCalled();
                 expect(publisher.xUnitReports.length).toBe(1);
 
-                fs.unlink(__dirname + '/resources/reports/XML_TESTS_DOTTEST-xml-junit.xml', () => {});
+                fs.unlink(path.join(__dirname, 'resources/reports/XML_TESTS_DOTTEST-xml-junit.xml'), () => {});
             });
         })
 
         it('XML_STATIC_AND_TESTS', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml');
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif');
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml');
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP.xml'));
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif'));
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml'));
 
-            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', 'utf8');
-            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', 'utf-8');
+            let expectedSarifReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif'), 'utf8');
+            let sarifResult = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif'), 'utf-8');
+            let expectedJunitReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_AND_TESTS_CPP-xml-junit.xml'), 'utf8');
+            let junitResult = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml'), 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif', () => {});
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP-xml-pf-sast.sarif'), () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_AND_TESTS_CPP-xml-junit.xml'), () => {});
         });
 
         it('XML_SOATEST', async () => {
             publisher.defaultWorkingDirectory = 'C:/home/marzec/nightly/soavirt-server/virtualize_workspace_clean';
-            publisher.transformReports([__dirname + '/resources/reports/XML_SOATEST.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_SOATEST-xml-junit.xml');
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_SOATEST.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_SOATEST-xml-junit.xml'));
 
-            let expectedReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_SOATEST-xml-junit.xml', 'utf8');
-            let result = fs.readFileSync(__dirname + '/resources/reports/XML_SOATEST-xml-junit.xml', 'utf-8');
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_SOATEST-xml-junit.xml'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_SOATEST-xml-junit.xml'), 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.xUnitReports.length).toBe(1);
 
-            fs.unlink(__dirname + '/resources/reports/XML_SOATEST-xml-junit.xml', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_SOATEST-xml-junit.xml'), () => {});
         });
 
         it('XML_STATIC_AND_SOATEST', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml');
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST.xml'));
             publisher.defaultWorkingDirectory = 'C:/Users/mgorecka/parasoft/soavirt-static-workspace';
-            publisher.transformReports([__dirname + '/resources/reports/XML_STATIC_AND_SOATEST.xml'], 0);
-            await waitForTransform(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif');
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif'));
 
-            let expectedSarifReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif', 'utf8');
-            let sarifResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif', 'utf-8');
-            let expectedJunitReport = fs.readFileSync(__dirname + '/resources/reports/expect/XML_STATIC_AND_SOATEST-xml-junit.xml', 'utf8');
-            let junitResult = fs.readFileSync(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-junit.xml', 'utf-8');
+            let expectedSarifReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif'), 'utf8');
+            let sarifResult = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif'), 'utf-8');
+            let expectedJunitReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_AND_SOATEST-xml-junit.xml'), 'utf8');
+            let junitResult = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST-xml-junit.xml'), 'utf-8');
 
             expect(sarifResult).toEqual(expectedSarifReport);
             expect(junitResult).toEqual(expectedJunitReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
             expect(publisher.xUnitReports.length).toBe(1);
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif', () => {});
-            fs.unlink(__dirname + '/resources/reports/XML_STATIC_AND_SOATEST-xml-junit.xml', () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST-xml-pf-sast.sarif'), () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_AND_SOATEST-xml-junit.xml'), () => {});
         });
 
         it('XML_XUNIT', async () => {
-            publisher.transformReports([__dirname + '/resources/reports/XML_XUNIT.xml'], 0);
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_XUNIT.xml')], 0);
             await sleep(5000);
 
             expect(publisher.transform).not.toHaveBeenCalled();
@@ -300,8 +300,8 @@ describe("Parasoft findings Azure", () => {
         });
 
         describe('XML_COVERAGE', () => {
-            const mergeCoberturaReportPath = `${__dirname}/parasoft-merged-cobertura.xml`;
-            const agentTempDirectory = `${__dirname}/_temp`;
+            const mergeCoberturaReportPath = path.join(__dirname, 'parasoft-merged-cobertura.xml');
+            const agentTempDirectory = path.join(__dirname, '_temp');
 
             beforeEach(() => {
                 spyOn(tl, 'getVariable').and.callFake((param: string) => {
@@ -326,7 +326,7 @@ describe("Parasoft findings Azure", () => {
 
             let testTransformCoverageReport = async (parasoftCoverageReportsPath: string[], mergedCoberturaReportString: string) => {
                 publisher.transformReports(parasoftCoverageReportsPath, 0);
-                await waitForTransform(`${__dirname}/resources/reports/parsoft-merged-cobertura.xml`);
+                await waitForTransform(path.join(__dirname, 'resources/reports/parsoft-merged-cobertura.xml'));
 
                 let result = fs.readFileSync(mergeCoberturaReportPath, 'utf-8');
                 expect(result).toEqual(mergedCoberturaReportString);
@@ -338,11 +338,11 @@ describe("Parasoft findings Azure", () => {
             describe('only one parasoft coverage report', () => {
 
                 afterEach(() => {
-                    let filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE-xml-cobertura.xml`;
+                    let filePathToDelete = path.join(__dirname, 'resources/reports/XML_COVERAGE-xml-cobertura.xml');
                     if (fs.existsSync(filePathToDelete)) {
                         fs.unlink(filePathToDelete, () => {});
                     }
-                    filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_MULTIPLE_MODULES-xml-cobertura.xml`;
+                    filePathToDelete = path.join(__dirname, 'resources/reports/XML_COVERAGE_MULTIPLE_MODULES-xml-cobertura.xml');
                     if (fs.existsSync(filePathToDelete)) {
                         fs.unlink(filePathToDelete, () => {});
                     }
@@ -352,8 +352,8 @@ describe("Parasoft findings Azure", () => {
                     describe('- transform with java', () => {
                         it('- error', async () => {
                             spyOn(tl, 'execSync').and.returnValue({code: 1, stdout: 'error', stderr: 'error', error: new Error('error')});
-                            publisher.javaPath = `${__dirname}resources/toolRootPaths/java/bin/java.exe`;
-                            publisher.transformReports([`${__dirname}/resources/reports/XML_COVERAGE.xml`], 0);
+                            publisher.javaPath = path.join(__dirname, 'resources/toolRootPaths/java/bin/java.exe');
+                            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_COVERAGE.xml')], 0);
     
                             retryTimes = 2;
                             await waitForTransform();
@@ -367,8 +367,8 @@ describe("Parasoft findings Azure", () => {
                             
                             // Need to set JAVA_HOME environment or comment this test if this test is failed.
                             publisher.javaPath = tl.resolve(process.env.JAVA_HOME, 'bin', os.platform() == 'win32' ? "java.exe" : "java");
-                            const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
-                            let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-java_version-cobertura.xml`, 'utf8');
+                            const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE.xml')]
+                            let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE-java_version-cobertura.xml'), 'utf8');
                             await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
     
                             expect(tl.execSync).toHaveBeenCalled();
@@ -379,8 +379,8 @@ describe("Parasoft findings Azure", () => {
     
                     it('- transform with node by default', async () => {
                         publisher.javaPath = undefined;
-                        const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
-                        let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-node_version-cobertura.xml`, 'utf8');
+                        const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE.xml')]
+                        let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE-node_version-cobertura.xml'), 'utf8');
                         await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
     
                         expect(publisher.coberturaReports.length).toBe(1);
@@ -389,8 +389,8 @@ describe("Parasoft findings Azure", () => {
     
                 it('- external report', async () => {
                     publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
-                    const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE.xml`]
-                    let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml`, 'utf8');
+                    const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE.xml')]
+                    let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE-cobertura(for external report).xml'), 'utf8');
                     await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
     
                     expect(publisher.coberturaReports.length).toBe(1);
@@ -398,8 +398,8 @@ describe("Parasoft findings Azure", () => {
 
                 it('- multiple modules', async () => {
                     publisher.defaultWorkingDirectory = 'path:/not/math/with/uri/attribute/of/Loc/node';
-                    const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_MULTIPLE_MODULES.xml`]
-                    let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_MULTIPLE_MODULES-cobertura.xml`, 'utf8');
+                    const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE_MULTIPLE_MODULES.xml')]
+                    let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE_MULTIPLE_MODULES-cobertura.xml'), 'utf8');
                     await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
     
                     expect(publisher.coberturaReports.length).toBe(1);
@@ -409,15 +409,15 @@ describe("Parasoft findings Azure", () => {
             describe('multiple parasoft coverage reports', () => {
 
                 afterEach(() => {
-                    let filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_part1-xml-cobertura.xml`;
+                    let filePathToDelete = path.join(__dirname, 'resources/reports/XML_COVERAGE_part1-xml-cobertura.xml');
                     if (fs.existsSync(filePathToDelete)) {
                         fs.unlink(filePathToDelete, () => {});
                     }
-                    filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_part2-xml-cobertura.xml`;
+                    filePathToDelete = path.join(__dirname, 'resources/reports/XML_COVERAGE_part2-xml-cobertura.xml');
                     if (fs.existsSync(filePathToDelete)) {
                         fs.unlink(filePathToDelete, () => {});
                     }
-                    filePathToDelete = `${__dirname}/resources/reports/XML_COVERAGE_part2_with_conflict-xml-cobertura.xml`;
+                    filePathToDelete = path.join(__dirname, 'resources/reports/XML_COVERAGE_part2_with_conflict-xml-cobertura.xml');
                     if (fs.existsSync(filePathToDelete)) {
                         fs.unlink(filePathToDelete, () => {});
                     }
@@ -425,18 +425,18 @@ describe("Parasoft findings Azure", () => {
                 
                 describe('- reports are only from current task', () => {
                     it('and without class conflict', async () => {
-                        const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_part1.xml`, `${__dirname}/resources/reports/XML_COVERAGE_part2.xml`]
-                        let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_merged_part1&2.xml`, 'utf8');
+                        const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE_part1.xml'), path.join(__dirname, 'resources/reports/XML_COVERAGE_part2.xml')]
+                        let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE_merged_part1&2.xml'), 'utf8');
                         await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
         
                         expect(publisher.coberturaReports.length).toBe(2);
                     });
 
                     it('but with class conflict', async () => {
-                        const conflictParasoftReportPath = `${__dirname}/resources/reports/XML_COVERAGE_part2_with_conflict.xml`;
-                        const conflictCoberturaReportPath = `${__dirname}/resources/reports/XML_COVERAGE_part2_with_conflict-xml-cobertura.xml`;
-                        const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_part1.xml`, conflictParasoftReportPath]
-                        let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_merged_part1_without_part2.xml`, 'utf8');
+                        const conflictParasoftReportPath = path.join(__dirname, 'resources/reports/XML_COVERAGE_part2_with_conflict.xml');
+                        const conflictCoberturaReportPath = path.join(__dirname, 'resources/reports/XML_COVERAGE_part2_with_conflict-xml-cobertura.xml');
+                        const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE_part1.xml'), conflictParasoftReportPath]
+                        let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE_merged_part1_without_part2.xml'), 'utf8');
                         await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
         
                         expect(publisher.coberturaReports.length).toBe(2);
@@ -446,17 +446,17 @@ describe("Parasoft findings Azure", () => {
                 
 
                 it('- reports are from current task and previous task', async () => {
-                    const parasoftFindingsTempFolder = `${agentTempDirectory}/ParasoftFindings`;
-                    const mergedCoberturaReportFromArtifacts = `${parasoftFindingsTempFolder}/parasoft-merged-cobertura-from-artifact.xml`;
+                    const parasoftFindingsTempFolder = path.join(agentTempDirectory, 'ParasoftFindings');
+                    const mergedCoberturaReportFromArtifacts = path.join(parasoftFindingsTempFolder, 'parasoft-merged-cobertura-from-artifact.xml');
                     fs.mkdirSync(parasoftFindingsTempFolder, {recursive: true});
                     spyOn(publisher.coverageReportService.buildClient, 'getCoberturaReportsByBuildId').and.returnValue(
                         [{
                             name: "CoberturaContainer/parasoft-merged-cobertura.xml",
-                            contentsPromise: Promise.resolve(fs.readFileSync(`${__dirname}/resources/reports/XML_COVERAGE_part1-cobertura.xml`))
+                            contentsPromise: Promise.resolve(fs.readFileSync(path.join(__dirname, 'resources/reports/XML_COVERAGE_part1-cobertura.xml')))
                         }]);
 
-                    const parasoftCoverageReportsPath = [`${__dirname}/resources/reports/XML_COVERAGE_part2.xml`]
-                    let expectedCoberturaReportString = fs.readFileSync(`${__dirname}/resources/reports/expect/XML_COVERAGE_merged_part1&2.xml`, 'utf8');
+                    const parasoftCoverageReportsPath = [path.join(__dirname, 'resources/reports/XML_COVERAGE_part2.xml')]
+                    let expectedCoberturaReportString = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_COVERAGE_merged_part1&2.xml'), 'utf8');
                     await testTransformCoverageReport(parasoftCoverageReportsPath, expectedCoberturaReportString);
     
                     expect(publisher.coberturaReports.length).toBe(1);
@@ -794,7 +794,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('java from jtest installation', () => {
-            const jtestRootPath = __dirname + '/resources/toolRootPaths/jtest';
+            const jtestRootPath = path.join(__dirname, 'resources/toolRootPaths/jtest');
             const result = publisher.getJavaPath(jtestRootPath);
 
             expect(result).toContain('jtest');
@@ -803,7 +803,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('java from dottest installation', () => {
-            const dottestRootPath = __dirname + '/resources/toolRootPaths/dottest';
+            const dottestRootPath = path.join(__dirname, 'resources/toolRootPaths/dottest');
             const result = publisher.getJavaPath(dottestRootPath);
 
             expect(result).toContain('dottest');
@@ -812,7 +812,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('java from cpptest installation', () => {
-            const cpptestRootPath = __dirname + '/resources/toolRootPaths/cpptest';
+            const cpptestRootPath = path.join(__dirname, 'resources/toolRootPaths/cpptest');
             const result = publisher.getJavaPath(cpptestRootPath);
 
             expect(result).toContain('cpptest');
@@ -821,7 +821,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('java from java installation', () => {
-            const javaRootPath = __dirname + '/resources/toolRootPaths/java';
+            const javaRootPath = path.join(__dirname, 'resources/toolRootPaths/java');
             const result = publisher.getJavaPath(javaRootPath);
 
             expect(result).not.toContain('cpptest');
@@ -832,7 +832,7 @@ describe("Parasoft findings Azure", () => {
         });
 
         it('incorrect root path', () => {
-            const javaRootPath = __dirname + '/resources/toolRootPaths/nojava';
+            const javaRootPath = path.join(__dirname, 'resources/toolRootPaths/nojava');
             const result = publisher.getJavaPath(javaRootPath);
 
             expect(result).toBeUndefined();
