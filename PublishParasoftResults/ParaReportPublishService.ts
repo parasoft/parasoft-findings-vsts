@@ -475,6 +475,7 @@ export class ParaReportPublishService {
                 dtpBaseUrl = new URL(dtpUrl);
             } catch (err) {
                 tl.warning('Invalid dtp.url.');
+                tl.debug(String(err));
                 return '';
             }
         } else if (!this.isNullOrWhitespace(dtpServer)) {
@@ -482,6 +483,7 @@ export class ParaReportPublishService {
                 dtpBaseUrl = new URL('https://' + dtpServer);
             } catch (err) {
                 tl.warning('Invalid dtp.server.');
+                tl.debug(String(err));
                 return '';
             }
 
@@ -613,6 +615,7 @@ export class ParaReportPublishService {
             input = fs.readFileSync(localSettingsFile, 'utf-8');
         } catch (err) {
             tl.warning('Failed to read settings file.');
+            tl.debug(String(err));
             return null;
         }
 
@@ -620,6 +623,7 @@ export class ParaReportPublishService {
             return dp.parse(input, false) as ReadOnlyProperties;
         } catch (err) {
             tl.warning('Failed to parse settings file.');
+            tl.debug(String(err));
             return null;
         }
     }
