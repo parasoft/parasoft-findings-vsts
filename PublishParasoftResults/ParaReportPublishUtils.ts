@@ -32,6 +32,7 @@ export class ParaReportPublishUtils {
             return <string>tmpDir;
         } catch (err) {
             tl.warning('Please upgrade your agent version. https://github.com/Microsoft/vsts-agent/releases')
+            tl.debug(String(err));
             return os.tmpdir();
         }
     }

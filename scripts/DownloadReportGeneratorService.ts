@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import {AxiosInstance, AxiosRequestConfig} from '../PublishParasoftResults/node_modules/axios';
+import axios, {AxiosInstance, AxiosRequestConfig} from '../PublishParasoftResults/node_modules/axios';
 import * as AdmZip from 'adm-zip'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Axios: AxiosInstance = require('../PublishParasoftResults/node_modules/axios/dist/node/axios.cjs');
+const Axios: AxiosInstance = axios;
 
 export class DownloadReportGeneratorService {
 
