@@ -31,8 +31,8 @@ export class ParaReportPublishUtils {
             const tmpDir = tl.getVariable('Agent.TempDirectory');
             return <string>tmpDir;
         } catch (err) {
-            tl.debug(String(err));
             tl.warning('Please upgrade your agent version. https://github.com/Microsoft/vsts-agent/releases')
+            tl.debug(String(err));
             return os.tmpdir();
         }
     }
