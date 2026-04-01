@@ -189,6 +189,77 @@ describe("Parasoft findings Azure", () => {
         });
 
         describe('XML_TESTS', () => {
+            it('and the report is from cpptest 2025.2 pro', async () => {
+                publisher.transformReports([path.join(__dirname, 'resources/reports/cppTest_2025.2.0_pro_unit.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/cppTest_2025.2.0_pro_unit-xml-junit.xml'));
+
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/cppTest_2025.2.0_pro_unit-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/cppTest_2025.2.0_pro_unit-xml-junit.xml'), 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(path.join(__dirname, 'resources/reports/cppTest_2025.2.0_pro_unit-xml-junit.xml'), () => {});
+            });
+
+
+            it('and the report is from jtest 2025.2 and with zero total tests', async () => {
+                publisher.transformReports([path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_zero_total_test.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_zero_total_test-xml-junit.xml'));
+
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/jTest_2025.2.0_unit_zero_total_test-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_zero_total_test-xml-junit.xml'), 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_zero_total_test-xml-junit.xml'), () => {});
+            });
+
+            it('and the report is from jtest 2025.2 and and no ExecutedTestsDetails tag', async () => {
+                publisher.transformReports([path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag-xml-junit.xml'));
+
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag-xml-junit.xml'), 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(path.join(__dirname, 'resources/reports/jTest_2025.2.0_unit_no_ExecutedTestsDetails_tag-xml-junit.xml'), () => {});
+            });
+
+            it('and the report is from soatest 2025.3.0 and with zero total tests', async () => {
+                publisher.transformReports([path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_zero_total_test.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_zero_total_test-xml-junit.xml'));
+
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/SOAtest_functional_2025.3.0_zero_total_test-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_zero_total_test-xml-junit.xml'), 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_zero_total_test-xml-junit.xml'), () => {});
+            });
+
+            it('and the report is from soatest 2025.3.0 and no ExecutedTestsDetails tag', async () => {
+                publisher.transformReports([path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_no_ExecutedTestsDetails_tag.xml')], 0);
+                await waitForTransform(path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_no_ExecutedTestsDetails_tag-xml-junit.xml'));
+
+                let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/SOAtest_functional_2025.3.0_no_ExecutedTestsDetails_tag-xml-junit.xml'), 'utf8');
+                let result = fs.readFileSync(path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_no_ExecutedTestsDetails_tag-xml-junit.xml'), 'utf-8');
+
+                expect(result).toEqual(expectedReport);
+                expect(publisher.transform).toHaveBeenCalled();
+                expect(publisher.xUnitReports.length).toBe(1);
+
+                fs.unlink(path.join(__dirname, 'resources/reports/SOAtest_functional_2025.3.0_no_ExecutedTestsDetails_tag-xml-junit.xml'), () => {});
+            });
+
             it('and the report is from CPP', async () => {
                 publisher.transformReports([path.join(__dirname, 'resources/reports/XML_TESTS_CPP.xml')], 0);
                 await waitForTransform(path.join(__dirname, 'resources/reports/XML_TESTS_CPP-xml-junit.xml'));
