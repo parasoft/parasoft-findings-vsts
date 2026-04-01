@@ -1,5 +1,5 @@
 import {DownloadReportGeneratorService} from './DownloadReportGeneratorService'
-import {AxiosRequestConfig} from '../PublishParasoftResults/node_modules/axios';
+import {AxiosRequestConfig} from 'axios';
 
 // This script is used to download the report generator from GitHub and extract the necessary components into the PublishParasoftResults task. 
 // These components are used to generate HTML coverage report from XML coverage report.
