@@ -6,11 +6,15 @@
     <xsl:variable name="isLegacyMode" select="count(/ResultsSession/ExecutedTestsDetails) = 1"/>
     <xsl:variable name="isFunctionalResult" select="/ResultsSession/@toolName = 'SOAtest'"/>
     <xsl:variable name="useFullClassName" select="/ResultsSession/@toolName = 'C++test' or /ResultsSession/@toolId='c++test'" />
+    <xsl:variable name="isNoTest" select="count(/ResultsSession/Exec) = 1 and count(/ResultsSession/Exec/ExecutedTestsDetails) = 0"/>
 
     <xsl:param name="pipelineBuildWorkingDirectory"><xsl:value-of select="/ResultsSession/@pipelineBuildWorkingDirectory"/></xsl:param>
 
     <xsl:template match="/">
         <xsl:choose>
+            <xsl:when test="not($isLegacyMode = 'true') and not($isFunctionalResult = 'true') and ($isNoTest = 'true')">
+                <testsuites/>
+            </xsl:when>
             <xsl:when test="not($isLegacyMode = 'true') and not($isFunctionalResult = 'true')">
                 <!--  execution results 10.x  -->
                 <xsl:call-template name="processExecutionResults"/>
@@ -434,20 +438,20 @@
                  then also in C++Test Professional reports starting from 2024.1 when using -property report.additional.report.dir=<additional_report_dir>.
                  The value of the file attribute can only be found with this situation. -->
             <xsl:if test="/ResultsSession/Scope/Locations/Loc">
-                <xsl:choose>
-                    <!-- When "TestCase" node does not exist, use "locRef" of the current "Test" node for the test. -->
-                    <xsl:when test="$tcId = 'null'">
-                        <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
-                            <xsl:with-param name="testLocRef" select="@locRef"/>
-                        </xsl:apply-templates>
-                    </xsl:when>
-                    <!-- When "TestCase" node exists, use "locRef" of the nearest "Test" ancestor of the current node for the test. -->
-                    <xsl:otherwise>
-                        <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
-                            <xsl:with-param name="testLocRef" select="ancestor::Test[position()=1]/@locRef"/>
-                        </xsl:apply-templates>
-                    </xsl:otherwise>
-                </xsl:choose>
+            <xsl:choose>
+                <!-- When "TestCase" node does not exist, use "locRef" of the current "Test" node for the test. -->
+                <xsl:when test="$tcId = 'null'">
+                    <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
+                        <xsl:with-param name="testLocRef" select="@locRef"/>
+                    </xsl:apply-templates>
+                </xsl:when>
+                <!-- When "TestCase" node exists, use "locRef" of the nearest "Test" ancestor of the current node for the test. -->
+                <xsl:otherwise>
+                    <xsl:apply-templates select="/ResultsSession/Scope/Locations/Loc">
+                        <xsl:with-param name="testLocRef" select="ancestor::Test[position()=1]/@locRef"/>
+                    </xsl:apply-templates>
+                </xsl:otherwise>
+            </xsl:choose>
             </xsl:if>
         </xsl:attribute>
     </xsl:template>
