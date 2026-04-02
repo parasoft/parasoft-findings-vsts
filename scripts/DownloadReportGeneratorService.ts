@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import axios, {AxiosInstance, AxiosRequestConfig} from '../PublishParasoftResults/node_modules/axios';
+import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
 import * as AdmZip from 'adm-zip'
 const Axios: AxiosInstance = axios;
 
