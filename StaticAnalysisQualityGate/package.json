@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/q": "^1.5.5",
     "@types/node-fetch": "^2.6.5",
-    "license-checker-rseidelsohn": "^4.2.5"
+    "license-checker-rseidelsohn": "^4.4.2"
   },
   "dependencies": {
     "azure-devops-node-api": "^12.1.0",
