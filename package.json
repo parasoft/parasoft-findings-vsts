@@ -57,7 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "adm-zip": "^0.5.10",
-    "axios": "1.13.5",
+    "axios": "1.15.0",
     "del-cli": "^5.0.0",
     "eslint": "^8.56.0",
     "jasmine": "^5.0.0",
