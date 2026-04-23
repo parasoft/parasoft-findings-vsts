@@ -175,31 +175,31 @@
     
     <xsl:template name="rules_list">
         <xsl:for-each select="/ResultsSession/CodingStandards/Rules/CategoriesList/Category">
-            <xsl:call-template name="rules_category">
-                <xsl:with-param name="parentTags" select="''"/>
-            </xsl:call-template>
+            <xsl:call-template name="rules_category"/>
         </xsl:for-each>
     </xsl:template>
-    
+
     <xsl:template name="rules_category">
-        <xsl:param name="parentTags"/>
-        <xsl:variable name="category_desc"><xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="@desc" /></xsl:call-template></xsl:variable>
-        <xsl:variable name="tags" select="concat($qt,$category_desc,$qt)"/>
-        <xsl:variable name="appended_tags" select="if(string-length($parentTags) > 0) then concat($parentTags,', ',$tags) else $tags"/>
+        <xsl:variable name="appended_tags">
+            <xsl:for-each-group select="ancestor-or-self::Category/@desc[normalize-space()]" group-by=".">
+                <xsl:if test="position() > 1">, </xsl:if>
+                <xsl:text>"</xsl:text>
+                <xsl:call-template name="escape_illegal_chars"><xsl:with-param name="text" select="current-grouping-key()" /></xsl:call-template>
+                <xsl:text>"</xsl:text>
+            </xsl:for-each-group>
+        </xsl:variable>
         <xsl:variable name="cat" select="@name"/>
 
         <xsl:for-each select="/ResultsSession/CodingStandards/Rules/RulesList/Rule[@cat=($cat)]">
             <xsl:if test="$skip_not_violated_rules!='true' or string-length(@total)=0 or @total>0">
                 <xsl:call-template name="rule_descr">
-                    <xsl:with-param name="tags" select="$appended_tags"/>
+                    <xsl:with-param name="tags" select="string($appended_tags)"/>
                 </xsl:call-template>
             </xsl:if>
         </xsl:for-each>
 
         <xsl:for-each select="./Category">
-            <xsl:call-template name="rules_category">
-                <xsl:with-param name="parentTags" select="$appended_tags"/>
-            </xsl:call-template>
+            <xsl:call-template name="rules_category"/>
         </xsl:for-each>
     </xsl:template>
 
