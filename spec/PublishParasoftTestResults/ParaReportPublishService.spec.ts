@@ -173,19 +173,19 @@ describe("Parasoft findings Azure", () => {
             fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif'), () => {});
         });
 
-        it('XML_STATIC_UNKNOWN_RULE', async () => {
-            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_UNKNOWN_RULE.xml'));
-            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_UNKNOWN_RULE.xml')], 0);
-            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_UNKNOWN_RULE-xml-pf-sast.sarif'));
+        it('XML_STATIC_DUPLICATE_CATEGORY_DESC', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC.xml'));
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'));
 
-            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_UNKNOWN_RULE-xml-pf-sast.sarif'), 'utf8');
-            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_UNKNOWN_RULE-xml-pf-sast.sarif'), 'utf-8');
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'), 'utf-8');
 
             expect(result).toEqual(expectedReport);
             expect(publisher.transform).toHaveBeenCalled();
             expect(publisher.sarifReports.length).toBe(1);
 
-            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_UNKNOWN_RULE-xml-pf-sast.sarif'), () => {});
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'), () => {});
         });
 
         it('XML_STATIC_1 with multiple violations which have the same identify info, should generate unique unbViolId', async () => {
