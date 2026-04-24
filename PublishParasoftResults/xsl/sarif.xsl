@@ -180,7 +180,7 @@
     </xsl:template>
 
     <xsl:template name="rules_category">
-        <xsl:variable name="appended_tags">
+        <xsl:variable name="tags">
             <xsl:for-each-group select="ancestor-or-self::Category/@desc[normalize-space()]" group-by=".">
                 <xsl:if test="position() > 1">, </xsl:if>
                 <xsl:text>"</xsl:text>
@@ -193,7 +193,7 @@
         <xsl:for-each select="/ResultsSession/CodingStandards/Rules/RulesList/Rule[@cat=($cat)]">
             <xsl:if test="$skip_not_violated_rules!='true' or string-length(@total)=0 or @total>0">
                 <xsl:call-template name="rule_descr">
-                    <xsl:with-param name="tags" select="string($appended_tags)"/>
+                    <xsl:with-param name="tags" select="string($tags)"/>
                 </xsl:call-template>
             </xsl:if>
         </xsl:for-each>
