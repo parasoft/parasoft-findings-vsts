@@ -173,6 +173,21 @@ describe("Parasoft findings Azure", () => {
             fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_BD.PB.VOVR_RULE-xml-pf-sast.sarif'), () => {});
         });
 
+        it('XML_STATIC_DUPLICATE_CATEGORY_DESC', async () => {
+            mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC.xml'));
+            publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC.xml')], 0);
+            await waitForTransform(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'));
+
+            let expectedReport = fs.readFileSync(path.join(__dirname, 'resources/reports/expect/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'), 'utf8');
+            let result = fs.readFileSync(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'), 'utf-8');
+
+            expect(result).toEqual(expectedReport);
+            expect(publisher.transform).toHaveBeenCalled();
+            expect(publisher.sarifReports.length).toBe(1);
+
+            fs.unlink(path.join(__dirname, 'resources/reports/XML_STATIC_DUPLICATE_CATEGORY_DESC-xml-pf-sast.sarif'), () => {});
+        });
+
         it('XML_STATIC_1 with multiple violations which have the same identify info, should generate unique unbViolId', async () => {
             mockGenerateUniqueFileNameFunction.and.returnValue(path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml'));
             publisher.transformReports([path.join(__dirname, 'resources/reports/XML_STATIC_1-same_violations_with_different_unbViolId.xml')], 0);

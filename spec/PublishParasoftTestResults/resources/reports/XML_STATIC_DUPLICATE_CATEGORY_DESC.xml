@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='UTF-8'?><ResultsSession buildId="CICD_JavaProjectTemplate-2026-04-24" climode="true" endTime="2026-04-24T16:24:21+08:00" execEnv="win32_x86_64" hasViols="true" id="1775076997039" lang="en_US" machine="CD-user-02" prjModule="com.parasoft:project-with-default-package" project="CICD_JavaProjectTemplate" tag="user_test-com.parasoft:project-with-default-package-${scontrol_branch}-win32_x86_64" time="2026-04-24T16:24:11+08:00" toolDispName="Jtest" toolId="jtest" toolName="DTP Engine for Java" toolVer="2025.2.4" user="user">
+   <TestParameters cmdLn="jtestcli -data D:\Workspace\javaprojecttemplate\target\jtest\jtest.data.json -config jtest.dtp://user_test -settings D:\Workspace\javaprojecttemplate\localsettings.properties -report D:\Workspace\javaprojecttemplate\build\reports\static -fail false -monitor false"/>
+   <TestConfig machine="CD-user-02" name="user_test" pseudoUrl="jtest.dtp://user_test" user="user"/>
+   <Authors>
+      <Author id="dev1" name="user"/>
+   </Authors>
+   <Analyzers>
+      <Analyzer id="com.parasoft.jtest.mlearning" name="machinelearning" ver="10.7.3.202604080814"/>
+      <Analyzer id="com.parasoft.jtest.standards.metrics.analyzer" name="Parasoft Metrics Analyzer" ver="10.7.3.202604080814"/>
+      <Analyzer id="com.parasoft.jtest.standards.checkers.rulewizard" name="Parasoft RuleWizard Static Analyzer" ver="10.7.3.202604080814"/>
+   </Analyzers>
+   <VersionInfos>
+      <StorageInfo ownerId="" resultId="ISetupResult" ver="1" ver10x="1"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IMetricsViolation" ver="2" ver10x="1"/>
+      <StorageInfo ownerId="" resultId="IExecutionViolation" ver="1" ver10x="1"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IDupCodeViolation" ver="2" ver10x="1"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="IFlowAnalysisViolation" ver="2" ver10x="1"/>
+      <StorageInfo ownerId="" resultId="IFunctionalViolation" ver="1" ver10x="1"/>
+      <StorageInfo ownerId="" resultId="IChangeImpactViolation" ver="1" ver10x="1"/>
+      <StorageInfo ownerId="com.parasoft.xtest.checkers.api.standards" resultId="ICodingStandardsViolation" ver="2" ver10x="1"/>
+      <StorageInfo ownerId="" resultId="IUnitTestViolation" ver="1" ver10x="1"/>
+   </VersionInfos>
+   <Goals tsks="1">
+      
+   </Goals>
+   <Metrics>
+      <Metric avg="0.5" disp="true" id="METRIC.CBO" max="2" min="0" name="Coupling Between Objects" noi="12" stddev="0.764">
+         <Info avg="0.5" disp="true" elem="com.parasoft:project-with-default-package" max="2" min="0" noi="12" stddev="0.764"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.CC" max="1" min="1" name="McCabe Cyclomatic Complexity" noi="18" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.CLLOCRIF" max="0" min="0" name="Comment/Logical Lines in Files" noi="6" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="6" stddev="0"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.CLLOCRIM" max="0" min="0" name="Comment/Logical Lines in Methods" noi="16" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="16" stddev="0"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.CLLOCRIT" max="0" min="0" name="Comment/Logical Lines in Types" noi="8" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="8" stddev="0"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.ECC" max="1" min="1" name="Essential Cyclomatic Complexity" noi="18" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="0.5" disp="true" id="METRIC.FO" max="2" min="0" name="Fan Out" noi="10" stddev="0.671">
+         <Info avg="0.5" disp="true" elem="com.parasoft:project-with-default-package" max="2" min="0" noi="10" stddev="0.671"/>
+      </Metric>
+      <Metric avg="3.233" disp="true" id="METRIC.HDIFM" max="7" min="0.5" name="Halstead Difficulty" noi="18" stddev="1.739">
+         <Info avg="3.233" disp="true" elem="com.parasoft:project-with-default-package" max="7" min="0.5" noi="18" stddev="1.739"/>
+      </Metric>
+      <Metric avg="208.047" disp="true" id="METRIC.HEFM" max="1163.358" min="2.377" name="Halstead Effort" noi="18" stddev="287.441">
+         <Info avg="208.047" disp="true" elem="com.parasoft:project-with-default-package" max="1163.358" min="2.377" noi="18" stddev="287.441"/>
+      </Metric>
+      <Metric avg="13.336" disp="true" id="METRIC.HICM" max="24.123" min="8.242" name="Halstead Intelligent Content" noi="18" stddev="4.693">
+         <Info avg="13.336" disp="true" elem="com.parasoft:project-with-default-package" max="24.123" min="8.242" noi="18" stddev="4.693"/>
+      </Metric>
+      <Metric avg="13.5" disp="true" id="METRIC.HLENM" max="44" min="3" name="Halstead Program Length" noi="18" stddev="9.335">
+         <Info avg="13.5" disp="true" elem="com.parasoft:project-with-default-package" max="44" min="3" noi="18" stddev="9.335"/>
+      </Metric>
+      <Metric avg="0.511" disp="true" id="METRIC.HLEVM" max="2" min="0.143" name="Halstead Program Level" noi="18" stddev="0.537">
+         <Info avg="0.511" disp="true" elem="com.parasoft:project-with-default-package" max="2" min="0.143" noi="18" stddev="0.537"/>
+      </Metric>
+      <Metric avg="0.01" disp="true" id="METRIC.HNOBM" max="0.037" min="0.001" name="Halstead Number of Bugs" noi="18" stddev="0.009">
+         <Info avg="0.01" disp="true" elem="com.parasoft:project-with-default-package" max="0.037" min="0.001" noi="18" stddev="0.009"/>
+      </Metric>
+      <Metric avg="11.558" disp="true" id="METRIC.HTTPM" max="64.631" min="0.132" name="Halstead Time to Program" noi="18" stddev="15.969">
+         <Info avg="11.558" disp="true" elem="com.parasoft:project-with-default-package" max="64.631" min="0.132" noi="18" stddev="15.969"/>
+      </Metric>
+      <Metric avg="9.556" disp="true" id="METRIC.HVOCM" max="16" min="3" name="Halstead Program Vocabulary" noi="18" stddev="3.287">
+         <Info avg="9.556" disp="true" elem="com.parasoft:project-with-default-package" max="16" min="3" noi="18" stddev="3.287"/>
+      </Metric>
+      <Metric avg="46.558" disp="true" id="METRIC.HVOLM" max="167.524" min="4.755" name="Halstead Program Volume" noi="18" stddev="38.013">
+         <Info avg="46.558" disp="true" elem="com.parasoft:project-with-default-package" max="167.524" min="4.755" noi="18" stddev="38.013"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.IDOC" max="1" min="1" name="Inheritance Depth of Class" noi="7" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="7" stddev="0"/>
+      </Metric>
+      <Metric avg="0.021" disp="true" id="METRIC.LCOM" max="0.25" min="0" name="Lack of Cohesion" noi="12" stddev="0.069">
+         <Info avg="0.021" disp="true" elem="com.parasoft:project-with-default-package" max="0.25" min="0" noi="12" stddev="0.069"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.MCC" max="1" min="1" name="Modified Cyclomatic Complexity" noi="18" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="127.439" disp="true" id="METRIC.MI" max="133.922" min="110.469" name="Maintainability Index" noi="7" stddev="8.806">
+         <Info avg="127.439" disp="true" elem="com.parasoft:project-with-default-package" max="133.922" min="110.469" noi="7" stddev="8.806"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.NBD" max="0" min="0" name="Nested Blocks Depth" noi="18" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="4" disp="true" id="METRIC.NOBLIF" max="12" min="1" name="Blank Lines in Files" noi="7" stddev="3.625">
+         <Info avg="4" disp="true" elem="com.parasoft:project-with-default-package" max="12" min="1" noi="7" stddev="3.625"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.NOBLIM" max="0" min="0" name="Blank Lines in Methods" noi="18" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="1.5" disp="true" id="METRIC.NOBLIT" max="6" min="0" name="Blank Lines in Types" noi="12" stddev="1.848">
+         <Info avg="1.5" disp="true" elem="com.parasoft:project-with-default-package" max="6" min="0" noi="12" stddev="1.848"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.NOC" max="1" min="1" name="Number of Classes" noi="7" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="7" stddev="0"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.NOCLIF" max="0" min="0" name="Comment Lines in Files" noi="7" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="7" stddev="0"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.NOCLIM" max="0" min="0" name="Comment Lines in Methods" noi="18" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.NOCLIT" max="0" min="0" name="Comment Lines in Types" noi="12" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="12" stddev="0"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.NOF" max="1" min="1" name="Number of Files" noi="7" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="7" stddev="0"/>
+      </Metric>
+      <Metric avg="4.143" disp="true" id="METRIC.NOLLOCIF" max="9" min="0" name="Logical Lines in Files" noi="7" stddev="3.044">
+         <Info avg="4.143" disp="true" elem="com.parasoft:project-with-default-package" max="9" min="0" noi="7" stddev="3.044"/>
+      </Metric>
+      <Metric avg="1.556" disp="true" id="METRIC.NOLLOCIM" max="6" min="0" name="Logical Lines in Methods" noi="18" stddev="1.383">
+         <Info avg="1.556" disp="true" elem="com.parasoft:project-with-default-package" max="6" min="0" noi="18" stddev="1.383"/>
+      </Metric>
+      <Metric avg="2.417" disp="true" id="METRIC.NOLLOCIT" max="8" min="0" name="Logical Lines in Types" noi="12" stddev="2.564">
+         <Info avg="2.417" disp="true" elem="com.parasoft:project-with-default-package" max="8" min="0" noi="12" stddev="2.564"/>
+      </Metric>
+      <Metric avg="1.5" disp="true" id="METRIC.NOMIT" max="6" min="0" name="Number of Methods in Types" noi="12" stddev="1.5">
+         <Info avg="1.5" disp="true" elem="com.parasoft:project-with-default-package" max="6" min="0" noi="12" stddev="1.5"/>
+      </Metric>
+      <Metric avg="0.556" disp="true" id="METRIC.NOPAR" max="2" min="0" name="Parameters of Methods" noi="18" stddev="0.762">
+         <Info avg="0.556" disp="true" elem="com.parasoft:project-with-default-package" max="2" min="0" noi="18" stddev="0.762"/>
+      </Metric>
+      <Metric avg="19" disp="true" id="METRIC.NOPLIF" max="50" min="5" name="Physical Lines in Files" noi="7" stddev="14.383">
+         <Info avg="19" disp="true" elem="com.parasoft:project-with-default-package" max="50" min="5" noi="7" stddev="14.383"/>
+      </Metric>
+      <Metric avg="3.444" disp="true" id="METRIC.NOPLIM" max="8" min="1" name="Physical Lines in Methods" noi="18" stddev="1.536">
+         <Info avg="3.444" disp="true" elem="com.parasoft:project-with-default-package" max="8" min="1" noi="18" stddev="1.536"/>
+      </Metric>
+      <Metric avg="9.25" disp="true" id="METRIC.NOPLIT" max="30" min="3" name="Physical Lines in Types" noi="12" stddev="7.213">
+         <Info avg="9.25" disp="true" elem="com.parasoft:project-with-default-package" max="30" min="3" noi="12" stddev="7.213"/>
+      </Metric>
+      <Metric avg="0.333" disp="true" id="METRIC.NOPRIVMIT" max="2" min="0" name="Private Members of Types" noi="12" stddev="0.624">
+         <Info avg="0.333" disp="true" elem="com.parasoft:project-with-default-package" max="2" min="0" noi="12" stddev="0.624"/>
+      </Metric>
+      <Metric avg="0" disp="true" id="METRIC.NOPROTMIT" max="0" min="0" name="Protected Members of Types" noi="12" stddev="0">
+         <Info avg="0" disp="true" elem="com.parasoft:project-with-default-package" max="0" min="0" noi="12" stddev="0"/>
+      </Metric>
+      <Metric avg="2.167" disp="true" id="METRIC.NOPUBMIT" max="6" min="0" name="Public Members of Types" noi="12" stddev="1.724">
+         <Info avg="2.167" disp="true" elem="com.parasoft:project-with-default-package" max="6" min="0" noi="12" stddev="1.724"/>
+      </Metric>
+      <Metric avg="0.556" disp="true" id="METRIC.NORET" max="1" min="0" name="Number of Returns in Methods" noi="18" stddev="0.497">
+         <Info avg="0.556" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="0" noi="18" stddev="0.497"/>
+      </Metric>
+      <Metric avg="15" disp="true" id="METRIC.NOSLIF" max="38" min="4" name="Source Lines in Files" noi="7" stddev="10.797">
+         <Info avg="15" disp="true" elem="com.parasoft:project-with-default-package" max="38" min="4" noi="7" stddev="10.797"/>
+      </Metric>
+      <Metric avg="3.444" disp="true" id="METRIC.NOSLIM" max="8" min="1" name="Source Lines in Methods" noi="18" stddev="1.536">
+         <Info avg="3.444" disp="true" elem="com.parasoft:project-with-default-package" max="8" min="1" noi="18" stddev="1.536"/>
+      </Metric>
+      <Metric avg="7.75" disp="true" id="METRIC.NOSLIT" max="24" min="3" name="Source Lines in Types" noi="12" stddev="5.673">
+         <Info avg="7.75" disp="true" elem="com.parasoft:project-with-default-package" max="24" min="3" noi="12" stddev="5.673"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.NOT" max="1" min="1" name="Number of Types" noi="12" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="12" stddev="0"/>
+      </Metric>
+      <Metric avg="2.5" disp="true" id="METRIC.RFC" max="7" min="0" name="Response for Class" noi="12" stddev="2.141">
+         <Info avg="2.5" disp="true" elem="com.parasoft:project-with-default-package" max="7" min="0" noi="12" stddev="2.141"/>
+      </Metric>
+      <Metric avg="1" disp="true" id="METRIC.SCC" max="1" min="1" name="Strict Cyclomatic Complexity" noi="18" stddev="0">
+         <Info avg="1" disp="true" elem="com.parasoft:project-with-default-package" max="1" min="1" noi="18" stddev="0"/>
+      </Metric>
+      <Metric avg="1.5" disp="true" id="METRIC.WMC" max="6" min="0" name="Weighted Methods of Class" noi="12" stddev="1.5">
+         <Info avg="1.5" disp="true" elem="com.parasoft:project-with-default-package" max="6" min="0" noi="12" stddev="1.5"/>
+      </Metric>
+   </Metrics>
+   <Scope>
+      <Repositories/>
+      <Locations>
+         <Loc hash="-654135826" jtestScopeFiltered="true" locRef="1" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/Calculator.java" totLns="28" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/Calculator.java"/>
+         <Loc hash="-662881149" jtestScopeFiltered="true" locRef="2" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/Convertor.java" totLns="14" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/com/parasoft/Convertor.java"/>
+         <Loc hash="469181545" jtestScopeFiltered="true" locRef="3" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/another/Convertor.java" totLns="14" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/com/parasoft/another/Convertor.java"/>
+         <Loc hash="473374080" jtestScopeFiltered="true" locRef="4" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/differentViolations/GenerateViolations.java" totLns="15" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/com/parasoft/differentViolations/GenerateViolations.java"/>
+         <Loc hash="-1706285489" jtestScopeFiltered="true" locRef="5" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/interfaces/IConvertor.java" totLns="5" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/com/parasoft/interfaces/IConvertor.java"/>
+         <Loc hash="1200206342" jtestScopeFiltered="true" locRef="6" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/interfaces2/ICalculator.java" totLns="7" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/com/parasoft/interfaces2/ICalculator.java"/>
+         <Loc hash="-1917579824" jtestScopeFiltered="true" locRef="7" projId="com.parasoft:project-with-default-package" projPath="/com.parasoft:project-with-default-package" project="com.parasoft:project-with-default-package" resProjPath="src/main/java/com/parasoft/nested/PhoneFactory.java" totLns="50" uri="file:/D:/Workspace/javaprojecttemplate/src/main/java/com/parasoft/nested/PhoneFactory.java"/>
+      </Locations>
+   </Scope>
+
+   <CodingStandards ownerId="com.parasoft.xtest.checkers.api.standards" time="0:00:00">
+      <Projects>
+         <Project bdCheckedFiles="0" bdTotalFiles="0" checkedFiles="7" checkedLns="133" id="com.parasoft:project-with-default-package" name="com.parasoft:project-with-default-package" qfixErrs="0" suppErrs="0" totErrs="1" totFiles="7" totLns="133"/>
+      </Projects>
+
+
+      <Rules>
+         <CategoriesList>
+            <Category authTot="0;" authUrg="0;" desc="DUPLICATE_CATEGORY_DESC" name="A" rules="1" total="0">
+               <Category authTot="1;" authUrg="1;" desc="DUPLICATE_CATEGORY_DESC" name="A.B" rules="1" total="1"/>
+            </Category>
+         </CategoriesList>
+         <RulesList>
+            <Rule analyzer="com.parasoft.jtest.standards.checkers.rulewizard" authTot="1;" authUrg="1;" cat="A.B" desc="headerTest" id="A.B.C" sev="3" total="1"/>
+         </RulesList>
+         <SeverityList>
+            <Severity authTot="1;" authUrg="1;" id="3" total="1"/>
+         </SeverityList>
+      </Rules>
+      
+  <Supps/>
+
+      
+  <StdViols>
+    <StdViol msg="Replace this with your own text" ln="7" locFile="/com.parasoft:project-with-default-package/src/main/java/Calculator.java" auth="user" rule="A.B.C" lnHash="1212814815" pkg="" rule.header="headerTest" locStartPos="12" analyzer="com.parasoft.jtest.standards.checkers.rulewizard" lang="java" violId="7614b82b-067f-3906-beee-e49a4f29ccc2" locEndPos="19" urgent="true" locEndLn="7" goals="1," locStartln="7" sev="3" locRef="1" ctx="6,4|11,5" tool="jtest" lineHash="1212814815" unbViolId="f3b33ad2-1659-3d9c-ab45-1e3c88b18259" locType="sr" hash="-654135826"/>
+  </StdViols>
+
+      <TestedFilesDetails>
+         <Total name="Total (Suppressed)" supp="0" total="1">
+            <Project id="com.parasoft:project-with-default-package" name="com.parasoft:project-with-default-package" supp="0" total="1">
+               <Res name="src" supp="0" total="1">
+                  <Res name="main" supp="0" total="1">
+                     <Res name="java" supp="0" total="1">
+                        <Res loc="/com.parasoft:project-with-default-package/src/main/java/Calculator.java" locRef="1" locType="sr" name="Calculator.java" supp="0" total="1"/>
+                        <Res name="com" supp="0" total="0">
+                           <Res name="parasoft" supp="0" total="0">
+                              <Res loc="/com.parasoft:project-with-default-package/src/main/java/com/parasoft/Convertor.java" locRef="2" locType="sr" name="Convertor.java" supp="0" total="0"/>
+                              <Res name="another" supp="0" total="0">
+                                 <Res loc="/com.parasoft:project-with-default-package/src/main/java/com/parasoft/another/Convertor.java" locRef="3" locType="sr" name="Convertor.java" supp="0" total="0"/>
+                              </Res>
+                              <Res name="differentViolations" supp="0" total="0">
+                                 <Res loc="/com.parasoft:project-with-default-package/src/main/java/com/parasoft/differentViolations/GenerateViolations.java" locRef="4" locType="sr" name="GenerateViolations.java" supp="0" total="0"/>
+                              </Res>
+                              <Res name="interfaces" supp="0" total="0">
+                                 <Res loc="/com.parasoft:project-with-default-package/src/main/java/com/parasoft/interfaces/IConvertor.java" locRef="5" locType="sr" name="IConvertor.java" supp="0" total="0"/>
+                              </Res>
+                              <Res name="interfaces2" supp="0" total="0">
+                                 <Res loc="/com.parasoft:project-with-default-package/src/main/java/com/parasoft/interfaces2/ICalculator.java" locRef="6" locType="sr" name="ICalculator.java" supp="0" total="0"/>
+                              </Res>
+                              <Res name="nested" supp="0" total="0">
+                                 <Res loc="/com.parasoft:project-with-default-package/src/main/java/com/parasoft/nested/PhoneFactory.java" locRef="7" locType="sr" name="PhoneFactory.java" supp="0" total="0"/>
+                              </Res>
+                           </Res>
+                        </Res>
+                     </Res>
+                  </Res>
+               </Res>
+            </Project>
+         </Total>
+      </TestedFilesDetails>
+   </CodingStandards>
+   <Statistics>
+      
+   </Statistics>
+</ResultsSession>
