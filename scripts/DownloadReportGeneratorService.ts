@@ -5,7 +5,7 @@ const Axios: AxiosInstance = axios;
 
 export class DownloadReportGeneratorService {
 
-    download = (option: AxiosRequestConfig<unknown>, pathToStore: string, callback: () => void): Promise<unknown> => {
+    download = (option: AxiosRequestConfig<any>, pathToStore: string, callback: () => void): Promise<unknown> => {
         return Axios(option).then(res => {
             if (res.status == 200) {
                 res.data.on("end", () => {
