@@ -524,7 +524,6 @@
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
     },
-
     "jline@2.14.6": {
         "licenses": "The 2-Clause BSD License",
         "publisher": "the original author or authors",
