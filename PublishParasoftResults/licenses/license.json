@@ -525,7 +525,7 @@
         "publisher": "Saxonica"
     },
     "jline@2.14.6": {
-        "licenses": "The 2-Clause BSD License",
+        "licenses": "The 3-Clause BSD License",
         "publisher": "the original author or authors",
         "repository": "https://github.com/jline/jline2"
     },
