@@ -106,7 +106,7 @@
       "externalReferences": [
         {
           "type": "license",
-          "url": "https://github.com/Saxonica/Saxon-HE/blob/SaxonHE12-2/README.md"
+          "url": "http://www.mozilla.org/MPL/2.0/"
         },
         {
           "type": "website",
@@ -130,7 +130,7 @@
         },
         {
           "type": "other",
-          "url": "https://github.com/Saxonica/Saxon-HE/tree/SaxonHE12-2"
+          "url": "https://central.sonatype.com/artifact/net.sf.saxon/Saxon-HE/12.2"
         }
       ]
     },
