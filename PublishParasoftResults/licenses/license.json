@@ -26,7 +26,7 @@
         "publisher": "Alex Indigo",
         "repository": "https://github.com/alexindigo/asynckit"
     },
-    "axios@1.13.6": {
+    "axios@1.15.0": {
         "licenses": "MIT",
         "publisher": "Matt Zabriskie",
         "repository": "https://github.com/axios/axios"
@@ -36,7 +36,7 @@
         "publisher": "Microsoft Corporation",
         "repository": "https://github.com/Microsoft/azure-devops-node-api"
     },
-    "azure-pipelines-task-lib@5.2.8": {
+    "azure-pipelines-task-lib@5.2.10": {
         "licenses": "MIT",
         "publisher": "Microsoft",
         "repository": "https://github.com/Microsoft/azure-pipelines-task-lib"
@@ -146,7 +146,7 @@
         "publisher": "Jon Schlinkert",
         "repository": "https://github.com/jonschlinkert/fill-range"
     },
-    "follow-redirects@1.15.11": {
+    "follow-redirects@1.16.0": {
         "licenses": "MIT",
         "publisher": "Ruben Verborgh",
         "repository": "https://github.com/follow-redirects/follow-redirects"
@@ -347,7 +347,7 @@
         "licenses": "MIT",
         "repository": "https://github.com/calvinmetcalf/process-nextick-args"
     },
-    "proxy-from-env@1.1.0": {
+    "proxy-from-env@2.1.0": {
         "licenses": "MIT",
         "publisher": "Rob Wu",
         "repository": "https://github.com/Rob--W/proxy-from-env"
@@ -497,11 +497,11 @@
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/util-deprecate"
     },
-    "uuid@3.4.0": {
+    "uuid@14.0.0": {
         "licenses": "MIT",
         "repository": "https://github.com/uuidjs/uuid"
     },
-    "uuid@9.0.1": {
+    "uuid@3.4.0": {
         "licenses": "MIT",
         "repository": "https://github.com/uuidjs/uuid"
     },
@@ -523,5 +523,24 @@
     "xslt3@2.7.0": {
         "licenses": "Custom: LICENSE.txt",
         "publisher": "Saxonica"
+    },
+    "jline@2.14.6": {
+        "licenses": "The 3-Clause BSD License",
+        "publisher": "the original author or authors",
+        "repository": "https://github.com/jline/jline2"
+    },
+    "reportGenerator@5.1.21": {
+        "licenses": "Apache License, Version 2.0",
+        "repository": "https://github.com/danielpalme/ReportGenerator"
+    },
+    "saxon-he@12.2": {
+        "licenses": "Mozilla Public License Version 2.0",
+        "publisher": "Saxonica",
+        "repository": "https://github.com/Saxonica/Saxon-HE"
+    },
+    "xmlresolver@5.1.2": {
+        "licenses": "Apache License, Version 2.0",
+        "publisher": "Norman Walsh and contributors",
+        "repository": "https://github.com/xmlresolver/xmlresolver"
     }
 }

@@ -1,0 +1,183 @@
+{
+  "components": [
+    {
+      "type": "library",
+      "group": "jline",
+      "name": "jline",
+      "version": "2.14.6",
+      "purl": "pkg:maven/jline/jline@2.14.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause",
+            "url": "https://opensource.org/license/bsd-3-clause"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "license",
+          "url": "https://github.com/jline/jline2/blob/jline-2.14.6/LICENSE.txt"
+        },
+        {
+          "type": "website",
+          "url": "https://jline.org"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/jline/jline2.git"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/jline/jline2/issues"
+        },
+        {
+          "type": "build-meta",
+          "url": "https://repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.pom"
+        },
+        {
+          "type": "distribution",
+          "url": "https://repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.jar"
+        },
+        {
+          "type": "other",
+          "url": "https://github.com/jline/jline2/tree/jline-2.14.6"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "ReportGenerator",
+      "version": "5.1.21",
+      "purl": "pkg:nuget/ReportGenerator@5.1.21",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "license",
+          "url": "https://github.com/danielpalme/ReportGenerator/blob/main/LICENSE.txt"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/danielpalme/ReportGenerator"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/danielpalme/ReportGenerator.git"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/danielpalme/ReportGenerator/issues"
+        },
+        {
+          "type": "build-meta",
+          "url": "https://www.nuget.org/api/v2/package/dotnet-reportgenerator-globaltool/5.1.21"
+        },
+        {
+          "type": "distribution",
+          "url": "https://www.nuget.org/api/v2/package/dotnet-reportgenerator-globaltool/5.1.21"
+        },
+        {
+          "type": "other",
+          "url": "https://github.com/danielpalme/ReportGenerator/tree/v5.1.21"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "group": "net.sf.saxon",
+      "name": "Saxon-HE",
+      "version": "12.2",
+      "purl": "pkg:maven/net.sf.saxon/Saxon-HE@12.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MPL-2.0",
+            "url": "https://www.mozilla.org/MPL/2.0"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "license",
+          "url": "http://www.mozilla.org/MPL/2.0/"
+        },
+        {
+          "type": "website",
+          "url": "https://www.saxonica.com"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Saxonica/Saxon-HE.git"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/Saxonica/Saxon-HE/issues"
+        },
+        {
+          "type": "build-meta",
+          "url": "https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.2/Saxon-HE-12.2.pom"
+        },
+        {
+          "type": "distribution",
+          "url": "https://repo1.maven.org/maven2/net/sf/saxon/Saxon-HE/12.2/Saxon-HE-12.2.jar"
+        },
+        {
+          "type": "other",
+          "url": "https://central.sonatype.com/artifact/net.sf.saxon/Saxon-HE/12.2"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "group": "org.xmlresolver",
+      "name": "xmlresolver",
+      "version": "5.1.2",
+      "purl": "pkg:maven/org.xmlresolver/xmlresolver@5.1.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "license",
+          "url": "https://github.com/xmlresolver/xmlresolver/blob/5.1.2/LICENSE.md"
+        },
+        {
+          "type": "website",
+          "url": "https://xmlresolver.org"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/xmlresolver/xmlresolver.git"
+        },
+        {
+          "type": "issue-tracker",
+          "url": "https://github.com/xmlresolver/xmlresolver/issues"
+        },
+        {
+          "type": "build-meta",
+          "url": "https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/5.1.2/xmlresolver-5.1.2.pom"
+        },
+        {
+          "type": "distribution",
+          "url": "https://repo1.maven.org/maven2/org/xmlresolver/xmlresolver/5.1.2/xmlresolver-5.1.2.jar"
+        },
+        {
+          "type": "other",
+          "url": "https://github.com/xmlresolver/xmlresolver/tree/5.1.2"
+        }
+      ]
+    }
+  ]
+}

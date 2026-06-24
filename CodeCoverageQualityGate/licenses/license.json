@@ -120,7 +120,7 @@
         "publisher": "Jon Schlinkert",
         "repository": "https://github.com/jonschlinkert/fill-range"
     },
-    "follow-redirects@1.15.6": {
+    "follow-redirects@1.16.0": {
         "licenses": "MIT",
         "publisher": "Ruben Verborgh",
         "repository": "https://github.com/follow-redirects/follow-redirects"
