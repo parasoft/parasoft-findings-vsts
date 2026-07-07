@@ -1,5 +1,5 @@
 import {AxiosRequestConfig} from 'axios';
-import * as fs from 'fs';
+import fs = require('fs');
 import {DownloadReportGeneratorService} from "../../scripts/DownloadReportGeneratorService";
 
 let downloadService: DownloadReportGeneratorService;

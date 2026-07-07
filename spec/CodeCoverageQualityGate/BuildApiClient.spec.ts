@@ -1,7 +1,7 @@
 import { BuildAPIClient } from '../../CodeCoverageQualityGate/BuildApiClient';
 import * as azdev from '../../CodeCoverageQualityGate/node_modules/azure-devops-node-api';
 import * as tl from '../../CodeCoverageQualityGate/node_modules/azure-pipelines-task-lib';
-import * as JSZip from '../../CodeCoverageQualityGate/node_modules/jszip';
+import JSZip = require('../../CodeCoverageQualityGate/node_modules/jszip');
 
 let buildClient: any;
 

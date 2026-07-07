@@ -1,8 +1,8 @@
 import * as tl from '../../PublishParasoftResults/node_modules/azure-pipelines-task-lib';
 import * as azdev from '../../PublishParasoftResults/node_modules/azure-devops-node-api';
-import * as fs from 'fs';
+import fs = require('fs');
 import * as os from 'os';
-import * as dp from "../../PublishParasoftResults/node_modules/dot-properties";
+import dp = require("../../PublishParasoftResults/node_modules/dot-properties");
 import * as path from 'path';
 import { ParaReportPublishService } from "../../PublishParasoftResults/ParaReportPublishService";
 const axios = require('../../PublishParasoftResults/node_modules/axios/dist/node/axios.cjs');

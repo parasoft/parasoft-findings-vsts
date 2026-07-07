@@ -26,8 +26,12 @@ import {CoverageReportService} from "./CoverageReportService";
 import {StaticAnalysisReportService} from "./StaticAnalysisReportService";
 import {ParaReportPublishUtils} from "./ParaReportPublishUtils";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
+// Keep compatibility with sax versions that expose MAX_BUFFER_LENGTH as read-only.
+const saxMaxBufferDescriptor = Object.getOwnPropertyDescriptor(sax, 'MAX_BUFFER_LENGTH');
+if (!saxMaxBufferDescriptor || saxMaxBufferDescriptor.writable || saxMaxBufferDescriptor.set) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (sax as any).MAX_BUFFER_LENGTH = 2 * 1024 * 1024 * 1024; // 2GB
+}
 
 export interface ReadOnlyProperties {
     readonly [key: string]: string

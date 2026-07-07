@@ -1,7 +1,7 @@
 import { BuildAPIClient } from '../../PublishParasoftResults/BuildApiClient';
 import * as azdev from '../../PublishParasoftResults/node_modules/azure-devops-node-api';
 import * as tl from '../../PublishParasoftResults/node_modules/azure-pipelines-task-lib';
-import * as JSZip from '../../PublishParasoftResults/node_modules/jszip';
+import JSZip = require('../../PublishParasoftResults/node_modules/jszip');
 
 let buildClient: any;
 

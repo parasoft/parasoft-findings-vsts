@@ -15,7 +15,8 @@
  */
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as sax from 'sax';
-import * as DiffMatchPatch from "diff-match-patch";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import DiffMatchPatch = require("diff-match-patch");
 import { Diff } from "diff-match-patch";
 import { BuildArtifact, BuildResult } from 'azure-devops-node-api/interfaces/BuildInterfaces';
 import { BuildAPIClient, FileEntry } from './BuildApiClient';

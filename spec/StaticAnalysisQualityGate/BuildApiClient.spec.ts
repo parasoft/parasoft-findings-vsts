@@ -1,7 +1,7 @@
 import * as azdev from '../../StaticAnalysisQualityGate/node_modules/azure-devops-node-api';
 import { BuildAPIClient } from "../../StaticAnalysisQualityGate/BuildApiClient";
 import * as tl from '../../StaticAnalysisQualityGate/node_modules/azure-pipelines-task-lib';
-import * as JSZip from '../../StaticAnalysisQualityGate/node_modules/jszip';
+import JSZip = require('../../StaticAnalysisQualityGate/node_modules/jszip');
 
 let buildClient: any;
 

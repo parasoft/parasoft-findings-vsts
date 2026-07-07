@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
-import * as AdmZip from 'adm-zip'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import AdmZip = require('adm-zip')
 const Axios: AxiosInstance = axios;
 
 export class DownloadReportGeneratorService {
@@ -9,10 +10,6 @@ export class DownloadReportGeneratorService {
     download = (option: AxiosRequestConfig<any>, pathToStore: string, callback: () => void): Promise<unknown> => {
         return Axios(option).then(res => {
             if (res.status == 200) {
-                res.data.on("end", () => {
-                    console.log("Report Generator: Download completed");
-                    callback();
-                });
                 const writer = fs.createWriteStream(pathToStore);
                 return new Promise((resolve, reject) => {
                     res.data.pipe(writer);
@@ -24,6 +21,8 @@ export class DownloadReportGeneratorService {
                     });
                     writer.on('close', () => {
                         if (!error) {
+                            console.log("Report Generator: Download completed");
+                            callback();
                             resolve(true);
                         }
                     });
