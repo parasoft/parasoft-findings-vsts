@@ -37,7 +37,7 @@
     "node-fetch": "^2.7.0",
     "sax": "^1.2.4",
     "saxon-js": "^2.7.0",
-    "uuid": "^9.0.1",
+    "uuid": "^11.1.1",
     "xslt3": "^2.7.0"
   },
   "devDependencies": {

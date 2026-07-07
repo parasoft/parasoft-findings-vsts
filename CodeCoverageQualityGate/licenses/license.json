@@ -11,7 +11,7 @@
         "licenses": "MIT",
         "repository": "https://github.com/nodelib/nodelib.git#master"
     },
-    "adm-zip@0.5.10": {
+    "adm-zip@0.5.18": {
         "licenses": "MIT",
         "publisher": "Nasca Iacob",
         "repository": "https://github.com/cthackers/adm-zip"
@@ -21,12 +21,12 @@
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/node-agent-base"
     },
-    "azure-devops-node-api@12.1.0": {
+    "azure-devops-node-api@12.5.0": {
         "licenses": "MIT",
         "publisher": "Microsoft Corporation",
         "repository": "https://github.com/Microsoft/azure-devops-node-api"
     },
-    "azure-pipelines-task-lib@5.2.8": {
+    "azure-pipelines-task-lib@5.277.0": {
         "licenses": "MIT",
         "publisher": "Microsoft",
         "repository": "https://github.com/Microsoft/azure-pipelines-task-lib"
@@ -36,7 +36,7 @@
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/balanced-match"
     },
-    "brace-expansion@1.1.13": {
+    "brace-expansion@1.1.15": {
         "licenses": "MIT",
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/brace-expansion"
@@ -71,7 +71,7 @@
         "publisher": "André Cruz",
         "repository": "https://github.com/moxystudio/node-cross-spawn"
     },
-    "debug@4.3.4": {
+    "debug@4.4.3": {
         "licenses": "MIT",
         "publisher": "Josh Junon",
         "repository": "https://github.com/debug-js/debug"
@@ -95,7 +95,7 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/es-errors"
     },
-    "es-object-atoms@1.1.1": {
+    "es-object-atoms@1.1.2": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/es-object-atoms"
@@ -160,7 +160,7 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/inspect-js/has-symbols"
     },
-    "hasown@2.0.2": {
+    "hasown@2.0.4": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/inspect-js/hasOwn"
@@ -259,16 +259,16 @@
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/minimatch"
     },
-    "ms@2.1.2": {
+    "ms@2.1.3": {
         "licenses": "MIT",
-        "repository": "https://github.com/zeit/ms"
+        "repository": "https://github.com/vercel/ms"
     },
     "node-fetch@2.7.0": {
         "licenses": "MIT",
         "publisher": "David Frank",
         "repository": "https://github.com/bitinn/node-fetch"
     },
-    "nodejs-file-downloader@4.12.1": {
+    "nodejs-file-downloader@4.13.0": {
         "licenses": "ISC",
         "publisher": "ibrod83",
         "repository": "https://github.com/ibrod83/nodejs-file-downloader"
@@ -311,7 +311,7 @@
         "publisher": "Kris Kowal",
         "repository": "https://github.com/kriskowal/q"
     },
-    "qs@6.15.0": {
+    "qs@6.15.3": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/ljharb/qs"
     },
@@ -339,13 +339,13 @@
         "publisher": "Feross Aboukhadijeh",
         "repository": "https://github.com/feross/safe-buffer"
     },
-    "sanitize-filename@1.6.3": {
+    "sanitize-filename@1.6.4": {
         "licenses": "WTFPL OR ISC",
         "publisher": "Parsha Pourkhomami",
         "repository": "https://github.com/parshap/node-sanitize-filename"
     },
-    "sax@1.2.4": {
-        "licenses": "ISC",
+    "sax@1.6.0": {
+        "licenses": "BlueOak-1.0.0",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/sax-js"
     },
@@ -373,7 +373,7 @@
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/shelljs/shelljs"
     },
-    "side-channel-list@1.0.0": {
+    "side-channel-list@1.0.1": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/side-channel-list"
@@ -388,7 +388,7 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/side-channel-weakmap"
     },
-    "side-channel@1.1.0": {
+    "side-channel@1.1.1": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/side-channel"
@@ -437,8 +437,8 @@
         "publisher": "Jeremy Ashkenas",
         "repository": "https://github.com/jashkenas/underscore"
     },
-    "utf8-byte-length@1.0.4": {
-        "licenses": "WTFPL",
+    "utf8-byte-length@1.0.5": {
+        "licenses": "(WTFPL OR MIT)",
         "publisher": "Carl Xiong",
         "repository": "https://github.com/parshap/utf8-byte-length"
     },
@@ -446,10 +446,6 @@
         "licenses": "MIT",
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/util-deprecate"
-    },
-    "uuid@3.4.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/uuidjs/uuid"
     },
     "webidl-conversions@3.0.1": {
         "licenses": "BSD-2-Clause",
