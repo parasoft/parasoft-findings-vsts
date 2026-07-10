@@ -1,22 +1,5 @@
 [
     {
-        "purl" : "pkg:npm/pako@1.0.11",
-        "licenses" : [
-            {
-                "license" : {
-                    "id" : "MIT",
-                    "url" : "http://www.opensource.org/licenses/mit-license.php"
-                }
-            },
-            {
-                "license" : {
-                    "id" : "Zlib",
-                    "url" : "https://opensource.org/license/zlib/"
-                }
-            }
-        ]
-    },
-    {
         "purl": "pkg:npm/jszip@3.10.1",
         "licenses": [
             {
@@ -34,29 +17,24 @@
         ]
     },
     {
-        "purl": "pkg:npm/saxon-js@2.7.0",
-        "licenses": [
+        "purl" : "pkg:npm/pako@1.0.11",
+        "licenses" : [
             {
-                "license": {
-                    "name": "Saxonica Public License",
-                    "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
+                "license" : {
+                    "id" : "MIT",
+                    "url" : "http://www.opensource.org/licenses/mit-license.php"
+                }
+            },
+            {
+                "license" : {
+                    "id" : "Zlib",
+                    "url" : "https://opensource.org/license/zlib/"
                 }
             }
         ]
     },
     {
-        "purl": "pkg:npm/xslt3@2.7.0",
-        "licenses": [
-            {
-                "license": {
-                    "name": "Saxonica Public License",
-                    "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
-                }
-            }
-        ]
-    },
-    {
-        "purl": "pkg:npm/sanitize-filename@1.6.3",
+        "purl": "pkg:npm/sanitize-filename@1.6.4",
         "licenses": [
             {
                 "license": {
@@ -73,6 +51,28 @@
         ]
     },
     {
+        "purl" : "pkg:npm/sax@1.6.0",
+        "licenses" : [
+            {
+                "license" : {
+                    "id" : "BlueOak-1.0.0",
+                    "url" : "https://blueoakcouncil.org/license/1.0.0"
+                }
+            }
+        ]
+    },
+    {
+        "purl": "pkg:npm/saxon-js@2.7.0",
+        "licenses": [
+            {
+                "license": {
+                    "name": "Saxonica Public License",
+                    "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
+                }
+            }
+        ]
+    },
+    {
         "purl": "pkg:npm/truncate-utf8-bytes@1.0.2",
         "licenses": [
             {
@@ -84,12 +84,23 @@
         ]
     },
     {
-        "purl": "pkg:npm/utf8-byte-length@1.0.4",
+        "purl": "pkg:npm/utf8-byte-length@1.0.5",
         "licenses": [
             {
                 "license": {
                     "id": "WTFPL",
                     "url": "https://spdx.org/licenses/WTFPL.html"
+                }
+            }
+        ]
+    },
+    {
+        "purl": "pkg:npm/xslt3@2.7.0",
+        "licenses": [
+            {
+                "license": {
+                    "name": "Saxonica Public License",
+                    "url": "https://www.saxonica.com/saxon-js/documentation2/index.html#!conditions/public-license"
                 }
             }
         ]
