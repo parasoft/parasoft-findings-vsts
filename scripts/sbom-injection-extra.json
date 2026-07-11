@@ -6,6 +6,7 @@
       "name": "jline",
       "version": "2.14.6",
       "purl": "pkg:maven/jline/jline@2.14.6",
+	  "bom-ref": "pkg:maven/jline/jline@2.14.6",
       "licenses": [
         {
           "license": {
@@ -50,6 +51,7 @@
       "name": "ReportGenerator",
       "version": "5.1.21",
       "purl": "pkg:nuget/ReportGenerator@5.1.21",
+	  "bom-ref": "pkg:nuget/ReportGenerator@5.1.21",
       "licenses": [
         {
           "license": {
@@ -95,6 +97,7 @@
       "name": "Saxon-HE",
       "version": "12.2",
       "purl": "pkg:maven/net.sf.saxon/Saxon-HE@12.2",
+	  "bom-ref": "pkg:maven/net.sf.saxon/Saxon-HE@12.2",
       "licenses": [
         {
           "license": {
@@ -140,6 +143,7 @@
       "name": "xmlresolver",
       "version": "5.1.2",
       "purl": "pkg:maven/org.xmlresolver/xmlresolver@5.1.2",
+	  "bom-ref": "pkg:maven/org.xmlresolver/xmlresolver@5.1.2",
       "licenses": [
         {
           "license": {
