@@ -30,7 +30,7 @@
   "homepage": "https://github.com/parasoft/parasoft-findings-vsts#readme",
   "dependencies": {
     "azure-devops-node-api": "^12.1.0",
-    "azure-pipelines-task-lib": "^5.2.8",
+    "azure-pipelines-task-lib": "^5.281.0",
     "dot-properties": "^1.1.0",
     "jszip": "^3.10.1",
     "lodash": "^4.18.1",
