@@ -6,3 +6,32 @@ The Parasoft Findings extension is designed to be used in a post test-execution 
 - For test results, the number of passed/failed tests and result details will be displayed. Trending data in a graph for a simple visualization is also available.
 
 For documentation please visit the link [Parasoft Findings for Azure DevOps](https://www1.parasoft.com/doc/link?product=findingsVSTS010)
+
+## SOAtest transformation regression tests
+
+Install the root and `PublishParasoftResults` npm dependencies, and use Java 11 or newer
+from `JAVA_HOME` or `PATH`. From the repository root, run:
+
+```text
+npx tsc
+npm --prefix PublishParasoftResults run compilexsl
+node node_modules/jasmine/bin/jasmine.js spec/PublishParasoftTestResults/SoatestXunitTransformation.spec.js
+node node_modules/jasmine/bin/jasmine.js spec/PublishParasoftTestResults/ParaReportPublishService.spec.js --filter=SOATEST
+```
+
+The publisher checks load all generated SEFs, so `compilexsl` generates them for a fresh checkout.
+For the regression suite alone, `npm --prefix PublishParasoftResults run soatestxsl` is sufficient.
+
+The regression suite transforms six local reports with the bundled Java Saxon and
+the task's SaxonJS processor. It checks testcase counts, failure associations,
+message fallbacks, and retained diagnostics by parsing the output XML. Regenerate
+the SOAtest SEF before running the suite; compiled JavaScript and SEFs remain ignored.
+The tests run offline without a SOAtest installation, license, or server.
+
+Fixtures are stored in
+`spec/PublishParasoftTestResults/resources/reports/soatest-regression/` and match the
+sanitized canonical reports in Parasoft's XSLTTemplates regression suite.
+`SOAtest_functional_execution_violations.xml` and `association_edges.xml` are
+synthetic regression inputs. The visual-difference report and three Change Advisor
+reports are sanitized report captures. Keep these six canonical copies byte-identical
+when updating the fixtures.
