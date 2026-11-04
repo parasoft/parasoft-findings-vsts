@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic IDs deliberately collide if joined with '|', or without a boundary. -->
+<ResultsSession toolName="SOAtest" time="2026-10-27T01:02:03">
+  <Exec>
+    <ExecutedTestsDetails>
+      <Total total="8" fail="3" time="0:00:08.000">
+        <Project name="regression">
+          <TestSuite name="Edges" id="wk:///regression/edges.tst#root" total="8" fail="3" time="0:00:08.000">
+            <Test name="Left boundary" id="wk:///regression/edges.tst#root#alpha|beta" total="2" fail="1" time="0:00:02.000">
+              <TestCase id="gamma" time="0:00:01.000"/>
+              <TestCase id="pass" time="0:00:01.000"/>
+            </Test>
+            <Test name="Right boundary" id="wk:///regression/edges.tst#root#alpha" total="2" fail="1" time="0:00:02.000">
+              <TestCase id="|betagamma" time="0:00:01.000"/>
+              <TestCase id="beta|gamma" time="0:00:01.000"/>
+            </Test>
+            <!-- Missing IDs must never match violations whose association attributes are absent. -->
+            <Test name="Missing test ID" total="1" time="0:00:01.000"/>
+            <Test name="Missing case ID" id="wk:///regression/edges.tst#root#missing-case" total="2" time="0:00:02.000">
+              <TestCase time="0:00:01.000"/>
+              <TestCase id="known" time="0:00:01.000"/>
+            </Test>
+            <Test name="Whitespace message" id="wk:///regression/edges.tst#root#blank" total="1" fail="1" time="0:00:01.000"/>
+          </TestSuite>
+        </Project>
+      </Total>
+    </ExecutedTestsDetails>
+    <ExecViols>
+      <VisualDifference testId="wk:///regression/edges.tst#root#alpha|beta" tcId="gamma" msg="Left failure" violationDetails="Left details"/>
+      <ChangeImpact testId="wk:///regression/edges.tst#root#alpha" tcId="beta|gamma" msg="Right failure" violationDetails="Right details"/>
+      <FuncViol msg="Unassociated test failure"/>
+      <FuncViol testId="wk:///regression/edges.tst#root#missing-case" msg="Unassociated case failure"/>
+      <FutureViolation testId="wk:///regression/edges.tst#root#blank" msg=" &#x9;&#xA; "/>
+    </ExecViols>
+  </Exec>
+</ResultsSession>
