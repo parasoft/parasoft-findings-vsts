@@ -1,21 +1,4 @@
 {
-    "@nodelib/fs.scandir@2.1.5": {
-        "licenses": "MIT",
-        "repository": "https://github.com/nodelib/nodelib.git#master"
-    },
-    "@nodelib/fs.stat@2.0.5": {
-        "licenses": "MIT",
-        "repository": "https://github.com/nodelib/nodelib.git#master"
-    },
-    "@nodelib/fs.walk@1.2.8": {
-        "licenses": "MIT",
-        "repository": "https://github.com/nodelib/nodelib.git#master"
-    },
-    "adm-zip@0.5.18": {
-        "licenses": "MIT",
-        "publisher": "Nasca Iacob",
-        "repository": "https://github.com/cthackers/adm-zip"
-    },
     "agent-base@6.0.2": {
         "licenses": "MIT",
         "publisher": "Nathan Rajlich",
@@ -26,7 +9,7 @@
         "publisher": "Alex Indigo",
         "repository": "https://github.com/alexindigo/asynckit"
     },
-    "axios@1.18.1": {
+    "axios@1.21.1": {
         "licenses": "MIT",
         "publisher": "Matt Zabriskie",
         "repository": "https://github.com/axios/axios"
@@ -36,7 +19,7 @@
         "publisher": "Microsoft Corporation",
         "repository": "https://github.com/Microsoft/azure-devops-node-api"
     },
-    "azure-pipelines-task-lib@5.277.0": {
+    "azure-pipelines-task-lib@5.283.2": {
         "licenses": "MIT",
         "publisher": "Microsoft",
         "repository": "https://github.com/Microsoft/azure-pipelines-task-lib"
@@ -46,15 +29,10 @@
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/balanced-match"
     },
-    "brace-expansion@1.1.15": {
+    "brace-expansion@1.1.22": {
         "licenses": "MIT",
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/brace-expansion"
-    },
-    "braces@3.0.3": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/micromatch/braces"
     },
     "call-bind-apply-helpers@1.0.2": {
         "licenses": "MIT",
@@ -80,11 +58,6 @@
         "licenses": "MIT",
         "publisher": "Isaac Z. Schlueter",
         "repository": "https://github.com/isaacs/core-util-is"
-    },
-    "cross-spawn@7.0.6": {
-        "licenses": "MIT",
-        "publisher": "André Cruz",
-        "repository": "https://github.com/moxystudio/node-cross-spawn"
     },
     "debug@4.4.3": {
         "licenses": "MIT",
@@ -126,27 +99,7 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/es-shims/es-set-tostringtag"
     },
-    "execa@5.1.1": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/execa"
-    },
-    "fast-glob@3.3.3": {
-        "licenses": "MIT",
-        "publisher": "Denis Malinochkin",
-        "repository": "https://github.com/mrmlnc/fast-glob"
-    },
-    "fastq@1.20.1": {
-        "licenses": "ISC",
-        "publisher": "Matteo Collina",
-        "repository": "https://github.com/mcollina/fastq"
-    },
-    "fill-range@7.1.1": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/jonschlinkert/fill-range"
-    },
-    "follow-redirects@1.16.0": {
+    "follow-redirects@1.16.3": {
         "licenses": "MIT",
         "publisher": "Ruben Verborgh",
         "repository": "https://github.com/follow-redirects/follow-redirects"
@@ -170,16 +123,6 @@
         "licenses": "MIT",
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/get-proto"
-    },
-    "get-stream@6.0.1": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/get-stream"
-    },
-    "glob-parent@5.1.2": {
-        "licenses": "ISC",
-        "publisher": "Gulp Team",
-        "repository": "https://github.com/gulpjs/glob-parent"
     },
     "gopd@1.2.0": {
         "licenses": "MIT",
@@ -206,11 +149,6 @@
         "publisher": "Nathan Rajlich",
         "repository": "https://github.com/TooTallNate/node-https-proxy-agent"
     },
-    "human-signals@2.1.0": {
-        "licenses": "Apache-2.0",
-        "publisher": "ehmicky",
-        "repository": "https://github.com/ehmicky/human-signals"
-    },
     "immediate@3.0.6": {
         "licenses": "MIT",
         "repository": "https://github.com/calvinmetcalf/immediate"
@@ -219,35 +157,10 @@
         "licenses": "ISC",
         "repository": "https://github.com/isaacs/inherits"
     },
-    "is-extglob@2.1.1": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/jonschlinkert/is-extglob"
-    },
-    "is-glob@4.0.3": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/micromatch/is-glob"
-    },
-    "is-number@7.0.0": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/jonschlinkert/is-number"
-    },
-    "is-stream@2.0.1": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/is-stream"
-    },
     "isarray@1.0.0": {
         "licenses": "MIT",
         "publisher": "Julian Gruber",
         "repository": "https://github.com/juliangruber/isarray"
-    },
-    "isexe@2.0.0": {
-        "licenses": "ISC",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/isexe"
     },
     "jszip@3.10.1": {
         "licenses": "(MIT OR GPL-3.0-or-later)",
@@ -268,20 +181,6 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/es-shims/math-intrinsics"
     },
-    "merge-stream@2.0.0": {
-        "licenses": "MIT",
-        "publisher": "Stephen Sugden",
-        "repository": "https://github.com/grncdr/merge-stream"
-    },
-    "merge2@1.4.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/teambition/merge2"
-    },
-    "micromatch@4.0.8": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/micromatch/micromatch"
-    },
     "mime-db@1.52.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jshttp/mime-db"
@@ -289,11 +188,6 @@
     "mime-types@2.1.35": {
         "licenses": "MIT",
         "repository": "https://github.com/jshttp/mime-types"
-    },
-    "mimic-fn@2.1.0": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/mimic-fn"
     },
     "minimatch@3.1.5": {
         "licenses": "ISC",
@@ -314,34 +208,14 @@
         "publisher": "ibrod83",
         "repository": "https://github.com/ibrod83/nodejs-file-downloader"
     },
-    "npm-run-path@4.0.1": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/npm-run-path"
-    },
     "object-inspect@1.13.4": {
         "licenses": "MIT",
         "publisher": "James Halliday",
         "repository": "https://github.com/inspect-js/object-inspect"
     },
-    "onetime@5.1.2": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/onetime"
-    },
     "pako@1.0.11": {
         "licenses": "(MIT AND Zlib)",
         "repository": "https://github.com/nodeca/pako"
-    },
-    "path-key@3.1.1": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/path-key"
-    },
-    "picomatch@2.3.2": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/micromatch/picomatch"
     },
     "process-nextick-args@2.0.1": {
         "licenses": "MIT",
@@ -357,28 +231,13 @@
         "publisher": "Kris Kowal",
         "repository": "https://github.com/kriskowal/q"
     },
-    "qs@6.15.3": {
+    "qs@6.17.1": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/ljharb/qs"
-    },
-    "queue-microtask@1.2.3": {
-        "licenses": "MIT",
-        "publisher": "Feross Aboukhadijeh",
-        "repository": "https://github.com/feross/queue-microtask"
     },
     "readable-stream@2.3.8": {
         "licenses": "MIT",
         "repository": "https://github.com/nodejs/readable-stream"
-    },
-    "reusify@1.1.0": {
-        "licenses": "MIT",
-        "publisher": "Matteo Collina",
-        "repository": "https://github.com/mcollina/reusify"
-    },
-    "run-parallel@1.2.0": {
-        "licenses": "MIT",
-        "publisher": "Feross Aboukhadijeh",
-        "repository": "https://github.com/feross/run-parallel"
     },
     "safe-buffer@5.1.2": {
         "licenses": "MIT",
@@ -409,20 +268,6 @@
         "publisher": "YuzuJS",
         "repository": "https://github.com/YuzuJS/setImmediate"
     },
-    "shebang-command@2.0.0": {
-        "licenses": "MIT",
-        "publisher": "Kevin Mårtensson",
-        "repository": "https://github.com/kevva/shebang-command"
-    },
-    "shebang-regex@3.0.0": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/shebang-regex"
-    },
-    "shelljs@0.10.0": {
-        "licenses": "BSD-3-Clause",
-        "repository": "https://github.com/shelljs/shelljs"
-    },
     "side-channel-list@1.0.1": {
         "licenses": "MIT",
         "publisher": "Jordan Harband",
@@ -443,24 +288,9 @@
         "publisher": "Jordan Harband",
         "repository": "https://github.com/ljharb/side-channel"
     },
-    "signal-exit@3.0.7": {
-        "licenses": "ISC",
-        "publisher": "Ben Coe",
-        "repository": "https://github.com/tapjs/signal-exit"
-    },
     "string_decoder@1.1.1": {
         "licenses": "MIT",
         "repository": "https://github.com/nodejs/string_decoder"
-    },
-    "strip-final-newline@2.0.0": {
-        "licenses": "MIT",
-        "publisher": "Sindre Sorhus",
-        "repository": "https://github.com/sindresorhus/strip-final-newline"
-    },
-    "to-regex-range@5.0.1": {
-        "licenses": "MIT",
-        "publisher": "Jon Schlinkert",
-        "repository": "https://github.com/micromatch/to-regex-range"
     },
     "tr46@0.0.3": {
         "licenses": "MIT",
@@ -510,11 +340,6 @@
         "licenses": "MIT",
         "publisher": "Sebastian Mayr",
         "repository": "https://github.com/jsdom/whatwg-url"
-    },
-    "which@2.0.2": {
-        "licenses": "ISC",
-        "publisher": "Isaac Z. Schlueter",
-        "repository": "https://github.com/isaacs/node-which"
     },
     "xslt3@2.7.0": {
         "licenses": "Custom: LICENSE.txt",
